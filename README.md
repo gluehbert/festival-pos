@@ -40,6 +40,7 @@ Demo logins from `db:seed`: `admin` / `admin123` (password), `waiter1`, `kitchen
 - **Promotional prices** (Event → "Promotions"): time-based prices such as "Happy Hour 5–6 pm beer €3" or "from 10 pm bratwurst €2" – a fixed price or a discount in % or €, for items and/or whole categories, optionally only on certain weekdays or dates, also across midnight (times in `Europe/Berlin`). The price is calculated server-side when ordering and stored on the item together with the promotion's name; deposit stays unchanged. If promotions overlap, the **lowest price** applies (no stacking), and on a tie the promotion that names the item individually wins; a promotion can only lower prices. Menu and waiter pad show the old price struck through with "Happy Hour until 18:00"; if the server books a different price than shown (a promotion started or ended), a notice shows the booked prices. The "Promotions" report shows quantity, revenue and discount per promotion.
 - **Legal notice & privacy policy** per event (Admin → Design), shown as links at the bottom of the guest pages.
 - **Print a receipt** after payment (not a tax receipt).
+- **Automatic retry when the network is busy**: ordering and collecting payment retry by themselves (after 1, 2, 4 and 8 seconds, at most 20 seconds in total). The button shows "attempt n of 4" and can be cancelled. If it is unclear whether a payment was booked, simply collect again: the same request is never booked twice.
 
 ## Environment variables
 

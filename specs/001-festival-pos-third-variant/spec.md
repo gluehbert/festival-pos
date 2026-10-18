@@ -145,6 +145,7 @@ The admin opens a dashboard for the active event showing: total gross revenue, r
 - Two service devices try to collect payment simultaneously → payment lock with default timeout 60 s; auto-release with a warning to the next staff member.
 - Vercel cold start delays the first request after inactivity → critical read endpoints (menu, table status) are briefly (≤ 5 s) cacheable server-side so that the display stays smooth.
 - The free tier's database connection limit is briefly reached → the endpoint responds with 503 + retry hint, the client shows a non-blocking notice and retries on the next poll.
+- An overloaded Wi-Fi or mobile network drops or delays a request to place an order or book a payment → the client retries automatically with backoff (1, 2, 4, 8 s, at most 20 s, 10 s timeout per attempt) using the same `Idempotency-Key`. Business errors (4xx) are not retried. After cancelling or giving up, the key is kept, so tapping again finds the order or payment that may already be booked.
 - Free-tier function invocations run low → polling intervals can be stretched globally via an admin setting without breaking functional flows.
 
 ## Requirements *(mandatory)*
@@ -256,7 +257,7 @@ The following entities are adopted from the canonical .NET variant and simplifie
 
 - **Phase 2 — Realtime**: If polling load strains the free tier or the UX should improve, a separate **Hono/WS service** can be extracted for the push channels of the kitchen/bar/service queue. The functional flows of this specification MUST remain unchanged; only the transport changes.
 - **Background cleanup**: Implemented as a daily Vercel Cron (FR-042).
-- **Phase 2 — Offline order queue**: True offline capability for guest orders with an IndexedDB queue and replay; introduce only if the complexity is clearly sustainable.
+- **Phase 2 — Offline order queue**: True offline capability for guest orders with an IndexedDB queue and replay; introduce only if the complexity is clearly sustainable. Trigger for re-evaluation: more than two failed sends at one festival evening despite the automatic retry.
 - **Phase 2 — Card payment, TSE, receipt numbers**: Explicitly excluded in the MVP; a separate specification is required.
 
 ## Added since the spec
