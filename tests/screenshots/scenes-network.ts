@@ -8,7 +8,7 @@ import { waiterOnAll } from './scenes-staff.ts'
 // Table 3 pays: opens the pay page with the whole selection ready.
 async function openPayPage(ctx: Ctx) {
   const page = await waiterOnAll(ctx)
-  await page.getByRole('link', { name: /tisch 3\b/i }).click()
+  await page.getByRole('link', { name: /table 3\b/i }).click()
   await page.getByRole('button', { name: /cash out/i }).click()
   await page.locator('[data-test="pay-submit"]').waitFor()
   return page
