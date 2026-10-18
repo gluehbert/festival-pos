@@ -48,7 +48,7 @@ async function paidWithTip(ctx: Ctx, table: number, items: RegExp[], given: stri
 
 export const staffPayTip: Scene = async (ctx) => {
   const page = await waiterOnAll(ctx)
-  await page.getByRole('link', { name: /tisch 3\b/i }).click()
+  await page.getByRole('link', { name: /table 3\b/i }).click()
   await page.getByRole('button', { name: /cash out/i }).click()
   await page.locator('[data-test="pay-given"]').fill('20')
   await page.locator('[data-test="tip-change"]').click()
