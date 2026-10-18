@@ -5,9 +5,9 @@ import { useAuthStore } from '~/stores/auth'
 import { useCashStore } from '~/stores/cash'
 import { useFormat } from '~/composables/useFormat'
 import { parseEuroInput } from '~/utils/euro-input'
+import ConfirmDialog from '~/components/common/ConfirmDialog.vue'
 import CashBreakdown from '~/components/staff/CashBreakdown.vue'
 
-const { t } = useI18n()
 const { dateTime } = useFormat()
 const auth = useAuthStore()
 const cash = useCashStore()
@@ -17,6 +17,8 @@ const countedInput = ref('')
 const note = ref('')
 const openingCents = computed(() => parseEuroInput(openingInput.value))
 const countedCents = computed(() => parseEuroInput(countedInput.value))
+const confirming = ref(false)
+const differs = computed(() => cash.session !== null && countedCents.value !== null && countedCents.value !== cash.session.expectedCents)
 
 onMounted(async () => {
   if (!auth.isAuthenticated && !(await auth.refresh())) {
@@ -31,9 +33,13 @@ async function openDrawer() {
   if (await cash.open(openingCents.value)) openingInput.value = ''
 }
 
+function askClose() {
+  if (countedCents.value !== null) confirming.value = true
+}
+
 async function closeDrawer() {
+  confirming.value = false
   if (countedCents.value === null) return
-  if (!window.confirm(t('staff.cash.confirmClose'))) return
   if (await cash.close(countedCents.value, note.value.trim() || undefined)) {
     countedInput.value = ''
     note.value = ''
@@ -51,6 +57,9 @@ const inputClass = 'min-h-[52px] w-40 rounded-lg border-2 border-slate-300 bg-su
     <h1 class="text-2xl font-bold text-slate-900">
       {{ $t('staff.cash.title') }}
     </h1>
+    <p class="text-xs text-slate-500" data-test="cash-internal-note">
+      {{ $t('staff.cash.internalNote') }}
+    </p>
 
     <p v-if="cash.error" class="mt-3 rounded bg-rose-50 px-3 py-2 text-sm text-rose-700" role="alert">
       {{ cash.error }}
@@ -83,7 +92,7 @@ const inputClass = 'min-h-[52px] w-40 rounded-lg border-2 border-slate-300 bg-su
         <CashBreakdown :session="cash.session" :counted-cents="countedCents" />
       </div>
 
-      <form class="space-y-3 rounded-lg border border-slate-200 bg-surface p-4" @submit.prevent="closeDrawer">
+      <form class="space-y-3 rounded-lg border border-slate-200 bg-surface p-4" @submit.prevent="askClose">
         <label class="flex items-center justify-between gap-3 font-semibold">
           {{ $t('staff.cash.countedLabel') }}
           <input v-model="countedInput" inputmode="decimal" :class="inputClass" data-test="cash-counted" placeholder="0,00">
@@ -118,5 +127,20 @@ const inputClass = 'min-h-[52px] w-40 rounded-lg border-2 border-slate-300 bg-su
         {{ $t('staff.cash.open') }}
       </button>
     </form>
+
+    <ConfirmDialog
+      :open="confirming"
+      :title="$t('staff.cash.closeTitle')"
+      :confirm-label="$t('staff.cash.close')"
+      :danger="differs"
+      :busy="cash.busy"
+      @confirm="closeDrawer"
+      @cancel="confirming = false"
+    >
+      <CashBreakdown v-if="cash.session" :session="cash.session" :counted-cents="countedCents" />
+      <p class="mt-2 text-slate-500">
+        {{ $t('staff.cash.confirmClose') }}
+      </p>
+    </ConfirmDialog>
   </main>
 </template>

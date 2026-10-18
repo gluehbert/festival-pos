@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { navigateTo, useI18n } from '#imports'
 import AdminNav from '~/components/admin/AdminNav.vue'
+import SecretResetForm from '~/components/admin/SecretResetForm.vue'
 import StaffForm from '~/components/admin/StaffForm.vue'
 import StaffPasskeys from '~/components/admin/StaffPasskeys.vue'
 import { useAuthStore } from '~/stores/auth'
@@ -14,6 +15,7 @@ const store = useStaffAdminStore()
 const toast = ref<{ kind: 'success' | 'error'; text: string } | null>(null)
 const busyId = ref<string | null>(null)
 const passkeysOpen = ref<string | null>(null)
+const resettingId = ref<string | null>(null)
 
 onMounted(async () => {
   if (!auth.isAuthenticated && !(await auth.refresh())) {
@@ -53,20 +55,20 @@ async function run(member: StaffDto, patch: Parameters<typeof store.update>[1], 
   try {
     await store.update(member.id, patch)
     showToast('success', message)
+    return true
   }
   catch (e) {
     showToast('error', errorText(e))
+    return false
   }
   finally {
     busyId.value = null
   }
 }
 
-function resetSecret(member: StaffDto) {
-  const isAdmin = member.role === 'admin'
-  const value = window.prompt(isAdmin ? t('admin.staff.newPassword') : t('admin.staff.newPin'))
-  if (!value) return
-  void run(member, isAdmin ? { password: value } : { pin: value }, t('admin.staff.secretChanged'))
+async function resetSecret(member: StaffDto, value: string) {
+  const ok = await run(member, member.role === 'admin' ? { password: value } : { pin: value }, t('admin.staff.secretChanged'))
+  if (ok) resettingId.value = null
 }
 </script>
 
@@ -112,7 +114,7 @@ function resetSecret(member: StaffDto) {
           <span class="flex-1 text-xs text-slate-500">
             {{ m.hasPassword ? $t('admin.staff.password') : '' }}{{ m.hasPassword && m.hasPin ? ' · ' : '' }}{{ m.hasPin ? $t('admin.staff.pin') : '' }}
           </span>
-          <button type="button" class="min-h-[44px] rounded border border-slate-300 px-3" :disabled="busyId === m.id" @click="resetSecret(m)">
+          <button type="button" class="min-h-[44px] rounded border border-slate-300 px-3" :disabled="busyId === m.id" @click="resettingId = m.id">
             {{ m.role === 'admin' ? $t('admin.staff.resetPassword') : $t('admin.staff.resetPin') }}
           </button>
           <button
@@ -133,6 +135,13 @@ function resetSecret(member: StaffDto) {
           >
             {{ m.isActive ? $t('admin.staff.deactivate') : $t('admin.staff.activate') }}
           </button>
+          <SecretResetForm
+            v-if="resettingId === m.id"
+            :is-admin="m.role === 'admin'"
+            :busy="busyId === m.id"
+            @submit="resetSecret(m, $event)"
+            @cancel="resettingId = null"
+          />
           <StaffPasskeys v-if="passkeysOpen === m.id" :staff-id="m.id" :username="m.username" @message="showToast" />
         </li>
       </ul>

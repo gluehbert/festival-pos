@@ -14,6 +14,9 @@
       "light": "Light",
       "dark": "Dark"
     },
+    "dialog": {
+      "cancel": "Cancel"
+    },
     "menuTabs": {
       "label": "Categories",
       "popular": "Frequent",
@@ -344,7 +347,9 @@
       "countedLabel": "Counted cash (€)",
       "noteLabel": "Remark (optional)",
       "close": "Close drawer",
-      "confirmClose": "Close the drawer now? The expected amount will be fixed.",
+      "internalNote": "Internal control, not a tax-compliant cash closing",
+      "closeTitle": "Close the drawer now?",
+      "confirmClose": "The expected amount will be fixed.",
       "closedTitle": "Drawer closed",
       "depositReturned": "Deposit returns"
     },
@@ -388,7 +393,9 @@
       "createdAt": "Set up {at}",
       "lastUsed": "Last used {at}",
       "remove": "Remove {name}",
-      "confirmRemove": "Remove passkey \"{name}\"? You can no longer sign in with it.",
+      "removeTitle": "Remove passkey?",
+      "removeAction": "Remove",
+      "confirmRemove": "Passkey \"{name}\" will be removed. You can no longer sign in with it.",
       "removed": "Passkey removed.",
       "removeFailed": "Removing failed.",
       "loadFailed": "Could not load passkeys.",
@@ -651,6 +658,7 @@
       "failed": "Download failed."
     },
     "reports": {
+      "internalNote": "Internal control, not a tax-compliant cash closing",
       "exportCsv": "Export CSV",
       "empty": "No data in current period.",
       "sections": {
@@ -753,8 +761,8 @@
       "failed": "Action failed.",
       "resetPassword": "Change password",
       "resetPin": "Change PIN",
-      "newPassword": "New password (min. 12 characters):",
-      "newPin": "New PIN (4–8 digits):",
+      "newPassword": "New password",
+      "newPin": "New PIN",
       "secretChanged": "Credentials changed.",
       "deactivate": "Deactivate",
       "activate": "Activate",
@@ -771,7 +779,8 @@
         "toggle": "Passkeys",
         "empty": "No passkeys set up.",
         "remove": "Remove",
-        "confirmRemove": "Remove passkey \"{name}\" of {user}? {user} will be signed out on all devices.",
+        "removeTitle": "Remove passkey?",
+        "confirmRemove": "Passkey \"{name}\" of {user} will be removed. {user} will be signed out on all devices.",
         "removed": "Passkey removed, all sessions ended.",
         "removeFailed": "Removing failed.",
         "loadFailed": "Could not load passkeys."
@@ -959,7 +968,8 @@
       "share": "Share link",
       "copied": "Link copied",
       "renew": "Create new link",
-      "renewConfirm": "The current link will stop working. People already in stay signed in. Continue?",
+      "renewTitle": "Create a new link?",
+      "renewConfirm": "The current link will stop working. People already in stay signed in.",
       "waiting": "Waiting to be let in ({n})",
       "nobodyWaiting": "Nobody is waiting right now.",
       "approveAll": "Let all in",

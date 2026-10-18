@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import ConfirmDialog from '~/components/common/ConfirmDialog.vue'
 import { useApi } from '~/composables/useApi'
 import { useFormat } from '~/composables/useFormat'
 import type { PasskeyDto, PasskeyList } from '~/../server/lib/contracts/passkeys'
@@ -23,8 +24,12 @@ onMounted(async () => {
   }
 })
 
-async function remove(p: PasskeyDto) {
-  if (!window.confirm(t('admin.staff.passkeys.confirmRemove', { name: p.name, user: props.username }))) return
+const removing = ref<PasskeyDto | null>(null)
+
+async function remove() {
+  const p = removing.value
+  if (!p) return
+  removing.value = null
   busy.value = true
   try {
     await useApi().del(`/api/admin/staff/${props.staffId}/passkeys/${p.id}`)
@@ -54,10 +59,20 @@ async function remove(p: PasskeyDto) {
           <span class="font-medium text-slate-800">{{ p.name }}</span>
           <span class="ml-2 text-slate-500">{{ p.lastUsedAt ? $t('staff.passkeys.lastUsed', { at: dateTime(p.lastUsedAt) }) : $t('staff.passkeys.createdAt', { at: dateTime(p.createdAt) }) }}</span>
         </span>
-        <button type="button" class="min-h-[44px] rounded px-3 font-semibold text-rose-700 hover:bg-rose-50" :disabled="busy" @click="remove(p)">
+        <button type="button" class="min-h-[44px] rounded px-3 font-semibold text-rose-700 hover:bg-rose-50" :disabled="busy" @click="removing = p">
           {{ $t('admin.staff.passkeys.remove') }}
         </button>
       </li>
     </ul>
+    <ConfirmDialog
+      :open="removing !== null"
+      :title="$t('admin.staff.passkeys.removeTitle')"
+      :confirm-label="$t('admin.staff.passkeys.remove')"
+      danger
+      @confirm="remove"
+      @cancel="removing = null"
+    >
+      {{ $t('admin.staff.passkeys.confirmRemove', { name: removing?.name ?? '', user: username }) }}
+    </ConfirmDialog>
   </div>
 </template>

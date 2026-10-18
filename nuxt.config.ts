@@ -44,12 +44,6 @@ export default defineNuxtConfig({
       version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'dev',
       // One-tap login buttons on preview deployments (server checks again).
       previewLogin: process.env.VERCEL_ENV === 'preview',
-      pollingIntervals: {
-        adminMs: 5000,
-        guestMs: 8000,
-        productionMs: 4000,
-        staffMs: 4000,
-      },
     },
   },
   i18n: {

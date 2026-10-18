@@ -14,6 +14,9 @@
       "light": "Hell",
       "dark": "Dunkel"
     },
+    "dialog": {
+      "cancel": "Abbrechen"
+    },
     "menuTabs": {
       "label": "Kategorien",
       "popular": "Häufig",
@@ -344,7 +347,9 @@
       "countedLabel": "Gezählter Betrag (€)",
       "noteLabel": "Bemerkung (optional)",
       "close": "Kasse abschließen",
-      "confirmClose": "Kasse jetzt abschließen? Der Soll-Betrag wird festgeschrieben.",
+      "internalNote": "Interne Kontrolle, kein steuerlicher Kassenabschluss",
+      "closeTitle": "Kasse jetzt abschließen?",
+      "confirmClose": "Der Soll-Betrag wird festgeschrieben.",
       "closedTitle": "Kasse abgeschlossen",
       "depositReturned": "Pfandrückgabe"
     },
@@ -388,7 +393,9 @@
       "createdAt": "Eingerichtet {at}",
       "lastUsed": "Zuletzt genutzt {at}",
       "remove": "{name} entfernen",
-      "confirmRemove": "Passkey „{name}“ entfernen? Danach ist die Anmeldung damit nicht mehr möglich.",
+      "removeTitle": "Passkey entfernen?",
+      "removeAction": "Entfernen",
+      "confirmRemove": "Passkey „{name}“ wird entfernt. Danach ist die Anmeldung damit nicht mehr möglich.",
       "removed": "Passkey entfernt.",
       "removeFailed": "Entfernen fehlgeschlagen.",
       "loadFailed": "Passkeys konnten nicht geladen werden.",
@@ -651,6 +658,7 @@
       "failed": "Download fehlgeschlagen."
     },
     "reports": {
+      "internalNote": "Interne Kontrolle, kein steuerlicher Kassenabschluss",
       "exportCsv": "CSV exportieren",
       "empty": "Keine Daten im aktuellen Zeitraum.",
       "sections": {
@@ -753,8 +761,8 @@
       "failed": "Aktion fehlgeschlagen.",
       "resetPassword": "Passwort ändern",
       "resetPin": "PIN ändern",
-      "newPassword": "Neues Passwort (mind. 12 Zeichen):",
-      "newPin": "Neue PIN (4–8 Ziffern):",
+      "newPassword": "Neues Passwort",
+      "newPin": "Neue PIN",
       "secretChanged": "Zugangsdaten geändert.",
       "deactivate": "Deaktivieren",
       "activate": "Aktivieren",
@@ -771,7 +779,8 @@
         "toggle": "Passkeys",
         "empty": "Keine Passkeys eingerichtet.",
         "remove": "Entfernen",
-        "confirmRemove": "Passkey „{name}“ von {user} entfernen? {user} wird dabei auf allen Geräten abgemeldet.",
+        "removeTitle": "Passkey entfernen?",
+        "confirmRemove": "Passkey „{name}“ von {user} wird entfernt. {user} wird dabei auf allen Geräten abgemeldet.",
         "removed": "Passkey entfernt, alle Sitzungen beendet.",
         "removeFailed": "Entfernen fehlgeschlagen.",
         "loadFailed": "Passkeys konnten nicht geladen werden."
@@ -959,7 +968,8 @@
       "share": "Link teilen",
       "copied": "Link kopiert",
       "renew": "Neuen Link erzeugen",
-      "renewConfirm": "Der bisherige Link funktioniert dann nicht mehr. Wer schon drin ist, bleibt angemeldet. Fortfahren?",
+      "renewTitle": "Neuen Link erzeugen?",
+      "renewConfirm": "Der bisherige Link funktioniert dann nicht mehr. Wer schon drin ist, bleibt angemeldet.",
       "waiting": "Warten auf Freigabe ({n})",
       "nobodyWaiting": "Gerade wartet niemand.",
       "approveAll": "Alle freigeben",

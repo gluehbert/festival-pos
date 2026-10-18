@@ -37,9 +37,9 @@ test.describe('@smoke Passkey login', () => {
     const row = page.locator('[data-test="passkey-row"]').first()
     await expect(row).toContainText(/admin/)
     await expect(row).toContainText(/last used/i)
-    page.once('dialog', (d) => void d.accept())
     const removed = page.waitForResponse((r) => r.url().includes('/api/auth/passkeys/') && r.request().method() === 'DELETE')
     await row.getByRole('button').click()
+    await page.locator('[data-test="confirm-ok"]').click()
     expect((await removed).ok()).toBe(true)
 
     // The device still holds the key, but the server no longer accepts it.

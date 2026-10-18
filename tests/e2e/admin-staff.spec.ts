@@ -29,6 +29,14 @@ test.describe('@smoke Admin manages staff accounts', () => {
     await expect(waiterPage).toHaveURL(/\/staff$/)
 
     const row = page.getByRole('listitem').filter({ hasText: username })
+
+    // PIN reset happens inline in the row, not in a browser prompt.
+    await row.getByRole('button', { name: /change pin/i }).click()
+    await row.locator('[data-test="secret-input"]').fill('13579')
+    await row.locator('[data-test="secret-save"]').click()
+    await expect(page.getByRole('status')).toContainText(/credentials changed/i)
+    await expect(row.locator('[data-test="secret-reset"]')).toHaveCount(0)
+
     // Wait for the server to store it: /activate/ alone would also match the
     // "Deactivate" button and pass before the request has landed.
     const saved = page.waitForResponse((r) => r.url().includes('/api/admin/staff/') && r.request().method() === 'PATCH')

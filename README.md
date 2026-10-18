@@ -40,6 +40,8 @@ Demo logins from `db:seed`: `admin` / `admin123` (password), `waiter1`, `kitchen
 - **Promotional prices** (Event → "Promotions"): time-based prices such as "Happy Hour 5–6 pm beer €3" or "from 10 pm bratwurst €2" – a fixed price or a discount in % or €, for items and/or whole categories, optionally only on certain weekdays or dates, also across midnight (times in `Europe/Berlin`). The price is calculated server-side when ordering and stored on the item together with the promotion's name; deposit stays unchanged. If promotions overlap, the **lowest price** applies (no stacking), and on a tie the promotion that names the item individually wins; a promotion can only lower prices. Menu and waiter pad show the old price struck through with "Happy Hour until 18:00"; if the server books a different price than shown (a promotion started or ended), a notice shows the booked prices. The "Promotions" report shows quantity, revenue and discount per promotion.
 - **Legal notice & privacy policy** per event (Admin → Design), shown as links at the bottom of the guest pages.
 - **Print a receipt** after payment (not a tax receipt).
+- **Rehearsal mode** does not change stock levels, and cancellations in rehearsal mode give nothing back. "Delete test data" removes only test data. "End rehearsal" also resets table assignments and "asked at the table" marks, so the festival starts clean.
+- **Confirmations** (closing the drawer, removing a passkey, renewing the join link) appear as the app's own dialog. Changing a PIN or password happens inline in the row under Admin → Staff.
 - **Automatic retry when the network is busy**: ordering and collecting payment retry by themselves (after 1, 2, 4 and 8 seconds, at most 20 seconds in total). The button shows "attempt n of 4" and can be cancelled. If it is unclear whether a payment was booked, simply collect again: the same request is never booked twice.
 
 ## Environment variables
@@ -93,7 +95,7 @@ This app is an ordering system, not a certified cash register. In some countries
 
 Before the app books real money at an actual festival, there are two options:
 
-1. **Run it as an ordering system only.** The app forwards orders to kitchen and bar and shows the open amount. Cash is settled separately through an **open cash box** with a cash report (opening float, closing balance, withdrawals, takings). The app's reports and cash closing are then internal aids only, not a cash record; the printed receipt is not a tax receipt.
+1. **Run it as an ordering system only.** The app forwards orders to kitchen and bar and shows the open amount. Cash is settled separately through an **open cash box** with a cash report (opening float, closing balance, withdrawals, takings). The app's reports and cash closing are then internal aids only, not a cash record; the printed receipt is not a tax receipt. The cash and reports pages say so in a short note: "Internal control, not a tax-compliant cash closing".
 2. **Ask a tax advisor first** whether and how the specific use (charitable or commercial activity, revenue level, type of cash register) is permitted.
 
 ### Data protection
