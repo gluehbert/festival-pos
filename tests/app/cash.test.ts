@@ -43,6 +43,16 @@ describe('euro input', () => {
 })
 
 describe('cash store', () => {
+  it('remembers the ended event whose drawer is still open', async () => {
+    const s = useCashStore()
+    fetchMock.mockResolvedValueOnce({ session, otherEventName: 'Sommerfest' })
+    await s.load()
+    expect(s.otherEventName).toBe('Sommerfest')
+    fetchMock.mockResolvedValueOnce({ ...session, closedAt: '2026-06-14T23:00:00.000Z', countedCents: 16_900, differenceCents: 0 })
+    await s.close(16_900)
+    expect(s.otherEventName).toBeNull()
+  })
+
   it('loads, opens and closes the drawer', async () => {
     const s = useCashStore()
     fetchMock.mockResolvedValueOnce({ session: null })

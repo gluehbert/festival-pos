@@ -78,4 +78,56 @@ describe('cash drawer — contract', () => {
     expect(csv.body.split('\r\n')[0]).toContain('expectedCents;countedCents;differenceCents')
     expect(csv.body).toContain(';ben;')
   })
+
+  describe('after the event was ended', () => {
+    const END = '../../server/api/admin/events/[id]/end.post'
+    let waiter: { staffId: string; role: 'waiter'; username: string }
+
+    beforeEach(async () => {
+      waiter = { staffId: insertStaff('waiter', 'cleo'), role: 'waiter' as const, username: 'cleo' }
+      await call(`${SESSION}.post`, { method: 'POST', staff: waiter, body: { openingCents: 10_000 } })
+      ctx.mem.public.none(`INSERT INTO payments (event_id, staff_id, total_cents) VALUES ('${seeded.eventId}', '${waiter.staffId}', 2500)`)
+      await call(END, { method: 'POST', staff: { staffId: seeded.staffId, role: 'admin' as never }, params: { id: seeded.eventId } })
+    })
+
+    it('still shows the open drawer and names the event', async () => {
+      const res = await call<{ session: { openingCents: number; collectedCents: number }; otherEventName: string }>(`${SESSION}.get`, { staff: waiter })
+      expect(res.status).toBe(200)
+      expect(res.body.session).toMatchObject({ openingCents: 10_000, collectedCents: 2500 })
+      expect(res.body.otherEventName).toBe('Demo')
+    })
+
+    it('closes the drawer with the Soll of its own event', async () => {
+      const next = (ctx.mem.public.one(
+        `INSERT INTO events (name, pin_code, table_range_from, table_range_to, is_active) VALUES ('Neu', 'NEU1', 1, 5, true) RETURNING id`,
+      ) as { id: string }).id
+      // Cash taken at the new event must not leak into the old drawer.
+      ctx.mem.public.none(`INSERT INTO payments (event_id, staff_id, total_cents) VALUES ('${next}', '${waiter.staffId}', 999)`)
+      const closed = await call<{ expectedCents: number; differenceCents: number; closedAt: string }>(`${SESSION}/close.post`, {
+        method: 'POST',
+        staff: waiter,
+        body: { countedCents: 12_400 },
+      })
+      expect(closed.status).toBe(200)
+      expect(closed.body).toMatchObject({ expectedCents: 12_500, differenceCents: -100 })
+      expect(closed.body.closedAt).toEqual(expect.any(String))
+      const again = await call(`${SESSION}/close.post`, { method: 'POST', staff: waiter, body: { countedCents: 0 } })
+      expect(again.status).toBe(404)
+    })
+
+    it('shows a drawer of the live event before an older one and names no other event', async () => {
+      const next = (ctx.mem.public.one(
+        `INSERT INTO events (name, pin_code, table_range_from, table_range_to, is_active) VALUES ('Neu', 'NEU1', 1, 5, true) RETURNING id`,
+      ) as { id: string }).id
+      ctx.mem.public.none(`INSERT INTO cash_sessions (event_id, staff_id, opening_cents) VALUES ('${next}', '${waiter.staffId}', 300)`)
+      const res = await call<{ session: { openingCents: number }; otherEventName: null }>(`${SESSION}.get`, { staff: waiter })
+      expect(res.body.session.openingCents).toBe(300)
+      expect(res.body.otherEventName).toBeNull()
+    })
+
+    it('answers an empty drawer without a live event as before', async () => {
+      const other = { staffId: insertStaff('waiter'), role: 'waiter' as const }
+      expect((await call(`${SESSION}.get`, { staff: other })).status).toBe(404)
+    })
+  })
 })

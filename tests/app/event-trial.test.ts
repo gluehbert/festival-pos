@@ -18,6 +18,7 @@ const ev = (over: Partial<EventDto> = {}): EventDto => ({
   tableRangeTo: 20,
   createdAt: '2026-05-01T10:00:00.000Z',
   activatedAt: '2026-05-01T10:00:00.000Z',
+  deactivatedAt: null,
   startsOn: null,
   endsOn: null,
   trialMode: false,

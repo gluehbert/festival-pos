@@ -351,7 +351,8 @@
       "closeTitle": "Close the drawer now?",
       "confirmClose": "The expected amount will be fixed.",
       "closedTitle": "Drawer closed",
-      "depositReturned": "Deposit returns"
+      "depositReturned": "Deposit returns",
+      "otherEvent": "Cash drawer from the event \"{name}\" is still open. Please count and close it."
     },
     "deposit": {
       "nav": "Deposit back",
@@ -563,7 +564,8 @@
       "noneLive": "No event is live right now. Open an event and activate it so guests can order.",
       "others": "Other events",
       "noOthers": "No other events.",
-      "cancelNew": "Cancel"
+      "cancelNew": "Cancel",
+      "endedOn": "Ended on {date}"
     },
     "status": {
       "draft": "Draft",
@@ -594,7 +596,6 @@
       "currentlyLive": "\"{name}\" is live right now.",
       "nothingLive": "No event is live right now.",
       "confirmActivate": "\"{name}\" goes live: guests order from this price list from now on.",
-      "confirmEnds": "This ends \"{name}\".",
       "confirmActivateButton": "Go live now",
       "reactivate": "Activate again",
       "setup": {
@@ -603,7 +604,9 @@
         "menu": "Items and prices",
         "menuCount": "no items yet | 1 item | {n} items",
         "qr": "Print table QR codes"
-      }
+      },
+      "endLiveFirst": "End the running event first.",
+      "toLive": "Go to \"{name}\""
     },
     "menu": {
       "new": "New item",
@@ -983,6 +986,38 @@
       "unlock": "Unlock",
       "inactiveHint": "This event is not active: the link only works once it is activated.",
       "failed": "Did not work. Please try again."
+    },
+    "end": {
+      "section": "End event",
+      "hint": "When the fest is over: the event is ended and guests can no longer order. You see what is still open first.",
+      "button": "End event",
+      "title": "End \"{name}\"?",
+      "allClear": "Everything is settled. End the event now?",
+      "openTables": "No open table | 1 open table, {sum} open | {n} open tables, {sum} open",
+      "tableList": "Table {list}",
+      "openCash": "No open cash drawer | 1 cash drawer not closed yet | {n} cash drawers not closed yet",
+      "cashLine": "{name}, open since {since}",
+      "undelivered": "No finished item left at the pass | 1 item is finished but not at the table yet | {n} items are finished but not at the table yet",
+      "confirm": "End event",
+      "confirmAnyway": "End anyway",
+      "confirmFinal": "Yes, end now",
+      "armed": "Open amounts are recorded as not collected.",
+      "done": "Event ended."
+    },
+    "delete": {
+      "title": "Delete event permanently",
+      "intro": "Only for ended events. Save all reports first, then delete. This cannot be undone.",
+      "export": "Download all reports as CSV",
+      "exportAgain": "Download reports again",
+      "exported": "All reports downloaded.",
+      "exportFailed": "A report could not be downloaded. Please try again.",
+      "button": "Delete event",
+      "needsExport": "Download the reports first.",
+      "dialogTitle": "Delete \"{name}\" permanently?",
+      "warning": "Orders, payments, cash counts and helper accounts of this event will be deleted permanently. Clarify retention periods first.",
+      "typeName": "Type the event name to confirm: {name}",
+      "confirm": "Delete permanently",
+      "done": "Event deleted."
     }
   },
   "errors": {},

@@ -34,5 +34,7 @@ export type CashSessionDto = z.infer<typeof CashSessionSchema>
 
 export const CurrentCashSessionSchema = z.object({
   session: CashSessionSchema.nullable(),
+  // Set when the open drawer belongs to an event that has ended.
+  otherEventName: z.string().nullable(),
 })
 export type CurrentCashSession = z.infer<typeof CurrentCashSessionSchema>

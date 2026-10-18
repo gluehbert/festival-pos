@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, isNull, lte, sql } from 'drizzle-orm'
 import type { Db } from '../db/client'
-import { payments, staff } from '../db/schema'
+import { events, payments, staff } from '../db/schema'
 import { cashSessions, depositReturns, refunds, type CashSession } from '../db/schema-cash'
 import type { CashSessionDto } from './contracts/cash'
 
@@ -88,6 +88,24 @@ export async function findOpenSession(db: Db, eventId: string, staffId: string):
     .where(and(eq(cashSessions.eventId, eventId), eq(cashSessions.staffId, staffId), isNull(cashSessions.closedAt)))
     .limit(1)
   return rows[0] ?? null
+}
+
+// The waiter's open drawer whatever the event: the one of the live event
+// first, otherwise one left open at an ended event so it can still be closed.
+// `otherEventName` is set when the drawer does not belong to the live event.
+export async function findOpenSessionAnyEvent(
+  db: Db,
+  staffId: string,
+): Promise<{ session: CashSession; otherEventName: string | null } | null> {
+  const rows = await db
+    .select({ s: cashSessions, name: events.name, live: events.isActive })
+    .from(cashSessions)
+    .innerJoin(events, eq(events.id, cashSessions.eventId))
+    .where(and(eq(cashSessions.staffId, staffId), isNull(cashSessions.closedAt)))
+    .orderBy(desc(events.isActive), desc(cashSessions.openedAt))
+    .limit(1)
+  const row = rows[0]
+  return row ? { session: row.s, otherEventName: row.live ? null : row.name } : null
 }
 
 // All drawers of an event for the admin report, newest first.

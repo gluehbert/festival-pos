@@ -65,6 +65,10 @@ const inputClass = 'min-h-[52px] w-40 rounded-lg border-2 border-slate-300 bg-su
       {{ cash.error }}
     </p>
 
+    <p v-if="cash.otherEventName" class="mt-3 rounded bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900" role="status" data-test="cash-other-event">
+      {{ $t('staff.cash.otherEvent', { name: cash.otherEventName }) }}
+    </p>
+
     <section v-if="cash.lastClosed" class="mt-4 rounded-lg border border-slate-200 bg-surface p-4" aria-live="polite">
       <h2 class="flex items-center gap-2 font-semibold text-slate-900">
         <UIcon name="i-lucide-circle-check" class="size-5 text-emerald-600 shrink-0" aria-hidden="true" /> {{ $t('staff.cash.closedTitle') }}

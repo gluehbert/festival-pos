@@ -50,6 +50,8 @@ export const EventSchema = z.object({
   tableRangeTo: z.number().int(),
   createdAt: z.string().datetime(),
   activatedAt: z.string().datetime().nullable(),
+  // Set when the event was ended; the event can then be deleted for good.
+  deactivatedAt: z.string().datetime().nullable(),
   startsOn: z.string().nullable(),
   endsOn: z.string().nullable(),
   trialMode: z.boolean(),
@@ -69,6 +71,19 @@ export const TrialResetSchema = z.object({
   event: EventSchema,
 })
 export type TrialReset = z.infer<typeof TrialResetSchema>
+
+// What is still open when an event is ended (shown to the admin, stored in the audit log).
+export const EndCheckSchema = z.object({
+  openTables: z.object({
+    count: z.number().int().nonnegative(),
+    totalCents: z.number().int().nonnegative(),
+    tableNos: z.array(z.number().int()),
+  }),
+  openCashSessions: z.array(z.object({ username: z.string(), openedAt: z.string().datetime() })),
+  // Finished at the kitchen/bar but not brought to the table yet.
+  undeliveredItems: z.number().int().nonnegative(),
+})
+export type EndCheck = z.infer<typeof EndCheckSchema>
 
 export const EventsListSchema = z.object({
   events: z.array(EventSchema),

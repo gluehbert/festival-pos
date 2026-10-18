@@ -6,6 +6,7 @@ import type {
   AdminMenuList,
   CreateEvent,
   CreateMenuItem,
+  EndCheck,
   EventDto,
   EventsList,
   MenuImportResult,
@@ -54,6 +55,27 @@ export const useAdminStore = defineStore('admin', () => {
         : { ...e, isActive: false },
     )
     return res
+  }
+
+  async function fetchEndCheck(id: string): Promise<EndCheck> {
+    return await useApi().get<EndCheck>(`/api/admin/events/${id}/end-check`)
+  }
+
+  async function endEvent(id: string): Promise<EventDto> {
+    const res = await useApi().post<EventDto>(`/api/admin/events/${id}/end`)
+    replaceEvent(res)
+    return res
+  }
+
+  // Only the request: the caller leaves the event's workspace first and then
+  // calls dropEvent, or the workspace would flash "not found" while the
+  // delete dialog is still being closed.
+  async function deleteEvent(id: string): Promise<void> {
+    await useApi().del(`/api/admin/events/${id}`)
+  }
+
+  function dropEvent(id: string) {
+    events.value = events.value.filter((e) => e.id !== id)
   }
 
   function replaceEvent(ev: EventDto) {
@@ -187,6 +209,10 @@ export const useAdminStore = defineStore('admin', () => {
     fetchEvents,
     createEvent,
     activateEvent,
+    fetchEndCheck,
+    endEvent,
+    deleteEvent,
+    dropEvent,
     setTrialMode,
     setFeatures,
     deleteTrialData,

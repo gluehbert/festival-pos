@@ -351,7 +351,8 @@
       "closeTitle": "Kasse jetzt abschließen?",
       "confirmClose": "Der Soll-Betrag wird festgeschrieben.",
       "closedTitle": "Kasse abgeschlossen",
-      "depositReturned": "Pfandrückgabe"
+      "depositReturned": "Pfandrückgabe",
+      "otherEvent": "Kasse vom Event „{name}“ noch offen. Bitte zählen und abschließen."
     },
     "deposit": {
       "nav": "Pfand zurück",
@@ -563,7 +564,8 @@
       "noneLive": "Gerade ist kein Event live. Öffne ein Event und aktiviere es, damit Gäste bestellen können.",
       "others": "Weitere Events",
       "noOthers": "Keine weiteren Events.",
-      "cancelNew": "Abbrechen"
+      "cancelNew": "Abbrechen",
+      "endedOn": "Beendet am {date}"
     },
     "status": {
       "draft": "Entwurf",
@@ -594,7 +596,6 @@
       "currentlyLive": "Live ist gerade „{name}“.",
       "nothingLive": "Gerade ist kein Event live.",
       "confirmActivate": "„{name}“ wird live: Gäste bestellen ab sofort von dieser Preisliste.",
-      "confirmEnds": "„{name}“ wird damit beendet.",
       "confirmActivateButton": "Jetzt live schalten",
       "reactivate": "Wieder aktivieren",
       "setup": {
@@ -603,7 +604,9 @@
         "menu": "Artikel und Preise",
         "menuCount": "noch keine Artikel | 1 Artikel | {n} Artikel",
         "qr": "Tisch-QR-Codes drucken"
-      }
+      },
+      "endLiveFirst": "Erst das laufende Event beenden.",
+      "toLive": "Zu „{name}“"
     },
     "menu": {
       "new": "Neuer Eintrag",
@@ -983,6 +986,38 @@
       "unlock": "Entsperren",
       "inactiveHint": "Dieses Event ist nicht aktiv: Der Link funktioniert erst, wenn es aktiviert ist.",
       "failed": "Hat nicht geklappt. Bitte erneut versuchen."
+    },
+    "end": {
+      "section": "Event beenden",
+      "hint": "Wenn das Fest vorbei ist: Das Event wird beendet, Gäste können nicht mehr bestellen. Vorher siehst du, was noch offen ist.",
+      "button": "Event beenden",
+      "title": "„{name}“ beenden?",
+      "allClear": "Alles abgeschlossen. Event jetzt beenden?",
+      "openTables": "Kein offener Tisch | 1 offener Tisch, {sum} offen | {n} offene Tische, {sum} offen",
+      "tableList": "Tisch {list}",
+      "openCash": "Keine offene Kasse | 1 Kasse noch nicht abgeschlossen | {n} Kassen noch nicht abgeschlossen",
+      "cashLine": "{name}, offen seit {since}",
+      "undelivered": "Keine fertige Position nicht gebracht | 1 Position ist fertig, aber noch nicht am Tisch | {n} Positionen sind fertig, aber noch nicht am Tisch",
+      "confirm": "Event beenden",
+      "confirmAnyway": "Trotzdem beenden",
+      "confirmFinal": "Ja, jetzt beenden",
+      "armed": "Offene Beträge werden als nicht kassiert festgehalten.",
+      "done": "Event beendet."
+    },
+    "delete": {
+      "title": "Event endgültig löschen",
+      "intro": "Nur für beendete Events. Erst alle Berichte sichern, dann löschen. Das lässt sich nicht rückgängig machen.",
+      "export": "Alle Berichte als CSV herunterladen",
+      "exportAgain": "Berichte erneut herunterladen",
+      "exported": "Alle Berichte heruntergeladen.",
+      "exportFailed": "Ein Bericht konnte nicht heruntergeladen werden. Bitte noch einmal versuchen.",
+      "button": "Event löschen",
+      "needsExport": "Zuerst die Berichte herunterladen.",
+      "dialogTitle": "„{name}“ endgültig löschen?",
+      "warning": "Bestellungen, Zahlungen, Kassenabschlüsse und Helferkonten dieses Events werden unwiderruflich gelöscht. Aufbewahrungsfristen vorher klären.",
+      "typeName": "Zur Bestätigung den Eventnamen eintippen: {name}",
+      "confirm": "Endgültig löschen",
+      "done": "Event gelöscht."
     }
   },
   "errors": {},

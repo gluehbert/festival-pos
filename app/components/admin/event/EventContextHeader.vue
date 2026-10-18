@@ -79,9 +79,6 @@ async function activate() {
     <div v-else-if="confirming" class="mt-3 rounded border border-slate-300 bg-surface p-3" role="alert">
       <p class="text-sm text-slate-900">
         {{ $t('admin.workspace.confirmActivate', { name: event.name }) }}
-        <template v-if="live">
-          {{ $t('admin.workspace.confirmEnds', { name: live.name }) }}
-        </template>
       </p>
       <div class="mt-2 flex flex-wrap gap-2">
         <button
@@ -96,6 +93,16 @@ async function activate() {
           {{ $t('admin.trial.cancel') }}
         </button>
       </div>
+    </div>
+
+    <div v-else-if="live" class="mt-3 flex flex-wrap items-center gap-2 text-sm">
+      <span class="font-semibold text-slate-900">{{ $t('admin.workspace.endLiveFirst') }}</span>
+      <NuxtLink
+        :to="`/admin/events/${live.id}`"
+        class="inline-flex min-h-[44px] items-center rounded border border-slate-300 bg-surface px-3 font-semibold text-slate-800"
+      >
+        {{ $t('admin.workspace.toLive', { name: live.name }) }}
+      </NuxtLink>
     </div>
 
     <div v-else class="mt-3">
