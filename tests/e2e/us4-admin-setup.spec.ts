@@ -62,7 +62,7 @@ test.describe('@smoke US4 — admin setup', () => {
 
     // Ending the live event shows the check list first. Afterwards it is
     // ended and may be reactivated, so the other specs keep a live event.
-    await page.getByRole('link', { name: /alle events/i }).click()
+    await page.getByRole('link', { name: /all events/i }).click()
     await openLiveEvent(page)
     await page.locator('[data-test="event-end-open"]').click()
     const confirm = page.locator('[data-test="confirm-ok"]')
