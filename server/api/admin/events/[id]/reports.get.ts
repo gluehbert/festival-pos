@@ -16,7 +16,7 @@ import {
 } from '../../../../lib/reports'
 import { reportToCsv } from '../../../../lib/reports-csv'
 import { loadCashSessions } from '../../../../lib/cash-sessions'
-import { loadDeposits, loadPriceRuleSales, loadStaffMeals } from '../../../../lib/reports-extra'
+import { loadDeposits, loadPriceRuleSales, loadStaffMeals, loadTips } from '../../../../lib/reports-extra'
 import { eventIdParam, loadEvent } from '../../../../lib/events'
 import { loadAssignments } from '../../../../lib/table-assignments'
 import { loadAppUsage } from '../../../../lib/reports-usage'
@@ -35,6 +35,8 @@ async function loadRows(
       return loadVoids(db, eventId)
     case 'payments_by_staff':
       return loadPaymentsByStaff(db, eventId)
+    case 'tips':
+      return loadTips(db, eventId)
     case 'orders_per_hour':
       return loadOrdersPerHour(db, eventId)
     case 'cash_sessions':

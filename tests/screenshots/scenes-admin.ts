@@ -2,7 +2,7 @@ import type { Ctx, Scene } from './scenes.ts'
 import { ensureService } from './scenes-staff.ts'
 import { loginStaff, openEventTab, openLiveEvent } from './setup.ts'
 
-async function adminOnEvent(ctx: Ctx, tab?: string) {
+export async function adminOnEvent(ctx: Ctx, tab?: string) {
   const { page } = await ctx.open('admin')
   await loginStaff(page, 'admin', 'admin123', 'password')
   await openLiveEvent(page)

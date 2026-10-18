@@ -9,18 +9,22 @@ const num = (v: unknown) => Number(v ?? 0)
 
 interface Flows {
   collectedCents: number
+  tipCents: number
   refundedCents: number
   depositReturnedCents: number // negative
 }
 
-// Cash this waiter took in and handed back while the drawer was open.
+// Cash this waiter took in (tips included) and handed back while the drawer was open.
 // Refunds count against the waiter who collected the payment, like the
 // per-staff report; deposit returns against the waiter who paid them out.
 export async function cashFlows(db: Db, s: CashSession, until: Date): Promise<Flows> {
   const window = (col: typeof payments.createdAt | typeof refunds.createdAt | typeof depositReturns.createdAt) =>
     and(gte(col, toDate(s.openedAt)), lte(col, until))
   const [paid] = await db
-    .select({ total: sql<number>`COALESCE(SUM(${payments.totalCents}), 0)` })
+    .select({
+      total: sql<number>`COALESCE(SUM(${payments.totalCents}), 0)`,
+      tips: sql<number>`COALESCE(SUM(${payments.tipCents}), 0)`,
+    })
     .from(payments)
     .where(and(
       eq(payments.eventId, s.eventId),
@@ -49,13 +53,14 @@ export async function cashFlows(db: Db, s: CashSession, until: Date): Promise<Fl
     ))
   return {
     collectedCents: num(paid?.total),
+    tipCents: num(paid?.tips),
     refundedCents: num(refunded?.total),
     depositReturnedCents: num(returned?.total),
   }
 }
 
 export function expectedFrom(openingCents: number, f: Flows): number {
-  return openingCents + f.collectedCents - f.refundedCents + f.depositReturnedCents
+  return openingCents + f.collectedCents + f.tipCents - f.refundedCents + f.depositReturnedCents
 }
 
 function toDate(d: Date | string): Date {

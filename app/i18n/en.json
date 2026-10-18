@@ -263,7 +263,17 @@
       "successChange": "{amount} collected · change {change}",
       "doneTitle": "All paid",
       "toOverview": "Back to overview",
-      "submitFree": "Close without payment (€0)"
+      "submitFree": "Close without payment (€0)",
+      "tip": {
+        "label": "Tip",
+        "change": "Change as tip",
+        "roundUp": "Round up",
+        "line": "Bill {bill} + tip {tip} = {total}",
+        "confirm": "Tip {tip}, is that right? Tap to book",
+        "success": "{amount} collected, {tip} tip",
+        "successChange": "{amount} collected, {tip} tip · change {change}",
+        "done": "Tip {tip}"
+      }
     },
     "void": {
       "title": "Void item",
@@ -352,7 +362,9 @@
       "confirmClose": "The expected amount will be fixed.",
       "closedTitle": "Drawer closed",
       "depositReturned": "Deposit returns",
-      "otherEvent": "Cash drawer from the event \"{name}\" is still open. Please count and close it."
+      "otherEvent": "Cash drawer from the event \"{name}\" is still open. Please count and close it.",
+      "tip": "Tips",
+      "tipHint": "Tips stay in the drawer and are shared out after the festival."
     },
     "deposit": {
       "nav": "Deposit back",
@@ -675,7 +687,9 @@
         "staffMeals": "Staff meals",
         "promos": "Promotions",
         "tableAssignments": "Tables per waiter",
-        "usage": "App usage"
+        "usage": "App usage",
+        "tips": "Tips",
+        "tipsTotal": "Total"
       },
       "col": {
         "category": "Category",
@@ -693,7 +707,9 @@
         "netCash": "Net cash",
         "tableCount": "Tables",
         "tables": "Table numbers",
-        "guestOrderCount": "of which by app"
+        "guestOrderCount": "of which by app",
+        "tip": "Tips",
+        "tipCount": "Payments with tip"
       },
       "cash": {
         "openedAt": "Opened",
@@ -705,8 +721,10 @@
         "expected": "Expected",
         "counted": "Counted",
         "difference": "Difference",
-        "depositReturned": "Deposit back"
+        "depositReturned": "Deposit back",
+        "tip": "Tips"
       },
+      "tipsHint": "Not revenue: tips stay in the drawer and count towards the expected amount. Test mode and refunds do not change them.",
       "revenueHint": "Paid items only, without deposit, net of refunds. Item name and category as at the time of ordering.",
       "depositHint": "Deposit is not revenue: collected with paid items, paid back via deposit returns.",
       "deposit": {
@@ -1101,6 +1119,8 @@
     "hide": "Hide receipt",
     "dismiss": "Close receipt",
     "total": "Total",
+    "tip": "Tip",
+    "grandTotal": "Grand total",
     "deposit": "Deposit",
     "depositIncluded": "of which deposit",
     "servedBy": "Served by: {name}",

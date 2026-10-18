@@ -25,9 +25,19 @@ test.describe('@smoke US2 — staff cashes at table', () => {
     await page.locator('[data-test="owner-all"]').click()
     await page.getByRole('link', { name: /table 4\b/i }).click()
     await page.getByRole('button', { name: /cash out/i }).click()
+    // Other specs may leave open items on this table, so the bill is not
+    // fixed: €20 given, the whole change goes in as tip, bill + tip = €20.
+    await page.locator('[data-test="pay-given"]').fill('20')
+    await page.locator('[data-test="tip-change"]').click()
+    await expect(page.locator('[data-test="tip-line"]')).toContainText(/= €20\.00/)
+    await expect(page.locator('[data-test="pay-submit"]')).toContainText(/20\.00/)
     await collectPayment(page)
 
-    // A fully paid ticket shows the result, then the table is empty again.
+    // A fully paid ticket shows the result, the tip and the receipt with it.
+    await expect(page.locator('[data-test="pay-done-tip"]')).toBeVisible()
+    await page.getByRole('button', { name: /show receipt/i }).click()
+    await expect(page.locator('[data-test="receipt-tip"]')).toBeVisible()
+    await expect(page.locator('[data-test="receipt-grand-total"]')).toContainText(/20\.00/)
     await finishPayment(page)
     await expect(page.getByRole('link', { name: /table 4\b/i })).toContainText(/empty/i)
   })

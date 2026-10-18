@@ -26,6 +26,9 @@ const diffClass = (d: number | null) => (d === null || d === 0 ? '' : d < 0 ? 't
             {{ $t('admin.reports.cash.collected') }}
           </th>
           <th class="py-2 pr-3 text-right">
+            {{ $t('admin.reports.cash.tip') }}
+          </th>
+          <th class="py-2 pr-3 text-right">
             {{ $t('admin.reports.cash.refunded') }}
           </th>
           <th class="py-2 pr-3 text-right">
@@ -61,6 +64,9 @@ const diffClass = (d: number | null) => (d === null || d === 0 ? '' : d < 0 ? 't
             {{ euro(r.collectedCents) }}
           </td>
           <td class="py-2 pr-3 text-right tabular-nums text-slate-500">
+            {{ r.tipCents > 0 ? euro(r.tipCents) : '–' }}
+          </td>
+          <td class="py-2 pr-3 text-right tabular-nums text-slate-500">
             {{ r.refundedCents > 0 ? euro(r.refundedCents) : '–' }}
           </td>
           <td class="py-2 pr-3 text-right tabular-nums text-slate-500">
@@ -77,7 +83,7 @@ const diffClass = (d: number | null) => (d === null || d === 0 ? '' : d < 0 ? 't
           </td>
         </tr>
         <tr v-if="rows.length === 0">
-          <td colspan="9" class="py-4 text-center text-slate-500">
+          <td colspan="10" class="py-4 text-center text-slate-500">
             {{ $t('admin.reports.empty') }}
           </td>
         </tr>

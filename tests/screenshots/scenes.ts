@@ -8,6 +8,7 @@ import { guestCart, guestMenu, guestStatus } from './scenes-guest.ts'
 import { staffCash, staffGrid, staffOrder, staffPay, staffTable } from './scenes-staff.ts'
 import { adminStaffResetInline, staffCashCloseDialog, staffCashNote } from './scenes-dialogs.ts'
 import { adminDelete, adminEndCheck, adminEndClean, staffCashOtherEvent } from './scenes-event.ts'
+import { adminReportsTips, staffCashTip, staffPayDoneTip, staffPayTip } from './scenes-pay.ts'
 import { guestSending, staffPaySending, staffPayUnconfirmed } from './scenes-network.ts'
 import { adminEvent, adminMenu, adminReports, productionOrders } from './scenes-admin.ts'
 
@@ -31,6 +32,10 @@ const SCENES: Record<string, Scene> = {
   'staff-pay': staffPay,
   'staff-order': staffOrder,
   'staff-cash': staffCash,
+  'staff-pay-tip': staffPayTip,
+  'staff-pay-done-tip': staffPayDoneTip,
+  'staff-cash-tip': staffCashTip,
+  'admin-reports-tips': adminReportsTips,
   'production-orders': productionOrders,
   'admin-event': adminEvent,
   'admin-menu': adminMenu,

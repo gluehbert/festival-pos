@@ -20,10 +20,10 @@ function print() {
 
 <template>
   <div v-if="payments.lastReceipt" class="mt-3 rounded-lg border border-slate-200 bg-surface p-3" data-test="last-receipt">
-    <div class="flex flex-wrap items-center gap-2">
-      <p class="flex-1 text-sm text-slate-700">
-        {{ $t('receipt.last', { amount: euro(payments.lastReceipt.totalCents) }) }}
-      </p>
+    <p class="text-sm text-slate-700">
+      {{ $t('receipt.last', { amount: euro(payments.lastReceipt.totalCents) }) }}
+    </p>
+    <div class="mt-2 flex items-center gap-2">
       <button type="button" class="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white" data-test="print-receipt" @click="print">
         <UIcon name="i-lucide-printer" class="size-4 shrink-0" aria-hidden="true" /> {{ $t('receipt.print') }}
       </button>
@@ -32,7 +32,7 @@ function print() {
       </button>
       <button
         type="button"
-        class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"
+        class="ml-auto inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100"
         :aria-label="$t('receipt.dismiss')"
         @click="payments.lastReceipt = null"
       >

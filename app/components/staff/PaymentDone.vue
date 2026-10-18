@@ -4,7 +4,7 @@ import LastReceipt from '~/components/staff/LastReceipt.vue'
 
 // Shown once the ticket is fully paid: what was taken, the change to hand
 // back and the receipt, before the waiter goes back to the overview.
-defineProps<{ amountCents: number; changeCents: number | null }>()
+defineProps<{ amountCents: number; tipCents: number; changeCents: number | null }>()
 const { euro } = useFormat()
 </script>
 
@@ -16,6 +16,9 @@ const { euro } = useFormat()
     </p>
     <p class="mt-1 text-3xl font-bold text-slate-900" data-test="pay-done-amount">
       {{ $t('staff.pay.success', { amount: euro(amountCents) }) }}
+    </p>
+    <p v-if="tipCents > 0" class="mt-1 text-base font-semibold text-slate-700" data-test="pay-done-tip">
+      {{ $t('staff.pay.tip.done', { tip: euro(tipCents) }) }}
     </p>
     <p v-if="changeCents !== null" class="mt-2 text-xl font-bold text-emerald-700" data-test="pay-done-change">
       {{ $t('staff.pay.change', { amount: euro(changeCents) }) }}

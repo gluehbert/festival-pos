@@ -36,6 +36,16 @@ const { euro, dateTime, itemName } = useFormat()
       <span>{{ $t('receipt.total') }}</span>
       <span class="tabular-nums" data-test="receipt-total">{{ euro(receipt.totalCents) }}</span>
     </p>
+    <template v-if="receipt.tipCents > 0">
+      <p class="flex justify-between">
+        <span>{{ $t('receipt.tip') }}</span>
+        <span class="tabular-nums" data-test="receipt-tip">{{ euro(receipt.tipCents) }}</span>
+      </p>
+      <p class="flex justify-between text-base font-bold">
+        <span>{{ $t('receipt.grandTotal') }}</span>
+        <span class="tabular-nums" data-test="receipt-grand-total">{{ euro(receipt.totalCents + receipt.tipCents) }}</span>
+      </p>
+    </template>
     <p v-if="receipt.depositCents > 0" class="flex justify-between text-xs">
       <span>{{ $t('receipt.depositIncluded') }}</span>
       <span class="tabular-nums">{{ euro(receipt.depositCents) }}</span>

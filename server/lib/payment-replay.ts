@@ -36,9 +36,9 @@ export async function findBookedPayment(
   eventId: string,
   staffId: string,
   key: string,
-): Promise<{ id: string; totalCents: number } | null> {
+): Promise<{ id: string; totalCents: number; tipCents: number } | null> {
   const rows = await db
-    .select({ id: payments.id, totalCents: payments.totalCents })
+    .select({ id: payments.id, totalCents: payments.totalCents, tipCents: payments.tipCents })
     .from(payments)
     .where(and(eq(payments.eventId, eventId), eq(payments.staffId, staffId), eq(payments.idempotencyKey, key)))
     .limit(1)

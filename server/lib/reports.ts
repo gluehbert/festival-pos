@@ -152,6 +152,7 @@ export async function loadPaymentsByStaff(
       username: staff.username,
       paymentCount: sql<number>`COUNT(${payments.id})`,
       total: sql<number>`COALESCE(SUM(${payments.totalCents}), 0)`,
+      tips: sql<number>`COALESCE(SUM(${payments.tipCents}), 0)`,
     })
     .from(payments)
     .innerJoin(staff, eq(staff.id, payments.staffId))
@@ -175,6 +176,7 @@ export async function loadPaymentsByStaff(
         paymentCount: Number(r.paymentCount ?? 0),
         totalCents: Number(r.total ?? 0) - refundedCents,
         refundedCents,
+        tipCents: Number(r.tips ?? 0),
       }
     })
     .sort((a, b) => b.totalCents - a.totalCents)

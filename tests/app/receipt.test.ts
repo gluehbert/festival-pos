@@ -17,11 +17,12 @@ const receipt: Receipt = {
     { nameDe: 'Wurst', nameEn: 'Sausage', quantity: 1, unitPriceCents: 450, depositCents: 0, note: 'no mustard' },
   ],
   totalCents: 1650,
+  tipCents: 0,
   depositCents: 400,
   paidAt: '2026-06-14T18:30:00.000Z',
   staffUsername: 'anna',
 }
-const payment: PaymentResponse = { paymentId: receipt.paymentId, totalCents: 1650, ticketStatusAfter: 'paid', receipt }
+const payment: PaymentResponse = { paymentId: receipt.paymentId, totalCents: 1650, tipCents: 0, ticketStatusAfter: 'paid', receipt }
 
 const fetchMock = vi.fn()
 beforeEach(() => {

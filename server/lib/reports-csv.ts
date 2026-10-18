@@ -20,7 +20,8 @@ const COLUMNS: Record<ReportType, string[]> = {
   revenue_by_category: ['category', 'totalCents', 'itemCount'],
   top_items: ['menuItemId', 'nameDe', 'nameEn', 'quantity', 'totalCents'],
   voids: ['orderItemId', 'nameDe', 'nameEn', 'reason', 'voidedAt', 'voidedByStaffId', 'refundedCents'],
-  payments_by_staff: ['staffId', 'username', 'paymentCount', 'totalCents', 'refundedCents'],
+  payments_by_staff: ['staffId', 'username', 'paymentCount', 'totalCents', 'refundedCents', 'tipCents'],
+  tips: ['staffId', 'username', 'paymentCount', 'tipCents'],
   orders_per_hour: ['hour', 'orderCount', 'guestOrderCount'],
   staff_meals: ['menuItemId', 'nameDe', 'nameEn', 'quantity', 'valueCents'],
   table_assignments: ['tableNo', 'username', 'staffId', 'assignedAt'],
@@ -28,7 +29,7 @@ const COLUMNS: Record<ReportType, string[]> = {
   app_usage: ['tableNo', 'scans', 'orderingDevices', 'guestOrders', 'staffOrders', 'guestItems', 'staffItems'],
   deposits: ['unitCents', 'issuedQuantity', 'issuedCents', 'returnedQuantity', 'returnedCents', 'balanceCents'],
   cash_sessions: [
-    'id', 'username', 'openedAt', 'closedAt', 'openingCents', 'collectedCents', 'refundedCents',
+    'id', 'username', 'openedAt', 'closedAt', 'openingCents', 'collectedCents', 'tipCents', 'refundedCents',
     'depositReturnedCents', 'expectedCents', 'countedCents', 'differenceCents', 'note',
   ],
 }

@@ -7,6 +7,7 @@ import RevenueTable from '~/components/admin/reports/RevenueTable.vue'
 import TopItemsTable from '~/components/admin/reports/TopItemsTable.vue'
 import VoidsTable from '~/components/admin/reports/VoidsTable.vue'
 import PerStaffTable from '~/components/admin/reports/PerStaffTable.vue'
+import TipsTable from '~/components/admin/reports/TipsTable.vue'
 import OrdersPerHourTable from '~/components/admin/reports/OrdersPerHourTable.vue'
 import CashSessionsTable from '~/components/admin/reports/CashSessionsTable.vue'
 import DepositsTable from '~/components/admin/reports/DepositsTable.vue'
@@ -26,6 +27,7 @@ import type {
   ReportType,
   RevenueByCategoryRow,
   StaffMealReportRow,
+  TipRow,
   TopItemRow,
   VoidRow,
 } from '~/../server/lib/contracts/reports'
@@ -56,6 +58,7 @@ const revenue = poll<RevenueByCategoryRow>('revenue_by_category')
 const topItems = poll<TopItemRow>('top_items')
 const voids = poll<VoidRow>('voids')
 const perStaff = poll<PaymentsByStaffRow>('payments_by_staff')
+const tips = poll<TipRow>('tips')
 const perHour = poll<OrdersPerHourRow>('orders_per_hour')
 const cashSessions = poll<CashSessionDto>('cash_sessions')
 const deposits = poll<DepositReportRow>('deposits')
@@ -115,6 +118,14 @@ const usage = poll<AppUsageRow>('app_usage')
     </ReportSection>
     <ReportSection :title="t('admin.reports.sections.perStaff')" :event-id="event.id" type="payments_by_staff">
       <PerStaffTable :rows="perStaff" />
+    </ReportSection>
+    <ReportSection
+      :title="t('admin.reports.sections.tips')"
+      :hint="t('admin.reports.tipsHint')"
+      :event-id="event.id"
+      type="tips"
+    >
+      <TipsTable :rows="tips" />
     </ReportSection>
     <ReportSection :title="t('admin.reports.sections.cashSessions')" :event-id="event.id" type="cash_sessions">
       <CashSessionsTable :rows="cashSessions" />

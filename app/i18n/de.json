@@ -263,7 +263,17 @@
       "successChange": "{amount} kassiert · Rückgeld {change}",
       "doneTitle": "Alles bezahlt",
       "toOverview": "Zur Übersicht",
-      "submitFree": "Ohne Zahlung abschließen (0 €)"
+      "submitFree": "Ohne Zahlung abschließen (0 €)",
+      "tip": {
+        "label": "Trinkgeld",
+        "change": "Rückgeld als Trinkgeld",
+        "roundUp": "Aufrunden",
+        "line": "Rechnung {bill} + Trinkgeld {tip} = {total}",
+        "confirm": "Trinkgeld {tip}, stimmt das? Zum Buchen tippen",
+        "success": "{amount} kassiert, {tip} Trinkgeld",
+        "successChange": "{amount} kassiert, {tip} Trinkgeld · Rückgeld {change}",
+        "done": "Trinkgeld {tip}"
+      }
     },
     "void": {
       "title": "Position stornieren",
@@ -352,7 +362,9 @@
       "confirmClose": "Der Soll-Betrag wird festgeschrieben.",
       "closedTitle": "Kasse abgeschlossen",
       "depositReturned": "Pfandrückgabe",
-      "otherEvent": "Kasse vom Event „{name}“ noch offen. Bitte zählen und abschließen."
+      "otherEvent": "Kasse vom Event „{name}“ noch offen. Bitte zählen und abschließen.",
+      "tip": "Trinkgeld",
+      "tipHint": "Trinkgeld bleibt in der Kasse und wird nach dem Fest verteilt."
     },
     "deposit": {
       "nav": "Pfand zurück",
@@ -675,7 +687,9 @@
         "staffMeals": "Helferverpflegung",
         "promos": "Aktionen",
         "tableAssignments": "Tische pro Bedienung",
-        "usage": "App-Nutzung"
+        "usage": "App-Nutzung",
+        "tips": "Trinkgeld",
+        "tipsTotal": "Gesamt"
       },
       "col": {
         "category": "Kategorie",
@@ -693,7 +707,9 @@
         "netCash": "Kasse netto",
         "tableCount": "Tische",
         "tables": "Tischnummern",
-        "guestOrderCount": "davon per App"
+        "guestOrderCount": "davon per App",
+        "tip": "Trinkgeld",
+        "tipCount": "Zahlungen mit Trinkgeld"
       },
       "cash": {
         "openedAt": "Geöffnet",
@@ -705,8 +721,10 @@
         "expected": "Soll",
         "counted": "Gezählt",
         "difference": "Differenz",
-        "depositReturned": "Pfand zurück"
+        "depositReturned": "Pfand zurück",
+        "tip": "Trinkgeld"
       },
+      "tipsHint": "Kein Umsatz: Trinkgeld bleibt in der Kasse und zählt zum Soll. Probelauf und Erstattungen ändern es nicht.",
       "revenueHint": "Nur bezahlte Positionen, ohne Pfand, abzüglich Erstattungen. Artikelname und Kategorie wie zum Bestellzeitpunkt.",
       "depositHint": "Pfand ist kein Umsatz: kassiert mit bezahlten Artikeln, zurückgezahlt über die Pfandrückgabe.",
       "deposit": {
@@ -1101,6 +1119,8 @@
     "hide": "Bon ausblenden",
     "dismiss": "Bon schließen",
     "total": "Summe",
+    "tip": "Trinkgeld",
+    "grandTotal": "Gesamtbetrag",
     "deposit": "Pfand",
     "depositIncluded": "davon Pfand",
     "servedBy": "Bedienung: {name}",
