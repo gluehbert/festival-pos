@@ -59,4 +59,16 @@ describe('admin reports page', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
     done.unmount()
   })
+
+  it('lets every table scroll sideways inside its card', async () => {
+    const w = mount(ReportsPage, { props: { event: ev(true) } })
+    await flushPromises()
+    const boxes = w.findAll('section [data-test="report-scroll"]')
+    expect(boxes).toHaveLength(12)
+    for (const b of boxes) {
+      expect(b.classes()).toContain('overflow-x-auto')
+      expect(b.find('table').exists()).toBe(true)
+    }
+    w.unmount()
+  })
 })
