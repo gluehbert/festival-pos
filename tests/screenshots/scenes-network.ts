@@ -17,20 +17,20 @@ async function openPayPage(ctx: Ctx) {
 async function tapTwice(page: Awaited<ReturnType<typeof openPayPage>>) {
   const button = page.locator('[data-test="pay-submit"]')
   await button.click()
-  await page.locator('[data-test="pay-submit"]', { hasText: /zum buchen tippen|tap to book/i }).waitFor()
+  await page.locator('[data-test="pay-submit"]', { hasText: /tap to book/i }).waitFor()
   await button.click()
 }
 
 export const guestSending: Scene = async (ctx) => {
   const { page } = await ctx.open('guest')
   await joinTable(page, 3)
-  await tapMenuItem(page, /pommes zum warenkorb/i)
-  await tapMenuItem(page, /bier 0,5 zum warenkorb/i)
+  await tapMenuItem(page, /add fries to cart/i)
+  await tapMenuItem(page, /add beer 0\.5 to cart/i)
   const release = await troubleRoute(page, '**/api/orders', 2, 'hang')
   await openCart(page)
   await page.locator('[data-test="cart-submit"]').click()
   await page.locator('[data-test="sending-state"]').waitFor({ timeout: 10_000 })
-  await page.getByText(/versuch 2 von 4/i).waitFor({ timeout: 10_000 })
+  await page.getByText(/attempt 2 of 4/i).waitFor({ timeout: 10_000 })
   await ctx.shoot(page, 'guest-sending')
   await release()
 }
@@ -39,7 +39,7 @@ export const staffPaySending: Scene = async (ctx) => {
   const page = await openPayPage(ctx)
   const release = await troubleRoute(page, '**/api/payments', 2, 'hang')
   await tapTwice(page)
-  await page.getByText(/versuch 2 von 4/i).waitFor({ timeout: 10_000 })
+  await page.getByText(/attempt 2 of 4/i).waitFor({ timeout: 10_000 })
   await ctx.shoot(page, 'staff-pay-sending')
   await release()
 }
@@ -49,6 +49,6 @@ export const staffPayUnconfirmed: Scene = async (ctx) => {
   await troubleRoute(page, '**/api/payments', 0, 'fail')
   await tapTwice(page)
   // All four retries are used up after about 15 seconds.
-  await page.getByRole('alert').filter({ hasText: /keine antwort/i }).waitFor({ timeout: 25_000 })
+  await page.getByRole('alert').filter({ hasText: /no answer/i }).waitFor({ timeout: 25_000 })
   await ctx.shoot(page, 'staff-pay-unconfirmed')
 }
