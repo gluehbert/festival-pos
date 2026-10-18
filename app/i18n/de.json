@@ -676,6 +676,8 @@
     },
     "reports": {
       "internalNote": "Interne Kontrolle, kein steuerlicher Kassenabschluss",
+      "asOf": "Stand {time}",
+      "refreshNow": "Jetzt aktualisieren",
       "exportCsv": "CSV exportieren",
       "empty": "Keine Daten im aktuellen Zeitraum.",
       "sections": {

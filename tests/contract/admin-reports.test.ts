@@ -125,3 +125,45 @@ describe('GET /api/admin/events/{id}/reports — contract', () => {
     await expect(handler(event)).rejects.toMatchObject({ statusCode: 403 })
   })
 })
+
+describe('GET /api/admin/events/{id}/reports/all — contract', () => {
+  beforeEach(async () => {
+    ctx = await makeCtx()
+    setCtx(ctx)
+    const { seedEvent } = await import('../setup/pg-mem-db')
+    seeded = seedEvent(ctx.mem, { tableRangeFrom: 1, tableRangeTo: 20 })
+    seedMinimalOrder()
+  })
+
+  async function runAll(role: 'admin' | 'lead' = 'admin', id = seeded.eventId) {
+    const { makeEvent } = await import('../setup/h3-event')
+    const handler = (await import('../../server/api/admin/events/[id]/reports/all.get')).default
+    const { event, getHeader } = makeEvent({ method: 'GET', url: `/api/admin/events/${id}/reports/all` })
+    event.context.auth = { staff: { staffId: seeded.staffId, role, username: 'u' } }
+    event.context.params = { id }
+    return { handler, event, getHeader }
+  }
+
+  it('returns every report type, equal to the single-type queries', async () => {
+    const { ReportTypeEnum, ReportsAllSchema } = await import('../../server/lib/contracts/reports')
+    const { handler, event, getHeader } = await runAll()
+    const all = ReportsAllSchema.parse(await handler(event))
+    expect(getHeader('cache-control')).toBe('private, no-store')
+    expect(Object.keys(all.reports).sort()).toEqual([...ReportTypeEnum.options].sort())
+    expect(all.eventId).toBe(seeded.eventId)
+    for (const type of ReportTypeEnum.options) {
+      const single = (await run(`?type=${type}`)).body as { rows: unknown[] }
+      expect(all.reports[type], type).toEqual(single.rows)
+    }
+  })
+
+  it('rejects non-admins with 403', async () => {
+    const { handler, event } = await runAll('lead')
+    await expect(handler(event)).rejects.toMatchObject({ statusCode: 403 })
+  })
+
+  it('answers 404 for an unknown event', async () => {
+    const { handler, event } = await runAll('admin', '00000000-0000-4000-8000-000000000099')
+    await expect(handler(event)).rejects.toMatchObject({ statusCode: 404 })
+  })
+})

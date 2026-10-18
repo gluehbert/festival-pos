@@ -676,6 +676,8 @@
     },
     "reports": {
       "internalNote": "Internal control, not a tax-compliant cash closing",
+      "asOf": "As of {time}",
+      "refreshNow": "Refresh now",
       "exportCsv": "Export CSV",
       "empty": "No data in current period.",
       "sections": {
