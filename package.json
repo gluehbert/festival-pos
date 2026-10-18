@@ -1,0 +1,95 @@
+{
+  "name": "festival-pos",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@10.34.6",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "admin:create": "node --experimental-strip-types scripts/create-admin.ts",
+    "build": "node --experimental-strip-types scripts/migrate.ts && nuxt build",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "node --experimental-strip-types scripts/seed.ts",
+    "dev": "nuxt dev",
+    "lint": "eslint .",
+    "lint:layers": "node scripts/check-layers.mjs",
+    "perf:smoke": "node --experimental-strip-types tests/perf/p95-smoke.ts",
+    "postinstall": "nuxt prepare",
+    "prepare": "husky",
+    "screenshots": "bash scripts/screenshots-env.sh && node --experimental-strip-types tests/screenshots/scenes.ts",
+    "start": "nuxt start",
+    "test": "vitest run --passWithNoTests",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test --grep @smoke",
+    "test:pg": "vitest run --config vitest.pg.config.ts",
+    "typecheck": "nuxt typecheck"
+  },
+  "lint-staged": {
+    "*.{ts,vue}": [
+      "eslint --fix",
+      "node scripts/check-layers.mjs"
+    ],
+    "*.ts": "bash -c 'tsc --noEmit -p tsconfig.json'"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.143",
+    "@neondatabase/serverless": "^1.2.0",
+    "@nuxt/ui": "^4.11.3",
+    "@nuxtjs/i18n": "^10.6.0",
+    "@pinia/nuxt": "^1.0.2",
+    "@simplewebauthn/browser": "^13.3.0",
+    "@simplewebauthn/server": "^13.3.3",
+    "@vite-pwa/nuxt": "^1.1.1",
+    "bcryptjs": "^3.0.3",
+    "drizzle-orm": "^0.45.4",
+    "h3": "^1.15.11",
+    "jose": "^6.2.12",
+    "nuxt": "^4.6.1",
+    "pdf-lib": "^1.17.1",
+    "pg": "^8.23.1",
+    "pinia": "^4.0.3",
+    "pngjs": "^5.0.0",
+    "qrcode": "^1.5.4",
+    "read-excel-file": "^9.3.12",
+    "tailwindcss": "^4.3.3",
+    "vue": "^3.5.43",
+    "vue-router": "^5.4.0",
+    "write-excel-file": "^4.1.1",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@nuxt/eslint": "^1.17.0",
+    "@nuxt/test-utils": "^4.3.3",
+    "@playwright/test": "^1.64.0",
+    "@types/autocannon": "^7.12.7",
+    "@types/pg": "^8.23.1",
+    "@types/pngjs": "^6.0.5",
+    "@types/qrcode": "^1.5.6",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "@vitest/coverage-v8": "^5.0.3",
+    "@vue/test-utils": "^2.5.1",
+    "autocannon": "^8.0.0",
+    "drizzle-kit": "^0.31.11",
+    "eslint": "^10.12.0",
+    "happy-dom": "^20.14.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "pg-mem": "^3.0.14",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.3",
+    "vue-tsc": "^3.3.13"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild",
+      "unrs-resolver",
+      "vue-demi"
+    ]
+  }
+}

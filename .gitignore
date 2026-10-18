@@ -1,0 +1,66 @@
+# Node
+node_modules/
+dist/
+build/
+*.log
+.env*
+!.env.example
+coverage/
+.nuxt/
+.output/
+.vercel/
+playwright-report/
+test-results/
+
+# Universal
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+packages/
+*.dll
+*.pdb
+*.exe
+*.nupkg
+project.lock.json
+*.rsuser
+
+
+.turbo/
+
+# Database
+*.sqlite
+*.db
+*.db-shm
+*.db-wal
+
+# Misc
+*.bak
+*.old
+*.orig
+*.rej
+
+# OS
+ehthumbs.db
+Icon?
+
+# Others
+*.pid
+*.seed
+*.pid.lock
+
+
+# Ignore documentation build outputs, but keep the example screenshots
+/docs/*
+!/docs/screenshots/
+server.log
+tests/screenshots/out/

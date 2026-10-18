@@ -1,0 +1,2 @@
+ALTER TABLE "menu_items" ADD COLUMN "stock" integer;--> statement-breakpoint
+ALTER TABLE "menu_items" ADD CONSTRAINT "menu_items_stock_chk" CHECK ("menu_items"."stock" IS NULL OR "menu_items"."stock" >= 0);

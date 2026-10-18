@@ -1,0 +1,1060 @@
+{
+  "common": {
+    "save": "Speichern",
+    "offline": "Offline – ohne Verbindung wird nichts gesendet. Bitte später erneut versuchen.",
+    "updateAvailable": "Neue Version verfügbar",
+    "station": {
+      "kitchen": "Küche",
+      "bar": "Bar"
+    },
+    "trialBanner": "PROBELAUF – Bestellungen sind nur Tests",
+    "theme": {
+      "label": "Farbschema",
+      "system": "Wie Gerät",
+      "light": "Hell",
+      "dark": "Dunkel"
+    },
+    "menuTabs": {
+      "label": "Kategorien",
+      "popular": "Häufig",
+      "tableSection": "Tisch {table} bestellt oft",
+      "eventSection": "Beliebt",
+      "subcategories": "Unterkategorien",
+      "inOrder": "{n} gewählt",
+      "search": "Suchen",
+      "searchPlaceholder": "Artikel suchen …",
+      "searchClose": "Suche schließen",
+      "results": "{n} Treffer",
+      "noResults": "Nichts gefunden."
+    },
+    "reload": "Neu laden",
+    "retry": "Erneut versuchen",
+    "stale": {
+      "since": "Keine Verbindung – Stand von {time}",
+      "never": "Keine Verbindung – noch keine Daten geladen"
+    },
+    "note": {
+      "label": "Notiz",
+      "add": "Notiz",
+      "addAria": "Notiz zu {name} hinzufügen",
+      "editAria": "Notiz zu {name} ändern: {note}",
+      "aria": "Notiz zu {name}",
+      "placeholder": "z. B. ohne Zwiebeln, Ketchup",
+      "done": "OK"
+    },
+    "deposit": {
+      "plus": "+ {amount} Pfand",
+      "included": "inkl. {amount} Pfand",
+      "includedShort": "inkl. {amount} Pfand"
+    },
+    "stock": {
+      "low": "nur noch {n}"
+    },
+    "allergens": {
+      "names": {
+        "gluten": "Glutenhaltiges Getreide",
+        "crustaceans": "Krebstiere",
+        "eggs": "Eier",
+        "fish": "Fisch",
+        "peanuts": "Erdnüsse",
+        "soy": "Soja",
+        "milk": "Milch (inkl. Laktose)",
+        "nuts": "Schalenfrüchte (Nüsse)",
+        "celery": "Sellerie",
+        "mustard": "Senf",
+        "sesame": "Sesam",
+        "sulphites": "Schwefeldioxid und Sulfite",
+        "lupin": "Lupinen",
+        "molluscs": "Weichtiere"
+      },
+      "diet": {
+        "vegetarian": "vegetarisch",
+        "vegan": "vegan"
+      },
+      "label": "Allergene",
+      "codesAria": "Enthält: {list}",
+      "none": "keine",
+      "onRequest": "Allergene auf Nachfrage",
+      "legend": "Allergene & Kennzeichnung",
+      "disclaimer": "Die Kürzel kennzeichnen enthaltene Hauptallergene. Spuren anderer Allergene können wir nicht ausschließen. Fragen Sie im Zweifel unser Personal."
+    },
+    "promo": {
+      "until": "{name} bis {time}",
+      "regular": "Normalpreis ",
+      "changedTitle": "Preise haben sich geändert",
+      "changedLine": "{name}: gebucht {booked} statt {shown}",
+      "changedHint": "Eine Aktion hat begonnen oder ist zu Ende. Gebucht wurde der Preis zum Bestellzeitpunkt; die Karte ist neu geladen."
+    },
+    "orderNo": "Bestellung #{no}"
+  },
+  "guest": {
+    "landing": {
+      "kicker": "Festival POS",
+      "title": "Willkommen am Tisch",
+      "description": "Gib deine Tischnummer und die Event-PIN ein. Mit dem QR-Code auf dem Tisch geht es ohne PIN.",
+      "tableLabel": "Tischnummer",
+      "submit": "Weiter",
+      "submitting": "Bitte warten …",
+      "errorInvalid": "Bitte eine gültige Tischnummer eingeben.",
+      "errorGeneric": "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
+      "pinLabel": "Event-PIN",
+      "pinHint": "Am einfachsten den QR-Code auf dem Tisch scannen. Die PIN bekommst du sonst von der Bedienung.",
+      "errorPin": "Bitte die Event-PIN eingeben.",
+      "errorWrongPin": "Tischnummer oder PIN stimmt nicht.",
+      "errorTooMany": "Zu viele Fehlversuche. Bitte in 15 Minuten erneut versuchen."
+    },
+    "page": {
+      "kicker": "Tisch {table}",
+      "title": "Speisekarte",
+      "menuHeading": "Speisekarte",
+      "statusHeading": "Status deiner Bestellungen",
+      "statusReady": "{count} fertig"
+    },
+    "menu": {
+      "loading": "Lade Speisekarte …",
+      "empty": "Aktuell sind keine Artikel verfügbar.",
+      "add": "Hinzufügen",
+      "addAria": "{name} zum Warenkorb hinzufügen"
+    },
+    "cart": {
+      "soldOut": "Inzwischen ausverkauft, aus dem Warenkorb genommen: {items}",
+      "title": "Deine Bestellung",
+      "total": "Summe",
+      "submit": "Bestellung absenden",
+      "submitting": "Sende …",
+      "clear": "Warenkorb leeren",
+      "increase": "Menge erhöhen",
+      "decrease": "Menge verringern",
+      "quantity": "Anzahl",
+      "remove": "Artikel entfernen",
+      "clearConfirm": "Warenkorb leeren?",
+      "clearYes": "Ja, leeren",
+      "clearCancel": "Behalten",
+      "view": "Warenkorb ansehen",
+      "hide": "Ausblenden",
+      "subtotal": "Zwischensumme",
+      "deposit": "Pfand",
+      "items": "keine Artikel | 1 Artikel | {n} Artikel",
+      "group": {
+        "kitchen": "Essen",
+        "bar": "Getränke"
+      },
+      "depositEach": "je {amount} Pfand",
+      "grow": "Warenkorb vergrößern",
+      "shrink": "Warenkorb verkleinern"
+    },
+    "confirmation": {
+      "title": "Bestellung eingegangen!",
+      "orderId": "Bestell-Nr",
+      "tableBalance": "Tischsumme",
+      "newOrder": "Weitere Bestellung"
+    },
+    "production": {
+      "pending": "Eingegangen",
+      "in_progress": "In Zubereitung",
+      "done": "Fertig",
+      "cancelled": "Storniert"
+    },
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen.",
+      "network": "Netzwerkfehler – bitte erneut versuchen.",
+      "unavailable": "Nicht bestellt: Etwas ist inzwischen ausverkauft. Bitte Warenkorb prüfen und erneut bestellen.",
+      "tooMany": "Von diesem Tisch kamen gerade sehr viele Bestellungen. Bitte kurz warten oder die Bedienung ansprechen.",
+      "tooLarge": "So viele Artikel auf einmal gehen nicht online (höchstens {max}). Bitte aufteilen oder die Bedienung ansprechen.",
+      "sessionExpired": "Deine Sitzung ist abgelaufen. Bitte den QR-Code auf dem Tisch neu scannen."
+    },
+    "languageSwitcher": {
+      "label": "Sprache wählen"
+    },
+    "event": {
+      "programHeading": "Programm & Infos zur Veranstaltung",
+      "openFlyer": "Flyer öffnen (PDF)",
+      "flyerAlt": "Flyer: {name}",
+      "logoAlt": "Logo: {name}",
+      "dates": "Veranstaltungsdatum"
+    }
+  },
+  "staff": {
+    "login": {
+      "title": "Staff-Anmeldung",
+      "username": "Benutzername",
+      "password": "Passwort",
+      "pin": "PIN",
+      "kind": "Anmeldeart",
+      "submit": "Anmelden",
+      "submitting": "Bitte warten …",
+      "errorInvalid": "Benutzername oder Zugangsdaten falsch.",
+      "errorInactive": "Konto ist deaktiviert.",
+      "errorTooMany": "Zu viele Fehlversuche. Bitte in 15 Minuten erneut versuchen.",
+      "errorOffline": "Keine Verbindung – bitte erneut versuchen.",
+      "showSecret": "Eingabe anzeigen",
+      "hideSecret": "Eingabe verbergen",
+      "passkey": "Passkey verwenden",
+      "passkeyHint": "Fingerabdruck, Gesicht oder Geräte-PIN",
+      "or": "oder"
+    },
+    "overview": {
+      "loading": "Lade Tickets …",
+      "empty": "Keine Tische.",
+      "logout": "Abmelden",
+      "newOrder": "Neue Bestellung",
+      "walkin": "Theke",
+      "heading": {
+        "open": "Offene Tische",
+        "paid": "Bezahlte Tische",
+        "tables": "Tische"
+      },
+      "show": {
+        "open": "Offene anzeigen",
+        "paid": "Bezahlte anzeigen"
+      }
+    },
+    "detail": {
+      "back": "Zurück",
+      "table": "Tisch {n}",
+      "walkin": "Walk-in",
+      "open": "offen",
+      "cashier": "Kassieren",
+      "locked": "Dieses Ticket wird gerade von einem anderen Service bedient.",
+      "addOrder": "Nachbestellen",
+      "served": "Gebracht",
+      "checked": "Nachgefragt – nichts gewünscht",
+      "served_kitchen": "Essen gebracht",
+      "served_bar": "Getränke gebracht",
+      "servedHint": "Verschwindet beim Kassieren von selbst.",
+      "empty": "Noch nichts bestellt"
+    },
+    "pay": {
+      "back": "Zurück",
+      "title": "Kassieren",
+      "selectAll": "Alles auswählen",
+      "locked": "Gesperrt durch {user}. Bitte warten oder Auto-Release abwarten.",
+      "lockedSelf": "Dieser Tisch wird gerade kassiert, bitte kurz warten",
+      "success": "{amount} kassiert.",
+      "submit": "{amount} kassieren",
+      "selection": "Auswahl",
+      "openTotal": "offene Summe",
+      "selectItem": "{name} auswählen",
+      "selectNone": "Getrennt zahlen",
+      "hint": "Was zahlt dieser Gast?",
+      "hintAll": "Der ganze Tisch ist ausgewählt.",
+      "openCount": "offen: {n}",
+      "less": "{name}: eins weniger",
+      "more": "{name}: eins mehr",
+      "countAria": "{name}: Anzahl",
+      "all": "alle",
+      "none": "keine",
+      "allOf": "{name}: alle oder keine",
+      "given": "Gegeben",
+      "change": "Rückgeld {amount}",
+      "nothingOpen": "Nichts mehr offen.",
+      "alreadyPaid": "Bereits bezahlt ({n})",
+      "unconfirmed": "Keine Antwort vom Server: unklar, ob die Zahlung gebucht wurde. Bitte nochmal kassieren, es wird nicht doppelt gebucht.",
+      "rejected": "Zahlung wurde nicht gebucht. Die Ansicht ist aktualisiert, bitte Auswahl prüfen.",
+      "confirm": "{amount} kassieren? Zum Buchen tippen",
+      "cancel": "Abbrechen",
+      "successChange": "{amount} kassiert · Rückgeld {change}",
+      "doneTitle": "Alles bezahlt",
+      "toOverview": "Zur Übersicht",
+      "submitFree": "Ohne Zahlung abschließen (0 €)"
+    },
+    "void": {
+      "title": "Position stornieren",
+      "reason": "Grund (mind. 3 Zeichen)",
+      "confirm": "Stornieren",
+      "cancel": "Abbrechen",
+      "errorTooShort": "Grund muss mind. 3 Zeichen lang sein.",
+      "errorPaid": "Bereits bezahlte Positionen können nicht storniert werden – bitte über „Erstatten“ (Admin).",
+      "button": "Storno",
+      "errorAdminOnly": "Diese Position ist schon fertig oder serviert. Stornieren darf sie nur ein Admin.",
+      "errorCancelled": "Diese Position ist bereits storniert.",
+      "errorConflict": "Die Position hat sich gerade geändert. Bitte neu laden und erneut versuchen.",
+      "errorNotFound": "Position nicht gefunden – gehört sie zu einem anderen Fest?"
+    },
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen.",
+      "lockConflict": "Ticket ist gesperrt.",
+      "unauthorized": "Bitte erneut anmelden."
+    },
+    "ticket": {
+      "justNow": "gerade eben",
+      "minutesAgo": "vor {n} Min.",
+      "open": "offen",
+      "paid": "bezahlt",
+      "total": "gesamt {amount}",
+      "locked": "gesperrt",
+      "voided": "storniert",
+      "foodReady": "Essen fertig ({n})",
+      "drinksReady": "Getränke fertig ({n})",
+      "readyToServe": "bringen",
+      "hoursAgo": "vor {h} Std. {m} Min.",
+      "openJustNow": "offen seit eben",
+      "openSince": "offen seit {n} Min.",
+      "openSinceHours": "offen seit {h} Std. {m} Min."
+    },
+    "refund": {
+      "button": "Erstatten",
+      "title": "Bezahlte Position erstatten",
+      "confirm": "Erstatten",
+      "hint": "Der Betrag wird bar zurückgegeben und aus Umsatz und Kassenstand der Servicekraft herausgerechnet."
+    },
+    "order": {
+      "title": "Bestellung aufnehmen",
+      "walkinTitle": "Walk-in / Theke",
+      "tableLabel": "Tisch",
+      "addAria": "{name} hinzufügen",
+      "summary": "{n} Artikel",
+      "send": "An Küche/Bar senden",
+      "sendAndPay": "Senden & bar kassiert",
+      "sentNotice": "Tisch {table}: Bestellung über {amount} gesendet.",
+      "paidNotice": "Gesendet und {amount} bar kassiert.",
+      "payFailed": "Bestellung gesendet, Kassieren fehlgeschlagen. Bitte in der Übersicht kassieren.",
+      "soldOut": "Nicht gesendet: Etwas ist inzwischen ausverkauft. Bitte Block prüfen und erneut senden.",
+      "soldOutRemoved": "Ausverkauft, vom Block genommen: {items}",
+      "linesTitle": "Positionen & Notizen",
+      "linesEmpty": "Noch nichts ausgewählt.",
+      "blockTable": "Bitte zuerst die Tischnummer eingeben.",
+      "blockMealReason": "Bitte einen Grund eingeben (mind. 3 Zeichen)."
+    },
+    "activity": {
+      "order": "Letzte Bestellung {age}",
+      "check": "Nachgefragt {age}"
+    },
+    "cash": {
+      "nav": "Kasse",
+      "title": "Kasse & Abschluss",
+      "openHint": "Vor dem ersten Kassieren das Wechselgeld zählen und hier eintragen.",
+      "openingLabel": "Anfangsbestand (€)",
+      "open": "Kasse öffnen",
+      "openSince": "Geöffnet seit {time}",
+      "refresh": "Aktualisieren",
+      "opening": "Anfangsbestand",
+      "collected": "Kassiert",
+      "refunded": "Erstattungen",
+      "expected": "Soll",
+      "counted": "Gezählt",
+      "difference": "Differenz",
+      "diffExact": "stimmt",
+      "diffShort": "Fehlbetrag",
+      "diffOver": "Überschuss",
+      "countedLabel": "Gezählter Betrag (€)",
+      "noteLabel": "Bemerkung (optional)",
+      "close": "Kasse abschließen",
+      "confirmClose": "Kasse jetzt abschließen? Der Soll-Betrag wird festgeschrieben.",
+      "closedTitle": "Kasse abgeschlossen",
+      "depositReturned": "Pfandrückgabe"
+    },
+    "deposit": {
+      "nav": "Pfand zurück",
+      "title": "Pfandrückgabe",
+      "hint": "Zurückgegebene Gläser/Becher zählen und den Pfand bar auszahlen. Der Betrag mindert dein Kassen-Soll.",
+      "none": "Auf der Karte ist kein Pfand hinterlegt.",
+      "unit": "Pfand {amount}",
+      "less": "Ein Pfand zu {amount} weniger",
+      "more": "Ein Pfand zu {amount} mehr",
+      "payOut": "Pfand auszahlen: {amount}",
+      "done": "{amount} Pfand ausgezahlt.",
+      "loadFailed": "Pfandbeträge konnten nicht geladen werden."
+    },
+    "meal": {
+      "nav": "Helfer / Personal",
+      "title": "Helfer- und Personalessen",
+      "reasonLabel": "Grund (Pflicht)",
+      "reasonHint": "z. B. Schicht Grillstand, Musikkapelle",
+      "book": "Als Helferessen buchen (0 €)",
+      "value": "Warenwert {amount}",
+      "bookedNotice": "Helferessen gebucht (Warenwert {amount})."
+    },
+    "passkeys": {
+      "title": "Meine Passkeys",
+      "offerTitle": "Nächstes Mal schneller anmelden?",
+      "offerText": "Richte einen Passkey ein: Anmelden per Fingerabdruck, Gesicht oder Geräte-PIN.",
+      "intro": "Mit einem Passkey meldest du dich per Fingerabdruck, Gesicht oder Geräte-PIN an – ohne Passwort oder PIN einzutippen. Er ist sicherer als ein Passwort und kann in deinem Passwort-Manager auch auf deine anderen Geräte übertragen werden.",
+      "sharedHint": "Gemeinsam genutztes Gerät (z. B. Küchen- oder Theken-Tablet)? Dann hier keinen persönlichen Passkey speichern: Jeder, der das Gerät entsperren kann, könnte ihn nutzen. Melde dich stattdessen mit der PIN an oder nutze den Passkey deines eigenen Handys per QR-Code.",
+      "sharedHintShort": "Nur auf deinem eigenen Gerät einrichten, nicht auf einem gemeinsam genutzten Tablet.",
+      "unsupported": "Dieser Browser unterstützt keine Passkeys. Die Anmeldung mit PIN oder Passwort funktioniert weiterhin.",
+      "name": "Name des Geräts",
+      "defaultName": "{device} von {name}",
+      "add": "Passkey einrichten",
+      "added": "Passkey eingerichtet. Ab jetzt kannst du dich damit anmelden.",
+      "later": "Später",
+      "never": "Auf diesem Gerät nicht mehr fragen",
+      "list": "Eingerichtete Passkeys",
+      "empty": "Noch kein Passkey eingerichtet.",
+      "createdAt": "Eingerichtet {at}",
+      "lastUsed": "Zuletzt genutzt {at}",
+      "remove": "{name} entfernen",
+      "confirmRemove": "Passkey „{name}“ entfernen? Danach ist die Anmeldung damit nicht mehr möglich.",
+      "removed": "Passkey entfernt.",
+      "removeFailed": "Entfernen fehlgeschlagen.",
+      "loadFailed": "Passkeys konnten nicht geladen werden.",
+      "error": {
+        "alreadyRegistered": "Auf diesem Gerät ist bereits ein Passkey für dich eingerichtet.",
+        "errorInvalid": "Passkey konnte nicht geprüft werden. Bitte erneut versuchen.",
+        "errorTooMany": "Zu viele Versuche. Bitte später erneut versuchen.",
+        "errorOffline": "Keine Verbindung – bitte erneut versuchen."
+      }
+    },
+    "owner": {
+      "label": "Zuständigkeit",
+      "mine": "Meine Tische",
+      "all": "Alle"
+    },
+    "view": {
+      "label": "Ansicht",
+      "list": "Liste",
+      "grid": "Raster"
+    },
+    "assign": {
+      "mine": "Mein Tisch",
+      "free": "Niemand zuständig",
+      "heldBy": "Zuständig: {name}",
+      "take": "Mein Tisch",
+      "release": "Abgeben",
+      "unassign": "Freigeben",
+      "takeOver": "Tisch übernehmen",
+      "confirm": "Tisch {n} von {name} übernehmen?",
+      "confirmYes": "Ja, übernehmen",
+      "cancel": "Abbrechen",
+      "failed": "Hat nicht geklappt. Bitte erneut versuchen."
+    },
+    "grid": {
+      "tableWord": "Tisch",
+      "legend": "Farben",
+      "legendState": {
+        "free": "leer",
+        "busy": "in Arbeit",
+        "ready": "bringen",
+        "late": "lange nichts gehört"
+      },
+      "state": {
+        "free": "leer",
+        "busy": "in Arbeit",
+        "ready": "{n} zum Bringen",
+        "late": "seit {n} Min. nichts"
+      },
+      "none": "Keine Tische.",
+      "noneMine": "Du hast noch keine Tische. Die Schichtleitung teilt sie dir zu. Bis dahin findest du unter „Alle“ jeden Tisch.",
+      "walkins": "Walk-ins / Theke"
+    },
+    "needsSomeone": {
+      "heading": "Braucht jemanden",
+      "hint": "Offene Bestellung, aber niemand zuständig. Unter „Tische verteilen“ jemandem geben."
+    },
+    "join": {
+      "title": "Als Helfer beitreten",
+      "loading": "Einen Moment …",
+      "intro": "Gib deinen Namen ein, damit die anderen sehen, wer welche Tische hat. Danach lässt dich die Leitung herein.",
+      "name": "Dein Name",
+      "submit": "Beitreten",
+      "waiting": "Hallo {name}, warte auf Freigabe …",
+      "waitingHint": "Lass diese Seite offen. Sobald die Leitung dich hereinlässt, geht es automatisch weiter.",
+      "error": {
+        "closed": "Dieser Link gilt nicht (mehr). Bitte frag nach dem aktuellen Link.",
+        "nameWaiting": "Mit diesem Namen wartet schon jemand. Bitte wähle einen anderen, z. B. mit Nachnamen-Initiale.",
+        "full": "Gerade warten zu viele. Bitte gleich noch mal versuchen.",
+        "invalidName": "Bitte 2 bis 30 Buchstaben oder Ziffern eingeben.",
+        "failed": "Hat nicht geklappt. Bitte erneut versuchen.",
+        "rejected": "Die Leitung hat dich nicht hereingelassen. Bei Fragen bitte direkt ansprechen."
+      }
+    },
+    "account": {
+      "title": "Mein Konto",
+      "signedInAs": "Angemeldet als {name} ({role}).",
+      "password": "Passwort ändern",
+      "passwordHint": "Danach bist du auf allen anderen Geräten abgemeldet, auf diesem bleibst du angemeldet.",
+      "current": "Aktuelles Passwort",
+      "next": "Neues Passwort (mind. {n} Zeichen)",
+      "repeat": "Neues Passwort wiederholen",
+      "save": "Passwort speichern",
+      "tooShort": "Das neue Passwort braucht mindestens {n} Zeichen.",
+      "mismatch": "Die beiden neuen Passwörter stimmen nicht überein.",
+      "result": {
+        "ok": "Passwort geändert.",
+        "wrong": "Das aktuelle Passwort stimmt nicht.",
+        "rateLimited": "Zu viele Fehlversuche. Bitte in 15 Minuten erneut versuchen.",
+        "failed": "Hat nicht geklappt. Bitte erneut versuchen."
+      },
+      "passkeysHint": "Anmelden per Fingerabdruck, Gesicht oder Geräte-PIN"
+    },
+    "distribute": {
+      "nav": "Tische verteilen",
+      "title": "Tische verteilen",
+      "pickPerson": "1. Wer bekommt Tische?",
+      "pickTables": "2. Tische antippen",
+      "pickFirst": "Erst oben eine Person antippen.",
+      "tapHint": "Tippen gibt den Tisch {name}. Nochmal tippen gibt ihn wieder frei.",
+      "count": "keine Tische | 1 Tisch | {n} Tische",
+      "noTeam": "Noch keine Bedienungen freigegeben. Neue Helfer kommen über den Beitrittslink dazu.",
+      "noTables": "Für dieses Fest ist kein Tischbereich eingestellt.",
+      "free": "frei",
+      "failed": "Tisch {n} hat nicht geklappt. Bitte nochmal tippen."
+    },
+    "welcome": {
+      "title": "So geht’s",
+      "order": {
+        "title": "Bestellen",
+        "text": "„Neue Bestellung“ tippen, Tischnummer eingeben, Sachen antippen, „An Küche/Bar senden“."
+      },
+      "bring": {
+        "title": "Bringen",
+        "text": "Wird ein Tisch grün, ist etwas fertig. Abholen und zum Tisch bringen."
+      },
+      "pay": {
+        "title": "Kassieren",
+        "text": "Tisch antippen, „Kassieren“. Alles ist schon ausgewählt. Zahlt jeder für sich: „Getrennt zahlen“."
+      },
+      "start": "Los geht’s",
+      "help": "Kurze Anleitung"
+    },
+    "previewLogin": {
+      "title": "Preview: direkt anmelden als",
+      "as": {
+        "waiter": "Service",
+        "lead": "Schichtleitung",
+        "kitchen": "Küche",
+        "bar": "Bar",
+        "admin": "Admin",
+        "guest": "Kunde"
+      },
+      "failed": "Anmelden hat nicht geklappt: {reason}"
+    }
+  },
+  "admin": {
+    "kicker": "Admin",
+    "loading": "Lade …",
+    "nav": {
+      "events": "Events",
+      "staff": "Mitarbeitende"
+    },
+    "events": {
+      "title": "Events",
+      "new": "Neues Event",
+      "list": "Vorhandene Events",
+      "name": "Name",
+      "pin": "PIN",
+      "from": "Tisch von",
+      "to": "Tisch bis",
+      "create": "Anlegen",
+      "activate": "Aktivieren",
+      "empty": "Keine Events.",
+      "created": "Event angelegt.",
+      "activated": "„{name}“ ist jetzt live.",
+      "summary": "PIN {pin} · Tische {from}–{to}",
+      "startsOn": "Datum (Beginn, optional)",
+      "endsOn": "Datum (Ende, optional)",
+      "undated": "ohne Datum",
+      "edit": "Bearbeiten",
+      "toService": "Zum Service",
+      "toProduction": "Zur Produktion",
+      "liveKicker": "Läuft gerade",
+      "liveTrialKicker": "Läuft gerade · Probelauf",
+      "noneLive": "Gerade ist kein Event live. Öffne ein Event und aktiviere es, damit Gäste bestellen können.",
+      "others": "Weitere Events",
+      "noOthers": "Keine weiteren Events.",
+      "cancelNew": "Abbrechen"
+    },
+    "status": {
+      "draft": "Entwurf",
+      "live": "Live",
+      "trial": "Probelauf",
+      "ended": "Beendet"
+    },
+    "workspace": {
+      "editing": "Du bearbeitest",
+      "back": "Alle Events",
+      "notFound": "Dieses Event gibt es nicht (mehr).",
+      "tabsLabel": "Bereiche dieses Events",
+      "tabs": {
+        "overview": "Übersicht",
+        "branding": "Gestaltung",
+        "menu": "Preisliste",
+        "qr": "QR-Codes",
+        "reports": "Berichte",
+        "pricing": "Aktionspreise",
+        "staff": "Personal"
+      },
+      "hint": {
+        "live": "Live: Änderungen sind sofort für Gäste und Service sichtbar.",
+        "trial": "Probelauf: Das Event ist aktiv, Bestellungen zählen als Test. Änderungen sind sofort sichtbar.",
+        "draft": "Entwurf: noch nicht aktiv, Gäste sehen davon nichts. Du kannst alles in Ruhe vorbereiten.",
+        "ended": "Beendet: nicht mehr aktiv, Gäste sehen davon nichts."
+      },
+      "currentlyLive": "Live ist gerade „{name}“.",
+      "nothingLive": "Gerade ist kein Event live.",
+      "confirmActivate": "„{name}“ wird live: Gäste bestellen ab sofort von dieser Preisliste.",
+      "confirmEnds": "„{name}“ wird damit beendet.",
+      "confirmActivateButton": "Jetzt live schalten",
+      "reactivate": "Wieder aktivieren",
+      "setup": {
+        "title": "Vorbereitung",
+        "branding": "Name, Datum, Logo, Farben und Begrüßung",
+        "menu": "Artikel und Preise",
+        "menuCount": "noch keine Artikel | 1 Artikel | {n} Artikel",
+        "qr": "Tisch-QR-Codes drucken"
+      }
+    },
+    "menu": {
+      "new": "Neuer Eintrag",
+      "list": "Einträge",
+      "empty": "Keine Einträge.",
+      "create": "Eintrag anlegen",
+      "nameDe": "Name (DE)",
+      "nameEn": "Name (EN)",
+      "price": "Preis (€)",
+      "category": "Kategorie",
+      "station": "Station",
+      "sort": "Sortierung",
+      "availability": "Verfügbarkeit",
+      "available": "verfügbar",
+      "unavailable": "nicht verfügbar",
+      "created": "Eintrag angelegt.",
+      "subcategory": "Unterkategorie",
+      "subcategoryHint": "optional, z. B. Biere",
+      "deposit": "Pfand (€)",
+      "depositHint": "optional, z. B. 2,00",
+      "depositOf": "Pfand für {name}",
+      "saved": "Gespeichert.",
+      "stock": "Bestand",
+      "stockHint": "leer = nicht zählen",
+      "stockOf": "Bestand für {name}",
+      "allergens": "Allergene",
+      "allergensRecorded": "Allergene erfasst",
+      "allergensNotRecorded": "Noch nicht erfasst – Gäste sehen „Allergene auf Nachfrage“.",
+      "allergensNoneChecked": "Kein Haken = geprüft, enthält keines der 14 Allergene.",
+      "allergensMissing": "fehlt",
+      "diet": "Vegetarisch/Vegan",
+      "dietNone": "–",
+      "edit": "Allergene",
+      "editAria": "Allergene von {name} bearbeiten",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "missingCount": "{n} Einträge ohne Allergenangabe.",
+      "pdf": "Allergen-Aushang (PDF)",
+      "pdfFailed": "PDF konnte nicht erstellt werden.",
+      "priceOf": "Preis für {name}",
+      "editItem": "Bearbeiten",
+      "editItemAria": "{name} bearbeiten",
+      "editHint": "Änderungen gelten für neue Bestellungen. Bereits gebuchte Positionen behalten Name und Preis.",
+      "editTitle": "{name} bearbeiten",
+      "allergensTitle": "Allergene: {name}"
+    },
+    "qr": {
+      "from": "Von Tisch",
+      "to": "Bis Tisch",
+      "download": "PDF herunterladen",
+      "hint": "A4-Druckbogen mit 24 QR-Codes pro Seite (4×6).",
+      "failed": "Download fehlgeschlagen."
+    },
+    "reports": {
+      "exportCsv": "CSV exportieren",
+      "empty": "Keine Daten im aktuellen Zeitraum.",
+      "sections": {
+        "revenue": "Umsatz nach Kategorie",
+        "topItems": "Top-Artikel",
+        "voids": "Stornos",
+        "perStaff": "Zahlungen pro Service",
+        "perHour": "Bestellungen pro Stunde",
+        "cashSessions": "Kassenabschlüsse",
+        "deposits": "Pfand",
+        "staffMeals": "Helferverpflegung",
+        "promos": "Aktionen",
+        "tableAssignments": "Tische pro Bedienung",
+        "usage": "App-Nutzung"
+      },
+      "col": {
+        "category": "Kategorie",
+        "itemCount": "Anzahl",
+        "total": "Umsatz",
+        "item": "Artikel",
+        "quantity": "Menge",
+        "reason": "Grund",
+        "voidedAt": "Storniert am",
+        "staff": "Service",
+        "paymentCount": "Zahlungen",
+        "hour": "Stunde",
+        "orderCount": "Bestellungen",
+        "refunded": "Erstattet",
+        "netCash": "Kasse netto",
+        "tableCount": "Tische",
+        "tables": "Tischnummern",
+        "guestOrderCount": "davon per App"
+      },
+      "cash": {
+        "openedAt": "Geöffnet",
+        "closedAt": "Abgeschlossen",
+        "stillOpen": "noch offen",
+        "opening": "Anfang",
+        "collected": "Kassiert",
+        "refunded": "Erstattet",
+        "expected": "Soll",
+        "counted": "Gezählt",
+        "difference": "Differenz",
+        "depositReturned": "Pfand zurück"
+      },
+      "revenueHint": "Nur bezahlte Positionen, ohne Pfand, abzüglich Erstattungen. Artikelname und Kategorie wie zum Bestellzeitpunkt.",
+      "depositHint": "Pfand ist kein Umsatz: kassiert mit bezahlten Artikeln, zurückgezahlt über die Pfandrückgabe.",
+      "deposit": {
+        "unit": "Pfand",
+        "issued": "Kassiert",
+        "returned": "Zurückgezahlt",
+        "balance": "Noch draußen",
+        "total": "Summe"
+      },
+      "staffMealHint": "Zu 0 € gebucht, kein Umsatz. Warenwert zum Kartenpreis.",
+      "meal": {
+        "value": "Warenwert"
+      },
+      "perHourHint": "Ortszeit Europe/Berlin (MEZ/MESZ).",
+      "promoHint": "Was unter welcher Aktion verkauft und bezahlt wurde: Menge, Umsatz zum Aktionspreis und gewährter Nachlass. Ohne Pfand, abzüglich Erstattungen.",
+      "promo": {
+        "discount": "Nachlass"
+      },
+      "tableAssignmentsHint": "Wer gerade welche Tische betreut („Meine Tische“).",
+      "noAssignments": "Niemand hat Tische übernommen.",
+      "usageHint": "Nur Tischbestellungen, ohne Probebetrieb. „Per App“ heißt: der Gast hat selbst über den QR-Code bestellt.",
+      "usage": {
+        "funnel": "Wer die App nutzt",
+        "scans": "Handys angemeldet",
+        "orderingDevices": "davon bestellt",
+        "ordersPerDevice": "Bestellungen pro bestellendem Handy",
+        "share": "App oder Bedienung",
+        "guestOrderShare": "Bestellungen per App",
+        "guestItemShare": "Artikel per App",
+        "compare": "Bestellt die Bedienung an App-Tischen weniger?",
+        "appTables": "Tische mit App-Bestellungen ({count})",
+        "noAppTables": "Tische ohne App-Bestellungen ({count})",
+        "staffItemsPerTable": "Artikel über die Bedienung pro Tisch",
+        "compareHint": "Richtwert, kein Beweis: Tischgröße, feste Plätze und Bestellungen für Nachbartische verzerren den Vergleich.",
+        "perTable": "Pro Tisch",
+        "table": "Tisch",
+        "guestOrders": "Bestellungen App",
+        "staffOrders": "Bestellungen Bedienung",
+        "none": "–"
+      }
+    },
+    "staff": {
+      "title": "Mitarbeitende",
+      "new": "Neuer Account",
+      "list": "Accounts",
+      "username": "Benutzername",
+      "role": "Rolle",
+      "password": "Passwort",
+      "pin": "PIN",
+      "passwordHint": "Mindestens 12 Zeichen",
+      "pinHint": "4 bis 8 Ziffern",
+      "create": "Anlegen",
+      "created": "{name} angelegt.",
+      "saved": "Gespeichert.",
+      "failed": "Aktion fehlgeschlagen.",
+      "resetPassword": "Passwort ändern",
+      "resetPin": "PIN ändern",
+      "newPassword": "Neues Passwort (mind. 12 Zeichen):",
+      "newPin": "Neue PIN (4–8 Ziffern):",
+      "secretChanged": "Zugangsdaten geändert.",
+      "deactivate": "Deaktivieren",
+      "activate": "Aktivieren",
+      "deactivated": "Deaktiviert, alle Sitzungen sind sofort ungültig.",
+      "activated": "Aktiviert.",
+      "roles": {
+        "admin": "Admin",
+        "waiter": "Service",
+        "lead": "Schichtleitung",
+        "kitchen": "Küche",
+        "bar": "Bar"
+      },
+      "passkeys": {
+        "toggle": "Passkeys",
+        "empty": "Keine Passkeys eingerichtet.",
+        "remove": "Entfernen",
+        "confirmRemove": "Passkey „{name}“ von {user} entfernen? {user} wird dabei auf allen Geräten abgemeldet.",
+        "removed": "Passkey entfernt, alle Sitzungen beendet.",
+        "removeFailed": "Entfernen fehlgeschlagen.",
+        "loadFailed": "Passkeys konnten nicht geladen werden."
+      }
+    },
+    "toast": {
+      "createFailed": "Anlegen fehlgeschlagen.",
+      "actionFailed": "Aktion fehlgeschlagen."
+    },
+    "validation": {
+      "fromMin": "„Von“ muss mindestens 1 sein.",
+      "toGteFrom": "„Bis“ muss größer oder gleich „Von“ sein.",
+      "eventPin": "PIN: 4–10 Zeichen, A–Z und 0–9.",
+      "price": "Ungültiger Preis.",
+      "names": "Name (DE) und Name (EN) sind Pflicht.",
+      "endsAfterStart": "Das Enddatum darf nicht vor dem Beginn liegen.",
+      "stock": "Bestand muss eine ganze Zahl ≥ 0 sein oder leer bleiben."
+    },
+    "branding": {
+      "color": "Akzentfarbe",
+      "resetColor": "Standard",
+      "colorInvalid": "Bitte eine Farbe im Format #rrggbb angeben.",
+      "lowContrast": "Sehr helle Farbe: Texte werden automatisch dunkler dargestellt, damit sie lesbar bleiben.",
+      "welcome": "Begrüßung (optional)",
+      "welcomePlaceholder": "z. B. Willkommen beim Sommerfest der Freiwilligen Feuerwehr!",
+      "program": "Programm (optional)",
+      "programPlaceholder": "17:00  Fassanstich\n19:00  Live-Musik\n22:00  Feuerwerk",
+      "save": "Speichern",
+      "saved": "Gestaltung gespeichert.",
+      "preview": "Vorschau für Gäste",
+      "sampleButton": "Zum Warenkorb hinzufügen",
+      "logo": "Logo",
+      "logoHint": "PNG, JPEG oder WebP, max. 1 MB. Erscheint oben auf jeder Seite. Tipp: PNG mit transparentem Hintergrund wirkt auch im Dunkelmodus.",
+      "logo_dark": "Logo für Dunkelmodus (optional)",
+      "logo_darkHint": "Helle Variante des Logos, z. B. weiße Schrift. Ersetzt das Logo, wenn jemand den Dunkelmodus nutzt.",
+      "logoFitsDark": "Im Dunkelmodus: Transparenter Hintergrund erkannt – das Logo wird direkt angezeigt.",
+      "logoOnPlate": "Im Dunkelmodus: Das Logo wird auf einer hellen Fläche angezeigt. Ohne Fläche geht es mit einem PNG mit transparentem Hintergrund und heller Schrift oder einem Logo für den Dunkelmodus.",
+      "logoDarkInUse": "Im Dunkelmodus wird das Logo für den Dunkelmodus angezeigt.",
+      "flyer": "Flyer / Programmheft",
+      "flyerHint": "Bild (PNG, JPEG, WebP) oder PDF, max. 4 MB. Gäste können ihn auf der Bestellseite öffnen. Wird 90 Tage nach Event-Ende automatisch gelöscht.",
+      "upload": "Datei hochladen …",
+      "remove": "Entfernen",
+      "uploaded": "Datei gespeichert.",
+      "removed": "Datei entfernt.",
+      "colorPicker": "Farbe auswählen",
+      "dates": "Datum",
+      "name": "Name des Events"
+    },
+    "menuImport": {
+      "title": "Preisliste aus Excel importieren",
+      "hint": "Vorlage herunterladen (enthält die aktuelle Karte), in Excel, LibreOffice oder Google Sheets bearbeiten und wieder hochladen. Erlaubt sind .xlsx (Office Open XML) und .csv. Artikel werden über den deutschen Namen zugeordnet.",
+      "download": "Vorlage / aktuelle Karte herunterladen (.xlsx)",
+      "choose": "Datei hochladen …",
+      "summary": "Vorschau: {created} neu, {updated} geändert, {unchanged} unverändert.",
+      "errorsTitle": "{n} Zeile(n) mit Fehlern – bitte in der Datei korrigieren und erneut hochladen:",
+      "row": "Zeile {row}",
+      "apply": "Import übernehmen",
+      "cancel": "Abbrechen",
+      "done": "Import übernommen: {created} neu, {updated} geändert.",
+      "action": {
+        "create": "neu",
+        "update": "geändert",
+        "unchanged": "unverändert"
+      }
+    },
+    "trial": {
+      "badge": "Probelauf",
+      "start": "Probelauf starten",
+      "startHint": "Für Einweisung und Testbestellungen: Bestellungen und Zahlungen werden als Test markiert und zählen nicht in den Berichten.",
+      "running": "Probelauf läuft: Bestellungen und Zahlungen sind Tests und zählen nicht in den Berichten.",
+      "count": "Keine Testbestellungen | 1 Testbestellung | {n} Testbestellungen",
+      "deleteData": "Testdaten löschen",
+      "end": "Probelauf beenden",
+      "confirmEnd": "{count} und die zugehörigen Zahlungen werden endgültig gelöscht, Tischzuteilungen und Nachgefragt-Marken werden zurückgesetzt, danach zählen Bestellungen wieder echt.",
+      "confirmDelete": "{count} und die zugehörigen Zahlungen werden endgültig gelöscht. Der Probelauf läuft weiter.",
+      "confirmEndButton": "Löschen und Probelauf beenden",
+      "confirmDeleteButton": "Endgültig löschen",
+      "cancel": "Abbrechen",
+      "leftover": "{count} aus einem früheren Probelauf sind noch vorhanden (zählen nicht in den Berichten).",
+      "started": "Probelauf gestartet.",
+      "ended": "Probelauf beendet, Testdaten gelöscht.",
+      "deleted": "Testdaten gelöscht: {orders} Bestellungen, {payments} Zahlungen.",
+      "title": "Probelauf",
+      "needsActive": "Ein Probelauf ist möglich, sobald das Event aktiv ist."
+    },
+    "legal": {
+      "title": "Impressum & Datenschutz",
+      "hint": "Wird Gästen als Link unten auf den Bestellseiten angezeigt (nur Text, Zeilenumbrüche bleiben erhalten). Leer = kein Link.",
+      "imprint": "Impressum",
+      "privacy": "Datenschutzerklärung",
+      "save": "Rechtstexte speichern",
+      "saved": "Rechtstexte gespeichert."
+    },
+    "pricing": {
+      "intro": "Zeitabhängige Preise wie „Happy Hour 17–18 Uhr Bier 3 €“. Gäste und Bedienung sehen den Aktionspreis, gebucht wird der Preis zum Bestellzeitpunkt. Pfand bleibt unverändert.",
+      "previewTitle": "Gerade aktiv",
+      "previewEmpty": "Gerade läuft keine Aktion – alle Artikel kosten den normalen Preis.",
+      "new": "Neue Aktion",
+      "editTitle": "„{name}“ bearbeiten",
+      "list": "Aktionen",
+      "empty": "Noch keine Aktionen angelegt.",
+      "name": "Name",
+      "namePlaceholder": "z. B. Happy Hour",
+      "start": "Beginn",
+      "end": "Ende",
+      "timeZoneHint": "Uhrzeiten in deutscher Zeit (Europe/Berlin).",
+      "overnightHint": "Ende vor dem Beginn: läuft über Mitternacht und zählt für den Tag, an dem sie beginnt. Gleiche Uhrzeit: 24 Stunden.",
+      "weekdays": "Tage (Tag des Beginns)",
+      "everyDay": "täglich",
+      "days": {
+        "1": "Mo",
+        "2": "Di",
+        "3": "Mi",
+        "4": "Do",
+        "5": "Fr",
+        "6": "Sa",
+        "7": "So"
+      },
+      "validFrom": "Ab Datum (optional)",
+      "validTo": "Bis Datum (optional)",
+      "kind": "Art",
+      "kinds": {
+        "fixed": "Fester Preis",
+        "percent": "Rabatt in %",
+        "amount": "Rabatt in €"
+      },
+      "valueLabel": {
+        "fixed": "Aktionspreis (€)",
+        "percent": "Rabatt (%)",
+        "amount": "Rabatt (€)"
+      },
+      "effect": {
+        "fixed": "für {amount}",
+        "percent": "{value} % günstiger",
+        "amount": "{amount} günstiger"
+      },
+      "targets": "Betroffene Artikel",
+      "noItems": "Die Preisliste ist noch leer.",
+      "wholeCategory": "Ganze Kategorie „{category}“",
+      "active": "Aktiv",
+      "inactive": "Aus",
+      "runningUntil": "läuft bis {time}",
+      "create": "Aktion anlegen",
+      "save": "Speichern",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "activate": "Einschalten",
+      "deactivate": "Ausschalten",
+      "confirmDelete": "„{name}“ löschen? Bereits gebuchte Bestellungen behalten ihren Preis.",
+      "created": "Aktion angelegt",
+      "saved": "Aktion gespeichert",
+      "deleted": "Aktion gelöscht",
+      "activated": "Aktion eingeschaltet",
+      "deactivated": "Aktion ausgeschaltet",
+      "priorityHint": "Überschneiden sich Aktionen, gilt für jeden Artikel der günstigste Preis; Rabatte werden nicht addiert. Bei gleichem Preis gewinnt die Aktion, die den Artikel einzeln nennt. Eine Aktion senkt den Preis nur, sie erhöht ihn nie.",
+      "errors": {
+        "name": "Bitte einen Namen eingeben.",
+        "value": {
+          "fixed": "Bitte einen Preis in Euro eingeben, z. B. 3,00.",
+          "percent": "Bitte einen Rabatt von 1 bis 100 % eingeben.",
+          "amount": "Bitte einen Rabatt in Euro eingeben, z. B. 0,50."
+        },
+        "weekdays": "Bitte mindestens einen Tag wählen.",
+        "targets": "Bitte mindestens einen Artikel oder eine Kategorie wählen.",
+        "dates": "Das Enddatum liegt vor dem Startdatum."
+      }
+    },
+    "features": {
+      "title": "Funktionen",
+      "saved": "Gespeichert.",
+      "depositEnabled": {
+        "label": "Pfand",
+        "hint": "Pfand der Artikel wird mitberechnet; Service und Theke bekommen den Button „Pfand zurück“. Aus: kein Pfand, auch wenn Artikel einen Pfandbetrag haben."
+      },
+      "staffMealsEnabled": {
+        "label": "Helfer- / Personalessen",
+        "hint": "Service kann kostenlose Bestellungen für Helfer buchen (mit Begründung)."
+      }
+    },
+    "join": {
+      "linkTitle": "Beitritts-Link für Helfer",
+      "linkHint": "Ein Link für alle: scannen, Namen eingeben, warten. Du lässt jede Person hier herein. Gilt nur, solange dieses Event aktiv ist.",
+      "create": "Link erstellen",
+      "qrAlt": "QR-Code zum Beitreten",
+      "share": "Link teilen",
+      "copied": "Link kopiert",
+      "renew": "Neuen Link erzeugen",
+      "renewConfirm": "Der bisherige Link funktioniert dann nicht mehr. Wer schon drin ist, bleibt angemeldet. Fortfahren?",
+      "waiting": "Warten auf Freigabe ({n})",
+      "nobodyWaiting": "Gerade wartet niemand.",
+      "approveAll": "Alle freigeben",
+      "approve": "Freigeben",
+      "reject": "Ablehnen",
+      "rejoin": "Ist schon dabei und meldet sich auf einem neuen Gerät an.",
+      "roleOf": "Rolle für {name}",
+      "members": "Dabei ({n})",
+      "noMembers": "Noch niemand beigetreten.",
+      "lock": "Sperren",
+      "unlock": "Entsperren",
+      "inactiveHint": "Dieses Event ist nicht aktiv: Der Link funktioniert erst, wenn es aktiviert ist.",
+      "failed": "Hat nicht geklappt. Bitte erneut versuchen."
+    }
+  },
+  "errors": {},
+  "offline": {
+    "badge": "Offline",
+    "title": "Keine Verbindung",
+    "text": "Die App ist installiert, aber für Bestellungen und Zahlungen wird eine Internetverbindung gebraucht. Bitte Verbindung prüfen und neu laden.",
+    "back": "Zur Startseite",
+    "reload": "Neu laden"
+  },
+  "nav": {
+    "production": "Produktion",
+    "admin": "Admin",
+    "service": "Service",
+    "passkeys": "Passkeys",
+    "account": "Konto",
+    "settings": "Sprache & Darstellung",
+    "language": "Sprache",
+    "device": {
+      "label": "Dieses Gerät",
+      "service": "Bedienung",
+      "counter": "Theke"
+    },
+    "version": "Version {version}",
+    "myAccount": "Mein Konto"
+  },
+  "production": {
+    "start": "In Zubereitung",
+    "done": "Fertig",
+    "waiting": "seit {n} Min.",
+    "toastDone": "Erledigt",
+    "toastStarted": "In Zubereitung",
+    "toastFailed": "Aktion fehlgeschlagen.",
+    "loading": "Lade Warteschlange …",
+    "empty": "Keine offenen Positionen.",
+    "counter": "Theke",
+    "finishOrder": "{label} komplett fertig",
+    "viewLabel": "Ansicht",
+    "view": {
+      "orders": "Nach Bestellung",
+      "items": "Einzeln"
+    },
+    "soldOut": {
+      "title": "Ausverkauft verwalten",
+      "empty": "Keine Artikel für diese Station.",
+      "stock": "Bestand: {n}",
+      "markSoldOut": "Ausverkauft",
+      "markAvailable": "Wieder da",
+      "saved": "Gespeichert"
+    },
+    "staffMeal": "Helfer",
+    "undo": "Rückgängig",
+    "toastUndone": "Wieder in Arbeit",
+    "toastUndoFailed": "Rückgängig nicht möglich – schon serviert?",
+    "stationLabel": "Station wählen"
+  },
+  "alerts": {
+    "soundLabel": "Ton bei neuen Meldungen",
+    "sound": {
+      "on": "Ton an",
+      "off": "Ton aus",
+      "locked": "Ton aktivieren"
+    },
+    "vibrationLabel": "Vibration bei neuen Meldungen",
+    "vibration": {
+      "on": "Vibration an",
+      "off": "Vibration aus"
+    },
+    "label": "Benachrichtigungen"
+  },
+  "legal": {
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "loading": "Lade …",
+    "missing": "Für dieses Fest ist noch kein Text hinterlegt."
+  },
+  "receipt": {
+    "last": "Letzte Zahlung: {amount}",
+    "print": "Bon drucken",
+    "show": "Bon zeigen",
+    "hide": "Bon ausblenden",
+    "dismiss": "Bon schließen",
+    "total": "Summe",
+    "deposit": "Pfand",
+    "depositIncluded": "davon Pfand",
+    "servedBy": "Bedienung: {name}",
+    "noTaxReceipt": "Kein steuerlicher Beleg – Quittung für den Gast"
+  }
+}

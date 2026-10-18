@@ -1,0 +1,5 @@
+tests/
+specs/
+playwright-report/
+test-results/
+coverage/

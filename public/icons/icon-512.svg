@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#7c3aed"/>
+  <path d="M136 176h240l-24 208a24 24 0 0 1-24 21H184a24 24 0 0 1-24-21z" fill="#fff"/>
+  <path d="M176 176v-24a80 80 0 0 1 160 0v24" fill="none" stroke="#fff" stroke-width="28" stroke-linecap="round"/>
+  <text x="256" y="345" text-anchor="middle" font-family="system-ui, sans-serif" font-size="120" font-weight="700" fill="#7c3aed">€</text>
+</svg>

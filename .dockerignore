@@ -1,0 +1,15 @@
+node_modules/
+.git/
+.dockerignore
+Dockerfile*
+*.log*
+.env*
+!.env.example
+coverage/
+.nuxt/
+.output/
+.vercel/
+playwright-report/
+test-results/
+bin/
+obj/

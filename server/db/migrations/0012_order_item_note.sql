@@ -1,0 +1,2 @@
+ALTER TABLE "order_items" ADD COLUMN "note" text;--> statement-breakpoint
+ALTER TABLE "order_items" ADD CONSTRAINT "order_items_note_chk" CHECK ("order_items"."note" IS NULL OR char_length("order_items"."note") <= 80);

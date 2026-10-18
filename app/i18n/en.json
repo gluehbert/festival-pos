@@ -1,0 +1,1060 @@
+{
+  "common": {
+    "save": "Save",
+    "offline": "Offline — nothing is sent without a connection. Please try again later.",
+    "updateAvailable": "New version available",
+    "station": {
+      "kitchen": "Kitchen",
+      "bar": "Bar"
+    },
+    "trialBanner": "REHEARSAL – orders are tests only",
+    "theme": {
+      "label": "Colour scheme",
+      "system": "Match device",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "menuTabs": {
+      "label": "Categories",
+      "popular": "Frequent",
+      "tableSection": "Table {table} often orders",
+      "eventSection": "Popular",
+      "subcategories": "Subcategories",
+      "inOrder": "{n} selected",
+      "search": "Search",
+      "searchPlaceholder": "Search items …",
+      "searchClose": "Close search",
+      "results": "{n} results",
+      "noResults": "Nothing found."
+    },
+    "reload": "Reload",
+    "retry": "Retry",
+    "stale": {
+      "since": "No connection – data as of {time}",
+      "never": "No connection – nothing loaded yet"
+    },
+    "note": {
+      "label": "Note",
+      "add": "Note",
+      "addAria": "Add a note to {name}",
+      "editAria": "Change note on {name}: {note}",
+      "aria": "Note on {name}",
+      "placeholder": "e.g. no onions, ketchup",
+      "done": "OK"
+    },
+    "deposit": {
+      "plus": "+ {amount} deposit",
+      "included": "incl. {amount} deposit",
+      "includedShort": "incl. {amount} deposit"
+    },
+    "stock": {
+      "low": "only {n} left"
+    },
+    "allergens": {
+      "names": {
+        "gluten": "Cereals containing gluten",
+        "crustaceans": "Crustaceans",
+        "eggs": "Eggs",
+        "fish": "Fish",
+        "peanuts": "Peanuts",
+        "soy": "Soybeans",
+        "milk": "Milk (incl. lactose)",
+        "nuts": "Tree nuts",
+        "celery": "Celery",
+        "mustard": "Mustard",
+        "sesame": "Sesame",
+        "sulphites": "Sulphur dioxide and sulphites",
+        "lupin": "Lupin",
+        "molluscs": "Molluscs"
+      },
+      "diet": {
+        "vegetarian": "vegetarian",
+        "vegan": "vegan"
+      },
+      "label": "Allergens",
+      "codesAria": "Contains: {list}",
+      "none": "none",
+      "onRequest": "Allergens on request",
+      "legend": "Allergens & labels",
+      "disclaimer": "The codes mark the main allergens contained. We cannot rule out traces of other allergens. If in doubt, please ask our staff."
+    },
+    "promo": {
+      "until": "{name} until {time}",
+      "regular": "Regular price ",
+      "changedTitle": "Prices have changed",
+      "changedLine": "{name}: booked {booked} instead of {shown}",
+      "changedHint": "A promotion started or ended. The price at the time of ordering was booked; the menu has been reloaded."
+    },
+    "orderNo": "Order #{no}"
+  },
+  "guest": {
+    "landing": {
+      "kicker": "Festival POS",
+      "title": "Welcome to your table",
+      "description": "Enter your table number and the event PIN. Scanning the QR code on your table works without a PIN.",
+      "tableLabel": "Table number",
+      "submit": "Continue",
+      "submitting": "Please wait …",
+      "errorInvalid": "Please enter a valid table number.",
+      "errorGeneric": "Something went wrong. Please try again.",
+      "pinLabel": "Event PIN",
+      "pinHint": "Easiest: scan the QR code on your table. Otherwise ask the staff for the PIN.",
+      "errorPin": "Please enter the event PIN.",
+      "errorWrongPin": "Table number or PIN is wrong.",
+      "errorTooMany": "Too many attempts. Please try again in 15 minutes."
+    },
+    "page": {
+      "kicker": "Table {table}",
+      "title": "Menu",
+      "menuHeading": "Menu",
+      "statusHeading": "Status of your orders",
+      "statusReady": "{count} ready"
+    },
+    "menu": {
+      "loading": "Loading menu …",
+      "empty": "No items are currently available.",
+      "add": "Add",
+      "addAria": "Add {name} to cart"
+    },
+    "cart": {
+      "soldOut": "Sold out meanwhile, removed from your cart: {items}",
+      "title": "Your order",
+      "total": "Total",
+      "submit": "Place order",
+      "submitting": "Sending …",
+      "clear": "Empty cart",
+      "increase": "Increase quantity",
+      "decrease": "Decrease quantity",
+      "quantity": "Quantity",
+      "remove": "Remove item",
+      "clearConfirm": "Empty the cart?",
+      "clearYes": "Yes, empty",
+      "clearCancel": "Keep",
+      "view": "View cart",
+      "hide": "Hide",
+      "subtotal": "Subtotal",
+      "deposit": "Deposit",
+      "items": "no items | 1 item | {n} items",
+      "group": {
+        "kitchen": "Food",
+        "bar": "Drinks"
+      },
+      "depositEach": "{amount} deposit each",
+      "grow": "Enlarge cart",
+      "shrink": "Shrink cart"
+    },
+    "confirmation": {
+      "title": "Order received!",
+      "orderId": "Order ID",
+      "tableBalance": "Table balance",
+      "newOrder": "Place another order"
+    },
+    "production": {
+      "pending": "Received",
+      "in_progress": "Preparing",
+      "done": "Ready",
+      "cancelled": "Cancelled"
+    },
+    "errors": {
+      "generic": "Something went wrong.",
+      "network": "Network error — please retry.",
+      "unavailable": "Not ordered: something sold out meanwhile. Please check your cart and order again.",
+      "tooMany": "This table just sent a lot of orders. Please wait a moment or ask the staff.",
+      "tooLarge": "That many items cannot be ordered online at once (at most {max}). Please split the order or ask the staff.",
+      "sessionExpired": "Your session has expired. Please scan the QR code on your table again."
+    },
+    "languageSwitcher": {
+      "label": "Choose language"
+    },
+    "event": {
+      "programHeading": "Programme & event info",
+      "openFlyer": "Open flyer (PDF)",
+      "flyerAlt": "Flyer: {name}",
+      "logoAlt": "Logo: {name}",
+      "dates": "Event date"
+    }
+  },
+  "staff": {
+    "login": {
+      "title": "Staff login",
+      "username": "Username",
+      "password": "Password",
+      "pin": "PIN",
+      "kind": "Sign-in method",
+      "submit": "Sign in",
+      "submitting": "Please wait …",
+      "errorInvalid": "Wrong username or credentials.",
+      "errorInactive": "Account is inactive.",
+      "errorTooMany": "Too many failed attempts. Please try again in 15 minutes.",
+      "errorOffline": "No connection – please try again.",
+      "showSecret": "Show input",
+      "hideSecret": "Hide input",
+      "passkey": "Use a passkey",
+      "passkeyHint": "Fingerprint, face or device PIN",
+      "or": "or"
+    },
+    "overview": {
+      "loading": "Loading tickets …",
+      "empty": "No tables.",
+      "logout": "Sign out",
+      "newOrder": "New order",
+      "walkin": "Counter",
+      "heading": {
+        "open": "Open tables",
+        "paid": "Paid tables",
+        "tables": "Tables"
+      },
+      "show": {
+        "open": "Show open",
+        "paid": "Show paid"
+      }
+    },
+    "detail": {
+      "back": "Back",
+      "table": "Table {n}",
+      "walkin": "Walk-in",
+      "open": "open",
+      "cashier": "Cash out",
+      "locked": "This ticket is currently being cashed out by another staff member.",
+      "addOrder": "Add order",
+      "served": "Served",
+      "checked": "Asked – nothing wanted",
+      "served_kitchen": "Food served",
+      "served_bar": "Drinks served",
+      "servedHint": "Clears by itself when you cash out.",
+      "empty": "Nothing ordered yet"
+    },
+    "pay": {
+      "back": "Back",
+      "title": "Cash out",
+      "selectAll": "Select all",
+      "locked": "Locked by {user}. Please wait or try again after auto-release.",
+      "lockedSelf": "This table is being cashed out right now, please wait a moment",
+      "success": "{amount} cashed.",
+      "submit": "Collect {amount}",
+      "selection": "Selected",
+      "openTotal": "open total",
+      "selectItem": "Select {name}",
+      "selectNone": "Pay separately",
+      "hint": "What does this guest pay?",
+      "hintAll": "The whole table is selected.",
+      "openCount": "open: {n}",
+      "less": "{name}: one less",
+      "more": "{name}: one more",
+      "countAria": "{name}: count",
+      "all": "all",
+      "none": "none",
+      "allOf": "{name}: all or none",
+      "given": "Given",
+      "change": "Change {amount}",
+      "nothingOpen": "Nothing left to pay.",
+      "alreadyPaid": "Already paid ({n})",
+      "unconfirmed": "No answer from the server: unclear whether the payment was booked. Please collect again, it will not be booked twice.",
+      "rejected": "The payment was not booked. The view has been refreshed, please check the selection.",
+      "confirm": "Collect {amount}? Tap to book",
+      "cancel": "Cancel",
+      "successChange": "{amount} collected · change {change}",
+      "doneTitle": "All paid",
+      "toOverview": "Back to overview",
+      "submitFree": "Close without payment (€0)"
+    },
+    "void": {
+      "title": "Void item",
+      "reason": "Reason (min. 3 characters)",
+      "confirm": "Void",
+      "cancel": "Cancel",
+      "errorTooShort": "Reason must be at least 3 characters.",
+      "errorPaid": "Paid items cannot be voided – use “Refund” (admin).",
+      "button": "Void",
+      "errorAdminOnly": "This item is already finished or served. Only an admin can void it.",
+      "errorCancelled": "This item is already voided.",
+      "errorConflict": "The item just changed. Please reload and try again.",
+      "errorNotFound": "Item not found – does it belong to another event?"
+    },
+    "errors": {
+      "generic": "Something went wrong.",
+      "lockConflict": "Ticket is locked.",
+      "unauthorized": "Please sign in again."
+    },
+    "ticket": {
+      "justNow": "just now",
+      "minutesAgo": "{n} min ago",
+      "open": "open",
+      "paid": "paid",
+      "total": "total {amount}",
+      "locked": "locked",
+      "voided": "voided",
+      "foodReady": "Food ready ({n})",
+      "drinksReady": "Drinks ready ({n})",
+      "readyToServe": "serve",
+      "hoursAgo": "{h} h {m} min ago",
+      "openJustNow": "open since just now",
+      "openSince": "open for {n} min",
+      "openSinceHours": "open for {h} h {m} min"
+    },
+    "refund": {
+      "button": "Refund",
+      "title": "Refund paid item",
+      "confirm": "Refund",
+      "hint": "The amount is handed back in cash and removed from revenue and the cashier's total."
+    },
+    "order": {
+      "title": "Take order",
+      "walkinTitle": "Walk-in / counter",
+      "tableLabel": "Table",
+      "addAria": "Add {name}",
+      "summary": "{n} items",
+      "send": "Send to kitchen/bar",
+      "sendAndPay": "Send & paid cash",
+      "sentNotice": "Table {table}: order of {amount} sent.",
+      "paidNotice": "Sent and {amount} paid in cash.",
+      "payFailed": "Order sent, payment failed. Please cash it from the overview.",
+      "soldOut": "Not sent: something sold out meanwhile. Please check the pad and send again.",
+      "soldOutRemoved": "Sold out, removed from the pad: {items}",
+      "linesTitle": "Items & notes",
+      "linesEmpty": "Nothing selected yet.",
+      "blockTable": "Please enter the table number first.",
+      "blockMealReason": "Please enter a reason (at least 3 characters)."
+    },
+    "activity": {
+      "order": "Last order {age}",
+      "check": "Asked {age}"
+    },
+    "cash": {
+      "nav": "Cash",
+      "title": "Cash drawer & closing",
+      "openHint": "Count the change float before your first payment and enter it here.",
+      "openingLabel": "Opening float (€)",
+      "open": "Open drawer",
+      "openSince": "Open since {time}",
+      "refresh": "Refresh",
+      "opening": "Opening float",
+      "collected": "Collected",
+      "refunded": "Refunds",
+      "expected": "Expected",
+      "counted": "Counted",
+      "difference": "Difference",
+      "diffExact": "exact",
+      "diffShort": "short",
+      "diffOver": "over",
+      "countedLabel": "Counted cash (€)",
+      "noteLabel": "Remark (optional)",
+      "close": "Close drawer",
+      "confirmClose": "Close the drawer now? The expected amount will be fixed.",
+      "closedTitle": "Drawer closed",
+      "depositReturned": "Deposit returns"
+    },
+    "deposit": {
+      "nav": "Deposit back",
+      "title": "Deposit return",
+      "hint": "Count the returned glasses/mugs and pay the deposit back in cash. It lowers your expected cash.",
+      "none": "No deposit is set on the menu.",
+      "unit": "Deposit {amount}",
+      "less": "One {amount} deposit less",
+      "more": "One {amount} deposit more",
+      "payOut": "Pay out deposit: {amount}",
+      "done": "{amount} deposit paid out.",
+      "loadFailed": "Could not load the deposit values."
+    },
+    "meal": {
+      "nav": "Helpers / staff",
+      "title": "Helper and staff meals",
+      "reasonLabel": "Reason (required)",
+      "reasonHint": "e.g. grill shift, brass band",
+      "book": "Book as staff meal (€0)",
+      "value": "goods value {amount}",
+      "bookedNotice": "Staff meal booked (goods value {amount})."
+    },
+    "passkeys": {
+      "title": "My passkeys",
+      "offerTitle": "Sign in faster next time?",
+      "offerText": "Set up a passkey: sign in with your fingerprint, face or device PIN.",
+      "intro": "With a passkey you sign in using your fingerprint, face or device PIN – no password or PIN to type. It is safer than a password, and your password manager can sync it to your other devices.",
+      "sharedHint": "Shared device (e.g. kitchen or bar tablet)? Then do not store a personal passkey here: anyone who can unlock the device could use it. Sign in with your PIN instead, or use the passkey on your own phone via QR code.",
+      "sharedHintShort": "Only set this up on your own device, not on a shared tablet.",
+      "unsupported": "This browser does not support passkeys. Signing in with PIN or password still works.",
+      "name": "Device name",
+      "defaultName": "{name}'s {device}",
+      "add": "Set up a passkey",
+      "added": "Passkey set up. From now on you can sign in with it.",
+      "later": "Later",
+      "never": "Don't ask again on this device",
+      "list": "Your passkeys",
+      "empty": "No passkey set up yet.",
+      "createdAt": "Set up {at}",
+      "lastUsed": "Last used {at}",
+      "remove": "Remove {name}",
+      "confirmRemove": "Remove passkey \"{name}\"? You can no longer sign in with it.",
+      "removed": "Passkey removed.",
+      "removeFailed": "Removing failed.",
+      "loadFailed": "Could not load passkeys.",
+      "error": {
+        "alreadyRegistered": "A passkey for you is already set up on this device.",
+        "errorInvalid": "The passkey could not be verified. Please try again.",
+        "errorTooMany": "Too many attempts. Please try again later.",
+        "errorOffline": "No connection – please try again."
+      }
+    },
+    "owner": {
+      "label": "Responsibility",
+      "mine": "My tables",
+      "all": "All"
+    },
+    "view": {
+      "label": "View",
+      "list": "List",
+      "grid": "Grid"
+    },
+    "assign": {
+      "mine": "My table",
+      "free": "Nobody responsible",
+      "heldBy": "Served by {name}",
+      "take": "My table",
+      "release": "Give back",
+      "unassign": "Free table",
+      "takeOver": "Take over table",
+      "confirm": "Take table {n} over from {name}?",
+      "confirmYes": "Yes, take over",
+      "cancel": "Cancel",
+      "failed": "That did not work. Please try again."
+    },
+    "grid": {
+      "tableWord": "Table",
+      "legend": "Colours",
+      "legendState": {
+        "free": "empty",
+        "busy": "in progress",
+        "ready": "to serve",
+        "late": "quiet for a while"
+      },
+      "state": {
+        "free": "empty",
+        "busy": "in progress",
+        "ready": "{n} to serve",
+        "late": "quiet for {n} min"
+      },
+      "none": "No tables.",
+      "noneMine": "You have no tables yet. The shift lead will hand them to you. Until then, \"All\" shows every table.",
+      "walkins": "Walk-ins / counter"
+    },
+    "needsSomeone": {
+      "heading": "Needs someone",
+      "hint": "Open order, but nobody is in charge. Give it to someone under \"Hand out tables\"."
+    },
+    "join": {
+      "title": "Join as a helper",
+      "loading": "One moment …",
+      "intro": "Enter your name so the others can see who has which tables. Then the person in charge lets you in.",
+      "name": "Your name",
+      "submit": "Join",
+      "waiting": "Hi {name}, waiting to be let in …",
+      "waitingHint": "Keep this page open. As soon as you are let in, it continues automatically.",
+      "error": {
+        "closed": "This link is not valid (anymore). Please ask for the current one.",
+        "nameWaiting": "Someone with this name is already waiting. Please pick another one, e.g. with an initial.",
+        "full": "Too many people are waiting. Please try again in a moment.",
+        "invalidName": "Please enter 2 to 30 letters or digits.",
+        "failed": "Did not work. Please try again.",
+        "rejected": "You were not let in. Please ask the person in charge."
+      }
+    },
+    "account": {
+      "title": "My account",
+      "signedInAs": "Signed in as {name} ({role}).",
+      "password": "Change password",
+      "passwordHint": "You will be signed out on all other devices and stay signed in on this one.",
+      "current": "Current password",
+      "next": "New password (at least {n} characters)",
+      "repeat": "Repeat new password",
+      "save": "Save password",
+      "tooShort": "The new password needs at least {n} characters.",
+      "mismatch": "The two new passwords do not match.",
+      "result": {
+        "ok": "Password changed.",
+        "wrong": "The current password is wrong.",
+        "rateLimited": "Too many failed attempts. Please try again in 15 minutes.",
+        "failed": "Did not work. Please try again."
+      },
+      "passkeysHint": "Sign in with fingerprint, face or device PIN"
+    },
+    "distribute": {
+      "nav": "Hand out tables",
+      "title": "Hand out tables",
+      "pickPerson": "1. Who gets tables?",
+      "pickTables": "2. Tap the tables",
+      "pickFirst": "First tap a person above.",
+      "tapHint": "A tap gives the table to {name}. Tap again to free it.",
+      "count": "no tables | 1 table | {n} tables",
+      "noTeam": "No waiters approved yet. New helpers join via the join link.",
+      "noTables": "No table range is set for this event.",
+      "free": "free",
+      "failed": "Table {n} did not work. Please tap again."
+    },
+    "welcome": {
+      "title": "How it works",
+      "order": {
+        "title": "Order",
+        "text": "Tap “New order”, enter the table number, tap the items, “Send to kitchen/bar”."
+      },
+      "bring": {
+        "title": "Bring",
+        "text": "When a table turns green, something is ready. Pick it up and bring it to the table."
+      },
+      "pay": {
+        "title": "Cash out",
+        "text": "Tap the table, “Cash out”. Everything is already selected. Paying separately: “Pay separately”."
+      },
+      "start": "Let’s go",
+      "help": "Quick guide"
+    },
+    "previewLogin": {
+      "title": "Preview: sign in directly as",
+      "as": {
+        "waiter": "Service",
+        "lead": "Shift lead",
+        "kitchen": "Kitchen",
+        "bar": "Bar",
+        "admin": "Admin",
+        "guest": "Guest"
+      },
+      "failed": "Sign-in failed: {reason}"
+    }
+  },
+  "admin": {
+    "kicker": "Admin",
+    "loading": "Loading …",
+    "nav": {
+      "events": "Events",
+      "staff": "Staff"
+    },
+    "events": {
+      "title": "Events",
+      "new": "New event",
+      "list": "Existing events",
+      "name": "Name",
+      "pin": "PIN",
+      "from": "Table from",
+      "to": "Table to",
+      "create": "Create",
+      "activate": "Activate",
+      "empty": "No events.",
+      "created": "Event created.",
+      "activated": "\"{name}\" is now live.",
+      "summary": "PIN {pin} · tables {from}–{to}",
+      "startsOn": "Date (start, optional)",
+      "endsOn": "Date (end, optional)",
+      "undated": "no date",
+      "edit": "Edit",
+      "toService": "Go to service",
+      "toProduction": "Go to production",
+      "liveKicker": "Running now",
+      "liveTrialKicker": "Running now · rehearsal",
+      "noneLive": "No event is live right now. Open an event and activate it so guests can order.",
+      "others": "Other events",
+      "noOthers": "No other events.",
+      "cancelNew": "Cancel"
+    },
+    "status": {
+      "draft": "Draft",
+      "live": "Live",
+      "trial": "Rehearsal",
+      "ended": "Ended"
+    },
+    "workspace": {
+      "editing": "You are editing",
+      "back": "All events",
+      "notFound": "This event does not exist (any more).",
+      "tabsLabel": "Sections of this event",
+      "tabs": {
+        "overview": "Overview",
+        "branding": "Design",
+        "menu": "Price list",
+        "qr": "QR codes",
+        "reports": "Reports",
+        "pricing": "Promotions",
+        "staff": "Staff"
+      },
+      "hint": {
+        "live": "Live: changes are visible to guests and service immediately.",
+        "trial": "Rehearsal: the event is active, orders count as tests. Changes are visible immediately.",
+        "draft": "Draft: not active yet, guests see none of it. Prepare everything at your own pace.",
+        "ended": "Ended: no longer active, guests see none of it."
+      },
+      "currentlyLive": "\"{name}\" is live right now.",
+      "nothingLive": "No event is live right now.",
+      "confirmActivate": "\"{name}\" goes live: guests order from this price list from now on.",
+      "confirmEnds": "This ends \"{name}\".",
+      "confirmActivateButton": "Go live now",
+      "reactivate": "Activate again",
+      "setup": {
+        "title": "Preparation",
+        "branding": "Name, date, logo, colours and welcome text",
+        "menu": "Items and prices",
+        "menuCount": "no items yet | 1 item | {n} items",
+        "qr": "Print table QR codes"
+      }
+    },
+    "menu": {
+      "new": "New item",
+      "list": "Items",
+      "empty": "No entries.",
+      "create": "Create item",
+      "nameDe": "Name (DE)",
+      "nameEn": "Name (EN)",
+      "price": "Price (€)",
+      "category": "Category",
+      "station": "Station",
+      "sort": "Sort order",
+      "availability": "Availability",
+      "available": "available",
+      "unavailable": "unavailable",
+      "created": "Item created.",
+      "subcategory": "Subcategory",
+      "subcategoryHint": "optional, e.g. Beers",
+      "deposit": "Deposit (€)",
+      "depositHint": "optional, e.g. 2.00",
+      "depositOf": "Deposit for {name}",
+      "saved": "Saved.",
+      "stock": "Stock",
+      "stockHint": "empty = not counted",
+      "stockOf": "Stock for {name}",
+      "allergens": "Allergens",
+      "allergensRecorded": "Allergens recorded",
+      "allergensNotRecorded": "Not recorded yet – guests see \"Allergens on request\".",
+      "allergensNoneChecked": "Nothing ticked = checked, contains none of the 14 allergens.",
+      "allergensMissing": "missing",
+      "diet": "Vegetarian/vegan",
+      "dietNone": "–",
+      "edit": "Allergens",
+      "editAria": "Edit allergens of {name}",
+      "save": "Save",
+      "cancel": "Cancel",
+      "missingCount": "{n} items without allergen information.",
+      "pdf": "Allergen notice (PDF)",
+      "pdfFailed": "Could not create the PDF.",
+      "priceOf": "Price for {name}",
+      "editItem": "Edit",
+      "editItemAria": "Edit {name}",
+      "editHint": "Changes apply to new orders. Items already ordered keep their name and price.",
+      "editTitle": "Edit {name}",
+      "allergensTitle": "Allergens: {name}"
+    },
+    "qr": {
+      "from": "Table from",
+      "to": "Table to",
+      "download": "Download PDF",
+      "hint": "A4 sheet with 24 QR codes per page (4×6).",
+      "failed": "Download failed."
+    },
+    "reports": {
+      "exportCsv": "Export CSV",
+      "empty": "No data in current period.",
+      "sections": {
+        "revenue": "Revenue by category",
+        "topItems": "Top items",
+        "voids": "Voids",
+        "perStaff": "Payments per staff",
+        "perHour": "Orders per hour",
+        "cashSessions": "Cash closings",
+        "deposits": "Deposit",
+        "staffMeals": "Staff meals",
+        "promos": "Promotions",
+        "tableAssignments": "Tables per waiter",
+        "usage": "App usage"
+      },
+      "col": {
+        "category": "Category",
+        "itemCount": "Count",
+        "total": "Revenue",
+        "item": "Item",
+        "quantity": "Quantity",
+        "reason": "Reason",
+        "voidedAt": "Voided at",
+        "staff": "Staff",
+        "paymentCount": "Payments",
+        "hour": "Hour",
+        "orderCount": "Orders",
+        "refunded": "Refunded",
+        "netCash": "Net cash",
+        "tableCount": "Tables",
+        "tables": "Table numbers",
+        "guestOrderCount": "of which by app"
+      },
+      "cash": {
+        "openedAt": "Opened",
+        "closedAt": "Closed",
+        "stillOpen": "still open",
+        "opening": "Float",
+        "collected": "Collected",
+        "refunded": "Refunded",
+        "expected": "Expected",
+        "counted": "Counted",
+        "difference": "Difference",
+        "depositReturned": "Deposit back"
+      },
+      "revenueHint": "Paid items only, without deposit, net of refunds. Item name and category as at the time of ordering.",
+      "depositHint": "Deposit is not revenue: collected with paid items, paid back via deposit returns.",
+      "deposit": {
+        "unit": "Deposit",
+        "issued": "Collected",
+        "returned": "Paid back",
+        "balance": "Still out",
+        "total": "Total"
+      },
+      "staffMealHint": "Booked at €0, not revenue. Goods value at menu price.",
+      "meal": {
+        "value": "Goods value"
+      },
+      "perHourHint": "Local time Europe/Berlin (CET/CEST).",
+      "promoHint": "What was sold and paid under which promotion: units, revenue at the promotion price and discount given. Without deposit, net of refunds.",
+      "promo": {
+        "discount": "Discount"
+      },
+      "tableAssignmentsHint": "Who is looking after which tables right now (“My tables”).",
+      "noAssignments": "Nobody has taken any tables.",
+      "usageHint": "Table orders only, rehearsal excluded. \"By app\" means the guest ordered on their own phone via the QR code.",
+      "usage": {
+        "funnel": "Who uses the app",
+        "scans": "Phones signed in",
+        "orderingDevices": "of which ordered",
+        "ordersPerDevice": "Orders per ordering phone",
+        "share": "App or waiter",
+        "guestOrderShare": "Orders by app",
+        "guestItemShare": "Items by app",
+        "compare": "Do waiters take less at app tables?",
+        "appTables": "Tables with app orders ({count})",
+        "noAppTables": "Tables without app orders ({count})",
+        "staffItemsPerTable": "Items via waiter per table",
+        "compareHint": "A rough indicator, not proof: table size, fixed seats and orders for neighbouring tables skew the comparison.",
+        "perTable": "Per table",
+        "table": "Table",
+        "guestOrders": "Orders app",
+        "staffOrders": "Orders waiter",
+        "none": "–"
+      }
+    },
+    "staff": {
+      "title": "Staff",
+      "new": "New account",
+      "list": "Accounts",
+      "username": "Username",
+      "role": "Role",
+      "password": "Password",
+      "pin": "PIN",
+      "passwordHint": "At least 12 characters",
+      "pinHint": "4 to 8 digits",
+      "create": "Create",
+      "created": "{name} created.",
+      "saved": "Saved.",
+      "failed": "Action failed.",
+      "resetPassword": "Change password",
+      "resetPin": "Change PIN",
+      "newPassword": "New password (min. 12 characters):",
+      "newPin": "New PIN (4–8 digits):",
+      "secretChanged": "Credentials changed.",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "deactivated": "Deactivated, all sessions are revoked immediately.",
+      "activated": "Activated.",
+      "roles": {
+        "admin": "Admin",
+        "waiter": "Service",
+        "lead": "Shift lead",
+        "kitchen": "Kitchen",
+        "bar": "Bar"
+      },
+      "passkeys": {
+        "toggle": "Passkeys",
+        "empty": "No passkeys set up.",
+        "remove": "Remove",
+        "confirmRemove": "Remove passkey \"{name}\" of {user}? {user} will be signed out on all devices.",
+        "removed": "Passkey removed, all sessions ended.",
+        "removeFailed": "Removing failed.",
+        "loadFailed": "Could not load passkeys."
+      }
+    },
+    "toast": {
+      "createFailed": "Could not create.",
+      "actionFailed": "Action failed."
+    },
+    "validation": {
+      "fromMin": "\"From\" must be at least 1.",
+      "toGteFrom": "\"To\" must be greater than or equal to \"From\".",
+      "eventPin": "PIN: 4–10 characters, A–Z and 0–9.",
+      "price": "Invalid price.",
+      "names": "Name (DE) and name (EN) are required.",
+      "endsAfterStart": "The end date must not be before the start date.",
+      "stock": "Stock must be a whole number ≥ 0 or empty."
+    },
+    "branding": {
+      "color": "Accent colour",
+      "resetColor": "Default",
+      "colorInvalid": "Please enter a colour as #rrggbb.",
+      "lowContrast": "Very light colour: text is shown darker automatically so it stays readable.",
+      "welcome": "Greeting (optional)",
+      "welcomePlaceholder": "e.g. Welcome to the fire brigade's summer festival!",
+      "program": "Programme (optional)",
+      "programPlaceholder": "5 pm  Opening\n7 pm  Live music\n10 pm  Fireworks",
+      "save": "Save",
+      "saved": "Design saved.",
+      "preview": "Preview for guests",
+      "sampleButton": "Add to cart",
+      "logo": "Logo",
+      "logoHint": "PNG, JPEG or WebP, max. 1 MB. Shown at the top of every page. Tip: a PNG with a transparent background also works in dark mode.",
+      "logo_dark": "Logo for dark mode (optional)",
+      "logo_darkHint": "Light variant of the logo, e.g. white lettering. Replaces the logo for people using dark mode.",
+      "logoFitsDark": "In dark mode: transparent background detected – the logo is shown as is.",
+      "logoOnPlate": "In dark mode: the logo is shown on a light plate. To drop the plate, use a PNG with a transparent background and light lettering, or add a logo for dark mode.",
+      "logoDarkInUse": "In dark mode, the logo for dark mode is shown.",
+      "flyer": "Flyer / programme",
+      "flyerHint": "Image (PNG, JPEG, WebP) or PDF, max. 4 MB. Guests can open it on the ordering page. Deleted automatically 90 days after the event ends.",
+      "upload": "Upload file …",
+      "remove": "Remove",
+      "uploaded": "File saved.",
+      "removed": "File removed.",
+      "colorPicker": "Pick colour",
+      "dates": "Date",
+      "name": "Event name"
+    },
+    "menuImport": {
+      "title": "Import price list from Excel",
+      "hint": "Download the template (contains the current menu), edit it in Excel, LibreOffice or Google Sheets and upload it again. Accepted: .xlsx (Office Open XML) and .csv. Items are matched by their German name.",
+      "download": "Download template / current menu (.xlsx)",
+      "choose": "Upload file …",
+      "summary": "Preview: {created} new, {updated} changed, {unchanged} unchanged.",
+      "errorsTitle": "{n} row(s) with errors – please fix them in the file and upload again:",
+      "row": "Row {row}",
+      "apply": "Apply import",
+      "cancel": "Cancel",
+      "done": "Import applied: {created} new, {updated} changed.",
+      "action": {
+        "create": "new",
+        "update": "changed",
+        "unchanged": "unchanged"
+      }
+    },
+    "trial": {
+      "badge": "Rehearsal",
+      "start": "Start rehearsal",
+      "startHint": "For training and test orders: orders and payments are marked as tests and do not count in reports.",
+      "running": "Rehearsal running: orders and payments are tests and do not count in reports.",
+      "count": "No test orders | 1 test order | {n} test orders",
+      "deleteData": "Delete test data",
+      "end": "End rehearsal",
+      "confirmEnd": "{count} and their payments will be deleted permanently; table assignments and \"asked\" marks are reset; after that orders count for real again.",
+      "confirmDelete": "{count} and their payments will be deleted permanently. The rehearsal keeps running.",
+      "confirmEndButton": "Delete and end rehearsal",
+      "confirmDeleteButton": "Delete permanently",
+      "cancel": "Cancel",
+      "leftover": "{count} from an earlier rehearsal still exist (not counted in reports).",
+      "started": "Rehearsal started.",
+      "ended": "Rehearsal ended, test data deleted.",
+      "deleted": "Test data deleted: {orders} orders, {payments} payments.",
+      "title": "Rehearsal",
+      "needsActive": "A rehearsal is possible once the event is active."
+    },
+    "legal": {
+      "title": "Legal notice & privacy",
+      "hint": "Shown to guests as links at the bottom of the order pages (plain text, line breaks are kept). Empty = no link.",
+      "imprint": "Legal notice (Impressum)",
+      "privacy": "Privacy policy",
+      "save": "Save legal texts",
+      "saved": "Legal texts saved."
+    },
+    "pricing": {
+      "intro": "Time-dependent prices such as \"Happy hour 5–6 pm beer €3\". Guests and staff see the promotion price; the price at the time of ordering is booked. Deposits stay the same.",
+      "previewTitle": "Running now",
+      "previewEmpty": "No promotion is running – all items cost the regular price.",
+      "new": "New promotion",
+      "editTitle": "Edit \"{name}\"",
+      "list": "Promotions",
+      "empty": "No promotions yet.",
+      "name": "Name",
+      "namePlaceholder": "e.g. Happy hour",
+      "start": "Start",
+      "end": "End",
+      "timeZoneHint": "Times are German time (Europe/Berlin).",
+      "overnightHint": "End before start: runs past midnight and counts for the day it starts. Same time: 24 hours.",
+      "weekdays": "Days (day it starts)",
+      "everyDay": "every day",
+      "days": {
+        "1": "Mon",
+        "2": "Tue",
+        "3": "Wed",
+        "4": "Thu",
+        "5": "Fri",
+        "6": "Sat",
+        "7": "Sun"
+      },
+      "validFrom": "From date (optional)",
+      "validTo": "Until date (optional)",
+      "kind": "Type",
+      "kinds": {
+        "fixed": "Fixed price",
+        "percent": "Discount in %",
+        "amount": "Discount in €"
+      },
+      "valueLabel": {
+        "fixed": "Promotion price (€)",
+        "percent": "Discount (%)",
+        "amount": "Discount (€)"
+      },
+      "effect": {
+        "fixed": "for {amount}",
+        "percent": "{value} % off",
+        "amount": "{amount} off"
+      },
+      "targets": "Items",
+      "noItems": "The price list is still empty.",
+      "wholeCategory": "Whole category \"{category}\"",
+      "active": "Active",
+      "inactive": "Off",
+      "runningUntil": "running until {time}",
+      "create": "Create promotion",
+      "save": "Save",
+      "edit": "Edit",
+      "delete": "Delete",
+      "activate": "Switch on",
+      "deactivate": "Switch off",
+      "confirmDelete": "Delete \"{name}\"? Orders already booked keep their price.",
+      "created": "Promotion created",
+      "saved": "Promotion saved",
+      "deleted": "Promotion deleted",
+      "activated": "Promotion switched on",
+      "deactivated": "Promotion switched off",
+      "priorityHint": "When promotions overlap, each item gets the lowest price; discounts never add up. At the same price the promotion naming the item itself wins. A promotion only lowers a price, never raises it.",
+      "errors": {
+        "name": "Please enter a name.",
+        "value": {
+          "fixed": "Please enter a price in euros, e.g. 3.00.",
+          "percent": "Please enter a discount from 1 to 100 %.",
+          "amount": "Please enter a discount in euros, e.g. 0.50."
+        },
+        "weekdays": "Please pick at least one day.",
+        "targets": "Please pick at least one item or category.",
+        "dates": "The end date is before the start date."
+      }
+    },
+    "features": {
+      "title": "Features",
+      "saved": "Saved.",
+      "depositEnabled": {
+        "label": "Deposit",
+        "hint": "Item deposits are charged; waiters and the counter get the \"Return deposit\" button. Off: no deposit, even if items have a deposit value."
+      },
+      "staffMealsEnabled": {
+        "label": "Helper / staff meals",
+        "hint": "Waiters can book free orders for helpers (with a reason)."
+      }
+    },
+    "join": {
+      "linkTitle": "Join link for helpers",
+      "linkHint": "One link for everybody: scan, enter a name, wait. You let each person in here. Only valid while this event is active.",
+      "create": "Create link",
+      "qrAlt": "QR code to join",
+      "share": "Share link",
+      "copied": "Link copied",
+      "renew": "Create new link",
+      "renewConfirm": "The current link will stop working. People already in stay signed in. Continue?",
+      "waiting": "Waiting to be let in ({n})",
+      "nobodyWaiting": "Nobody is waiting right now.",
+      "approveAll": "Let all in",
+      "approve": "Let in",
+      "reject": "Turn away",
+      "rejoin": "Already on the team, signing in on a new device.",
+      "roleOf": "Role for {name}",
+      "members": "On the team ({n})",
+      "noMembers": "Nobody has joined yet.",
+      "lock": "Lock",
+      "unlock": "Unlock",
+      "inactiveHint": "This event is not active: the link only works once it is activated.",
+      "failed": "Did not work. Please try again."
+    }
+  },
+  "errors": {},
+  "offline": {
+    "badge": "Offline",
+    "title": "No connection",
+    "text": "The app is installed, but orders and payments need an internet connection. Please check your connection and reload.",
+    "back": "Back to start",
+    "reload": "Reload"
+  },
+  "nav": {
+    "production": "Production",
+    "admin": "Admin",
+    "service": "Service",
+    "passkeys": "Passkeys",
+    "account": "Account",
+    "settings": "Language & appearance",
+    "language": "Language",
+    "device": {
+      "label": "This device",
+      "service": "Waiter",
+      "counter": "Counter"
+    },
+    "version": "Version {version}",
+    "myAccount": "My account"
+  },
+  "production": {
+    "start": "Start preparing",
+    "done": "Done",
+    "waiting": "{n} min ago",
+    "toastDone": "Done",
+    "toastStarted": "In preparation",
+    "toastFailed": "Action failed.",
+    "loading": "Loading queue …",
+    "empty": "No open items.",
+    "counter": "Counter",
+    "finishOrder": "{label} all done",
+    "viewLabel": "View",
+    "view": {
+      "orders": "By order",
+      "items": "Single items"
+    },
+    "soldOut": {
+      "title": "Manage sold out",
+      "empty": "No items for this station.",
+      "stock": "Stock: {n}",
+      "markSoldOut": "Sold out",
+      "markAvailable": "Back again",
+      "saved": "Saved"
+    },
+    "staffMeal": "Helpers",
+    "undo": "Undo",
+    "toastUndone": "Back in progress",
+    "toastUndoFailed": "Cannot undo – already served?",
+    "stationLabel": "Choose station"
+  },
+  "alerts": {
+    "soundLabel": "Sound for new alerts",
+    "sound": {
+      "on": "Sound on",
+      "off": "Sound off",
+      "locked": "Enable sound"
+    },
+    "vibrationLabel": "Vibration for new alerts",
+    "vibration": {
+      "on": "Vibration on",
+      "off": "Vibration off"
+    },
+    "label": "Alerts"
+  },
+  "legal": {
+    "imprint": "Legal notice",
+    "privacy": "Privacy",
+    "loading": "Loading …",
+    "missing": "No text has been provided for this event yet."
+  },
+  "receipt": {
+    "last": "Last payment: {amount}",
+    "print": "Print receipt",
+    "show": "Show receipt",
+    "hide": "Hide receipt",
+    "dismiss": "Close receipt",
+    "total": "Total",
+    "deposit": "Deposit",
+    "depositIncluded": "of which deposit",
+    "servedBy": "Served by: {name}",
+    "noTaxReceipt": "Not a tax receipt – for the guest's records"
+  }
+}

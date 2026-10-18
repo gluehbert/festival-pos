@@ -1,0 +1,27 @@
+name: Perf smoke
+
+# Manual p95 latency check against a deployed URL (e.g. a Vercel preview).
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Base URL of the deployment to test
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  perf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm perf:smoke
+        env:
+          PERF_BASE_URL: ${{ inputs.base_url }}

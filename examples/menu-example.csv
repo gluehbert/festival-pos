@@ -1,0 +1,31 @@
+﻿Name (DE);Name (EN);Price (€);Category;Subcategory;Station;Sort order;Available
+Bratwurst im Brötchen;Bratwurst in a bun;3,50;Food;From the grill;Kitchen;10;yes
+Rote Wurst;Red sausage;3,50;Food;From the grill;Kitchen;11;yes
+Nackensteak im Brötchen;Pork neck steak in a bun;5,00;Food;From the grill;Kitchen;12;yes
+Grillkäse;Grilled cheese;4,50;Food;Vegetarian;Kitchen;30;yes
+Gemüsespieß;Vegetable skewer;4,00;Food;Vegetarian;Kitchen;31;yes
+Pommes;Fries;3,00;Food;Sides;Kitchen;40;yes
+Kartoffelsalat;Potato salad;2,50;Food;Sides;Kitchen;41;yes
+Brezel;Pretzel;1,50;Food;;Kitchen;5;yes
+Apfelkuchen;Apple pie;2,50;Coffee & Cake;Cake;Kitchen;60;yes
+Käsekuchen;Cheesecake;2,50;Coffee & Cake;Cake;Kitchen;61;yes
+Schwarzwälder Kirschtorte;Black Forest gateau;3,50;Coffee & Cake;Cake;Kitchen;62;yes
+Kaffee;Coffee;2,00;Coffee & Cake;Hot drinks;Bar;70;yes
+Cappuccino;Cappuccino;2,80;Coffee & Cake;Hot drinks;Bar;71;yes
+Tee;Tea;1,80;Coffee & Cake;Hot drinks;Bar;72;yes
+Wasser 0,5 l;Water 0.5 l;2,00;Drinks;Non-alcoholic;Bar;100;yes
+Apfelschorle 0,5 l;Apple spritzer 0.5 l;2,50;Drinks;Non-alcoholic;Bar;101;yes
+Cola 0,33 l;Cola 0.33 l;2,50;Drinks;Non-alcoholic;Bar;102;yes
+Spezi 0,33 l;Cola-orange 0.33 l;2,50;Drinks;Non-alcoholic;Bar;103;yes
+Pils 0,5 l;Pilsner 0.5 l;3,50;Drinks;Beers;Bar;110;yes
+Weizen 0,5 l;Wheat beer 0.5 l;3,80;Drinks;Beers;Bar;111;yes
+Radler 0,5 l;Shandy 0.5 l;3,50;Drinks;Beers;Bar;112;yes
+Alkoholfreies Bier 0,5 l;Alcohol-free beer 0.5 l;3,30;Drinks;Beers;Bar;113;yes
+Riesling 0,2 l;Riesling 0.2 l;4,00;Drinks;Wines;Bar;120;yes
+Grauburgunder 0,2 l;Pinot gris 0.2 l;4,20;Drinks;Wines;Bar;121;yes
+Weinschorle 0,4 l;Wine spritzer 0.4 l;4,00;Drinks;Wines;Bar;122;yes
+Aperol Spritz;Aperol Spritz;6,00;Drinks;Long drinks;Bar;130;yes
+Gin Tonic;Gin and tonic;6,50;Drinks;Long drinks;Bar;131;yes
+Obstler 2 cl;Fruit brandy 2 cl;2,00;Drinks;Schnapps & spirits;Bar;140;yes
+Williams Birne 2 cl;Pear brandy 2 cl;2,50;Drinks;Schnapps & spirits;Bar;141;yes
+Jägermeister 2 cl;Jägermeister 2 cl;2,50;Drinks;Schnapps & spirits;Bar;142;yes

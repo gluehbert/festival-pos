@@ -1,0 +1,12 @@
+{
+  "extends": "./.nuxt/tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".data",
+    ".output",
+    ".nuxt/dist",
+    // Vue SFC imports need vue-tsc (`pnpm typecheck`), not plain tsc
+    "tests/app"
+  ]
+}
