@@ -37,7 +37,7 @@ async function paidWithTip(ctx: Ctx, table: number, items: RegExp[], given: stri
   await ensureDrawer(ctx)
   await guestOrderAt(ctx, table, items)
   const page = await waiterOnAll(ctx)
-  await page.getByRole('link', { name: new RegExp(`tisch ${table}\\b`, 'i') }).click()
+  await page.getByRole('link', { name: new RegExp(`table ${table}\\b`, 'i') }).click()
   await page.getByRole('button', { name: /cash out/i }).click()
   await page.locator('[data-test="pay-given"]').fill(given)
   await page.locator('[data-test="tip-change"]').click()
