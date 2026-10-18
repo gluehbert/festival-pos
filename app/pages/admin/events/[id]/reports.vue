@@ -67,6 +67,9 @@ const usage = poll<AppUsageRow>('app_usage')
 
 <template>
   <div>
+    <p class="mb-2 text-xs text-slate-500" data-test="reports-internal-note">
+      {{ t('admin.reports.internalNote') }}
+    </p>
     <ReportSection
       :title="t('admin.reports.sections.revenue')"
       :hint="t('admin.reports.revenueHint')"

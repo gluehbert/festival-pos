@@ -16,8 +16,8 @@ test.describe('@smoke US8 — club festival extras', () => {
     await closeButton.or(page.locator('[data-test="cash-opening"]')).first().waitFor()
     if (await closeButton.isVisible()) {
       await page.locator('[data-test="cash-counted"]').fill('0')
-      page.once('dialog', (d) => d.accept())
       await closeButton.click()
+      await page.locator('[data-test="confirm-ok"]').click()
     }
     await page.locator('[data-test="cash-opening"]').fill('50')
     await page.getByRole('button', { name: /open drawer/i }).click()
@@ -51,8 +51,9 @@ test.describe('@smoke US8 — club festival extras', () => {
     await expect(page.locator('[data-test="cash-expected"]')).not.toContainText('€50.00')
     await page.locator('[data-test="cash-counted"]').fill('50')
     await expect(page.locator('[data-test="cash-difference"]')).toContainText('short')
-    page.once('dialog', (d) => d.accept())
     await page.getByRole('button', { name: /close drawer/i }).click()
+    await expect(page.getByRole('dialog')).toContainText('short')
+    await page.locator('[data-test="confirm-ok"]').click()
     await expect(page.getByText(/drawer closed/i)).toBeVisible()
   })
 

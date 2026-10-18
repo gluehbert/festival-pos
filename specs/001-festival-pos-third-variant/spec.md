@@ -43,7 +43,7 @@
 
 - Q: Which free database is used? → A: **Neon Free** (Postgres) as the default. Rationale: seamless Vercel integration, connection pooler for serverless. Supabase Free is an acceptable alternative if auth/storage are needed later, but not in parallel.
 - Q: How is the branch and worktree workflow chosen? → A: The specification was originally maintained in its own worktree on branch `feature/third-variant-serverless-mvp`; today it lives in this repository. The canonical .NET variant and the `feature-secondTry` worktree serve only as sources and are not modified.
-- Q: Which polling intervals apply? → A: Default **4 seconds** for kitchen/bar production and service tickets, **5 seconds** for the admin dashboard, **8 seconds** for the guest status view. Values are configurable and must respect the free-tier limits (see Assumptions).
+- Q: Which polling intervals apply? → A: Default **4 seconds** for kitchen/bar production and service tickets, **5 seconds** for the admin dashboard, **8 seconds** for the guest status view. The values are fixed in the code, see FR-041.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -146,7 +146,7 @@ The admin opens a dashboard for the active event showing: total gross revenue, r
 - Vercel cold start delays the first request after inactivity → critical read endpoints (menu, table status) are briefly (≤ 5 s) cacheable server-side so that the display stays smooth.
 - The free tier's database connection limit is briefly reached → the endpoint responds with 503 + retry hint, the client shows a non-blocking notice and retries on the next poll.
 - An overloaded Wi-Fi or mobile network drops or delays a request to place an order or book a payment → the client retries automatically with backoff (1, 2, 4, 8 s, at most 20 s, 10 s timeout per attempt) using the same `Idempotency-Key`. Business errors (4xx) are not retried. After cancelling or giving up, the key is kept, so tapping again finds the order or payment that may already be booked.
-- Free-tier function invocations run low → polling intervals can be stretched globally via an admin setting without breaking functional flows.
+- Free-tier function invocations run low → the polling intervals are fixed (FR-041); a setting to stretch them is only added if a rehearsal shows the quota is not enough.
 
 ## Requirements *(mandatory)*
 
@@ -165,11 +165,11 @@ The admin opens a dashboard for the active event showing: total gross revenue, r
 **Service flow (US2)**
 
 - **FR-010**: The system MUST authenticate staff by username + password OR by username + personal numeric PIN (*since PR #18: admins by password only*) and set a staff JWT as an HttpOnly+SameSite=Strict cookie.
-- **FR-011**: Every staff account MUST be assigned a role: `admin`, `waiter`, `kitchen`, `bar`.
-- **FR-012**: Voids may be performed exclusively by `admin` and `waiter`.
+- **FR-011**: Every staff account MUST be assigned a role: `admin`, `lead` (shift lead), `waiter`, `kitchen`, `bar`.
+- **FR-012**: Voids may be performed exclusively by `admin`, `lead` and `waiter`. Items that kitchen or bar have already finished can only be voided by `admin`.
 - **FR-013**: Walk-in orders each create a new, standalone ticket; there is no collective ticket at table 0.
 - **FR-014**: Partial payments MUST be made at item level; the ticket stays open until all non-voided items are paid.
-- **FR-015**: Only one payment process may be open per ticket at any time (payment lock); lock timeout 60 s, auto-release with warning.
+- **FR-015**: Only one payment process may be open per ticket at any time (payment lock); lock timeout 60 s, auto-release with warning. The lock also applies to the same waiter (a second tab or device); it lasts only as long as the booking itself, plus the 60 s expiry after a crash.
 - **FR-016**: Every payment and every void MUST be persisted in the audit log with staff ID, UTC timestamp and (for voids) a reason.
 
 **Production flow (US3)**
@@ -190,7 +190,7 @@ The admin opens a dashboard for the active event showing: total gross revenue, r
 **Architecture & operating rules**
 
 - **FR-040**: The API MUST run as **Nuxt/Nitro server routes** in the same project as the frontend; **no** separate backend deployment in the MVP.
-- **FR-041**: Realtime updates MUST be done by polling every 4 s for service tickets and production queue, every 5 s for the admin dashboard, every 8 s for the guest status. Polling intervals MUST be configurable.
+- **FR-041**: Realtime updates MUST be done by polling every 4 s for service tickets and production queue, every 5 s for the admin dashboard, every 8 s for the guest status. The intervals are fixed values in the code: service and production 4 s, guest status 8 s, menu 20 s, admin reports 5 s while the event is live (60 s otherwise). A configuration was deliberately not built (Constitution VIII); the trigger for re-evaluation is a function-invocation quota problem during a rehearsal.
 - **FR-042**: In the MVP the system MUST NOT use WebSockets or SSE endpoints for live updates. Dedicated worker processes are not allowed. **Allowed** is exactly one daily Vercel Cron (`vercel.json`, Vercel Hobby) that calls the cleanup endpoint `/api/cron/sweep`; the endpoint MUST be protected with `CRON_SECRET`. *(Changed October 2026: previously any cron was forbidden.)*
 - **FR-043**: Cleanup logic (expired payment locks, expired guest sessions without orders, old login attempts) MUST run **on demand** on API traffic (at most once per hour) and additionally via the daily cron from FR-042.
 - **FR-044**: There MUST NOT be separate layer modules for Domain/Application/Infrastructure/Api; **no** repository pattern, **no** factories, **no** MediatR/CQRS.
@@ -247,7 +247,7 @@ The following entities are adopted from the canonical .NET variant and simplifie
 - **Hosting default**: Frontend + API on Vercel Hobby, database on Neon Free; the choice of Neon vs. Supabase is finalized in the plan, but **not both in parallel**.
 - **Device landscape**: Guests use smartphones with current browsers (iOS Safari, Android Chrome, each of the last 2 major versions). Service on smartphone, kitchen/bar on a 9–10″ tablet.
 - **Network**: The festival has sufficient Wi-Fi or LTE for polling intervals of 4–8 s; sporadic dropouts are tolerated by the client (retry on the next poll), but **no** full offline operation in the MVP.
-- **Cash**: The MVP supports **cash payment only**. Card payment, TSE (fiscal device) and receipt numbers are explicitly out of scope.
+- **Cash**: The MVP supports **cash payment only**. Card payment, TSE (fiscal device) and receipt numbers are explicitly out of scope. No further payment method is planned (decision of October 2026). The app runs as an ordering system; cash is settled through an open cash box, and the app's cash closing and reports are internal control.
 - **Volume**: A club evening has ≤ 50 tables, ≤ 10 concurrent service devices, ≤ 4 production stations, ≤ 200 orders per hour — all free-tier limits are respected within this envelope.
 - **Languages**: DE/EN. Further languages are not in the MVP.
 - **Data cleanup**: 7-day retention for personal data without a billing relation via on-demand sweep plus daily cron; accounting data is retained.
@@ -258,6 +258,7 @@ The following entities are adopted from the canonical .NET variant and simplifie
 - **Phase 2 — Realtime**: If polling load strains the free tier or the UX should improve, a separate **Hono/WS service** can be extracted for the push channels of the kitchen/bar/service queue. The functional flows of this specification MUST remain unchanged; only the transport changes.
 - **Background cleanup**: Implemented as a daily Vercel Cron (FR-042).
 - **Phase 2 — Offline order queue**: True offline capability for guest orders with an IndexedDB queue and replay; introduce only if the complexity is clearly sustainable. Trigger for re-evaluation: more than two failed sends at one festival evening despite the automatic retry.
+- **"Call a waiter" from the guest page**: deliberately not built; waiters who work with pen and paper could not be called. Re-evaluate after the first real festival.
 - **Phase 2 — Card payment, TSE, receipt numbers**: Explicitly excluded in the MVP; a separate specification is required.
 
 ## Added since the spec
@@ -265,7 +266,7 @@ The following entities are adopted from the canonical .NET variant and simplifie
 Implemented, but not described (or described differently) in the sections above. Details are in the code and in [`specs/002-kellner-bestellung-tischansicht/plan.md`](../002-kellner-bestellung-tischansicht/plan.md).
 
 - **Order kinds (`orders.kind`)**: `guest` (QR), `staff_table` (waiter orders for a table and lands on the same table bill) and `walkin` (counter, own ticket, optionally "Send & paid in cash"). A CHECK ensures that guest orders carry a guest session and waiter orders carry a staff account.
-- **Rehearsal mode (Probelauf, test mode)**: Switchable per event (`events.trial_mode`). Orders and payments are marked as test (`is_trial`), a banner appears everywhere, reports do not count them. "Delete test data" or "End rehearsal" removes only test data.
+- **Rehearsal mode (Probelauf, test mode)**: Switchable per event (`events.trial_mode`). Orders and payments are marked as test (`is_trial`), a banner appears everywhere, reports do not count them. Rehearsal orders do not change stock levels, and voids in rehearsal mode return nothing. "Delete test data" removes only test data. "End rehearsal" also resets table assignments and "asked at the table" marks.
 - **Branding**: Logo (light/dark), flyer (image/PDF), colors and texts per event (`event_assets`, `/admin/events/:id/branding`). Guests see it on the start and order pages. Flyers are deleted 90 days after the event ends.
 - **Refunds**: Admin can refund paid items (`refunds`, `POST /api/admin/order-items/:id/refund`), with an audit log; reports net them out.
 - **Dark mode**: Light/dark/system, stored on the account for staff (`PUT /api/auth/theme`) and therefore identical on all devices.
@@ -277,4 +278,6 @@ Implemented, but not described (or described differently) in the sections above.
 - **Login throttling**: 10 failed attempts per user and IP, 100 per user, each within 15 minutes.
 - **Daily cron**: The sweep (FR-043) runs on demand at most once per hour for all instances combined (timestamp in `maintenance_runs`), in the background and not from the polling endpoints. In addition, Vercel Cron calls `/api/cron/sweep` once a day (protected with `CRON_SECRET`). FR-042 has explicitly allowed this since October 2026.
 - **Retention**: Guest sessions that carry orders are not deleted after 7 days (otherwise the order's reference would be lost); they disappear with their event. Orders, payments, refunds, cash-ups (Kassenabschluss, drawer close) and the audit log are retained for accounting (Constitution, Principle IV).
+- **Shift lead (`lead`)**: Hands out tables to waiters at the start of a shift ("Distribute tables") and sees the tables nobody looks after. Waiter screens stay limited to ordering, serving and cashing up (Constitution IX).
+- **Own confirmation dialogs**: Closing the drawer (with expected, counted and difference), removing a passkey and renewing the join link use the app's own dialog instead of browser dialogs. PIN and password are changed inline in the staff list.
 - **For the club festival** (#21–#28, details in the [README, "At the festival"](../../README.md#at-the-festival)): notes per item, cash-up per waiter (Bedienung), bottle deposit (Pfand), stock levels with a "sold out" switch for kitchen/bar, staff meals (Helferverpflegung), promotional prices, imprint and privacy policy per event, receipt printing, "My tables" with table takeover, and table grid.

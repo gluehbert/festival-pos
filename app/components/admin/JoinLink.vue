@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import QRCode from 'qrcode'
+import ConfirmDialog from '~/components/common/ConfirmDialog.vue'
 
 // The event's join link as QR code (to show at the briefing or print) plus
 // copy/share for the messenger group.
 const props = defineProps<{ url: string | null; busy: boolean }>()
 const emit = defineEmits<{ create: [] }>()
-const { t } = useI18n()
 
 const qr = ref<string | null>(null)
 const copied = ref(false)
+const renewing = ref(false)
 
 watch(() => props.url, async (url) => {
   try {
@@ -35,7 +36,8 @@ async function share() {
 }
 
 function renew() {
-  if (window.confirm(t('admin.join.renewConfirm'))) emit('create')
+  renewing.value = false
+  emit('create')
 }
 </script>
 
@@ -67,10 +69,19 @@ function renew() {
           <UIcon name="i-lucide-share-2" class="size-4 shrink-0" aria-hidden="true" />
           {{ $t(copied ? 'admin.join.copied' : 'admin.join.share') }}
         </button>
-        <button type="button" class="min-h-[44px] rounded border border-slate-300 px-4 text-sm disabled:opacity-60" :disabled="busy" data-test="join-renew" @click="renew">
+        <button type="button" class="min-h-[44px] rounded border border-slate-300 px-4 text-sm disabled:opacity-60" :disabled="busy" data-test="join-renew" @click="renewing = true">
           {{ $t('admin.join.renew') }}
         </button>
       </div>
     </template>
+    <ConfirmDialog
+      :open="renewing"
+      :title="$t('admin.join.renewTitle')"
+      :confirm-label="$t('admin.join.renew')"
+      @confirm="renew"
+      @cancel="renewing = false"
+    >
+      {{ $t('admin.join.renewConfirm') }}
+    </ConfirmDialog>
   </section>
 </template>

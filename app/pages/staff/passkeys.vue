@@ -4,6 +4,7 @@ import { navigateTo } from '#imports'
 import { homeForRole, useAuthStore } from '~/stores/auth'
 import { usePasskeysStore } from '~/stores/passkeys'
 import { useFormat } from '~/composables/useFormat'
+import ConfirmDialog from '~/components/common/ConfirmDialog.vue'
 import { devicePlatform, markPasskeyOffer, passkeyErrorKey, passkeysSupported } from '~/utils/passkey'
 
 // "Meine Passkeys": set up, list and remove the own passkeys.
@@ -54,11 +55,15 @@ async function add() {
   }
 }
 
-async function remove(id: string, label: string) {
-  if (!window.confirm(t('staff.passkeys.confirmRemove', { name: label }))) return
+const removing = ref<{ id: string, name: string } | null>(null)
+
+async function remove() {
+  const target = removing.value
+  if (!target) return
+  removing.value = null
   busy.value = true
   try {
-    await store.remove(id)
+    await store.remove(target.id)
     notice.value = { kind: 'success', text: t('staff.passkeys.removed') }
   }
   catch {
@@ -130,12 +135,23 @@ async function remove(id: string, label: string) {
             class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-rose-700 hover:bg-rose-50"
             :aria-label="$t('staff.passkeys.remove', { name: p.name })"
             :disabled="busy"
-            @click="remove(p.id, p.name)"
+            @click="removing = { id: p.id, name: p.name }"
           >
             <UIcon name="i-lucide-trash" class="size-5 shrink-0" aria-hidden="true" />
           </button>
         </li>
       </ul>
     </section>
+
+    <ConfirmDialog
+      :open="removing !== null"
+      :title="$t('staff.passkeys.removeTitle')"
+      :confirm-label="$t('staff.passkeys.removeAction')"
+      danger
+      @confirm="remove"
+      @cancel="removing = null"
+    >
+      {{ $t('staff.passkeys.confirmRemove', { name: removing?.name ?? '' }) }}
+    </ConfirmDialog>
   </main>
 </template>
