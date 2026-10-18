@@ -70,6 +70,29 @@ describe('idempotent payments and orders, guest limits', () => {
     expect(rest.res).toMatchObject({ totalCents: 800, ticketStatusAfter: 'paid' })
   })
 
+  it('a payment retried after an aborted answer gets the booked payment back, even with a lock on the table', async () => {
+    const order = await call('orders', {
+      tableNo: 5, mode: 'staff_table', items: [{ menuItemId: seeded.menuItemIds[1]!, quantity: 2 }],
+    }, { key: 'o1' })
+    const lineId = (order.res!.items as Array<{ orderItemId: string }>)[0]!.orderItemId
+    const pay = { ticketKey: 't-5', orderItemIds: [lineId] }
+
+    const first = await call('payments', pay, { key: 'p1' })
+    expect(first.status).toBe(201)
+    // The lock is released in the booking's finally: the retry meets none.
+    expect(count(`SELECT COUNT(*)::int AS n FROM payment_locks`)).toBe(0)
+
+    // Even if a lock was active (second tab), the booked payment is found first.
+    ctx.mem.public.none(
+      `INSERT INTO payment_locks (event_id, table_no, staff_id, expires_at)
+       VALUES ('${seeded.eventId}', 5, '${seeded.staffId}', now() + interval '60 seconds')`,
+    )
+    const retry = await call('payments', pay, { key: 'p1' })
+    expect(retry.status).toBe(200)
+    expect(retry.res).toMatchObject({ paymentId: first.res!.paymentId })
+    expect(count(`SELECT COUNT(*)::int AS n FROM payments`)).toBe(1)
+  })
+
   it('a staff order sent twice with the same key is created once, per waiter', async () => {
     const body = { tableNo: 7, mode: 'staff_table', items: [{ menuItemId: seeded.menuItemIds[0]!, quantity: 1 }] }
     const a = await call('orders', body, { key: 'same' })

@@ -85,7 +85,11 @@
       "changedLine": "{name}: gebucht {booked} statt {shown}",
       "changedHint": "Eine Aktion hat begonnen oder ist zu Ende. Gebucht wurde der Preis zum Bestellzeitpunkt; die Karte ist neu geladen."
     },
-    "orderNo": "Bestellung #{no}"
+    "orderNo": "Bestellung #{no}",
+    "sending": {
+      "attempt": "Wird gesendet … Versuch {n} von {max}",
+      "cancel": "Abbrechen"
+    }
   },
   "guest": {
     "landing": {

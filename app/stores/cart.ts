@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { MenuItemDto } from '~/../server/lib/contracts/guest'
-import { addItem, linesDeposit, linesTotal, qtyOfItem, restoreLine, setItemQty, setLineNote, setLineQty, uniqueItems, type OrderLine } from '~/utils/order-lines'
+import { addItem, linesDeposit, linesTotal, qtyOfItem, remainingLines, restoreLine, setItemQty, setLineNote, setLineQty, uniqueItems, type OrderLine } from '~/utils/order-lines'
 
 export type CartLine = OrderLine
 
@@ -101,6 +101,12 @@ export const useCartStore = defineStore('guest-cart', () => {
     save()
   }
 
+  // After a send: only what was sent leaves, later changes stay.
+  function clearSent(sent: ReadonlyMap<string, number>): void {
+    lines.value = remainingLines(lines.value, sent)
+    save()
+  }
+
   // Pfand included; depositCents is the share of it.
   const totalCents = computed(() => linesTotal(lines.value))
   const depositCents = computed(() => linesDeposit(lines.value))
@@ -113,6 +119,6 @@ export const useCartStore = defineStore('guest-cart', () => {
 
   return {
     tableNo, lines, totalCents, depositCents, itemCount, isEmpty,
-    setTable, restore, syncWithMenu, add, remove, setQty, setLineQuantity, setNote, qtyOf, clear,
+    setTable, restore, syncWithMenu, add, remove, setQty, setLineQuantity, setNote, qtyOf, clear, clearSent,
   }
 })

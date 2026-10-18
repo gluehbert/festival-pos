@@ -39,18 +39,25 @@ describe('payments store', () => {
   it('keeps the idempotency key while the same payment is retried after no answer', async () => {
     const s = usePaymentsStore()
     const keyOf = (i: number) => (fetchMock.mock.calls[i]![1] as { headers: Record<string, string> }).headers['idempotency-key']
-    fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'))
-    await expect(s.createPayment('t-3', ['a'], { a: 1 })).resolves.toBeNull()
+    // No answer at all: every automatic try is used up, then it is unconfirmed.
+    vi.useFakeTimers()
+    for (let i = 0; i < 5; i++) fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'))
+    const first = s.createPayment('t-3', ['a'], { a: 1 })
+    await vi.advanceTimersByTimeAsync(16000)
+    await expect(first).resolves.toBeNull()
+    vi.useRealTimers()
+    expect(fetchMock).toHaveBeenCalledTimes(5)
     expect(s.unconfirmed).toBe(true)
     fetchMock.mockResolvedValueOnce({ paymentId: 'p', totalCents: 400, ticketStatusAfter: 'open' })
     await s.createPayment('t-3', ['a'], { a: 1 })
-    expect(keyOf(1)).toBe(keyOf(0))
+    expect(keyOf(4)).toBe(keyOf(0))
+    expect(keyOf(5)).toBe(keyOf(0))
     expect(s.unconfirmed).toBe(false)
 
     // After the answer, the next payment is a new one.
     fetchMock.mockResolvedValueOnce({ paymentId: 'q', totalCents: 400, ticketStatusAfter: 'paid' })
     await s.createPayment('t-3', ['a'], { a: 1 })
-    expect(keyOf(2)).not.toBe(keyOf(1))
+    expect(keyOf(6)).not.toBe(keyOf(5))
 
     // A clear "no" from the server also starts over.
     fetchMock.mockRejectedValueOnce({ statusCode: 409, data: { code: 'CONFLICT', message: 'paid' } })
@@ -58,7 +65,7 @@ describe('payments store', () => {
     expect(s.unconfirmed).toBe(false)
     fetchMock.mockResolvedValueOnce({ paymentId: 'r', totalCents: 400, ticketStatusAfter: 'paid' })
     await s.createPayment('t-3', ['b'])
-    expect(keyOf(4)).not.toBe(keyOf(3))
+    expect(keyOf(8)).not.toBe(keyOf(7))
   })
 
   it('voids and refunds, reporting failures', async () => {
@@ -140,5 +147,52 @@ describe('menu, tickets, staff-admin and admin stores', () => {
     fetchMock.mockResolvedValueOnce({ id: 'b', isActive: true })
     await s.activateEvent('b')
     expect(s.events.map((e) => [e.id, e.isActive])).toEqual([['a', false], ['b', true]])
+  })
+})
+
+describe('payments store retry', () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  const keys = () => fetchMock.mock.calls.map((c) => (c[1] as { headers: Record<string, string> }).headers['idempotency-key'])
+
+  it('books once when the first two tries get no answer, with one key throughout', async () => {
+    fetchMock
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce({ paymentId: 'p', totalCents: 400, ticketStatusAfter: 'paid' })
+    const s = usePaymentsStore()
+    const p = s.createPayment('t-3', ['a'])
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(s.sending).toEqual({ attempt: 1, max: 4 })
+    await vi.advanceTimersByTimeAsync(2000)
+    await expect(p).resolves.toMatchObject({ paymentId: 'p' })
+    expect(new Set(keys()).size).toBe(1)
+    expect(keys()).toHaveLength(3)
+    expect(s.unconfirmed).toBe(false)
+    expect(s.sending).toBeNull()
+  })
+
+  it('does not retry a lock conflict', async () => {
+    fetchMock.mockRejectedValue({ statusCode: 409, data: { code: 'LOCK_CONFLICT', message: 'locked', details: { lockedBy: 'x', expiresAt: 'e' } } })
+    const s = usePaymentsStore()
+    await expect(s.createPayment('t-3', ['a'])).resolves.toBeNull()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(s.lockConflict).not.toBeNull()
+  })
+
+  it('cancel stops further tries, keeps the key and marks the payment unconfirmed', async () => {
+    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'))
+    const s = usePaymentsStore()
+    const p = s.createPayment('t-3', ['a'])
+    await vi.advanceTimersByTimeAsync(1000)
+    s.cancelSending()
+    await vi.advanceTimersByTimeAsync(20000)
+    await expect(p).resolves.toBeNull()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(s.unconfirmed).toBe(true)
+    fetchMock.mockReset().mockResolvedValueOnce({ paymentId: 'p', totalCents: 400, ticketStatusAfter: 'paid' })
+    await s.createPayment('t-3', ['a'])
+    expect(keys()).toEqual([expect.any(String)])
   })
 })

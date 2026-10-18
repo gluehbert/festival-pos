@@ -24,6 +24,28 @@ test.describe('@smoke US1 — guest scans table QR, orders, sees confirmation', 
     await expect(page.getByText(/status/i)).toBeVisible()
   })
 
+  test('an order whose first two answers are lost is placed exactly once', async ({ page }) => {
+    await joinTable(page, 4)
+    const itemQty = async () => ((await (await page.request.get('/api/orders/session')).json()) as { items: Array<{ quantity: number }> }).items.reduce((n, i) => n + i.quantity, 0)
+    const before = await itemQty()
+    let posts = 0
+    // The server books the order, but the answer never arrives.
+    await page.route('**/api/orders', async (route) => {
+      if (route.request().method() !== 'POST') return route.continue()
+      posts++
+      if (posts <= 2) {
+        await route.fetch()
+        return route.abort('connectionreset')
+      }
+      return route.continue()
+    })
+    await page.getByRole('button', { name: /add/i }).first().click()
+    await submitCart(page)
+    await expect(page.getByRole('status').filter({ hasText: /order/i }).first()).toBeVisible({ timeout: 15_000 })
+    expect(posts).toBe(3)
+    expect(await itemQty()).toBe(before + 1)
+  })
+
   test('wrong event PIN is rejected', async ({ page }) => {
     await page.goto('/?table=5')
     await page.getByLabel(/event pin/i).fill('WRONG1')

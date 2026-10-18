@@ -85,7 +85,11 @@
       "changedLine": "{name}: booked {booked} instead of {shown}",
       "changedHint": "A promotion started or ended. The price at the time of ordering was booked; the menu has been reloaded."
     },
-    "orderNo": "Order #{no}"
+    "orderNo": "Order #{no}",
+    "sending": {
+      "attempt": "Sending … attempt {n} of {max}",
+      "cancel": "Cancel"
+    }
   },
   "guest": {
     "landing": {

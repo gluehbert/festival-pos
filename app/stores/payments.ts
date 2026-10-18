@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useApi } from '~/composables/useApi'
+import { useSendState } from '~/composables/useSendState'
 import { newIdempotencyKey } from '~/utils/idempotency'
 import type { PaymentResponse } from '~/../server/lib/contracts/staff'
 
@@ -20,6 +21,7 @@ export const usePaymentsStore = defineStore('payments', () => {
   // The last payment got no answer (network, timeout, 5xx): it may or may
   // not be booked. Sending the same selection again is safe, see below.
   const unconfirmed = ref(false)
+  const { sending, begin, end, cancel: cancelSending } = useSendState()
 
   // One key per payment, kept while that same selection is retried: if the
   // first try was booked and only the answer got lost, the server returns
@@ -50,7 +52,7 @@ export const usePaymentsStore = defineStore('payments', () => {
     }
     try {
       const api = useApi()
-      const res = await api.post<PaymentResponse>('/api/payments', body, { headers: { 'idempotency-key': pendingKey } })
+      const res = await api.post<PaymentResponse>('/api/payments', body, { headers: { 'idempotency-key': pendingKey }, ...begin() })
       lastReceipt.value = res
       forgetPending()
       return res
@@ -72,6 +74,7 @@ export const usePaymentsStore = defineStore('payments', () => {
     }
     finally {
       submitting.value = false
+      end()
     }
   }
 
@@ -125,5 +128,5 @@ export const usePaymentsStore = defineStore('payments', () => {
     forgetPending()
   }
 
-  return { lastReceipt, lockConflict, submitting, error, errorCode, unconfirmed, createPayment, forgetPending, releaseLock, voidItem, refundItem, reset }
+  return { lastReceipt, lockConflict, submitting, sending, cancelSending, error, errorCode, unconfirmed, createPayment, forgetPending, releaseLock, voidItem, refundItem, reset }
 })

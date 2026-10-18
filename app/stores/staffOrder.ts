@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
+import { useSendState } from '~/composables/useSendState'
 import { newIdempotencyKey } from '~/utils/idempotency'
 import { usePaymentsStore } from '~/stores/payments'
 import { useMenuStore } from '~/stores/menu'
 import type { MenuItemDto, Order } from '~/../server/lib/contracts/guest'
 import type { PaymentResponse } from '~/../server/lib/contracts/staff'
-import { addItem, linesTotal, qtyOfItem, setItemQty, setLineNote, setLineQty, toOrderItems, uniqueItems, type OrderLine } from '~/utils/order-lines'
+import { addItem, linesTotal, qtyOfItem, remainingLines, setItemQty, setLineNote, setLineQty, snapshotLines, toOrderItems, uniqueItems, type OrderLine } from '~/utils/order-lines'
 import { priceChanges, type PriceChange } from '~/utils/price-changes'
 
 export type StaffOrderLine = OrderLine
@@ -27,6 +28,7 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
   const lines = ref<StaffOrderLine[]>([])
   const submitting = ref(false)
   const error = ref<string | null>(null)
+  const { sending, begin, end, cancel: cancelSending } = useSendState()
   // One key per pad, kept across retries so a double tap or a flaky network
   // never sends the order twice. Renewed once the order went through.
   let idempotencyKey = newIdempotencyKey()
@@ -83,6 +85,8 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
     submitting.value = true
     error.value = null
     const api = useApi()
+    const sent = snapshotLines(lines.value)
+    const send = begin()
     try {
       const order = await api.post<Order>(
         '/api/orders',
@@ -92,18 +96,20 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
           ...(mode === 'staff_meal' ? { staffMealReason } : {}),
           items: toOrderItems(lines.value),
         },
-        { headers: { 'idempotency-key': idempotencyKey } },
+        { headers: { 'idempotency-key': idempotencyKey }, ...send },
       )
       const ticketKey = mode === 'staff_table' ? `t-${tableNo}` : `w-${order.orderId}`
       const changes = mode === 'staff_meal' ? [] : priceChanges(lines.value, order.items)
-      clear()
+      // Pad changes made while sending stay for the next order.
+      lines.value = remainingLines(lines.value, sent)
+      idempotencyKey = newIdempotencyKey()
       let paid: PaymentResponse | null = null
       if (payNow && mode === 'walkin') {
         try {
           paid = await api.post<PaymentResponse>(
             '/api/payments',
             { ticketKey, orderItemIds: order.items.map((i) => i.orderItemId) },
-            { headers: { 'idempotency-key': newIdempotencyKey() } },
+            { headers: { 'idempotency-key': newIdempotencyKey() }, ...send },
           )
           // Same receipt as after cashing at the table.
           usePaymentsStore().lastReceipt = paid
@@ -129,8 +135,9 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
     }
     finally {
       submitting.value = false
+      end()
     }
   }
 
-  return { lines, submitting, error, totalCents, valueCents, itemCount, isEmpty, add, setQty, setLineQuantity, setNote, qtyOf, syncWithMenu, clear, submit }
+  return { lines, submitting, sending, cancelSending, error, totalCents, valueCents, itemCount, isEmpty, add, setQty, setLineQuantity, setNote, qtyOf, syncWithMenu, clear, submit }
 })

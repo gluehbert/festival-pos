@@ -198,8 +198,10 @@ async function submit(givenCents: number | null = null) {
           :selected-units="selectedUnits"
           :total-cents="ticket?.unpaidCents ?? 0"
           :submitting="payments.submitting"
+          :sending="payments.sending"
           :disabled="payments.lockConflict !== null"
           @submit="submit"
+          @cancel-sending="payments.cancelSending"
         />
       </div>
 

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useFormat } from '~/composables/useFormat'
+import SendingState from '~/components/common/SendingState.vue'
 
 interface Props {
   selectedCents: number
   totalCents: number
   submitting?: boolean
+  sending?: { attempt: number, max: number } | null
   disabled?: boolean
   /** Units chosen; a selection of only 0-€ items closes them without cash. */
   selectedUnits?: number
@@ -13,7 +15,7 @@ interface Props {
 const props = defineProps<Props>()
 const hasSelection = computed(() => (props.selectedUnits ?? (props.selectedCents > 0 ? 1 : 0)) > 0)
 const free = computed(() => hasSelection.value && props.selectedCents === 0)
-const emit = defineEmits<{ (e: 'submit', givenCents: number | null): void }>()
+const emit = defineEmits<{ (e: 'submit', givenCents: number | null): void, (e: 'cancelSending'): void }>()
 
 const { euro } = useFormat()
 const selectedEur = computed(() => euro(props.selectedCents))
@@ -103,6 +105,7 @@ onBeforeUnmount(clearTimers)
         {{ $t('staff.pay.change', { amount: euro(changeCents) }) }}
       </p>
     </div>
+    <SendingState class="mt-3" :sending="sending ?? null" @cancel="emit('cancelSending')" />
     <div class="mt-3 flex gap-2">
       <button
         v-if="armed"
