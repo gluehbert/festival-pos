@@ -20,8 +20,11 @@ const { euro: fmtEur } = useFormat()
         <th class="py-2 pr-3 text-right">
           {{ $t('admin.reports.col.refunded') }}
         </th>
-        <th class="py-2 text-right">
+        <th class="py-2 pr-3 text-right">
           {{ $t('admin.reports.col.netCash') }}
+        </th>
+        <th class="py-2 text-right">
+          {{ $t('admin.reports.col.tip') }}
         </th>
       </tr>
     </thead>
@@ -36,12 +39,15 @@ const { euro: fmtEur } = useFormat()
         <td class="py-2 pr-3 text-right tabular-nums text-slate-500">
           {{ r.refundedCents > 0 ? fmtEur(r.refundedCents) : '–' }}
         </td>
-        <td class="py-2 text-right tabular-nums">
+        <td class="py-2 pr-3 text-right tabular-nums">
           {{ fmtEur(r.totalCents) }}
+        </td>
+        <td class="py-2 text-right tabular-nums text-slate-500">
+          {{ r.tipCents > 0 ? fmtEur(r.tipCents) : '–' }}
         </td>
       </tr>
       <tr v-if="rows.length === 0">
-        <td colspan="4" class="py-4 text-center text-slate-500">
+        <td colspan="5" class="py-4 text-center text-slate-500">
           {{ $t('admin.reports.empty', 'No data in current period.') }}
         </td>
       </tr>

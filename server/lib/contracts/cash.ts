@@ -12,7 +12,7 @@ export const CloseCashSessionSchema = z.object({
 })
 export type CloseCashSession = z.infer<typeof CloseCashSessionSchema>
 
-// Expected cash (Soll) = opening float + collected − refunded + deposit
+// Expected cash (Soll) = opening float + collected + tips − refunded + deposit
 // returns (booked negative). Test-mode bookings never count.
 export const CashSessionSchema = z.object({
   id: z.string().uuid(),
@@ -22,6 +22,7 @@ export const CashSessionSchema = z.object({
   closedAt: z.string().datetime().nullable(),
   openingCents: z.number().int(),
   collectedCents: z.number().int(),
+  tipCents: z.number().int().min(0),
   refundedCents: z.number().int(),
   depositReturnedCents: z.number().int().max(0),
   expectedCents: z.number().int(),

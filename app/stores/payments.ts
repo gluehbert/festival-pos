@@ -40,11 +40,13 @@ export const usePaymentsStore = defineStore('payments', () => {
     ticketKey: string,
     orderItemIds: string[],
     quantities?: Record<string, number>,
+    tipCents = 0,
   ): Promise<PaymentResponse | null> {
     submitting.value = true
     error.value = null
     lockConflict.value = null
-    const body = { ticketKey, orderItemIds, quantities }
+    // The tip is part of the body, so a changed tip is a new payment (new key).
+    const body = { ticketKey, orderItemIds, quantities, ...(tipCents > 0 && { tipCents }) }
     const bodyJson = JSON.stringify(body)
     if (!pendingKey || bodyJson !== pendingBody) {
       pendingKey = newIdempotencyKey()

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useFormat } from '~/composables/useFormat'
+import { parseEuroInput } from '~/utils/euro-input'
+import { centsToInput, roundUpTipCents } from '~/utils/tip'
 import SendingState from '~/components/common/SendingState.vue'
 
 interface Props {
@@ -15,7 +17,7 @@ interface Props {
 const props = defineProps<Props>()
 const hasSelection = computed(() => (props.selectedUnits ?? (props.selectedCents > 0 ? 1 : 0)) > 0)
 const free = computed(() => hasSelection.value && props.selectedCents === 0)
-const emit = defineEmits<{ (e: 'submit', givenCents: number | null): void, (e: 'cancelSending'): void }>()
+const emit = defineEmits<{ (e: 'submit', payload: { givenCents: number | null; tipCents: number }): void, (e: 'cancelSending'): void }>()
 
 const { euro } = useFormat()
 const selectedEur = computed(() => euro(props.selectedCents))
@@ -27,9 +29,22 @@ const givenCents = computed(() => {
   const n = Number.parseFloat(given.value.replace(',', '.'))
   return Number.isFinite(n) ? Math.round(n * 100) : null
 })
-const changeCents = computed(() =>
-  givenCents.value !== null && givenCents.value >= props.selectedCents ? givenCents.value - props.selectedCents : null,
+// Tip on top of the bill, same input as "Gegeben".
+const MAX_TIP_CENTS = 100_000
+const ASK_TIP_ABOVE_CENTS = 5000
+const tip = ref('')
+const tipCents = computed(() => parseEuroInput(tip.value) ?? 0)
+const payCents = computed(() => props.selectedCents + tipCents.value)
+const roundUpCents = computed(() => roundUpTipCents(props.selectedCents))
+// Change before any tip; the button hands all of it over as tip.
+const rawChangeCents = computed(() =>
+  givenCents.value !== null && givenCents.value > props.selectedCents ? givenCents.value - props.selectedCents : 0,
 )
+const changeCents = computed(() =>
+  givenCents.value !== null && givenCents.value >= payCents.value ? givenCents.value - payCents.value : null,
+)
+const unusualTip = computed(() => tipCents.value > ASK_TIP_ABOVE_CENTS || tipCents.value > props.selectedCents)
+const payEur = computed(() => euro(payCents.value))
 
 // Two taps on the same spot: the first arms "{amount} kassieren?", the
 // second books. A short guard stops an accidental double tap from doing
@@ -63,11 +78,12 @@ function tap() {
   }
   const cents = givenCents.value
   disarm()
-  emit('submit', cents)
+  emit('submit', { givenCents: cents, tipCents: tipCents.value })
 }
 
 watch(() => props.selectedCents, () => {
   given.value = ''
+  tip.value = ''
   disarm()
 })
 watch(() => props.disabled, (d) => { if (d) disarm() })
@@ -105,6 +121,41 @@ onBeforeUnmount(clearTimers)
         {{ $t('staff.pay.change', { amount: euro(changeCents) }) }}
       </p>
     </div>
+    <div v-if="selectedCents > 0" class="mt-3 space-y-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <label class="flex items-center gap-2 text-sm text-slate-600">
+          {{ $t('staff.pay.tip.label') }}
+          <input
+            v-model="tip"
+            type="text"
+            inputmode="decimal"
+            class="min-h-[44px] w-24 rounded border border-slate-300 px-2 py-2 text-right text-base"
+            data-test="tip-input"
+          >
+        </label>
+        <button
+          v-if="rawChangeCents > 0"
+          type="button"
+          class="min-h-[44px] rounded-lg border border-slate-300 px-3 text-sm font-semibold"
+          data-test="tip-change"
+          @click="tip = centsToInput(rawChangeCents)"
+        >
+          {{ $t('staff.pay.tip.change') }}
+        </button>
+        <button
+          type="button"
+          class="min-h-[44px] rounded-lg border border-slate-300 px-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+          :disabled="roundUpCents === 0"
+          data-test="tip-round"
+          @click="tip = centsToInput(roundUpCents)"
+        >
+          {{ $t('staff.pay.tip.roundUp') }}
+        </button>
+      </div>
+      <p v-if="tipCents > 0" class="text-sm text-slate-600" data-test="tip-line">
+        {{ $t('staff.pay.tip.line', { bill: selectedEur, tip: euro(tipCents), total: payEur }) }}
+      </p>
+    </div>
     <SendingState class="mt-3" :sending="sending ?? null" @cancel="emit('cancelSending')" />
     <div class="mt-3 flex gap-2">
       <button
@@ -120,7 +171,7 @@ onBeforeUnmount(clearTimers)
         type="button"
         class="min-h-[52px] flex-1 rounded px-4 py-3 text-base font-semibold shadow disabled:cursor-not-allowed disabled:bg-slate-300"
         :class="armed ? 'bg-success text-white hover:bg-success-hover' : 'bg-brand text-brand-contrast'"
-        :disabled="disabled || submitting || !hasSelection || guarding"
+        :disabled="disabled || submitting || !hasSelection || guarding || tipCents > MAX_TIP_CENTS"
         data-test="pay-submit"
         @click="tap"
       >
@@ -130,11 +181,14 @@ onBeforeUnmount(clearTimers)
         <template v-else-if="free">
           {{ $t('staff.pay.submitFree') }}
         </template>
+        <template v-else-if="armed && unusualTip">
+          {{ $t('staff.pay.tip.confirm', { tip: euro(tipCents) }) }}
+        </template>
         <template v-else-if="armed">
-          {{ $t('staff.pay.confirm', { amount: selectedEur }) }}
+          {{ $t('staff.pay.confirm', { amount: payEur }) }}
         </template>
         <template v-else>
-          {{ $t('staff.pay.submit', { amount: selectedEur }) }}
+          {{ $t('staff.pay.submit', { amount: payEur }) }}
         </template>
       </button>
     </div>

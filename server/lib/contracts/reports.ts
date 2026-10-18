@@ -9,6 +9,7 @@ export const ReportTypeEnum = z.enum([
   'top_items',
   'voids',
   'payments_by_staff',
+  'tips',
   'orders_per_hour',
   'cash_sessions',
   'deposits',
@@ -63,8 +64,19 @@ export const PaymentsByStaffRowSchema = z.object({
   // Net cash: payments minus refunds of those payments.
   totalCents: z.number().int(),
   refundedCents: z.number().int().nonnegative(),
+  tipCents: z.number().int().nonnegative(),
 })
 export type PaymentsByStaffRow = z.infer<typeof PaymentsByStaffRowSchema>
+
+// Tips per waiter (only payments that carry one) and, last, the total row
+// (staffId and username null).
+export const TipRowSchema = z.object({
+  staffId: z.string().uuid().nullable(),
+  username: z.string().nullable(),
+  paymentCount: z.number().int(),
+  tipCents: z.number().int().nonnegative(),
+})
+export type TipRow = z.infer<typeof TipRowSchema>
 
 // Helferverpflegung: booked at 0 €, valued at the menu price.
 export const StaffMealReportRowSchema = z.object({
@@ -118,6 +130,7 @@ export const PaymentsByStaffReportSchema = envelope(
   'payments_by_staff',
   PaymentsByStaffRowSchema,
 )
+export const TipsReportSchema = envelope('tips', TipRowSchema)
 export const OrdersPerHourReportSchema = envelope(
   'orders_per_hour',
   OrdersPerHourRowSchema,
@@ -136,6 +149,7 @@ export const ReportSchema = z.discriminatedUnion('type', [
   TopItemsReportSchema,
   VoidsReportSchema,
   PaymentsByStaffReportSchema,
+  TipsReportSchema,
   OrdersPerHourReportSchema,
   CashSessionsReportSchema,
   DepositsReportSchema,

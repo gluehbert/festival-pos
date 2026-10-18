@@ -34,6 +34,15 @@ const diffLabel = computed(() => {
         {{ euro(session.collectedCents) }}
       </dd>
     </div>
+    <div class="flex flex-wrap justify-between py-2">
+      <dt>+ {{ $t('staff.cash.tip') }}</dt>
+      <dd class="tabular-nums" data-test="cash-tip">
+        {{ euro(session.tipCents) }}
+      </dd>
+      <dd class="w-full text-xs text-slate-500">
+        {{ $t('staff.cash.tipHint') }}
+      </dd>
+    </div>
     <div class="flex justify-between py-2">
       <dt>− {{ $t('staff.cash.refunded') }}</dt>
       <dd class="tabular-nums">

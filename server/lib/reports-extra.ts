@@ -1,14 +1,35 @@
 import { and, eq, gt, isNotNull, ne, sql } from 'drizzle-orm'
 import type { Db } from '../db/client'
-import { menuItems, orderItems, orders, paymentItems, payments } from '../db/schema'
+import { menuItems, orderItems, orders, paymentItems, payments, staff } from '../db/schema'
 import { depositReturns } from '../db/schema-cash'
 import type { DepositReportRow } from './contracts/deposit'
-import type { StaffMealReportRow } from './contracts/reports'
+import type { StaffMealReportRow, TipRow } from './contracts/reports'
 import type { PriceRuleReportRow } from './contracts/pricing'
 import { itemNameDe, itemNameEn, paidRevenueWhere } from './reports'
 
 // Reports that are not revenue: Pfand and staff meals. Test-mode bookings
 // never count.
+
+// Tips per waiter, biggest first, then one total row (staffId null).
+export async function loadTips(db: Db, eventId: string): Promise<TipRow[]> {
+  const rows = await db
+    .select({
+      staffId: staff.id,
+      username: staff.username,
+      paymentCount: sql<number>`COUNT(${payments.id})`,
+      tips: sql<number>`COALESCE(SUM(${payments.tipCents}), 0)`,
+    })
+    .from(payments)
+    .innerJoin(staff, eq(staff.id, payments.staffId))
+    .where(and(eq(payments.eventId, eventId), eq(payments.isTrial, false), gt(payments.tipCents, 0)))
+    .groupBy(staff.id, staff.username)
+  const perStaff: TipRow[] = rows
+    .map((r) => ({ staffId: r.staffId, username: r.username, paymentCount: Number(r.paymentCount), tipCents: Number(r.tips) }))
+    .sort((a, b) => b.tipCents - a.tipCents)
+  if (perStaff.length === 0) return []
+  const total = perStaff.reduce((t, r) => ({ ...t, paymentCount: t.paymentCount + r.paymentCount, tipCents: t.tipCents + r.tipCents }), { staffId: null, username: null, paymentCount: 0, tipCents: 0 })
+  return [...perStaff, total]
+}
 
 // Pfand per deposit value: collected with paid items, handed back, balance.
 export async function loadDeposits(db: Db, eventId: string): Promise<DepositReportRow[]> {

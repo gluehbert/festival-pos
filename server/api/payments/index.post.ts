@@ -49,11 +49,12 @@ export default defineEventHandler(async (event) => {
     // A retry of a payment whose response got lost: answer with the booked
     // payment. Checked first, because its items now read as paid.
     const key = getIdempotencyKey(event)
-    const replay = async (booked: { id: string; totalCents: number }) => {
+    const replay = async (booked: { id: string; totalCents: number; tipCents: number }) => {
       setResponseStatus(event, 200)
       return PaymentResponseSchema.parse({
         paymentId: booked.id,
         totalCents: booked.totalCents,
+        tipCents: booked.tipCents,
         ticketStatusAfter: await ticketStatusAfter(db, ev.id, ticketRef),
         receipt: await loadReceipt(db, booked.id),
       })
@@ -126,6 +127,9 @@ export default defineEventHandler(async (event) => {
     if (totalCents < 0) {
       throw new AppError('VALIDATION', 400, 'Payment total must not be negative')
     }
+    if (totalCents === 0 && input.tipCents > 0) {
+      throw new AppError('VALIDATION', 400, 'A settlement without cash cannot carry a tip')
+    }
 
     const lockId = await acquirePaymentLock(db, {
       eventId: ev.id,
@@ -142,7 +146,7 @@ export default defineEventHandler(async (event) => {
         const paidIds = await settleLines(tx, lines)
         const inserted = await tx
           .insert(payments)
-          .values({ eventId: ev.id, staffId: staff.staffId, totalCents, isTrial, idempotencyKey: key })
+          .values({ eventId: ev.id, staffId: staff.staffId, totalCents, tipCents: input.tipCents, isTrial, idempotencyKey: key })
           .returning({ id: payments.id })
         const pid = inserted[0]!.id
         await tx
@@ -156,6 +160,7 @@ export default defineEventHandler(async (event) => {
           payload: {
             paymentId: pid,
             totalCents,
+            tipCents: input.tipCents,
             ticketKey: input.ticketKey,
             orderItemIds: paidIds,
           },
@@ -185,11 +190,13 @@ export default defineEventHandler(async (event) => {
       paymentId,
       ticketKey: input.ticketKey,
       totalCents,
+      tipCents: input.tipCents,
       ticketStatusAfter: statusAfter,
     })
     return PaymentResponseSchema.parse({
       paymentId,
       totalCents,
+      tipCents: input.tipCents,
       ticketStatusAfter: statusAfter,
       receipt: await loadReceipt(db, paymentId),
     })

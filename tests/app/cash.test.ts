@@ -23,6 +23,7 @@ const session: CashSessionDto = {
   closedAt: null,
   openingCents: 5000,
   collectedCents: 12_300,
+  tipCents: 0,
   refundedCents: 400,
   expectedCents: 16_900,
   countedCents: null,

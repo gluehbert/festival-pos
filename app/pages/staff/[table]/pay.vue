@@ -31,7 +31,7 @@ const counts = ref<Record<string, number>>({})
 const successMessage = ref<string | null>(null)
 // Set once the ticket is fully paid: the page shows the result instead of
 // leaving at once, so the change and the receipt are still at hand.
-const done = ref<{ amountCents: number; changeCents: number | null } | null>(null)
+const done = ref<{ amountCents: number; tipCents: number; changeCents: number | null } | null>(null)
 const rejected = ref(false)
 const countdown = ref(0)
 let countdownTimer: ReturnType<typeof setInterval> | null = null
@@ -97,21 +97,31 @@ function changeFor(givenCents: number | null, amountCents: number): number | nul
   return givenCents !== null && givenCents >= amountCents ? givenCents - amountCents : null
 }
 
-async function submit(givenCents: number | null = null) {
+function paidMessage(amountCents: number, tipCents: number, changeCents: number | null): string {
+  const amount = euro(amountCents)
+  if (tipCents > 0) {
+    return changeCents === null
+      ? t('staff.pay.tip.success', { amount, tip: euro(tipCents) })
+      : t('staff.pay.tip.successChange', { amount, tip: euro(tipCents), change: euro(changeCents) })
+  }
+  return changeCents === null
+    ? t('staff.pay.success', { amount })
+    : t('staff.pay.successChange', { amount, change: euro(changeCents) })
+}
+
+async function submit({ givenCents, tipCents }: { givenCents: number | null; tipCents: number }) {
   if (!ticket.value || selectedUnits.value <= 0) return
   rejected.value = false
   const req = buildPayRequest(groups.value, counts.value)
   successMessage.value = null
-  const res = await payments.createPayment(ticket.value.ticketKey, req.orderItemIds, req.quantities)
+  const res = await payments.createPayment(ticket.value.ticketKey, req.orderItemIds, req.quantities, tipCents)
   if (res) {
-    const changeCents = changeFor(givenCents, res.totalCents)
+    const changeCents = changeFor(givenCents, res.totalCents + res.tipCents)
     if (res.ticketStatusAfter === 'paid') {
-      done.value = { amountCents: res.totalCents, changeCents }
+      done.value = { amountCents: res.totalCents, tipCents: res.tipCents, changeCents }
       return
     }
-    successMessage.value = changeCents === null
-      ? t('staff.pay.success', { amount: euro(res.totalCents) })
-      : t('staff.pay.successChange', { amount: euro(res.totalCents), change: euro(changeCents) })
+    successMessage.value = paidMessage(res.totalCents, res.tipCents, changeCents)
     await load()
   }
   else if (payments.lockConflict) {
@@ -135,7 +145,7 @@ async function submit(givenCents: number | null = null) {
       {{ $t('staff.pay.title') }}
     </h1>
 
-    <PaymentDone v-if="done" :amount-cents="done.amountCents" :change-cents="done.changeCents" />
+    <PaymentDone v-if="done" :amount-cents="done.amountCents" :tip-cents="done.tipCents" :change-cents="done.changeCents" />
 
     <template v-else>
       <div

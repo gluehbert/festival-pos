@@ -68,6 +68,7 @@ describe('GET /api/admin/events/{id}/reports — contract', () => {
     'top_items',
     'voids',
     'payments_by_staff',
+    'tips',
     'orders_per_hour',
     'app_usage',
   ] as const)('JSON envelope validates ReportSchema for %s', async (type) => {
@@ -95,7 +96,8 @@ describe('GET /api/admin/events/{id}/reports — contract', () => {
     const cases: Array<[string, string[]]> = [
       ['top_items', ['menuItemId', 'nameDe', 'nameEn', 'quantity', 'totalCents']],
       ['voids', ['orderItemId', 'nameDe', 'nameEn', 'reason', 'voidedAt', 'voidedByStaffId', 'refundedCents']],
-      ['payments_by_staff', ['staffId', 'username', 'paymentCount', 'totalCents', 'refundedCents']],
+      ['payments_by_staff', ['staffId', 'username', 'paymentCount', 'totalCents', 'refundedCents', 'tipCents']],
+      ['tips', ['staffId', 'username', 'paymentCount', 'tipCents']],
       ['orders_per_hour', ['hourEuropeBerlin', 'orderCount', 'guestOrderCount']],
       ['app_usage', ['tableNo', 'scans', 'orderingDevices', 'guestOrders', 'staffOrders', 'guestItems', 'staffItems']],
     ]

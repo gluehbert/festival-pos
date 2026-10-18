@@ -10,7 +10,7 @@ const toIso = (d: Date | string) => (d instanceof Date ? d : new Date(d)).toISOS
 // request prints the same receipt.
 export async function loadReceipt(db: Db, paymentId: string): Promise<Receipt> {
   const [head] = await db
-    .select({ totalCents: payments.totalCents, createdAt: payments.createdAt, username: staff.username, eventName: events.name })
+    .select({ totalCents: payments.totalCents, tipCents: payments.tipCents, createdAt: payments.createdAt, username: staff.username, eventName: events.name })
     .from(payments)
     .innerJoin(staff, eq(staff.id, payments.staffId))
     .innerJoin(events, eq(events.id, payments.eventId))
@@ -48,6 +48,7 @@ export async function loadReceipt(db: Db, paymentId: string): Promise<Receipt> {
       note: l.note,
     })),
     totalCents: head!.totalCents,
+    tipCents: head!.tipCents,
     depositCents: lines.reduce((s, l) => s + l.depositCents * l.quantity, 0),
     paidAt: toIso(head!.createdAt),
     staffUsername: head!.username,

@@ -109,6 +109,8 @@ export const CreatePaymentSchema = z.object({
   orderItemIds: z.array(z.string().uuid()).min(1),
   // Optional per item: pay only part of a line ("2 of 5 beers"). Missing = all.
   quantities: z.record(z.string().uuid(), z.number().int().min(1)).optional(),
+  // Tip on top of the bill: stays in the drawer, is no revenue.
+  tipCents: z.number().int().min(0).max(100_000).default(0),
 })
 export type CreatePayment = z.infer<typeof CreatePaymentSchema>
 
@@ -126,6 +128,7 @@ export const ReceiptSchema = z.object({
     note: z.string().nullable(),
   })),
   totalCents: z.number().int(),
+  tipCents: z.number().int().min(0),
   depositCents: z.number().int(),
   paidAt: z.string().datetime(),
   staffUsername: z.string(),
@@ -135,6 +138,7 @@ export type Receipt = z.infer<typeof ReceiptSchema>
 export const PaymentResponseSchema = z.object({
   paymentId: z.string().uuid(),
   totalCents: z.number().int(),
+  tipCents: z.number().int().min(0),
   ticketStatusAfter: z.enum(['open', 'paid']),
   receipt: ReceiptSchema,
 })
