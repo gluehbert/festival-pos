@@ -12,7 +12,7 @@ import { useCookie } from './setup/imports'
 const ID = '00000000-0000-4000-8000-000000000001'
 const ev = (over: Partial<EventDto> = {}): EventDto => ({
   id: ID,
-  name: 'Sommerfest',
+  name: 'Summer festival',
   pinCode: 'SF2026',
   isActive: true,
   tableRangeFrom: 1,
@@ -164,7 +164,7 @@ describe('EventDeletePanel', () => {
     await confirmBtn(w).trigger('click')
     expect(fetchMock).not.toHaveBeenCalled()
 
-    await w.find('[data-test="event-delete-name"]').setValue('Sommerfest')
+    await w.find('[data-test="event-delete-name"]').setValue('Summer festival')
     expect(confirmBtn(w).attributes('disabled')).toBeUndefined()
     fetchMock.mockResolvedValueOnce({ deleted: true, orders: 3, payments: 2 })
     await confirmBtn(w).trigger('click')
@@ -183,7 +183,7 @@ describe('EventDeletePanel', () => {
 
 describe('EventContextHeader while another event is live', () => {
   const stubs = { NuxtLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } }
-  const draft = ev({ id: '00000000-0000-4000-8000-000000000002', name: 'Neu', isActive: false, activatedAt: null })
+  const draft = ev({ id: '00000000-0000-4000-8000-000000000002', name: 'New', isActive: false, activatedAt: null })
 
   it('asks to end the running event first instead of activating', () => {
     const w = mount(EventContextHeader, { props: { event: draft, live: ev() }, global: { stubs } })

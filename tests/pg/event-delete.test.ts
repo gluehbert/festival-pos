@@ -84,14 +84,14 @@ describe.skipIf(!url)('real Postgres: deleting an event', () => {
   })
 
   it('a bare DELETE on the event is blocked by references without cascade', async () => {
-    const { eventId } = await seedFest('Altes Fest', 'OLD1', true)
+    const { eventId } = await seedFest('Old festival', 'OLD1', true)
     await expect(real.db.execute(sql`DELETE FROM events WHERE id = ${eventId}`)).rejects.toThrow()
     expect(await countOf('events')).toBe(1)
   })
 
   it('the endpoint deletes the whole event and leaves other events alone', async () => {
-    const keep = await seedFest('Neues Fest', 'NEW1', true)
-    const old = await one<{ id: string }>(sql`SELECT id FROM events WHERE name = 'Altes Fest'`)
+    const keep = await seedFest('New festival', 'NEW1', true)
+    const old = await one<{ id: string }>(sql`SELECT id FROM events WHERE name = 'Old festival'`)
     expect(await adminCall('../../server/api/admin/events/[id].delete', 'DELETE', old.id)).toBe(200)
 
     expect(await rows(sql`SELECT 1 FROM events WHERE id = ${old.id}`)).toHaveLength(0)
@@ -102,11 +102,11 @@ describe.skipIf(!url)('real Postgres: deleting an event', () => {
     }
     expect(await one(sql`SELECT count(*)::int AS n FROM payments WHERE event_id = ${keep.eventId}`)).toEqual({ n: 1 })
     const audit = await one<{ payload: { orders: number; payments: number } }>(sql`SELECT payload FROM audit_log WHERE action = 'event_delete'`)
-    expect(audit.payload).toMatchObject({ name: 'Altes Fest', orders: 1, payments: 1 })
+    expect(audit.payload).toMatchObject({ name: 'Old festival', orders: 1, payments: 1 })
   })
 
   it('refuses the live event on the real database', async () => {
-    const { eventId } = await seedFest('Laufendes Fest', 'LIVE1', false)
+    const { eventId } = await seedFest('Live festival', 'LIVE1', false)
     expect(await adminCall('../../server/api/admin/events/[id].delete', 'DELETE', eventId)).toBe(409)
     expect(await one<{ n: number }>(sql`SELECT count(*)::int AS n FROM payments WHERE event_id = ${eventId}`)).toEqual({ n: 1 })
   })

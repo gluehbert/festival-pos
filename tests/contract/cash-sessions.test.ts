@@ -99,7 +99,7 @@ describe('cash drawer — contract', () => {
 
     it('closes the drawer with the Soll of its own event', async () => {
       const next = (ctx.mem.public.one(
-        `INSERT INTO events (name, pin_code, table_range_from, table_range_to, is_active) VALUES ('Neu', 'NEU1', 1, 5, true) RETURNING id`,
+        `INSERT INTO events (name, pin_code, table_range_from, table_range_to, is_active) VALUES ('New', 'NEW1', 1, 5, true) RETURNING id`,
       ) as { id: string }).id
       // Cash taken at the new event must not leak into the old drawer.
       ctx.mem.public.none(`INSERT INTO payments (event_id, staff_id, total_cents) VALUES ('${next}', '${waiter.staffId}', 999)`)
@@ -117,7 +117,7 @@ describe('cash drawer — contract', () => {
 
     it('shows a drawer of the live event before an older one and names no other event', async () => {
       const next = (ctx.mem.public.one(
-        `INSERT INTO events (name, pin_code, table_range_from, table_range_to, is_active) VALUES ('Neu', 'NEU1', 1, 5, true) RETURNING id`,
+        `INSERT INTO events (name, pin_code, table_range_from, table_range_to, is_active) VALUES ('New', 'NEW1', 1, 5, true) RETURNING id`,
       ) as { id: string }).id
       ctx.mem.public.none(`INSERT INTO cash_sessions (event_id, staff_id, opening_cents) VALUES ('${next}', '${waiter.staffId}', 300)`)
       const res = await call<{ session: { openingCents: number }; otherEventName: null }>(`${SESSION}.get`, { staff: waiter })

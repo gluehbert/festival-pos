@@ -57,11 +57,11 @@ export const adminEndCheck: Scene = async (ctx) => {
 }
 
 export const adminEndClean: Scene = async (ctx) => {
-  await onEmptyEvent(ctx, 'Herbstfest', async (page) => {
+  await onEmptyEvent(ctx, 'Autumn festival', async (page) => {
     // The "now live" toast would sit in the picture.
     await page.getByRole('status').waitFor({ state: 'detached' })
     await page.locator('[data-test="event-end-open"]').click()
-    await page.getByText('Alles abgeschlossen.').waitFor()
+    await page.getByText('Everything is settled.').waitFor()
     await ctx.shoot(page, 'admin-end-clean')
   })
 }
@@ -69,12 +69,12 @@ export const adminEndClean: Scene = async (ctx) => {
 // An ended event with the red section: reports exported, name typed, then
 // the event is really deleted so the database stays tidy.
 export const adminDelete: Scene = async (ctx) => {
-  await onEmptyEvent(ctx, 'Altes Fest', async (page) => {
+  await onEmptyEvent(ctx, 'Old festival', async (page) => {
     await endEventInDialog(page)
     await page.locator('[data-test="event-export"]').click()
-    await page.getByText('Alle Berichte heruntergeladen.').waitFor()
+    await page.getByText('All reports downloaded.').waitFor()
     await page.locator('[data-test="event-delete-open"]').click()
-    await page.locator('[data-test="event-delete-name"]').fill('Altes Fest')
+    await page.locator('[data-test="event-delete-name"]').fill('Old festival')
     await page.getByRole('status').waitFor({ state: 'detached' })
     await ctx.shoot(page, 'admin-delete')
     await page.locator('[data-test="confirm-ok"]').click()
