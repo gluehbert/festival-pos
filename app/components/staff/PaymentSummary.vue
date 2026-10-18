@@ -20,6 +20,7 @@ const free = computed(() => hasSelection.value && props.selectedCents === 0)
 const emit = defineEmits<{ (e: 'submit', payload: { givenCents: number | null; tipCents: number }): void, (e: 'cancelSending'): void }>()
 
 const { euro } = useFormat()
+const { locale } = useI18n()
 const selectedEur = computed(() => euro(props.selectedCents))
 const totalEur = computed(() => euro(props.totalCents))
 
@@ -138,7 +139,7 @@ onBeforeUnmount(clearTimers)
           type="button"
           class="min-h-[44px] rounded-lg border border-slate-300 px-3 text-sm font-semibold"
           data-test="tip-change"
-          @click="tip = centsToInput(rawChangeCents)"
+          @click="tip = centsToInput(rawChangeCents, locale)"
         >
           {{ $t('staff.pay.tip.change') }}
         </button>
@@ -147,7 +148,7 @@ onBeforeUnmount(clearTimers)
           class="min-h-[44px] rounded-lg border border-slate-300 px-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
           :disabled="roundUpCents === 0"
           data-test="tip-round"
-          @click="tip = centsToInput(roundUpCents)"
+          @click="tip = centsToInput(roundUpCents, locale)"
         >
           {{ $t('staff.pay.tip.roundUp') }}
         </button>

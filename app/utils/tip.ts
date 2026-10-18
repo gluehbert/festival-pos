@@ -5,7 +5,9 @@ export function roundUpTipCents(billCents: number): number {
   return (step - (billCents % step)) % step
 }
 
-// Cents as the text of an amount field: 250 → "2,50".
-export function centsToInput(cents: number): string {
-  return (cents / 100).toFixed(2).replace('.', ',')
+// Cents as the text of an amount field in the UI language: 250 → "2.50"
+// (English) or "2,50" (German). parseEuroInput accepts both.
+export function centsToInput(cents: number, locale: string): string {
+  const text = (cents / 100).toFixed(2)
+  return locale === 'de' ? text.replace('.', ',') : text
 }

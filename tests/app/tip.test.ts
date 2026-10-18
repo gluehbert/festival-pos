@@ -7,7 +7,7 @@ import CashBreakdown from '~/components/staff/CashBreakdown.vue'
 import TipsTable from '~/components/admin/reports/TipsTable.vue'
 import PerStaffTable from '~/components/admin/reports/PerStaffTable.vue'
 import { usePaymentsStore } from '~/stores/payments'
-import { roundUpTipCents } from '~/utils/tip'
+import { centsToInput, roundUpTipCents } from '~/utils/tip'
 import { useCookie } from './setup/imports'
 import type { CashSessionDto } from '~/../server/lib/contracts/cash'
 import type { Receipt } from '~/../server/lib/contracts/staff'
@@ -24,6 +24,14 @@ async function book(w: ReturnType<typeof mount>) {
 
 beforeEach(() => vi.useFakeTimers())
 afterEach(() => vi.useRealTimers())
+
+describe('centsToInput', () => {
+  it('writes the amount in the UI language', () => {
+    expect(centsToInput(250, 'en')).toBe('2.50')
+    expect(centsToInput(250, 'de')).toBe('2,50')
+    expect(centsToInput(1200, 'en')).toBe('12.00')
+  })
+})
 
 describe('roundUpTipCents', () => {
   it('rounds up to the next euro, above €20 to the next €5, and is 0 for full amounts', () => {
@@ -43,7 +51,7 @@ describe('PaymentSummary — tip', () => {
     await w.find('[data-test="pay-given"]').setValue('20')
     expect(w.find('[data-test="pay-change"]').text()).toContain('2.50')
     await w.find('[data-test="tip-change"]').trigger('click')
-    expect((w.find('[data-test="tip-input"]').element as HTMLInputElement).value).toBe('2,50')
+    expect((w.find('[data-test="tip-input"]').element as HTMLInputElement).value).toBe('2.50')
     expect(w.find('[data-test="pay-change"]').text()).toContain('0.00')
     expect(w.find('[data-test="tip-line"]').text()).toMatch(/17\.50.*2\.50.*20\.00/s)
     expect(pay(w).text()).toMatch(/€20\.00/)
@@ -54,10 +62,10 @@ describe('PaymentSummary — tip', () => {
   it('"Round up" rounds the bill up: 17.50 → 18.00 and 23.10 → 25.00; inactive for full amounts', async () => {
     const w = mountSummary(1750)
     await w.find('[data-test="tip-round"]').trigger('click')
-    expect((w.find('[data-test="tip-input"]').element as HTMLInputElement).value).toBe('0,50')
+    expect((w.find('[data-test="tip-input"]').element as HTMLInputElement).value).toBe('0.50')
     await w.setProps({ selectedCents: 2310, totalCents: 2310 })
     await w.find('[data-test="tip-round"]').trigger('click')
-    expect((w.find('[data-test="tip-input"]').element as HTMLInputElement).value).toBe('1,90')
+    expect((w.find('[data-test="tip-input"]').element as HTMLInputElement).value).toBe('1.90')
     expect(w.find('[data-test="tip-line"]').text()).toMatch(/23\.10.*1\.90.*25\.00/s)
     await w.setProps({ selectedCents: 1800, totalCents: 1800 })
     expect(w.find('[data-test="tip-round"]').attributes('disabled')).toBeDefined()
