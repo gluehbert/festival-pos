@@ -128,7 +128,9 @@ async function checked() {
 }
 
 const canVoid = computed(() => auth.hasRole(['waiter', 'lead', 'admin']))
-const canRefund = computed(() => auth.hasRole(['admin']))
+const canRefund = computed(() => auth.hasRole(['lead', 'admin']))
+// Voiding finished items stays with the admin (server rule).
+const canVoidFinished = computed(() => auth.hasRole(['admin']))
 const ticket = computed(() => tickets.selected)
 </script>
 
@@ -223,7 +225,7 @@ const ticket = computed(() => tickets.selected)
         :item="item"
         :can-void="canVoid"
         :can-refund="canRefund"
-        :can-void-finished="canRefund"
+        :can-void-finished="canVoidFinished"
         @void="openDialog(item, false)"
         @refund="openDialog(item, true)"
       />

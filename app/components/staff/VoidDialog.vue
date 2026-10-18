@@ -72,7 +72,13 @@ function submit() {
         rows="3"
         class="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm focus:border-brand focus:outline-none"
       />
-      <p v-if="message" class="mt-2 text-sm text-rose-600" role="alert">
+      <p v-if="refund && errorCode === 'CASH_SESSION_REQUIRED'" class="mt-2 text-sm text-rose-600" role="alert">
+        {{ $t('staff.refund.needsDrawer') }}
+        <NuxtLink to="/staff/cash" class="font-semibold underline">
+          {{ $t('staff.refund.toCash') }}
+        </NuxtLink>
+      </p>
+      <p v-else-if="message" class="mt-2 text-sm text-rose-600" role="alert">
         {{ message }}
       </p>
       <div class="mt-4 flex justify-end gap-2">
