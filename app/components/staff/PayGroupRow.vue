@@ -15,7 +15,7 @@ const set = (n: number) => emit('update', Math.max(0, Math.min(props.group.openQ
 <template>
   <li
     data-test="pay-group"
-    class="flex items-center gap-3 border-b border-slate-100 py-3 last:border-b-0"
+    class="flex items-center gap-3 border-b border-slate-100 px-2 py-3 last:border-b-0"
     :class="count > 0 ? 'bg-emerald-50' : ''"
   >
     <div class="min-w-0 flex-1">

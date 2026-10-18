@@ -68,6 +68,8 @@ describe('pay selection', () => {
     await buttons[2]!.trigger('click') // all
     expect(w.emitted('update')).toEqual([[1], [4]])
     await w.setProps({ count: 4 })
+    // The row carries its own padding, so the highlight reaches the edges of the list.
+    expect(w.find('li').classes()).toEqual(expect.arrayContaining(['bg-emerald-50', 'px-2']))
     await w.findAll('button')[2]!.trigger('click') // none
     expect(w.emitted('update')!.at(-1)).toEqual([0])
   })
