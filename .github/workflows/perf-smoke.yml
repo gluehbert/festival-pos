@@ -25,3 +25,26 @@ jobs:
       - run: pnpm perf:smoke
         env:
           PERF_BASE_URL: ${{ inputs.base_url }}
+
+  # Whole festival flow (guests, waiters, kitchen, bar, admin) against the
+  # same deployment. Use a rehearsal event or a throwaway database: it books
+  # real orders and payments.
+  flow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm perf:flow
+        env:
+          PERF_BASE_URL: ${{ inputs.base_url }}
+          PERF_OUT: perf-flow-result.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: perf-flow-result
+          path: perf-flow-result.json
