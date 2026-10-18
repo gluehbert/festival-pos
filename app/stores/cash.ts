@@ -9,6 +9,8 @@ import type { DepositReturnDto } from '~/../server/lib/contracts/deposit'
 export const useCashStore = defineStore('cash', () => {
   const session = ref<CashSessionDto | null>(null)
   const lastClosed = ref<CashSessionDto | null>(null)
+  // Name of the ended event whose drawer is still open, if any.
+  const otherEventName = ref<string | null>(null)
   const loading = ref(false)
   const busy = ref(false)
   const error = ref<string | null>(null)
@@ -18,7 +20,9 @@ export const useCashStore = defineStore('cash', () => {
   async function load(): Promise<void> {
     loading.value = true
     try {
-      session.value = (await useApi().get<CurrentCashSession>('/api/cash/session')).session
+      const res = await useApi().get<CurrentCashSession>('/api/cash/session')
+      session.value = res.session
+      otherEventName.value = res.otherEventName
       error.value = null
     }
     catch (e) {
@@ -52,6 +56,7 @@ export const useCashStore = defineStore('cash', () => {
     try {
       lastClosed.value = await useApi().post<CashSessionDto>('/api/cash/session/close', { countedCents, note })
       session.value = null
+      otherEventName.value = null
       return true
     }
     catch (e) {
@@ -85,5 +90,5 @@ export const useCashStore = defineStore('cash', () => {
     }
   }
 
-  return { session, lastClosed, loading, busy, error, load, open, close, returnDeposit }
+  return { session, lastClosed, otherEventName, loading, busy, error, load, open, close, returnDeposit }
 })

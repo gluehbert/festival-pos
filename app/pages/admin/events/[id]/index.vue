@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
+import { navigateTo } from '#imports'
 import EventTrialPanel from '~/components/admin/EventTrialPanel.vue'
+import EventEndPanel from '~/components/admin/EventEndPanel.vue'
+import EventDeletePanel from '~/components/admin/EventDeletePanel.vue'
 import EventFeaturesPanel from '~/components/admin/EventFeaturesPanel.vue'
 import { useAdminToast } from '~/composables/useAdminPage'
 import { useAdminStore } from '~/stores/admin'
@@ -8,10 +11,18 @@ import type { EventDto } from '~/../server/lib/contracts/admin'
 
 const props = defineProps<{ event: EventDto }>()
 
+const { t } = useI18n()
 const admin = useAdminStore()
 const toast = useAdminToast()
 const base = computed(() => `/admin/events/${props.event.id}`)
 const menuCount = computed(() => (admin.menuEventId === props.event.id ? admin.menuItems.length : null))
+
+async function onDeleted() {
+  const id = props.event.id
+  toast.success(t('admin.delete.done'))
+  await navigateTo('/admin/events')
+  admin.dropEvent(id)
+}
 
 onMounted(() => {
   void admin.fetchMenuItems(props.event.id).catch(() => {})
@@ -72,5 +83,18 @@ onMounted(() => {
         {{ $t('admin.trial.needsActive') }}
       </p>
     </section>
+
+    <section v-if="event.isActive" class="rounded border border-slate-200 bg-surface">
+      <h2 class="px-4 pt-4 text-sm font-semibold text-slate-700">
+        {{ $t('admin.end.section') }}
+      </h2>
+      <EventEndPanel :event="event" @saved="toast.success" @failed="toast.failure" />
+    </section>
+
+    <EventDeletePanel
+      :event="event"
+      @failed="toast.failure"
+      @deleted="onDeleted"
+    />
   </div>
 </template>

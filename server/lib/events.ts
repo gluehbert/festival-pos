@@ -39,6 +39,7 @@ export function toEventDto(row: Event, trialOrders: number): EventDto {
     tableRangeTo: row.tableRangeTo,
     createdAt: toIso(row.createdAt)!,
     activatedAt: toIso(row.activatedAt),
+    deactivatedAt: toIso(row.deactivatedAt),
     startsOn: toDay(row.startsOn),
     endsOn: toDay(row.endsOn),
     trialMode: row.trialMode,

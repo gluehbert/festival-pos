@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { downloadReportCsv } from '~/utils/download-report'
 
 const props = defineProps<{ eventId: string; type: string; label?: string }>()
 
@@ -10,19 +11,7 @@ async function onClick() {
   busy.value = true
   error.value = null
   try {
-    const res = await fetch(`/api/admin/events/${props.eventId}/reports?type=${encodeURIComponent(props.type)}&format=csv`, {
-      credentials: 'include',
-    })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const blob = await res.blob()
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${props.type}-${new Date().toISOString().slice(0, 10)}.csv`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    setTimeout(() => URL.revokeObjectURL(url), 5000)
+    await downloadReportCsv(props.eventId, props.type)
   }
   catch (e) {
     error.value = (e as Error).message

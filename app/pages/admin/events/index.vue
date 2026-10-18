@@ -13,7 +13,7 @@ import type { CreateEvent } from '~/../server/lib/contracts/admin'
 const { t } = useI18n()
 const admin = useAdminStore()
 const toast = useAdminToast()
-const { eventDates } = useFormat()
+const { eventDates, dateTime } = useFormat()
 const creating = ref(false)
 
 const live = computed(() => admin.events.find((e) => e.isActive) ?? null)
@@ -119,6 +119,9 @@ async function onCreate(input: CreateEvent) {
             </p>
             <p class="text-sm text-slate-700">
               {{ eventDates(ev.startsOn, ev.endsOn) ?? $t('admin.events.undated') }}
+            </p>
+            <p v-if="ev.deactivatedAt" class="text-xs text-slate-600" data-test="ended-on">
+              {{ $t('admin.events.endedOn', { date: dateTime(ev.deactivatedAt) }) }}
             </p>
           </div>
           <NuxtLink

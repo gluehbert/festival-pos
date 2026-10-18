@@ -11,6 +11,8 @@ const props = defineProps<{
   /** Red confirm button for actions that cannot be undone. */
   danger?: boolean
   busy?: boolean
+  /** Keeps the confirm button disabled, e.g. until a required input is filled in. */
+  confirmDisabled?: boolean
 }>()
 const emit = defineEmits<{ confirm: [], cancel: [] }>()
 
@@ -73,7 +75,7 @@ function trapTab(e: KeyboardEvent) {
           type="button"
           class="min-h-[44px] rounded px-4 text-sm font-semibold text-white disabled:opacity-50"
           :class="danger ? 'bg-danger' : 'bg-primary'"
-          :disabled="busy"
+          :disabled="busy || confirmDisabled"
           data-test="confirm-ok"
           @click="emit('confirm')"
         >

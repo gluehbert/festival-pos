@@ -18,6 +18,7 @@ const ev = (over: Partial<EventDto> = {}): EventDto => ({
   tableRangeTo: 20,
   createdAt: '2026-05-01T10:00:00.000Z',
   activatedAt: null,
+  deactivatedAt: null,
   startsOn: null,
   endsOn: null,
   trialMode: false,
@@ -58,20 +59,19 @@ describe('EventContextHeader', () => {
     expect(w.text()).toContain('admin.workspace.currentlyLive')
   })
 
-  it('asks before switching the live event, then activates', async () => {
+  it('asks before going live, then activates', async () => {
     const admin = useAdminStore()
-    admin.events = [live, ev()]
-    const w = mount(EventContextHeader, { props: { event: ev(), live } })
+    admin.events = [ev()]
+    const w = mount(EventContextHeader, { props: { event: ev(), live: null } })
     await w.find('button').trigger('click')
     expect(fetchMock).not.toHaveBeenCalled()
-    expect(w.text()).toContain('admin.workspace.confirmEnds')
+    expect(w.text()).toContain('admin.workspace.confirmActivate')
 
     fetchMock.mockResolvedValueOnce(ev({ isActive: true, activatedAt: '2026-10-13T10:00:00.000Z' }))
     await w.findAll('button')[0]!.trigger('click')
     await flushPromises()
     expect(fetchMock.mock.calls[0]![0]).toBe(`/api/admin/events/${DRAFT}/activate`)
     expect(fetchRefresh).toHaveBeenCalled()
-    expect(admin.events.find((e) => e.id === LIVE)?.isActive).toBe(false)
     expect(admin.events.find((e) => e.id === DRAFT)?.isActive).toBe(true)
   })
 

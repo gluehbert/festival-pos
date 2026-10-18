@@ -98,10 +98,10 @@ describe('Admin events contracts', () => {
     await expect(handler(event)).rejects.toMatchObject({ statusCode: 403 })
   })
 
-  it('POST /api/admin/events/{id}/activate swaps active flag (FR-030)', async () => {
+  it('POST /api/admin/events/{id}/activates once the previous event was ended (FR-030)', async () => {
     const aId = (ctx.mem.public.one(
       `INSERT INTO events (name, pin_code, table_range_from, table_range_to, is_active)
-       VALUES ('A', 'EVA01', 1, 10, true) RETURNING id`,
+       VALUES ('A', 'EVA01', 1, 10, false) RETURNING id`,
     ) as { id: string }).id
     const bId = (ctx.mem.public.one(
       `INSERT INTO events (name, pin_code, table_range_from, table_range_to, is_active)

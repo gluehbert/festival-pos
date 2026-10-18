@@ -24,7 +24,7 @@ describe('US4 — single-active event (FR-030)', () => {
     ) as { id: string }).id
   })
 
-  it('activating B deactivates A (partial unique constraint holds)', async () => {
+  it('activating B needs A ended first (partial unique constraint holds)', async () => {
     const aId = (ctx.mem.public.one(
       `INSERT INTO events (name, pin_code, table_range_from, table_range_to, is_active, activated_at)
        VALUES ('A', 'EVA01', 1, 10, true, now()) RETURNING id`,
@@ -36,11 +36,17 @@ describe('US4 — single-active event (FR-030)', () => {
 
     const { makeEvent } = await import('../setup/h3-event')
     const handler = (await import('../../server/api/admin/events/[id]/activate.post')).default
-    const c = csrf()
-    const { event } = makeEvent({ method: 'POST', cookies: c.cookies, headers: c.headers })
-    event.context.auth = adminAuth()
-    event.context.params = { id: bId }
-    await handler(event)
+    const endHandler = (await import('../../server/api/admin/events/[id]/end.post')).default
+    const run = async (h: typeof handler, id: string) => {
+      const c = csrf()
+      const { event } = makeEvent({ method: 'POST', cookies: c.cookies, headers: c.headers })
+      event.context.auth = adminAuth()
+      event.context.params = { id }
+      await h(event)
+    }
+    await expect(run(handler, bId)).rejects.toMatchObject({ statusCode: 409 })
+    await run(endHandler, aId)
+    await run(handler, bId)
 
     const rows = ctx.mem.public.many(`SELECT id, is_active FROM events ORDER BY name`) as Array<{ id: string; is_active: boolean }>
     const a = rows.find((r) => r.id === aId)!

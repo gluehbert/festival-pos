@@ -180,7 +180,7 @@ The admin opens a dashboard for the active event showing: total gross revenue, r
 
 **Admin flow (US4 + US5)**
 
-- **FR-030**: At most **one** event MUST be active at any time.
+- **FR-030**: At most **one** event MUST be active at any time. Activating an event requires that no other event is live; an event is ended through its own endpoint (`POST /api/admin/events/{id}/end`, preceded by `GET …/end-check`), and an ended event can be deleted permanently after exporting its reports (`DELETE /api/admin/events/{id}`).
 - **FR-031**: The system MUST generate QR codes for an admin-defined table number range and deliver them as a printable PDF (A4 portrait, 4×6 grid = 24 codes per page, QR error correction level **Q**, per cell the table number as a readable label + event identification).
 - **FR-032**: MenuItems MUST carry name DE, name EN, price (€, 2 decimal places), category and target station.
 - **FR-033**: Items MUST be markable live as "unavailable" and back; the effect MUST show on the next guest poll (≤ 10 s).
@@ -278,6 +278,7 @@ Implemented, but not described (or described differently) in the sections above.
 - **Login throttling**: 10 failed attempts per user and IP, 100 per user, each within 15 minutes.
 - **Daily cron**: The sweep (FR-043) runs on demand at most once per hour for all instances combined (timestamp in `maintenance_runs`), in the background and not from the polling endpoints. In addition, Vercel Cron calls `/api/cron/sweep` once a day (protected with `CRON_SECRET`). FR-042 has explicitly allowed this since October 2026.
 - **Retention**: Guest sessions that carry orders are not deleted after 7 days (otherwise the order's reference would be lost); they disappear with their event. Orders, payments, refunds, cash-ups (Kassenabschluss, drawer close) and the audit log are retained for accounting (Constitution, Principle IV).
+- **End and delete an event**: "End event" shows open tables, open cash drawers and finished but unserved items, then ends the event (audit `event_end` with the checklist); open drawers stay open and can still be closed. An ended event can be deleted permanently after the CSV export (audit `event_delete`); the deletion runs in one transaction in foreign-key order, the audit log is kept.
 - **Shift lead (`lead`)**: Hands out tables to waiters at the start of a shift ("Distribute tables") and sees the tables nobody looks after. Waiter screens stay limited to ordering, serving and cashing up (Constitution IX).
 - **Own confirmation dialogs**: Closing the drawer (with expected, counted and difference), removing a passkey and renewing the join link use the app's own dialog instead of browser dialogs. PIN and password are changed inline in the staff list.
 - **For the club festival** (#21–#28, details in the [README, "At the festival"](../../README.md#at-the-festival)): notes per item, cash-up per waiter (Bedienung), bottle deposit (Pfand), stock levels with a "sold out" switch for kitchen/bar, staff meals (Helferverpflegung), promotional prices, imprint and privacy policy per event, receipt printing, "My tables" with table takeover, and table grid.

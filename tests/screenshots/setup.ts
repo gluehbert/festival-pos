@@ -91,6 +91,61 @@ export async function collectPayment(page: Page): Promise<void> {
   await button.click()
 }
 
+// Ends the event open in the admin workspace through the dialog, whatever the
+// check list says (open items need the second tap).
+export async function endEventInDialog(page: Page): Promise<void> {
+  await page.locator('[data-test="event-end-open"]').click()
+  const confirm = page.locator('[data-test="confirm-ok"]')
+  await confirm.click()
+  // Either the event ends right away or the warning asks for the second tap.
+  const armed = page.getByText('Open amounts are recorded as not collected.')
+  const ended = page.locator('[data-test="event-context"]').getByText('Ended', { exact: true })
+  await armed.or(ended).first().waitFor()
+  if (await armed.isVisible()) await confirm.click()
+  await page.locator('[data-test="event-context"]').getByText('Ended', { exact: true }).waitFor()
+}
+
+// Makes an ended event live again; it must be open in the admin workspace.
+export async function reactivateEvent(page: Page): Promise<void> {
+  await page.getByRole('button', { name: 'Activate again' }).click()
+  await page.getByRole('button', { name: 'Go live now' }).click()
+  await page.locator('[data-test="event-context"]').getByText('Live', { exact: true }).waitFor()
+}
+
+// Creates an empty event with a unique name and makes it live (the running
+// event must be ended before). Leaves the new event's workspace open.
+export async function createLiveEvent(page: Page, name: string): Promise<void> {
+  await page.goto('/admin/events')
+  await page.getByRole('button', { name: 'New event' }).click()
+  const form = page.locator('form')
+  await form.getByLabel('Name', { exact: true }).fill(name)
+  await form.getByLabel('PIN', { exact: true }).fill(`ZZ${Date.now().toString().slice(-6)}`)
+  await form.getByLabel(/table from/i).fill('1')
+  await form.getByLabel(/table to/i).fill('10')
+  await form.getByRole('button', { name: /create/i }).click()
+  await page.locator('[data-test="event-context"]').getByText('Draft', { exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Activate', exact: true }).click()
+  await page.getByRole('button', { name: 'Go live now' }).click()
+  await page.locator('[data-test="event-context"]').getByText('Live', { exact: true }).waitFor()
+}
+
+// Back to the seeded event after a scene ended it: opens it from the list.
+export async function goLiveWithDemo(page: Page): Promise<void> {
+  await page.goto('/admin/events')
+  // Another event may still be live (a scene's throwaway event): end it first.
+  const live = page.locator('[data-test="live-event"]')
+  const anyLive = await live.waitFor({ timeout: 3000 }).then(() => true, () => false)
+  if (anyLive) {
+    await live.getByRole('link', { name: 'Edit' }).click()
+    await page.locator('[data-test="event-context"]').waitFor()
+    await endEventInDialog(page)
+    await page.goto('/admin/events')
+  }
+  await page.locator('li').filter({ hasText: 'Demo Festival' }).getByRole('link', { name: 'Edit' }).click()
+  await page.locator('[data-test="event-context"]').waitFor()
+  await reactivateEvent(page)
+}
+
 // Network trouble for a scene: the first `failures` POSTs to the URL get a
 // dropped connection (nothing reaches the server). Later ones are held
 // unanswered when `then` is 'hang', or dropped too when it is 'fail'. Call the

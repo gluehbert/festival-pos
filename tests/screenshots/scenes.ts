@@ -7,6 +7,7 @@ import { chromium, devices, type Browser, type BrowserContext, type Page } from 
 import { guestCart, guestMenu, guestStatus } from './scenes-guest.ts'
 import { staffCash, staffGrid, staffOrder, staffPay, staffTable } from './scenes-staff.ts'
 import { adminStaffResetInline, staffCashCloseDialog, staffCashNote } from './scenes-dialogs.ts'
+import { adminDelete, adminEndCheck, adminEndClean, staffCashOtherEvent } from './scenes-event.ts'
 import { guestSending, staffPaySending, staffPayUnconfirmed } from './scenes-network.ts'
 import { adminEvent, adminMenu, adminReports, productionOrders } from './scenes-admin.ts'
 
@@ -37,6 +38,10 @@ const SCENES: Record<string, Scene> = {
   'staff-cash-close-dialog': staffCashCloseDialog,
   'staff-cash-note': staffCashNote,
   'admin-staff-reset-inline': adminStaffResetInline,
+  'admin-end-check': adminEndCheck,
+  'admin-end-clean': adminEndClean,
+  'admin-delete': adminDelete,
+  'staff-cash-other-event': staffCashOtherEvent,
   'guest-sending': guestSending,
   'staff-pay-sending': staffPaySending,
   'staff-pay-unconfirmed': staffPayUnconfirmed,
@@ -98,7 +103,10 @@ async function main(): Promise<void> {
         await page.emulateMedia({ colorScheme: scheme })
         await page.waitForTimeout(500)
         const file = resolve(out, `${name}${suffix}.png`)
-        await page.screenshot({ path: file, fullPage: true })
+        // A full-page shot would stretch a modal's overlay over only the part of the
+        // page the window shows; with a dialog open, take the window as the user sees it.
+        const dialogOpen = await page.locator('[role="dialog"]').count() > 0
+        await page.screenshot({ path: file, fullPage: !dialogOpen })
         files.push(file)
       }
     },

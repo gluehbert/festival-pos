@@ -24,11 +24,13 @@ export default defineEventHandler(async (event) => {
       throw new AppError('NOT_FOUND', 404, 'Event not found')
     }
 
+    // Ending a live event has its own step (POST …/end) with a check list.
+    const live = (await db.select().from(events).where(eq(events.isActive, true)).limit(1))[0]
+    if (live && live.id !== id) {
+      throw new AppError('EVENT_STILL_ACTIVE', 409, `Event "${live.name}" is still live`, { name: live.name, id: live.id })
+    }
+
     await db.transaction(async (tx) => {
-      await tx
-        .update(events)
-        .set({ isActive: false, deactivatedAt: sql`now()` })
-        .where(eq(events.isActive, true))
       await tx
         .update(events)
         .set({ isActive: true, activatedAt: sql`now()`, deactivatedAt: null })

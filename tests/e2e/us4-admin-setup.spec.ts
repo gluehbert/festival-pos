@@ -59,5 +59,21 @@ test.describe('@smoke US4 — admin setup', () => {
       page.locator('form').getByRole('button').click(),
     ])
     expect(download.suggestedFilename()).toMatch(/^qr-codes-\d+-\d+\.pdf$/)
+
+    // Ending the live event shows the check list first. Afterwards it is
+    // ended and may be reactivated, so the other specs keep a live event.
+    await page.getByRole('link', { name: /all events/i }).click()
+    await openLiveEvent(page)
+    await page.locator('[data-test="event-end-open"]').click()
+    const confirm = page.locator('[data-test="confirm-ok"]')
+    await confirm.click()
+    // Open items from earlier specs need the second tap.
+    const armed = page.getByText('Open amounts are recorded as not collected.')
+    await expect(armed.or(header.getByText('Ended', { exact: true })).first()).toBeVisible()
+    if (await armed.isVisible()) await confirm.click()
+    await expect(header).toContainText('Ended')
+    await page.getByRole('button', { name: 'Activate again' }).click()
+    await page.getByRole('button', { name: 'Go live now' }).click()
+    await expect(header).toContainText('Live')
   })
 })

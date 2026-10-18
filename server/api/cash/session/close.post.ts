@@ -6,8 +6,7 @@ import { cashSessions } from '../../../db/schema-cash'
 import { AppError, sendAppError } from '../../../lib/errors'
 import { assertCsrf } from '../../../lib/csrf'
 import { requireRole, SERVICE_ROLES } from '../../../lib/rbac'
-import { requireActiveEvent } from '../../../lib/active-event'
-import { cashFlows, expectedFrom, findOpenSession, toCashSessionDto } from '../../../lib/cash-sessions'
+import { cashFlows, expectedFrom, findOpenSessionAnyEvent, toCashSessionDto } from '../../../lib/cash-sessions'
 import { CashSessionSchema, CloseCashSessionSchema } from '../../../lib/contracts/cash'
 
 // Kassenabschluss: the waiter enters the counted cash; the expected amount
@@ -18,8 +17,8 @@ export default defineEventHandler(async (event) => {
     const me = requireRole(event, SERVICE_ROLES)
     const input = CloseCashSessionSchema.parse(await readBody(event))
     const db = getDb()
-    const ev = await requireActiveEvent(db)
-    const open = await findOpenSession(db, ev.id, me.staffId)
+    // Also drawers left open at an ended event; the Soll stays per event.
+    const open = (await findOpenSessionAnyEvent(db, me.staffId))?.session
     if (!open) throw new AppError('NOT_FOUND', 404, 'No open cash drawer')
 
     const closed = await db.transaction(async (tx) => {
