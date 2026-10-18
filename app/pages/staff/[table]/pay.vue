@@ -179,7 +179,7 @@ async function submit(givenCents: number | null = null) {
           {{ allSelected ? $t('staff.pay.selectNone') : $t('staff.pay.selectAll') }}
         </button>
       </div>
-      <ul v-if="groups.length > 0" class="mt-2 rounded-lg border border-slate-200 bg-surface px-2">
+      <ul v-if="groups.length > 0" class="mt-2 overflow-hidden rounded-lg border border-slate-200 bg-surface">
         <PayGroupRow
           v-for="g in groups"
           :key="g.key"
