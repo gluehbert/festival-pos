@@ -159,25 +159,32 @@ export async function loadPaymentsByStaff(
     // 0-€ settlements (only free items) are no cash payments.
     .where(and(eq(payments.eventId, eventId), eq(payments.isTrial, false), gt(payments.totalCents, 0)))
     .groupBy(staff.id, staff.username)
-  // Refunds are paid out of the cash the original cashier collected.
+  // Refunds are paid out of the drawer of the person who hands the cash back
+  // (shift lead or admin), who may not have collected anything themselves.
   const refundRows = await db
-    .select({ staffId: payments.staffId, refunded: sql<number>`COALESCE(SUM(${refunds.amountCents}), 0)` })
+    .select({ staffId: refunds.staffId, username: staff.username, refunded: sql<number>`COALESCE(SUM(${refunds.amountCents}), 0)` })
     .from(refunds)
     .innerJoin(payments, eq(payments.id, refunds.paymentId))
+    .innerJoin(staff, eq(staff.id, refunds.staffId))
     .where(and(eq(refunds.eventId, eventId), eq(payments.isTrial, false)))
-    .groupBy(payments.staffId)
+    .groupBy(refunds.staffId, staff.username)
   const refundedBy = new Map(refundRows.map((r) => [r.staffId, Number(r.refunded ?? 0)]))
-  return rows
-    .map((r) => {
+  const perStaff = rows.map((r) => ({
+    staffId: r.staffId,
+    username: r.username,
+    paymentCount: Number(r.paymentCount ?? 0),
+    total: Number(r.total ?? 0),
+    tipCents: Number(r.tips ?? 0),
+  }))
+  for (const r of refundRows) {
+    if (!perStaff.some((p) => p.staffId === r.staffId)) {
+      perStaff.push({ staffId: r.staffId, username: r.username, paymentCount: 0, total: 0, tipCents: 0 })
+    }
+  }
+  return perStaff
+    .map(({ total, ...r }) => {
       const refundedCents = refundedBy.get(r.staffId) ?? 0
-      return {
-        staffId: r.staffId,
-        username: r.username,
-        paymentCount: Number(r.paymentCount ?? 0),
-        totalCents: Number(r.total ?? 0) - refundedCents,
-        refundedCents,
-        tipCents: Number(r.tips ?? 0),
-      }
+      return { ...r, totalCents: total - refundedCents, refundedCents }
     })
     .sort((a, b) => b.totalCents - a.totalCents)
 }

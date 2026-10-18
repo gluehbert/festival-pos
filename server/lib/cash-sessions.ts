@@ -14,9 +14,10 @@ interface Flows {
   depositReturnedCents: number // negative
 }
 
-// Cash this waiter took in (tips included) and handed back while the drawer was open.
-// Refunds count against the waiter who collected the payment, like the
-// per-staff report; deposit returns against the waiter who paid them out.
+// Cash this person took in (tips included) and handed back while the drawer was open.
+// Refunds and deposit returns count against whoever paid them out (the refunding
+// shift lead or admin), not against the waiter who collected the payment, like
+// the per-staff report.
 export async function cashFlows(db: Db, s: CashSession, until: Date): Promise<Flows> {
   const window = (col: typeof payments.createdAt | typeof refunds.createdAt | typeof depositReturns.createdAt) =>
     and(gte(col, toDate(s.openedAt)), lte(col, until))
@@ -38,7 +39,7 @@ export async function cashFlows(db: Db, s: CashSession, until: Date): Promise<Fl
     .innerJoin(payments, eq(payments.id, refunds.paymentId))
     .where(and(
       eq(refunds.eventId, s.eventId),
-      eq(payments.staffId, s.staffId),
+      eq(refunds.staffId, s.staffId),
       eq(payments.isTrial, false),
       window(refunds.createdAt),
     ))

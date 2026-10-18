@@ -10,6 +10,7 @@ import { adminStaffResetInline, staffCashCloseDialog, staffCashNote } from './sc
 import { adminDelete, adminEndCheck, adminEndClean, staffCashOtherEvent } from './scenes-event.ts'
 import { adminReportsTips, staffCashTip, staffPayDoneTip, staffPayTip } from './scenes-pay.ts'
 import { guestSending, staffPaySending, staffPayUnconfirmed } from './scenes-network.ts'
+import { staffCashRefundLine, staffRefundLead, staffRefundNeedsDrawer } from './scenes-refund.ts'
 import { adminEvent, adminMenu, adminReports, adminReportsAsOf, productionOrders } from './scenes-admin.ts'
 
 // Takes screenshots of the running app (see scripts/screenshots-env.sh).
@@ -48,6 +49,9 @@ const SCENES: Record<string, Scene> = {
   'admin-end-clean': adminEndClean,
   'admin-delete': adminDelete,
   'staff-cash-other-event': staffCashOtherEvent,
+  'staff-refund-lead': staffRefundLead,
+  'staff-refund-needs-drawer': staffRefundNeedsDrawer,
+  'staff-cash-refund-line': staffCashRefundLine,
   'guest-sending': guestSending,
   'staff-pay-sending': staffPaySending,
   'staff-pay-unconfirmed': staffPayUnconfirmed,

@@ -29,6 +29,18 @@ export async function loginStaff(page: Page, username: string, secret: string, k
   await expect(page).not.toHaveURL(/\/staff\/login/)
 }
 
+// Opens the cash drawer unless one is still open from an earlier run.
+export async function ensureDrawerOpen(page: Page): Promise<void> {
+  await page.goto('/staff/cash')
+  const opening = page.locator('[data-test="cash-opening"]')
+  await opening.or(page.locator('[data-test="cash-expected"]')).first().waitFor()
+  if (await opening.isVisible()) {
+    await opening.fill('50')
+    await page.getByRole('button', { name: /open drawer/i }).click()
+    await expect(page.locator('[data-test="cash-expected"]')).toBeVisible()
+  }
+}
+
 // Cashing takes two taps on the same button: "Collect {amount}", then
 // "Collect {amount}? Tap to book".
 export async function collectPayment(page: Page): Promise<void> {

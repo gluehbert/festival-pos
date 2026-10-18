@@ -61,7 +61,7 @@ export const PaymentsByStaffRowSchema = z.object({
   staffId: z.string().uuid(),
   username: z.string(),
   paymentCount: z.number().int(),
-  // Net cash: payments minus refunds of those payments.
+  // Net cash: payments collected minus refunds paid out by this person.
   totalCents: z.number().int(),
   refundedCents: z.number().int().nonnegative(),
   tipCents: z.number().int().nonnegative(),

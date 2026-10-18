@@ -114,7 +114,10 @@ export const usePaymentsStore = defineStore('payments', () => {
       return true
     }
     catch (e: unknown) {
-      error.value = (e as { data?: { message?: string } }).data?.message ?? 'refund_failed'
+      // The real response nests the code in `data.data`; unit tests mock it flat.
+      const err = e as { data?: { code?: string; message?: string; data?: { code?: string } } }
+      error.value = err.data?.message ?? 'refund_failed'
+      errorCode.value = err.data?.data?.code ?? err.data?.code ?? null
       return false
     }
     finally {

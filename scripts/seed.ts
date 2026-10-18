@@ -10,13 +10,14 @@ const DEMO_EVENT_PIN = 'DEMO1234'
 
 interface StaffSeed {
   username: string
-  role: 'admin' | 'waiter' | 'kitchen' | 'bar'
+  role: 'admin' | 'lead' | 'waiter' | 'kitchen' | 'bar'
   secret: string
   kind: 'password' | 'pin'
 }
 
 const STAFF_SEEDS: StaffSeed[] = [
   { username: 'admin', role: 'admin', secret: 'admin123', kind: 'password' },
+  { username: 'lead1', role: 'lead', secret: '1111', kind: 'pin' },
   { username: 'waiter1', role: 'waiter', secret: '1111', kind: 'pin' },
   { username: 'kitchen1', role: 'kitchen', secret: '1111', kind: 'pin' },
   { username: 'bar1', role: 'bar', secret: '1111', kind: 'pin' },
