@@ -1,6 +1,6 @@
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
 import { eq } from 'drizzle-orm'
-import { verifyAuthenticationResponse, type AuthenticationResponseJSON, type AuthenticatorTransportFuture } from '@simplewebauthn/server'
+import { verifyAuthenticationResponse, type AuthenticationResponseJSON } from '@simplewebauthn/server'
 import { isoBase64URL } from '@simplewebauthn/server/helpers'
 import { getDb } from '../../../db/client'
 import { staff } from '../../../db/schema'
@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
             id: found.passkey.credentialId,
             publicKey: isoBase64URL.toBuffer(found.passkey.publicKey),
             counter: found.passkey.counter,
-            transports: found.passkey.transports?.split(',') as AuthenticatorTransportFuture[] | undefined,
+            transports: found.passkey.transports?.split(','),
           },
           requireUserVerification: true,
         })
