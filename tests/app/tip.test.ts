@@ -144,7 +144,7 @@ describe('payments store — tip', () => {
 
 const receipt: Receipt = {
   paymentId: '00000000-0000-4000-8000-000000000009',
-  eventName: 'Sommerfest',
+  eventName: 'Summer festival',
   tableNo: 12,
   lines: [{ nameDe: 'Bier', nameEn: 'Beer', quantity: 1, unitPriceCents: 1750, depositCents: 0, note: null }],
   totalCents: 1750,

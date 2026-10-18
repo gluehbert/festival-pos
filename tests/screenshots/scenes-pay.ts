@@ -57,12 +57,12 @@ export const staffPayTip: Scene = async (ctx) => {
 }
 
 export const staffPayDoneTip: Scene = async (ctx) => {
-  const page = await paidWithTip(ctx, 13, [/pommes zum warenkorb/i, /bier 0,5 zum warenkorb/i], '10')
+  const page = await paidWithTip(ctx, 13, [/add fries to cart/i, /add beer 0\.5 to cart/i], '10')
   await ctx.shoot(page, 'staff-pay-done-tip')
 }
 
 export const staffCashTip: Scene = async (ctx) => {
-  await paidWithTip(ctx, 14, [/pommes zum warenkorb/i], '5')
+  await paidWithTip(ctx, 14, [/add fries to cart/i], '5')
   const { page } = await ctx.open('staff')
   await loginStaff(page, 'waiter1', '1111', 'pin')
   await page.goto('/staff/cash')
@@ -71,8 +71,8 @@ export const staffCashTip: Scene = async (ctx) => {
 }
 
 export const adminReportsTips: Scene = async (ctx) => {
-  await (await paidWithTip(ctx, 15, [/pommes zum warenkorb/i], '5')).close()
-  const page = await adminOnEvent(ctx, 'Berichte')
+  await (await paidWithTip(ctx, 15, [/add fries to cart/i], '5')).close()
+  const page = await adminOnEvent(ctx, 'Reports')
   await page.locator('[data-test="tips-total"]').waitFor()
   await ctx.shoot(page, 'admin-reports-tips')
 }

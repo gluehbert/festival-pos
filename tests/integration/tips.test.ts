@@ -28,7 +28,7 @@ async function pay(waiter: Waiter, menuItemId: string, tableNo: number, tipCents
   return { paymentId: res.body.paymentId, orderItemId: order.body.items[0]!.orderItemId }
 }
 
-describe('Trinkgeld — Kasse, Umsatz, Berichte', () => {
+describe('Tips: drawer, revenue, reports', () => {
   let anna: Waiter
   let ben: Waiter
   let fries: string
@@ -44,12 +44,12 @@ describe('Trinkgeld — Kasse, Umsatz, Berichte', () => {
     ben = { staffId: insertStaff('waiter', 'ben'), role: 'waiter' }
   })
 
-  it('Soll includes the tip; revenue stays without it; refunds leave the tip alone', async () => {
+  it('the expected amount includes the tip; revenue stays without it; refunds leave the tip alone', async () => {
     await call('../../server/api/cash/session.post', { method: 'POST', staff: anna, body: { openingCents: 5000 } })
     await pay(anna, fries, 1, 150) // 350 + 150
     const second = await pay(anna, beer, 2, 0) // 400
     await call('../../server/api/admin/order-items/[id]/refund.post', {
-      method: 'POST', staff: admin(), params: { id: second.orderItemId }, body: { reason: 'zu warm' },
+      method: 'POST', staff: admin(), params: { id: second.orderItemId }, body: { reason: 'too warm' },
     })
 
     const live = await call<{ session: { collectedCents: number; tipCents: number; refundedCents: number; expectedCents: number } }>(
