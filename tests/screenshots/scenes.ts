@@ -10,7 +10,7 @@ import { adminStaffResetInline, staffCashCloseDialog, staffCashNote } from './sc
 import { adminDelete, adminEndCheck, adminEndClean, staffCashOtherEvent } from './scenes-event.ts'
 import { adminReportsTips, staffCashTip, staffPayDoneTip, staffPayTip } from './scenes-pay.ts'
 import { guestSending, staffPaySending, staffPayUnconfirmed } from './scenes-network.ts'
-import { adminEvent, adminMenu, adminReports, productionOrders } from './scenes-admin.ts'
+import { adminEvent, adminMenu, adminReports, adminReportsAsOf, productionOrders } from './scenes-admin.ts'
 
 // Takes screenshots of the running app (see scripts/screenshots-env.sh).
 // Usage: pnpm screenshots [--scene <name>]... [--out <dir>] [--base <url>] [--reset]
@@ -40,6 +40,7 @@ const SCENES: Record<string, Scene> = {
   'admin-event': adminEvent,
   'admin-menu': adminMenu,
   'admin-reports': adminReports,
+  'admin-reports-asof': adminReportsAsOf,
   'staff-cash-close-dialog': staffCashCloseDialog,
   'staff-cash-note': staffCashNote,
   'admin-staff-reset-inline': adminStaffResetInline,
