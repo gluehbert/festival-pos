@@ -5,6 +5,7 @@ import { useMenuStore } from '~/stores/menu'
 import { useCartStore } from '~/stores/cart'
 import { useGuestSession } from '~/composables/useGuestSession'
 import { useApi } from '~/composables/useApi'
+import { useSendState } from '~/composables/useSendState'
 import { usePolling } from '~/composables/usePolling'
 import MenuList from '~/components/guest/MenuList.vue'
 import CartSummary from '~/components/guest/CartSummary.vue'
@@ -14,7 +15,7 @@ import OrderStatus from '~/components/guest/OrderStatus.vue'
 import { useBranding } from '~/composables/useBranding'
 import { useFormat } from '~/composables/useFormat'
 import { newIdempotencyKey } from '~/utils/idempotency'
-import { toOrderItems } from '~/utils/order-lines'
+import { snapshotLines, toOrderItems } from '~/utils/order-lines'
 import { priceChanges, type PriceChange } from '~/utils/price-changes'
 import { GUEST_MAX_ITEMS_PER_ORDER, type Order, type SessionOrders } from '~/../server/lib/contracts/guest'
 
@@ -33,6 +34,7 @@ const lastOrder = ref<Order | null>(null)
 // Booked prices that differ from the cart (a promotion started or ended).
 const changedPrices = ref<PriceChange[]>([])
 const submitting = ref(false)
+const { sending, begin, end, cancel: cancelSending } = useSendState()
 const submitError = ref<string | null>(null)
 const soldOutNotice = ref<string | null>(null)
 const cartQuantities = computed(() => Object.fromEntries(cart.lines.map((l) => [l.menuItem.id, cart.qtyOf(l.menuItem.id)])))
@@ -88,17 +90,19 @@ async function submitOrder() {
     tableNo: tableNo.value,
     items: toOrderItems(cart.lines),
   }
+  const sent = snapshotLines(cart.lines)
   const bodyJson = JSON.stringify(body)
   if (bodyJson !== orderKeyBody) {
     orderKey = newIdempotencyKey()
     orderKeyBody = bodyJson
   }
   try {
-    const order = await api.post<Order>('/api/orders', body, { headers: { 'idempotency-key': orderKey } })
+    const order = await api.post<Order>('/api/orders', body, { headers: { 'idempotency-key': orderKey }, ...begin() })
     changedPrices.value = priceChanges(cart.lines, order.items)
     lastOrder.value = order
     orderKeyBody = ''
-    cart.clear()
+    // Cart changes made while sending stay for the next order.
+    cart.clearSent(sent)
     polling.refresh()
     void menu.refreshPopular()
     if (changedPrices.value.length > 0) void menu.refresh()
@@ -116,6 +120,7 @@ async function submitOrder() {
   }
   finally {
     submitting.value = false
+    end()
   }
 }
 
@@ -200,6 +205,8 @@ watch(() => menu.items, (items) => {
       <CartSummary
         :submitting="submitting"
         :error="submitError"
+        :sending="sending"
+        @cancel-sending="cancelSending"
         @submit="submitOrder"
         @clear="cart.clear()"
       />

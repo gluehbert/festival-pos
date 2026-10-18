@@ -35,7 +35,7 @@ export function ensureService(ctx: Ctx): Promise<void> {
   return service
 }
 
-async function waiterOnAll(ctx: Ctx) {
+export async function waiterOnAll(ctx: Ctx) {
   await ensureService(ctx)
   const { page } = await ctx.open('staff')
   await loginStaff(page, 'waiter1', '1111', 'pin')

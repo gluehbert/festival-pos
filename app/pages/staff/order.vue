@@ -9,6 +9,7 @@ import { useFormat } from '~/composables/useFormat'
 import { usePolling } from '~/composables/usePolling'
 import OrderMenuRow from '~/components/staff/OrderMenuRow.vue'
 import MenuBrowser from '~/components/common/MenuBrowser.vue'
+import SendingState from '~/components/common/SendingState.vue'
 import PadLines from '~/components/staff/PadLines.vue'
 import LastReceipt from '~/components/staff/LastReceipt.vue'
 import AllergenLegend from '~/components/common/AllergenLegend.vue'
@@ -196,6 +197,7 @@ const backTo = computed(() => (!isWalkin.value && route.query.table ? `/staff/${
           <UIcon name="i-lucide-circle-alert" class="size-4 shrink-0" aria-hidden="true" />
           {{ block === 'table' ? $t('staff.order.blockTable') : $t('staff.order.blockMealReason') }}
         </p>
+        <SendingState :sending="pad.sending" @cancel="pad.cancelSending" />
         <div class="flex gap-2">
           <button
             type="button"

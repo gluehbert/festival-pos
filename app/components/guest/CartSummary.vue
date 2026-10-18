@@ -3,10 +3,11 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useCartStore } from '~/stores/cart'
 import { formatCents } from '~/../server/lib/money'
 import CartLine from '~/components/guest/CartLine.vue'
+import SendingState from '~/components/common/SendingState.vue'
 import { useSheetDrag } from '~/composables/useSheetDrag'
 
-defineProps<{ submitting?: boolean; error?: string | null }>()
-const emit = defineEmits<{ submit: []; clear: [] }>()
+defineProps<{ submitting?: boolean; error?: string | null; sending?: { attempt: number, max: number } | null }>()
+const emit = defineEmits<{ submit: []; clear: []; cancelSending: [] }>()
 
 const cart = useCartStore()
 const { locale } = useI18n()
@@ -168,6 +169,7 @@ onBeforeUnmount(() => {
     >
       {{ submitting ? $t('guest.cart.submitting') : `${$t('guest.cart.submit')} · ${total}` }}
     </button>
+    <SendingState class="mt-2" :sending="sending ?? null" @cancel="emit('cancelSending')" />
     <div v-if="confirmClear" class="mt-2 flex flex-wrap items-center justify-center gap-2" role="group" :aria-label="$t('guest.cart.clearConfirm')">
       <span class="text-sm font-semibold text-slate-700">{{ $t('guest.cart.clearConfirm') }}</span>
       <button

@@ -103,7 +103,7 @@ describe('staff order store', () => {
     expect(pad.totalCents).toBe(800)
     expect(pad.itemCount).toBe(2)
 
-    fetchMock.mockRejectedValueOnce({ data: { message: 'offline' } })
+    fetchMock.mockRejectedValueOnce({ statusCode: 400, data: { message: 'offline' } })
     await expect(pad.submit('staff_table', 12)).resolves.toBeNull()
     expect(pad.error).toBe('offline')
     expect(pad.isEmpty).toBe(false)
@@ -149,5 +149,51 @@ describe('send block reason', () => {
     expect(sendBlock({ ...ok, mealValid: false })).toBe('mealReason')
     // An empty pad is obvious from the summary, no extra hint needed.
     expect(sendBlock({ ...ok, empty: true, tableValid: false })).toBe('empty')
+  })
+})
+
+describe('staff order store retry', () => {
+  const fetchMock = vi.fn()
+  beforeEach(() => {
+    vi.useFakeTimers()
+    fetchMock.mockReset()
+    vi.stubGlobal('$fetch', fetchMock)
+    useCookie<string>('csrf').value = 'c'.repeat(64)
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  it('sends once after two lost tries and keeps pad changes made meanwhile', async () => {
+    const pad = useStaffOrderStore()
+    pad.add(menuItem(BEER, 400))
+    fetchMock
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce({ orderId: 'o1', tableNo: 4, items: [], tableBalanceCents: 400 })
+    const p = pad.submit('staff_table', 4)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(pad.sending).toEqual({ attempt: 1, max: 4 })
+    // Another beer while the send is waiting: belongs to the next order.
+    pad.add(menuItem(BEER, 400))
+    await vi.advanceTimersByTimeAsync(2000)
+    await expect(p).resolves.toMatchObject({ ticketKey: 't-4' })
+    const keys = fetchMock.mock.calls.map((c) => (c[1] as { headers: Record<string, string> }).headers['idempotency-key'])
+    expect(new Set(keys).size).toBe(1)
+    expect(pad.itemCount).toBe(1)
+    expect(pad.sending).toBeNull()
+  })
+
+  it('gives up after four retries and keeps the pad and the key', async () => {
+    const pad = useStaffOrderStore()
+    pad.add(menuItem(BEER, 400))
+    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'))
+    const p = pad.submit('staff_table', 4)
+    await vi.advanceTimersByTimeAsync(16000)
+    await expect(p).resolves.toBeNull()
+    expect(fetchMock).toHaveBeenCalledTimes(5)
+    expect(pad.isEmpty).toBe(false)
+    expect(pad.error).toBe('order_failed')
   })
 })

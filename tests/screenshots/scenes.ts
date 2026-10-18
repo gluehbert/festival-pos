@@ -6,6 +6,7 @@ import { parseArgs } from 'node:util'
 import { chromium, devices, type Browser, type BrowserContext, type Page } from '@playwright/test'
 import { guestCart, guestMenu, guestStatus } from './scenes-guest.ts'
 import { staffCash, staffGrid, staffOrder, staffPay, staffTable } from './scenes-staff.ts'
+import { guestSending, staffPaySending, staffPayUnconfirmed } from './scenes-network.ts'
 import { adminEvent, adminMenu, adminReports, productionOrders } from './scenes-admin.ts'
 
 // Takes screenshots of the running app (see scripts/screenshots-env.sh).
@@ -32,6 +33,9 @@ const SCENES: Record<string, Scene> = {
   'admin-event': adminEvent,
   'admin-menu': adminMenu,
   'admin-reports': adminReports,
+  'guest-sending': guestSending,
+  'staff-pay-sending': staffPaySending,
+  'staff-pay-unconfirmed': staffPayUnconfirmed,
 }
 
 const VIEWPORTS: Record<Viewport, { viewport: { width: number, height: number }, isMobile?: boolean, hasTouch?: boolean, userAgent?: string }> = {

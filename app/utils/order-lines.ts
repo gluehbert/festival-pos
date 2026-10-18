@@ -97,3 +97,16 @@ export function qtyOfItem(lines: OrderLine[], menuItemId: string): number {
 export function toOrderItems(lines: OrderLine[]) {
   return lines.map((l) => ({ menuItemId: l.menuItem.id, quantity: l.quantity, ...(l.note ? { note: l.note } : {}) }))
 }
+
+// Quantity per line key, taken when a send starts.
+export function snapshotLines(lines: readonly OrderLine[]): Map<string, number> {
+  return new Map(lines.map((l) => [l.key, l.quantity]))
+}
+
+// What is left after a send went through: changes made to the cart while it
+// was sending stay, what was sent leaves.
+export function remainingLines(lines: OrderLine[], sent: ReadonlyMap<string, number>): OrderLine[] {
+  return lines
+    .map((l) => ({ ...l, quantity: l.quantity - (sent.get(l.key) ?? 0) }))
+    .filter((l) => l.quantity > 0)
+}

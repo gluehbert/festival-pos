@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test'
+import type { Locator, Page, Route } from '@playwright/test'
 
 // Helpers for preparing scene data through the UI. Copied from
 // tests/e2e/helpers.ts without `expect`: a scene should fail with a plain
@@ -89,4 +89,23 @@ export async function collectPayment(page: Page): Promise<void> {
   await button.click()
   await page.locator('[data-test="pay-submit"]', { hasText: /tap to book/i }).waitFor()
   await button.click()
+}
+
+// Network trouble for a scene: the first `failures` POSTs to the URL get a
+// dropped connection (nothing reaches the server). Later ones are held
+// unanswered when `then` is 'hang', or dropped too when it is 'fail'. Call the
+// returned function before the scene ends: held requests are dropped, never
+// sent, so nothing is booked.
+export async function troubleRoute(page: Page, url: string, failures: number, then: 'hang' | 'fail'): Promise<() => Promise<void>> {
+  let seen = 0
+  const held: Route[] = []
+  await page.route(url, async (route) => {
+    if (route.request().method() !== 'POST') return route.continue()
+    seen++
+    if (seen <= failures || then === 'fail') return route.abort('connectionreset')
+    held.push(route)
+  })
+  return async () => {
+    await Promise.all(held.splice(0).map((r) => r.abort('connectionreset').catch(() => {})))
+  }
 }
