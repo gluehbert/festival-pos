@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
-// Kitchen and bar screens hang at a distance: bigger/smaller text and
-// fullscreen. The size is remembered per device; storage may be unavailable.
-const zoom = defineModel<number>({ default: 1 })
+// Page zoom and fullscreen by button, for staff who cannot pinch-zoom well.
+// A page cannot drive the browser zoom itself, so it zooms the whole document
+// instead. The level is remembered per device; storage may be unavailable.
+const zoom = ref(1)
 
 const STEP = 0.1
 const MIN = 0.7
@@ -13,10 +14,15 @@ const ZOOM_KEY = 'production-zoom'
 function setZoom(v: number) {
   const next = Math.round(Math.min(MAX, Math.max(MIN, v)) * 10) / 10
   zoom.value = next
+  applyZoom()
   try {
     localStorage.setItem(ZOOM_KEY, String(next))
   }
   catch { /* not remembered, still works */ }
+}
+
+function applyZoom() {
+  document.documentElement.style.zoom = zoom.value === 1 ? '' : String(zoom.value)
 }
 
 const canFullscreen = ref(false)
@@ -41,12 +47,17 @@ onMounted(() => {
     if (stored >= MIN && stored <= MAX) zoom.value = stored
   }
   catch { /* default size */ }
+  applyZoom()
   canFullscreen.value = document.fullscreenEnabled === true
   syncFullscreen()
   document.addEventListener('fullscreenchange', syncFullscreen)
 })
 
-onBeforeUnmount(() => document.removeEventListener('fullscreenchange', syncFullscreen))
+// Other screens keep their normal size.
+onBeforeUnmount(() => {
+  document.removeEventListener('fullscreenchange', syncFullscreen)
+  document.documentElement.style.zoom = ''
+})
 </script>
 
 <template>
@@ -55,7 +66,7 @@ onBeforeUnmount(() => document.removeEventListener('fullscreenchange', syncFulls
       <button
         type="button"
         class="inline-flex size-11 items-center justify-center rounded-full text-slate-700 hover:bg-slate-200 disabled:opacity-40"
-        :aria-label="$t('production.display.smaller')"
+        :aria-label="$t('production.display.zoomOut')"
         :disabled="zoom <= MIN"
         data-test="zoom-out"
         @click="setZoom(zoom - STEP)"
@@ -68,7 +79,7 @@ onBeforeUnmount(() => document.removeEventListener('fullscreenchange', syncFulls
       <button
         type="button"
         class="inline-flex size-11 items-center justify-center rounded-full text-slate-700 hover:bg-slate-200 disabled:opacity-40"
-        :aria-label="$t('production.display.bigger')"
+        :aria-label="$t('production.display.zoomIn')"
         :disabled="zoom >= MAX"
         data-test="zoom-in"
         @click="setZoom(zoom + STEP)"

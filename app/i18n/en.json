@@ -1097,9 +1097,9 @@
     "toastUndoFailed": "Cannot undo – already served?",
     "stationLabel": "Choose station",
     "display": {
-      "zoomLabel": "Text size",
-      "smaller": "Smaller text",
-      "bigger": "Bigger text",
+      "zoomLabel": "Zoom",
+      "zoomOut": "Zoom out",
+      "zoomIn": "Zoom in",
       "fullscreen": "Fullscreen",
       "exitFullscreen": "Exit fullscreen"
     }

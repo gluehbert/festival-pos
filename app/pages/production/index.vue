@@ -42,7 +42,6 @@ function setView(v: View) {
   catch { /* not remembered, still works */ }
 }
 const finishingIds = ref<Set<string>>(new Set())
-const zoom = ref(1)
 
 const effectiveStation = computed<Station | undefined>(() => {
   if (auth.staff?.role === 'kitchen' || auth.staff?.role === 'bar') return auth.staff.role
@@ -166,7 +165,7 @@ async function onFinish(orderId: string) {
         </template>
       </h1>
       <div class="flex flex-wrap items-center gap-2">
-        <DisplayControls v-model="zoom" />
+        <DisplayControls />
         <div class="inline-flex gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.viewLabel')">
           <button
             v-for="v in (['orders', 'items'] as const)"
@@ -191,36 +190,34 @@ async function onFinish(orderId: string) {
       @result="(ok) => showToast(ok ? 'success' : 'error', ok ? t('production.soldOut.saved') : t('production.toastFailed'))"
     />
 
-    <div :style="{ zoom }" data-test="production-content">
-      <p v-if="production.loading && production.queue.length === 0" class="mt-8 text-sm text-slate-500">
-        {{ $t('production.loading') }}
-      </p>
-      <p v-else-if="production.queue.length === 0" class="mt-8 text-sm text-slate-500">
-        {{ $t('production.empty') }}
-      </p>
+    <p v-if="production.loading && production.queue.length === 0" class="mt-8 text-sm text-slate-500">
+      {{ $t('production.loading') }}
+    </p>
+    <p v-else-if="production.queue.length === 0" class="mt-8 text-sm text-slate-500">
+      {{ $t('production.empty') }}
+    </p>
 
-      <ul v-else-if="view === 'orders'" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <li v-for="group in production.groups" :key="group.orderId">
-          <OrderCard
-            :group="group"
-            :busy-ids="busyIds"
-            :finishing="finishingIds.has(group.orderId)"
-            @advance="(id, n) => onAdvance(id, n)"
-            @finish="onFinish(group.orderId)"
-          />
-        </li>
-      </ul>
+    <ul v-else-if="view === 'orders'" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <li v-for="group in production.groups" :key="group.orderId">
+        <OrderCard
+          :group="group"
+          :busy-ids="busyIds"
+          :finishing="finishingIds.has(group.orderId)"
+          @advance="(id, n) => onAdvance(id, n)"
+          @finish="onFinish(group.orderId)"
+        />
+      </li>
+    </ul>
 
-      <ul v-else class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <li v-for="item in production.queue" :key="item.orderItemId">
-          <QueueItem
-            :item="item"
-            :busy="busyIds.has(item.orderItemId)"
-            @advance="(n) => onAdvance(item.orderItemId, n)"
-          />
-        </li>
-      </ul>
-    </div>
+    <ul v-else class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <li v-for="item in production.queue" :key="item.orderItemId">
+        <QueueItem
+          :item="item"
+          :busy="busyIds.has(item.orderItemId)"
+          @advance="(n) => onAdvance(item.orderItemId, n)"
+        />
+      </li>
+    </ul>
 
     <transition name="fade">
       <div

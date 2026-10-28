@@ -1097,9 +1097,9 @@
     "toastUndoFailed": "Rückgängig nicht möglich – schon serviert?",
     "stationLabel": "Station wählen",
     "display": {
-      "zoomLabel": "Schriftgröße",
-      "smaller": "Schrift kleiner",
-      "bigger": "Schrift größer",
+      "zoomLabel": "Zoom",
+      "zoomOut": "Verkleinern",
+      "zoomIn": "Vergrößern",
       "fullscreen": "Vollbild",
       "exitFullscreen": "Vollbild beenden"
     }
