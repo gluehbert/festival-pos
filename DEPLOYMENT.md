@@ -90,7 +90,7 @@ Each event has its own workspace. At the top of `/admin/events` is the event tha
 | Build fails at `migrate` | `DATABASE_URL` is missing or wrong (check the Production scope). |
 | `/api/healthz` → 503 | See the message; set the variable, redeploy. |
 | Login → 429 | 10 failed attempts in 15 minutes for this user. Wait, or run `DELETE FROM login_attempts WHERE username = '…'` in Neon. |
-| Guest sees "Your session has expired" | Scan the QR code again; guest sessions last 7 days. |
+| Guest sees "Your session has expired" | Scan the QR code again; guest sessions last 12 hours, and the shift lead can end them all at the end of a shift. |
 | Logs | Vercel → Project → Logs. Every response has an `x-request-id` header, which also appears in the JSON logs. |
 
 ## Go-live checklist before the festival

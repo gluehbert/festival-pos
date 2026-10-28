@@ -16,15 +16,24 @@ import type { MenuItemDto, SessionOrders } from '~/../server/lib/contracts/guest
 describe('VoidDialog', () => {
   it('needs a reason of at least 3 characters and emits it trimmed', async () => {
     const w = mount(VoidDialog, { props: { open: true, itemName: '1 × Beer' } })
-    const confirm = w.findAll('button')[1]!
+    const confirm = w.findAll('button')[2]!
     await w.find('textarea').setValue('  x ')
     expect(confirm.attributes('disabled')).toBeDefined()
     await w.find('textarea').setValue('  too cold  ')
     expect(confirm.attributes('disabled')).toBeUndefined()
     await confirm.trigger('click')
     expect(w.emitted('confirm')).toEqual([['too cold']])
-    await w.findAll('button')[0]!.trigger('click')
+    await w.findAll('button')[1]!.trigger('click')
     expect(w.emitted('cancel')).toHaveLength(1)
+  })
+
+  it('fills in "not ordered by this table" with one tap, not in refund mode', async () => {
+    const w = mount(VoidDialog, { props: { open: true, itemName: '1 × Beer' } })
+    await w.find('[data-test="void-not-ordered"]').trigger('click')
+    await w.findAll('button')[2]!.trigger('click')
+    expect(w.emitted('confirm')).toEqual([['staff.void.notOrdered']])
+    const refund = mount(VoidDialog, { props: { open: true, itemName: 'x', refund: true } })
+    expect(refund.find('[data-test="void-not-ordered"]').exists()).toBe(false)
   })
 
   it('uses refund wording and shows the cash hint in refund mode', () => {

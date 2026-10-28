@@ -220,7 +220,7 @@ The following entities are adopted from the canonical .NET variant and simplifie
 
 - **Event**: name, PIN, active flag, activation time; constraint: max. 1 active event. Tables are **not** a separate data object but an admin-maintained **number range** per event (integer value range). QR codes are generated from this range.
 - **MenuItem**: name DE, name EN, price (€), category, target station (`kitchen` | `bar`), availability flag, event reference.
-- **GuestSession**: session ID, table reference, creation time, expiry time (7 days).
+- **GuestSession**: session ID, table reference, creation time, expiry time (12 hours; the shift lead can end all sessions earlier).
 - **Order**: order ID, table reference, guest session or staff user (for walk-in), creation time, idempotency key (optional).
 - **OrderItem**: order reference, MenuItem reference, quantity, unit price snapshot, status (`pending` | `in_progress` | `done` | `cancelled`), void reason.
 - **Ticket**: aggregate of all open OrderItems per table (or standalone for walk-in); status `open` | `paid`.
@@ -274,6 +274,7 @@ Implemented, but not described (or described differently) in the sections above.
 - **"Popular" tab**: Category tabs with search, plus a tab with the most-ordered items of the table or the event (`GET /api/menu/popular`).
 - **Idempotency for payments**: Like FR-006 for orders, `POST /api/payments` takes an `Idempotency-Key` (unique per event and cashier). A repeat after a lost response returns the already booked payment instead of booking again. Waiter orders have their own idempotency index.
 - **Guest limits**: At most 15 guest orders per table in 10 minutes and 40 items per order; waiters are not limited. The event PIN is no longer printed on the table cards.
+- **Orders from passers-by**: A guest session lasts 12 hours, and the QR key leaves the address bar once the session is open. The shift lead can end all guest sessions of the event at the end of a shift (`POST /api/tickets/guest-sessions/end`, audit action `guest_sessions_end`); an ended session gets 401 on `/api/session/me` and on ordering. Per guest session, unpaid and not voided items may total at most `events.guest_open_limit_bar_cents` (bar) and `guest_open_limit_kitchen_cents` (kitchen), default 5000 / 8000, NULL = no limit, set by the admin; above it the order fails with 409 `OPEN_LIMIT`. The table bill numbers the guest phones per table in order of their first order. The shift lead may void finished items (before: admin only); the void dialog offers the reason "Not ordered by this table", and the voids report shows the table number.
 - **Admin by password only**: Admins log in exclusively with a password (min. 12 characters); a PIN is rejected and removed when promoting someone to admin.
 - **Login throttling**: 10 failed attempts per user and IP, 100 per user, each within 15 minutes.
 - **Daily cron**: The sweep (FR-043) runs on demand at most once per hour for all instances combined (timestamp in `maintenance_runs`), in the background and not from the polling endpoints. In addition, Vercel Cron calls `/api/cron/sweep` once a day (protected with `CRON_SECRET`). FR-042 has explicitly allowed this since October 2026.

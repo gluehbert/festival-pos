@@ -168,7 +168,11 @@
       "unavailable": "Nicht bestellt: Etwas ist inzwischen ausverkauft. Bitte Warenkorb prüfen und erneut bestellen.",
       "tooMany": "Von diesem Tisch kamen gerade sehr viele Bestellungen. Bitte kurz warten oder die Bedienung ansprechen.",
       "tooLarge": "So viele Artikel auf einmal gehen nicht online (höchstens {max}). Bitte aufteilen oder die Bedienung ansprechen.",
-      "sessionExpired": "Deine Sitzung ist abgelaufen. Bitte den QR-Code auf dem Tisch neu scannen."
+      "sessionExpired": "Deine Sitzung ist abgelaufen. Bitte den QR-Code auf dem Tisch neu scannen.",
+      "openLimit": {
+        "bar": "Pro Handy können Getränke für höchstens {amount} bestellt und noch nicht bezahlt sein. Bitte erst bei der Bedienung bezahlen oder weniger bestellen.",
+        "kitchen": "Pro Handy kann Essen für höchstens {amount} bestellt und noch nicht bezahlt sein. Bitte erst bei der Bedienung bezahlen oder weniger bestellen."
+      }
     },
     "languageSwitcher": {
       "label": "Sprache wählen"
@@ -283,10 +287,11 @@
       "errorTooShort": "Grund muss mind. 3 Zeichen lang sein.",
       "errorPaid": "Bereits bezahlte Positionen können nicht storniert werden – bitte über „Erstatten“ (Schichtleitung oder Admin).",
       "button": "Storno",
-      "errorAdminOnly": "Diese Position ist schon fertig oder serviert. Stornieren darf sie nur ein Admin.",
+      "errorAdminOnly": "Diese Position ist schon fertig oder serviert. Stornieren darf sie nur die Schichtleitung oder ein Admin.",
       "errorCancelled": "Diese Position ist bereits storniert.",
       "errorConflict": "Die Position hat sich gerade geändert. Bitte neu laden und erneut versuchen.",
-      "errorNotFound": "Position nicht gefunden – gehört sie zu einem anderen Fest?"
+      "errorNotFound": "Position nicht gefunden – gehört sie zu einem anderen Fest?",
+      "notOrdered": "Nicht vom Tisch bestellt"
     },
     "errors": {
       "generic": "Etwas ist schiefgelaufen.",
@@ -307,7 +312,8 @@
       "hoursAgo": "vor {h} Std. {m} Min.",
       "openJustNow": "offen seit eben",
       "openSince": "offen seit {n} Min.",
-      "openSinceHours": "offen seit {h} Std. {m} Min."
+      "openSinceHours": "offen seit {h} Std. {m} Min.",
+      "device": "Handy {n}"
     },
     "refund": {
       "button": "Erstatten",
@@ -544,6 +550,15 @@
         "guest": "Kunde"
       },
       "failed": "Anmelden hat nicht geklappt: {reason}"
+    },
+    "shiftEnd": {
+      "title": "Schichtende",
+      "hint": "Meldet alle Gast-Handys ab. Wer danach bestellen will, scannt den QR-Code am Tisch neu. Bestellungen und Rechnungen bleiben, wie sie sind.",
+      "button": "Gast-Handys abmelden",
+      "confirmTitle": "Alle Gast-Handys abmelden?",
+      "confirmBody": "Gäste am Tisch scannen einfach den QR-Code neu. Handys, die nicht mehr auf dem Fest sind, können nicht mehr bestellen.",
+      "done": "Es war kein Gast-Handy angemeldet. | 1 Gast-Handy abgemeldet. | {n} Gast-Handys abgemeldet.",
+      "failed": "Das hat nicht geklappt. Bitte noch einmal versuchen."
     }
   },
   "admin": {
@@ -714,7 +729,8 @@
         "tables": "Tischnummern",
         "guestOrderCount": "davon per App",
         "tip": "Trinkgeld",
-        "tipCount": "Zahlungen mit Trinkgeld"
+        "tipCount": "Zahlungen mit Trinkgeld",
+        "table": "Tisch"
       },
       "cash": {
         "openedAt": "Geöffnet",
@@ -1048,6 +1064,16 @@
       "typeName": "Zur Bestätigung den Eventnamen eintippen: {name}",
       "confirm": "Endgültig löschen",
       "done": "Event gelöscht."
+    },
+    "guestLimits": {
+      "title": "Grenzen für Gastbestellungen",
+      "hint": "So viel darf ein Gast-Handy höchstens bestellt und noch nicht bezahlt haben, damit niemand im Vorbeigehen einen Tisch mit Bestellungen belädt. Bezahlte Bestellungen zählen nicht mehr. Leer = keine Grenze.",
+      "bar": "Getränke (Bar), €",
+      "kitchen": "Essen (Küche), €",
+      "none": "keine Grenze",
+      "save": "Grenzen speichern",
+      "saved": "Grenzen gespeichert.",
+      "invalid": "Bitte einen Betrag ab 1 € eingeben oder das Feld leer lassen."
     }
   },
   "errors": {},

@@ -49,6 +49,8 @@ export const VoidRowSchema = z.object({
   orderItemId: z.string().uuid(),
   nameDe: z.string(),
   nameEn: z.string(),
+  // 0 for staff meals; shows which tables someone ordered for and walked on.
+  tableNo: z.number().int(),
   reason: z.string(),
   voidedAt: z.string().datetime(),
   voidedByStaffId: z.string().uuid().nullable(),

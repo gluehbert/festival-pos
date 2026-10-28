@@ -79,6 +79,9 @@ export const TicketDetailItemSchema = z.object({
   paymentStatus: z.enum(['unpaid', 'paid']),
   served: z.boolean(),
   createdAt: z.string().datetime(),
+  // Guest phone that ordered it, numbered per table in order of its first
+  // order (1, 2, …); null when a waiter took the order.
+  device: z.number().int().positive().nullable(),
 })
 export type TicketDetailItem = z.infer<typeof TicketDetailItemSchema>
 

@@ -4,6 +4,7 @@ import { auditLog, menuItems, orderItems, orders } from '../db/schema'
 import { AppError, isForeignKeyViolation, isUniqueViolation } from './errors'
 import { lineTotalSql } from './line-total'
 import { takeStock } from './stock'
+import { assertGuestOpenLimit, type OpenLimits } from './guest-order-limit'
 import { loadPricingRules, priceItems } from './price-rules'
 import type { EffectivePrice } from './pricing'
 import type { CreateOrder, OrderResponseItem } from './contracts/guest'
@@ -116,9 +117,11 @@ export async function reuseExisting(
   return rows[0]?.id ?? null
 }
 
+type OrderEvent = { id: string; trialMode: boolean; depositEnabled: boolean } & OpenLimits
+
 export async function createOrderRow(
   db: Db,
-  ev: { id: string; trialMode: boolean; depositEnabled: boolean },
+  ev: OrderEvent,
   input: CreateOrder,
   ctx: OrderContext,
   key: string | null,
@@ -172,7 +175,7 @@ export async function createOrderRow(
 
 async function insertOrder(
   db: Db,
-  ev: { id: string; trialMode: boolean; depositEnabled: boolean },
+  ev: OrderEvent,
   input: CreateOrder,
   ctx: OrderContext,
   key: string | null,
@@ -180,29 +183,11 @@ async function insertOrder(
   prices: Map<string, EffectivePrice>,
 ): Promise<string> {
   return await db.transaction(async (tx) => {
-    // Stock first: a sold-out article fails the order before anything is written.
-    // Rehearsals must not eat into the real stock; the sold-out check stays active.
-    if (!ev.trialMode) await takeStock(tx, input.items, (id) => menuById.get(id)!.nameDe)
-    const inserted = await tx
-      .insert(orders)
-      .values({
-        eventId: ev.id,
-        tableNo: ctx.tableNo,
-        kind: ctx.kind,
-        guestSessionId: ctx.guestSessionId,
-        createdByStaff: ctx.createdByStaff,
-        idempotencyKey: key,
-        isTrial: ev.trialMode,
-        staffMealReason: ctx.staffMealReason ?? null,
-      })
-      .returning({ id: orders.id })
-    const oid = inserted[0]!.id
     const meal = ctx.kind === 'staff_meal'
-    const rows = input.items.map((it) => {
+    const lines = input.items.map((it) => {
       const m = menuById.get(it.menuItemId)!
       const rule = meal ? null : prices.get(m.id)?.rule ?? null
       return {
-        orderId: oid,
         menuItemId: m.id,
         quantity: it.quantity,
         // Staff meals cost nothing and are settled at once; the menu price
@@ -222,6 +207,26 @@ async function insertOrder(
         category: m.category,
       }
     })
+    // A guest phone over its cap of unpaid orders and a sold-out article both
+    // fail the order before anything is written.
+    if (ctx.guestSessionId) await assertGuestOpenLimit(tx, ev, ctx.guestSessionId, lines)
+    // Rehearsals must not eat into the real stock; the sold-out check stays active.
+    if (!ev.trialMode) await takeStock(tx, input.items, (id) => menuById.get(id)!.nameDe)
+    const inserted = await tx
+      .insert(orders)
+      .values({
+        eventId: ev.id,
+        tableNo: ctx.tableNo,
+        kind: ctx.kind,
+        guestSessionId: ctx.guestSessionId,
+        createdByStaff: ctx.createdByStaff,
+        idempotencyKey: key,
+        isTrial: ev.trialMode,
+        staffMealReason: ctx.staffMealReason ?? null,
+      })
+      .returning({ id: orders.id })
+    const oid = inserted[0]!.id
+    const rows = lines.map((l) => ({ ...l, orderId: oid }))
     await tx.insert(orderItems).values(rows)
     if (meal) {
       await tx.insert(auditLog).values({
