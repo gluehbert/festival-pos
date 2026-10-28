@@ -18,6 +18,8 @@ const note = ref('')
 const openingCents = computed(() => parseEuroInput(openingInput.value))
 const countedCents = computed(() => parseEuroInput(countedInput.value))
 const confirming = ref(false)
+// The open form only once the drawer is known, so it never shows and vanishes.
+const loaded = ref(false)
 const differs = computed(() => cash.session !== null && countedCents.value !== null && countedCents.value !== cash.session.expectedCents)
 
 onMounted(async () => {
@@ -26,6 +28,7 @@ onMounted(async () => {
     return
   }
   await cash.load()
+  loaded.value = true
 })
 
 async function openDrawer() {
@@ -79,7 +82,7 @@ const inputClass = 'min-h-[52px] w-40 rounded-lg border-2 border-slate-300 bg-su
       <CashBreakdown class="mt-2" :session="cash.lastClosed" />
     </section>
 
-    <p v-if="cash.loading && !cash.session" class="mt-6 text-sm text-slate-500">
+    <p v-if="(cash.loading || !loaded) && !cash.session" class="mt-6 text-sm text-slate-500">
       {{ $t('staff.overview.loading') }}
     </p>
 

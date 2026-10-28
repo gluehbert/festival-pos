@@ -1102,7 +1102,17 @@
     "undo": "Rückgängig",
     "toastUndone": "Wieder in Arbeit",
     "toastUndoFailed": "Rückgängig nicht möglich – schon serviert?",
-    "stationLabel": "Station wählen"
+    "stationLabel": "Station wählen",
+    "display": {
+      "label": "Anzeige",
+      "zoomLabel": "Zoom",
+      "zoomOut": "Verkleinern",
+      "zoomIn": "Vergrößern",
+      "fullscreen": "Vollbild",
+      "exitFullscreen": "Vollbild beenden",
+      "keepAwakeOn": "Bildschirm bleibt an",
+      "keepAwakeOff": "Bildschirm darf ausgehen"
+    }
   },
   "alerts": {
     "soundLabel": "Ton bei neuen Meldungen",

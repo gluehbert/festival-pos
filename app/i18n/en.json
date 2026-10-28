@@ -1102,7 +1102,17 @@
     "undo": "Undo",
     "toastUndone": "Back in progress",
     "toastUndoFailed": "Cannot undo – already served?",
-    "stationLabel": "Choose station"
+    "stationLabel": "Choose station",
+    "display": {
+      "label": "Display",
+      "zoomLabel": "Zoom",
+      "zoomOut": "Zoom out",
+      "zoomIn": "Zoom in",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Exit fullscreen",
+      "keepAwakeOn": "Screen stays on",
+      "keepAwakeOff": "Screen may turn off"
+    }
   },
   "alerts": {
     "soundLabel": "Sound for new alerts",
