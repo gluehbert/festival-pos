@@ -105,6 +105,39 @@ describe('GET /api/tickets', () => {
     const r = await handler(event) as { tickets: Array<{ ticketKey: string; tableNo: number }> }
     expect(r.tickets.find((t) => t.ticketKey === `w-${orderId}`)).toBeDefined()
   })
+
+  it('sums each ticket from all its items: paid, ready and per walk-in', async () => {
+    const one = (q: string) => ctx.mem.public.one(q) as { id: string }
+    const addItem = (orderId: string, opts: { station: string; qty: number; paid?: boolean; done?: boolean }) =>
+      ctx.mem.public.none(
+        `INSERT INTO order_items (order_id, menu_item_id, quantity, unit_price_cents, deposit_cents, station, payment_status, production_status)
+         VALUES ('${orderId}', '${seeded.menuItemIds[0]}', ${opts.qty}, 300, 100, '${opts.station}',
+                 '${opts.paid ? 'paid' : 'unpaid'}', '${opts.done ? 'done' : 'pending'}')`,
+      )
+    const order = (kind: string) => one(
+      `INSERT INTO orders (event_id, table_no, kind, created_by_staff) VALUES ('${seeded.eventId}', ${kind === 'walkin' ? 0 : 3}, '${kind}', '${seeded.staffId}') RETURNING id`,
+    ).id
+    const first = order('staff_table')
+    addItem(first, { station: 'kitchen', qty: 2, paid: true, done: true }) // paid: not the waiter's to bring
+    addItem(first, { station: 'bar', qty: 1, done: true })
+    addItem(order('staff_table'), { station: 'kitchen', qty: 3, done: true })
+    const walkA = order('walkin')
+    addItem(walkA, { station: 'kitchen', qty: 1, paid: true, done: true })
+    const walkB = order('walkin')
+    addItem(walkB, { station: 'bar', qty: 2 })
+
+    const { makeEvent } = await import('../setup/h3-event')
+    const handler = (await import('../../server/api/tickets/index.get')).default
+    const { event } = makeEvent({ method: 'GET', url: '/api/tickets?status=all' })
+    event.context.auth = { staff: waiter }
+    const r = await handler(event) as { tickets: Array<{ ticketKey: string; status: string; totalCents: number; unpaidCents: number; ready: { kitchen: number; bar: number }; assignee: { staffId: string } | null }> }
+    const byKey = new Map(r.tickets.map((t) => [t.ticketKey, t]))
+    expect(r.tickets).toHaveLength(3)
+    expect(byKey.get('t-3')).toMatchObject({ status: 'open', totalCents: 2400, unpaidCents: 1600, ready: { kitchen: 3, bar: 1 }, assignee: null })
+    expect(byKey.get(`w-${walkA}`)).toMatchObject({ status: 'paid', totalCents: 400, unpaidCents: 0, ready: { kitchen: 1, bar: 0 } })
+    expect(byKey.get(`w-${walkA}`)!.assignee?.staffId).toBe(seeded.staffId)
+    expect(byKey.get(`w-${walkB}`)).toMatchObject({ status: 'open', totalCents: 800, unpaidCents: 800, ready: { kitchen: 0, bar: 0 } })
+  })
 })
 
 describe('GET /api/tickets/{id}', () => {
