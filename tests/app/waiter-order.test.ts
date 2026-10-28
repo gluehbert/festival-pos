@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { useStaffOrderStore } from '~/stores/staffOrder'
-import { buildPayRequest, groupOpenItems, selectionCents } from '~/composables/usePaySelection'
+import { buildPayRequest, countsForOrders, groupOpenItems, openOrders, selectionCents } from '~/composables/usePaySelection'
 import PayGroupRow from '~/components/staff/PayGroupRow.vue'
 import PaymentSummary from '~/components/staff/PaymentSummary.vue'
 import type { TicketDetailItem } from '~/../server/lib/contracts/staff'
@@ -52,6 +52,25 @@ describe('pay selection', () => {
       quantities: { b1: 1, b2: 1, w1: 1 },
     })
     expect(selectionCents(groups, counts)).toBe(2 * 400 + 550)
+  })
+
+  it('pay by order: lists open orders oldest first and pays exactly their lines', () => {
+    const groups = groupOpenItems([
+      line('a1', BEER, 2, '2026-06-01T18:00:00Z', { orderId: 'oa' }),
+      line('b1', BEER, 1, '2026-06-01T18:05:00Z', { orderId: 'ob' }),
+      line('b2', WURST, 1, '2026-06-01T18:05:00Z', { orderId: 'ob' }),
+      line('paid', BEER, 1, '2026-06-01T17:00:00Z', { orderId: 'oc', paymentStatus: 'paid' }),
+    ])
+    expect(openOrders(groups).map((o) => [o.orderId, o.openCents, o.lines.map((l) => l.orderItemId)])).toEqual([
+      ['oa', 800, ['a1']],
+      ['ob', 950, ['b1', 'b2']],
+    ])
+    const chosen = new Set(['ob'])
+    const counts = countsForOrders(groups, chosen)
+    expect(counts).toEqual({ [groups[0]!.key]: 1, [groups[1]!.key]: 1 })
+    // Without the chosen order the oldest beer (order oa) would be taken.
+    expect(buildPayRequest(groups, counts).orderItemIds).toEqual(['a1', 'b2'])
+    expect(buildPayRequest(groups, counts, chosen)).toEqual({ orderItemIds: ['b1', 'b2'], quantities: { b1: 1, b2: 1 } })
   })
 
   it('never pays more than is open', () => {

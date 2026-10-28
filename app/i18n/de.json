@@ -234,6 +234,7 @@
     "pay": {
       "back": "Zurück",
       "title": "Kassieren",
+      "byOrder": "Nach Bestellung bezahlen",
       "selectAll": "Alles auswählen",
       "locked": "Gesperrt durch {user}. Bitte warten oder Auto-Release abwarten.",
       "lockedSelf": "Dieser Tisch wird gerade kassiert, bitte kurz warten",

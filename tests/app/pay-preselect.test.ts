@@ -43,4 +43,34 @@ describe('cashing up', () => {
     await w.findAll('button').find((b) => b.text() === 'staff.pay.selectAll')!.trigger('click')
     expect(w.get('[data-test="pay-submit"]').text()).toContain('12.00')
   })
+
+  it('picks a group by order number: only that order is selected and paid', async () => {
+    const other = { ...item('4', 'wurst', 'Wurst', 1, 400), orderId: '00000000-0000-4000-8000-0000000000bb', createdAt: '2026-10-16T18:30:00.000Z' }
+    fetchMock.mockResolvedValue({ ...ticket, unpaidCents: 1600, items: [...ticket.items, other] })
+    const w = mount(PayPage, { global: { stubs } })
+    await flushPromises()
+    const orders = w.findAll('[data-test="pay-order"]')
+    expect(orders).toHaveLength(2)
+    expect(orders[1]!.text()).toContain('#0000BB')
+    await orders[1]!.trigger('click')
+    expect(orders[1]!.attributes('aria-pressed')).toBe('true')
+    expect(w.get('[data-test="pay-submit"]').text()).toContain('4.00')
+    // Both orders: everything open again.
+    await orders[0]!.trigger('click')
+    expect(w.get('[data-test="pay-submit"]').text()).toContain('16.00')
+    await orders[0]!.trigger('click')
+
+    const receipt = { paymentId: 'p', eventName: 'Fest', tableNo: 5, lines: [], totalCents: 400, tipCents: 0, depositCents: 0, paidAt: NOW, staffUsername: 'anna' }
+    fetchMock.mockResolvedValueOnce({ paymentId: 'p', totalCents: 400, tipCents: 0, ticketStatusAfter: 'paid', receipt })
+    w.findComponent({ name: 'PaymentSummary' }).vm.$emit('submit', { givenCents: null, tipCents: 0 })
+    await flushPromises()
+    const call = fetchMock.mock.calls.find((c) => c[0] === '/api/payments')!
+    expect((call[1] as { body: { orderItemIds: string[] } }).body.orderItemIds).toEqual([other.orderItemId])
+  })
+
+  it('hides "pay by order" when only one order is open', async () => {
+    const w = mount(PayPage, { global: { stubs } })
+    await flushPromises()
+    expect(w.find('[data-test="pay-order"]').exists()).toBe(false)
+  })
 })

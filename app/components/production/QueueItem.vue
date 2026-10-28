@@ -56,7 +56,7 @@ const ageClass = computed(() => {
     <p class="mt-2 text-xl font-semibold text-slate-900">
       {{ item.quantity }} × {{ itemName(item) }}
     </p>
-    <p v-if="item.productionStatus === 'in_progress'" class="flex items-center gap-1 text-sm font-semibold text-slate-500">
+    <p v-if="item.productionStatus === 'in_progress' && !oneStep" class="flex items-center gap-1 text-sm font-semibold text-slate-500">
       <UIcon name="i-lucide-timer" class="size-4 shrink-0" aria-hidden="true" />
       {{ $t('production.preparing') }}
     </p>

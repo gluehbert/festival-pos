@@ -37,12 +37,15 @@ export function groupOpenItems(items: TicketDetailItem[]): PayGroup[] {
 
 // Spreads the chosen count per group over its order lines: "2 Bier" from
 // lines of 1 and 3 becomes the whole first line plus 1 of the second.
-export function buildPayRequest(groups: PayGroup[], counts: Record<string, number>): PayRequest {
+// Lines of the chosen orders go first, so a guest picked by order number
+// pays exactly the lines of that order.
+export function buildPayRequest(groups: PayGroup[], counts: Record<string, number>, chosenOrders: ReadonlySet<string> = new Set()): PayRequest {
   const orderItemIds: string[] = []
   const quantities: Record<string, number> = {}
   for (const g of groups) {
     let left = Math.min(counts[g.key] ?? 0, g.openQuantity)
-    for (const line of g.lines) {
+    const lines = [...g.lines.filter((l) => chosenOrders.has(l.orderId)), ...g.lines.filter((l) => !chosenOrders.has(l.orderId))]
+    for (const line of lines) {
       if (left <= 0) break
       const take = Math.min(left, line.quantity)
       orderItemIds.push(line.orderItemId)
@@ -51,6 +54,42 @@ export function buildPayRequest(groups: PayGroup[], counts: Record<string, numbe
     }
   }
   return { orderItemIds, quantities }
+}
+
+// One order with open items, for "pay by order": several groups at one
+// table pay what they ordered. Oldest first.
+export interface OpenOrder {
+  orderId: string
+  orderedAt: string
+  lines: TicketDetailItem[]
+  openCents: number
+}
+
+export function openOrders(groups: PayGroup[]): OpenOrder[] {
+  const byId = new Map<string, OpenOrder>()
+  for (const g of groups) {
+    for (const line of g.lines) {
+      let o = byId.get(line.orderId)
+      if (!o) {
+        o = { orderId: line.orderId, orderedAt: line.createdAt, lines: [], openCents: 0 }
+        byId.set(line.orderId, o)
+      }
+      if (line.createdAt < o.orderedAt) o.orderedAt = line.createdAt
+      o.lines.push(line)
+      o.openCents += g.unitPriceCents * line.quantity
+    }
+  }
+  return [...byId.values()].sort((a, b) => a.orderedAt.localeCompare(b.orderedAt))
+}
+
+// The selection that pays exactly these orders.
+export function countsForOrders(groups: PayGroup[], orderIds: ReadonlySet<string>): Record<string, number> {
+  const counts: Record<string, number> = {}
+  for (const g of groups) {
+    const n = g.lines.reduce((sum, l) => sum + (orderIds.has(l.orderId) ? l.quantity : 0), 0)
+    if (n > 0) counts[g.key] = n
+  }
+  return counts
 }
 
 export function selectionCents(groups: PayGroup[], counts: Record<string, number>): number {

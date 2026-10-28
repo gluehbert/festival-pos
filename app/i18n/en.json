@@ -234,6 +234,7 @@
     "pay": {
       "back": "Back",
       "title": "Cash out",
+      "byOrder": "Pay by order",
       "selectAll": "Select all",
       "locked": "Locked by {user}. Please wait or try again after auto-release.",
       "lockedSelf": "This table is being cashed out right now, please wait a moment",

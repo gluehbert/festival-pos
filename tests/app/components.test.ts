@@ -170,6 +170,9 @@ describe('QueueItem', () => {
     expect(w.find('button').text()).toBe('production.done')
     await w.find('button').trigger('click')
     expect(w.emitted('advance')).toEqual([['done']])
+    // Started before the bar went one-step: no "preparing" label there.
+    await w.setProps({ item: { ...item, productionStatus: 'in_progress' } })
+    expect(w.text()).not.toContain('production.preparing')
   })
 })
 
