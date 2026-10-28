@@ -52,11 +52,13 @@ test.describe('@smoke US4 — admin setup', () => {
     await expect(header).toContainText('"Demo Festival" is live right now')
 
     await openEventTab(page, 'QR codes')
+    // The overview has forms of its own; wait for the QR form.
+    const qrForm = page.locator('form', { has: page.getByRole('button', { name: 'Download PDF' }) })
     // Defaults come from this event's tables.
-    await expect(page.locator('form').getByLabel(/table to/i)).toHaveValue('30')
+    await expect(qrForm.getByLabel(/table to/i)).toHaveValue('30')
     const [download] = await Promise.all([
       page.waitForEvent('download'),
-      page.locator('form').getByRole('button').click(),
+      qrForm.getByRole('button').click(),
     ])
     expect(download.suggestedFilename()).toMatch(/^qr-codes-\d+-\d+\.pdf$/)
 
