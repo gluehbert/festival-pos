@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { useCashStore } from '~/stores/cash'
+import { useAuthStore } from '~/stores/auth'
+import CashPage from '~/pages/staff/cash.vue'
 import { parseEuroInput } from '~/utils/euro-input'
 import CashBreakdown from '~/components/staff/CashBreakdown.vue'
 import CashSessionsTable from '~/components/admin/reports/CashSessionsTable.vue'
@@ -96,5 +98,18 @@ describe('cash components', () => {
     expect(w.findAll('[data-test="cash-session-row"]')).toHaveLength(2)
     expect(w.text()).toContain('admin.reports.cash.stillOpen')
     expect(w.text()).toContain('+€1.00')
+  })
+})
+
+describe('cash page', () => {
+  it('shows the open form only once it knows there is no drawer', async () => {
+    useAuthStore().staff = { staffId: 's', username: 'alice', role: 'waiter', theme: 'system' }
+    let answer!: (v: unknown) => void
+    fetchMock.mockReturnValueOnce(new Promise((r) => { answer = r }))
+    const w = mount(CashPage)
+    expect(w.find('[data-test="cash-opening"]').exists()).toBe(false)
+    answer({ session: null, otherEventName: null })
+    await flushPromises()
+    expect(w.find('[data-test="cash-opening"]').exists()).toBe(true)
   })
 })
