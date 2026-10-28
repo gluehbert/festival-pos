@@ -1085,10 +1085,11 @@
     "loading": "Lade Warteschlange …",
     "empty": "Keine offenen Positionen.",
     "counter": "Theke",
+    "orderNos": "Bestellungen {nos}",
     "finishOrder": "{label} komplett fertig",
     "viewLabel": "Ansicht",
     "view": {
-      "orders": "Nach Bestellung",
+      "orders": "Nach Tisch",
       "items": "Einzeln"
     },
     "soldOut": {

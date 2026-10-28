@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { guestOrders, loginStaff } from './helpers'
 
-// US7: the kitchen sees one card per order and finishes it in one tap; the
+// US7: the kitchen sees one card per table and finishes it in one tap; the
 // waiter then sees "food ready" on the table and confirms it was brought.
 test.describe('@smoke US7 — kitchen finishes whole orders, waiter brings them', () => {
   test('order card -> all done -> food ready -> served', async ({ browser, page }) => {

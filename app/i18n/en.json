@@ -1085,10 +1085,11 @@
     "loading": "Loading queue …",
     "empty": "No open items.",
     "counter": "Counter",
+    "orderNos": "Orders {nos}",
     "finishOrder": "{label} all done",
     "viewLabel": "View",
     "view": {
-      "orders": "By order",
+      "orders": "By table",
       "items": "Single items"
     },
     "soldOut": {

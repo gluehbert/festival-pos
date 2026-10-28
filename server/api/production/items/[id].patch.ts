@@ -51,8 +51,10 @@ export default defineEventHandler(async (event) => {
       )
     }
 
+    // A drink is ready in seconds: the bar may skip "in progress".
     const allowed = TRANSITIONS[item.productionStatus] ?? []
-    if (!allowed.includes(input.nextStatus)) {
+    const barSkip = item.station === 'bar' && item.productionStatus === 'pending' && input.nextStatus === 'done'
+    if (!allowed.includes(input.nextStatus) && !barSkip) {
       throw new AppError(
         'CONFLICT',
         409,

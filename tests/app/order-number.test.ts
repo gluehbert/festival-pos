@@ -22,7 +22,7 @@ describe('the same short number everywhere', () => {
     expect(guest.find('[data-test="order-number"]').text()).toBe('#3FA9C2')
     expect(guest.text()).not.toContain(ORDER_ID)
 
-    const group = { orderId: ORDER_ID, tableNo: 4, orderKind: 'guest', orderedAt: new Date().toISOString(), items: [] } as unknown as ProductionOrderGroup
+    const group = { key: 'table:4', orderIds: [ORDER_ID], tableNo: 4, orderKind: 'guest', orderedAt: new Date().toISOString(), items: [] } as unknown as ProductionOrderGroup
     const card = mount(OrderCard, { props: { group, busyIds: new Set<string>() } })
     expect(card.find('[data-test="order-number"]').text()).toContain('"no":"3FA9C2"')
 

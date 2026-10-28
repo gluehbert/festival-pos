@@ -34,13 +34,13 @@ async function seedItem(
   return row.id
 }
 
-async function patch(id: string, nextStatus: 'in_progress' | 'done') {
+async function patch(id: string, nextStatus: 'in_progress' | 'done', role: 'kitchen' | 'bar' = 'kitchen') {
   const { makeEvent } = await import('../setup/h3-event')
   const c = csrf()
   ctx.setBody({ nextStatus })
   const handler = (await import('../../server/api/production/items/[id].patch')).default
   const { event } = makeEvent({ method: 'PATCH', cookies: c.cookies, headers: c.headers })
-  event.context.auth = { staff: { staffId: seeded.staffId, role: 'kitchen', username: 'k' } }
+  event.context.auth = { staff: { staffId: seeded.staffId, role, username: 'k' } }
   event.context.params = { id }
   return handler(event)
 }
@@ -61,9 +61,15 @@ describe('US3 — state machine transitions', () => {
     expect(r2.productionStatus).toBe('done')
   })
 
-  it('pending → done (skip in_progress) is rejected with 409', async () => {
+  it('pending → done (skip in_progress) is rejected with 409 in the kitchen', async () => {
     const id = await seedItem(1, 0, 'pending')
     await expect(patch(id, 'done')).rejects.toMatchObject({ statusCode: 409 })
+  })
+
+  it('the bar may skip in_progress: pending → done', async () => {
+    const id = await seedItem(1, 1, 'pending')
+    const r = await patch(id, 'done', 'bar') as { productionStatus: string }
+    expect(r.productionStatus).toBe('done')
   })
 
   it('cancelled items never appear in queue', async () => {
