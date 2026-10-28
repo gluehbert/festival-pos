@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useBranding } from '~/composables/useBranding'
 import HeaderMenu from '~/components/common/HeaderMenu.vue'
 import AlertBell from '~/components/common/AlertBell.vue'
+import DisplayMenu from '~/components/production/DisplayMenu.vue'
 import { useAuthStore } from '~/stores/auth'
 import EventLogo from '~/components/common/EventLogo.vue'
 import LegalFooter from '~/components/common/LegalFooter.vue'
@@ -15,6 +16,8 @@ const auth = useAuthStore()
 const isGuestPage = computed(() => !/^\/(staff|admin|production)(\/|$)/.test(route.path))
 // Alerts only sound on the working screens (service, kitchen, bar).
 const showBell = computed(() => auth.isAuthenticated && /^\/(staff|production)(\/|$)/.test(route.path))
+// Zoom, fullscreen and screen-on for the kitchen/bar screen.
+const showDisplay = computed(() => auth.isAuthenticated && /^\/production(\/|$)/.test(route.path))
 const { branding } = useBranding()
 const isOnline = ref(true)
 // A new version is installed but waits until the user reloads (registerType
@@ -65,6 +68,7 @@ onBeforeUnmount(() => {
         </span>
       </NuxtLink>
       <div class="flex shrink-0 items-center gap-1">
+        <DisplayMenu v-if="showDisplay" />
         <AlertBell v-if="showBell" />
         <HeaderMenu />
       </div>

@@ -8,7 +8,6 @@ import QueueItem from '~/components/production/QueueItem.vue'
 import OrderCard from '~/components/production/OrderCard.vue'
 import StationFilter from '~/components/production/StationFilter.vue'
 import SoldOutPanel from '~/components/production/SoldOutPanel.vue'
-import DisplayControls from '~/components/production/DisplayControls.vue'
 import StaleBanner from '~/components/common/StaleBanner.vue'
 import { useAttention } from '~/composables/useAttention'
 import { createSeenTracker } from '~/utils/arrivals'
@@ -164,21 +163,18 @@ async function onFinish(orderId: string) {
           {{ $t(`common.station.${effectiveStation ?? 'kitchen'}`) }}
         </template>
       </h1>
-      <div class="flex flex-wrap items-center gap-2">
-        <DisplayControls />
-        <div class="inline-flex gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.viewLabel')">
-          <button
-            v-for="v in (['orders', 'items'] as const)"
-            :key="v"
-            type="button"
-            class="min-h-[44px] rounded-full px-4 text-sm font-semibold"
-            :class="view === v ? 'bg-primary text-white' : 'text-slate-700 hover:bg-slate-200'"
-            :aria-pressed="view === v"
-            @click="setView(v)"
-          >
-            {{ $t(`production.view.${v}`) }}
-          </button>
-        </div>
+      <div class="inline-flex gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.viewLabel')">
+        <button
+          v-for="v in (['orders', 'items'] as const)"
+          :key="v"
+          type="button"
+          class="min-h-[44px] rounded-full px-4 text-sm font-semibold"
+          :class="view === v ? 'bg-primary text-white' : 'text-slate-700 hover:bg-slate-200'"
+          :aria-pressed="view === v"
+          @click="setView(v)"
+        >
+          {{ $t(`production.view.${v}`) }}
+        </button>
       </div>
     </header>
 

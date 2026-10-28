@@ -1097,11 +1097,14 @@
     "toastUndoFailed": "Cannot undo – already served?",
     "stationLabel": "Choose station",
     "display": {
+      "label": "Display",
       "zoomLabel": "Zoom",
       "zoomOut": "Zoom out",
       "zoomIn": "Zoom in",
       "fullscreen": "Fullscreen",
-      "exitFullscreen": "Exit fullscreen"
+      "exitFullscreen": "Exit fullscreen",
+      "keepAwakeOn": "Screen stays on",
+      "keepAwakeOff": "Screen may turn off"
     }
   },
   "alerts": {

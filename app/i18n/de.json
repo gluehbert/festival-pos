@@ -1097,11 +1097,14 @@
     "toastUndoFailed": "Rückgängig nicht möglich – schon serviert?",
     "stationLabel": "Station wählen",
     "display": {
+      "label": "Anzeige",
       "zoomLabel": "Zoom",
       "zoomOut": "Verkleinern",
       "zoomIn": "Vergrößern",
       "fullscreen": "Vollbild",
-      "exitFullscreen": "Vollbild beenden"
+      "exitFullscreen": "Vollbild beenden",
+      "keepAwakeOn": "Bildschirm bleibt an",
+      "keepAwakeOff": "Bildschirm darf ausgehen"
     }
   },
   "alerts": {
