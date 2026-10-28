@@ -974,6 +974,13 @@
         "dates": "Das Enddatum liegt vor dem Startdatum."
       }
     },
+    "tables": {
+      "title": "Tische",
+      "hint": "Tische jederzeit hinzufügen oder entfernen, auch während der Veranstaltung. Ein Tisch mit offener Rechnung kann nicht entfernt werden.",
+      "save": "Tische speichern",
+      "saved": "Jetzt Tische {from}–{to}.",
+      "open": "Tische {tables} haben noch offene Rechnungen. Erst abrechnen."
+    },
     "features": {
       "title": "Funktionen",
       "saved": "Gespeichert.",

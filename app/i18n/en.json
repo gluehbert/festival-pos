@@ -974,6 +974,13 @@
         "dates": "The end date is before the start date."
       }
     },
+    "tables": {
+      "title": "Tables",
+      "hint": "Add or remove tables at any time, also during the event. A table with an open bill cannot be removed.",
+      "save": "Save tables",
+      "saved": "Tables are now {from}–{to}.",
+      "open": "Tables {tables} still have open bills. Settle them first."
+    },
     "features": {
       "title": "Features",
       "saved": "Saved.",

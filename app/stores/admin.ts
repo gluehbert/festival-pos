@@ -10,6 +10,7 @@ import type {
   EventDto,
   EventsList,
   MenuImportResult,
+  TableRange,
   TrialReset,
   UpdateMenuItem,
 } from '~/../server/lib/contracts/admin'
@@ -84,6 +85,12 @@ export const useAdminStore = defineStore('admin', () => {
 
   async function setTrialMode(id: string, enabled: boolean): Promise<EventDto> {
     const res = await useApi().request<EventDto>(`/api/admin/events/${id}/trial`, { method: 'PUT', body: { enabled } })
+    replaceEvent(res)
+    return res
+  }
+
+  async function setTableRange(id: string, range: TableRange): Promise<EventDto> {
+    const res = await useApi().request<EventDto>(`/api/admin/events/${id}/tables`, { method: 'PUT', body: range })
     replaceEvent(res)
     return res
   }
@@ -214,6 +221,7 @@ export const useAdminStore = defineStore('admin', () => {
     deleteEvent,
     dropEvent,
     setTrialMode,
+    setTableRange,
     setFeatures,
     deleteTrialData,
     fetchMenuItems,
