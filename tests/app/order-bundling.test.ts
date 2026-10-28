@@ -80,8 +80,31 @@ describe('OrderCard', () => {
     await buttons[0]!.trigger('click')
     await buttons[1]!.trigger('click')
     await buttons[2]!.trigger('click')
-    expect(w.emitted('advance')).toEqual([['a', 'in_progress'], ['b', 'done']])
+    expect(w.emitted('advance')).toEqual([[['a'], 'in_progress'], [['b'], 'done']])
     expect(w.emitted('finish')).toHaveLength(1)
+  })
+
+  it('merges items of the same article, note and status into one line', async () => {
+    const items = [
+      item('a', 'o1', '', { nameEn: 'Beer' }),
+      item('b', 'o1', '', { nameEn: 'Cola', quantity: 1 }),
+      item('c', 'o1', '', { nameEn: 'Beer', quantity: 3 }),
+      item('d', 'o1', '', { nameEn: 'Cola', quantity: 1, note: 'no ice' }),
+      item('e', 'o1', '', { nameEn: 'Beer', productionStatus: 'in_progress' }),
+    ]
+    const w = mount(OrderCard, { props: { group: { ...group, items }, busyIds: new Set<string>(['c']) } })
+    const lines = w.findAll('[data-test="order-line"]')
+    expect(lines.map((l) => l.find('p').text())).toEqual(['5 × Beer', '1 × Cola', '1 × Cola', '2 × Beer'])
+    expect(lines[3]!.text()).toContain('production.preparing')
+    expect(lines[0]!.text()).not.toContain('production.preparing')
+    // Busy while any of its items is being saved.
+    expect(lines[0]!.find('button').attributes('disabled')).toBeDefined()
+    await lines[1]!.find('button').trigger('click')
+    await lines[3]!.find('button').trigger('click')
+    expect(w.emitted('advance')).toEqual([[['b'], 'in_progress'], [['e'], 'done']])
+    await w.setProps({ busyIds: new Set<string>() })
+    await w.findAll('[data-test="order-line"]')[0]!.find('button').trigger('click')
+    expect(w.emitted('advance')![2]).toEqual([['a', 'c'], 'in_progress'])
   })
 
   it('names counter sales instead of table 0', () => {

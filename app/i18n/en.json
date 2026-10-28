@@ -1076,6 +1076,7 @@
   },
   "production": {
     "start": "Start preparing",
+    "preparing": "Preparing",
     "done": "Done",
     "waiting": "{n} min ago",
     "toastDone": "Done",

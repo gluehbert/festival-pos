@@ -1075,7 +1075,8 @@
     "myAccount": "Mein Konto"
   },
   "production": {
-    "start": "In Zubereitung",
+    "start": "Starten",
+    "preparing": "In Zubereitung",
     "done": "Fertig",
     "waiting": "seit {n} Min.",
     "toastDone": "Erledigt",
