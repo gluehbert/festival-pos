@@ -65,6 +65,15 @@ export type EventDto = z.infer<typeof EventSchema>
 export const TrialModeSchema = z.object({ enabled: z.boolean() })
 export type TrialMode = z.infer<typeof TrialModeSchema>
 
+// Tables can be added or removed while the event runs.
+export const TableRangeSchema = z
+  .object({ tableRangeFrom: z.number().int().min(1), tableRangeTo: z.number().int().min(1) })
+  .refine((v) => v.tableRangeTo >= v.tableRangeFrom, {
+    message: 'tableRangeTo must be >= tableRangeFrom',
+    path: ['tableRangeTo'],
+  })
+export type TableRange = z.infer<typeof TableRangeSchema>
+
 export const TrialResetSchema = z.object({
   deletedOrders: z.number().int().nonnegative(),
   deletedPayments: z.number().int().nonnegative(),
