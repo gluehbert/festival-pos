@@ -8,6 +8,7 @@ import QueueItem from '~/components/production/QueueItem.vue'
 import OrderCard from '~/components/production/OrderCard.vue'
 import StationFilter from '~/components/production/StationFilter.vue'
 import SoldOutPanel from '~/components/production/SoldOutPanel.vue'
+import DisplayControls from '~/components/production/DisplayControls.vue'
 import StaleBanner from '~/components/common/StaleBanner.vue'
 import { useAttention } from '~/composables/useAttention'
 import { createSeenTracker } from '~/utils/arrivals'
@@ -41,6 +42,7 @@ function setView(v: View) {
   catch { /* not remembered, still works */ }
 }
 const finishingIds = ref<Set<string>>(new Set())
+const zoom = ref(1)
 
 const effectiveStation = computed<Station | undefined>(() => {
   if (auth.staff?.role === 'kitchen' || auth.staff?.role === 'bar') return auth.staff.role
@@ -163,18 +165,21 @@ async function onFinish(orderId: string) {
           {{ $t(`common.station.${effectiveStation ?? 'kitchen'}`) }}
         </template>
       </h1>
-      <div class="inline-flex gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.viewLabel')">
-        <button
-          v-for="v in (['orders', 'items'] as const)"
-          :key="v"
-          type="button"
-          class="min-h-[44px] rounded-full px-4 text-sm font-semibold"
-          :class="view === v ? 'bg-primary text-white' : 'text-slate-700 hover:bg-slate-200'"
-          :aria-pressed="view === v"
-          @click="setView(v)"
-        >
-          {{ $t(`production.view.${v}`) }}
-        </button>
+      <div class="flex flex-wrap items-center gap-2">
+        <DisplayControls v-model="zoom" />
+        <div class="inline-flex gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.viewLabel')">
+          <button
+            v-for="v in (['orders', 'items'] as const)"
+            :key="v"
+            type="button"
+            class="min-h-[44px] rounded-full px-4 text-sm font-semibold"
+            :class="view === v ? 'bg-primary text-white' : 'text-slate-700 hover:bg-slate-200'"
+            :aria-pressed="view === v"
+            @click="setView(v)"
+          >
+            {{ $t(`production.view.${v}`) }}
+          </button>
+        </div>
       </div>
     </header>
 
@@ -186,34 +191,36 @@ async function onFinish(orderId: string) {
       @result="(ok) => showToast(ok ? 'success' : 'error', ok ? t('production.soldOut.saved') : t('production.toastFailed'))"
     />
 
-    <p v-if="production.loading && production.queue.length === 0" class="mt-8 text-sm text-slate-500">
-      {{ $t('production.loading') }}
-    </p>
-    <p v-else-if="production.queue.length === 0" class="mt-8 text-sm text-slate-500">
-      {{ $t('production.empty') }}
-    </p>
+    <div :style="{ zoom }" data-test="production-content">
+      <p v-if="production.loading && production.queue.length === 0" class="mt-8 text-sm text-slate-500">
+        {{ $t('production.loading') }}
+      </p>
+      <p v-else-if="production.queue.length === 0" class="mt-8 text-sm text-slate-500">
+        {{ $t('production.empty') }}
+      </p>
 
-    <ul v-else-if="view === 'orders'" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <li v-for="group in production.groups" :key="group.orderId">
-        <OrderCard
-          :group="group"
-          :busy-ids="busyIds"
-          :finishing="finishingIds.has(group.orderId)"
-          @advance="(id, n) => onAdvance(id, n)"
-          @finish="onFinish(group.orderId)"
-        />
-      </li>
-    </ul>
+      <ul v-else-if="view === 'orders'" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <li v-for="group in production.groups" :key="group.orderId">
+          <OrderCard
+            :group="group"
+            :busy-ids="busyIds"
+            :finishing="finishingIds.has(group.orderId)"
+            @advance="(id, n) => onAdvance(id, n)"
+            @finish="onFinish(group.orderId)"
+          />
+        </li>
+      </ul>
 
-    <ul v-else class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <li v-for="item in production.queue" :key="item.orderItemId">
-        <QueueItem
-          :item="item"
-          :busy="busyIds.has(item.orderItemId)"
-          @advance="(n) => onAdvance(item.orderItemId, n)"
-        />
-      </li>
-    </ul>
+      <ul v-else class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <li v-for="item in production.queue" :key="item.orderItemId">
+          <QueueItem
+            :item="item"
+            :busy="busyIds.has(item.orderItemId)"
+            @advance="(n) => onAdvance(item.orderItemId, n)"
+          />
+        </li>
+      </ul>
+    </div>
 
     <transition name="fade">
       <div

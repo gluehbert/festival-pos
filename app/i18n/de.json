@@ -1095,7 +1095,14 @@
     "undo": "Rückgängig",
     "toastUndone": "Wieder in Arbeit",
     "toastUndoFailed": "Rückgängig nicht möglich – schon serviert?",
-    "stationLabel": "Station wählen"
+    "stationLabel": "Station wählen",
+    "display": {
+      "zoomLabel": "Schriftgröße",
+      "smaller": "Schrift kleiner",
+      "bigger": "Schrift größer",
+      "fullscreen": "Vollbild",
+      "exitFullscreen": "Vollbild beenden"
+    }
   },
   "alerts": {
     "soundLabel": "Ton bei neuen Meldungen",

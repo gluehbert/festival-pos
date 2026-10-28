@@ -1095,7 +1095,14 @@
     "undo": "Undo",
     "toastUndone": "Back in progress",
     "toastUndoFailed": "Cannot undo – already served?",
-    "stationLabel": "Choose station"
+    "stationLabel": "Choose station",
+    "display": {
+      "zoomLabel": "Text size",
+      "smaller": "Smaller text",
+      "bigger": "Bigger text",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Exit fullscreen"
+    }
   },
   "alerts": {
     "soundLabel": "Sound for new alerts",
