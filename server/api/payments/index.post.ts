@@ -23,6 +23,7 @@ import { buildSettleLines, settleLines } from '../../lib/payment-settle'
 import { acquirePaymentLock, releasePaymentLock } from '../../lib/payment-lock'
 import { findBookedPayment, ticketStatusAfter } from '../../lib/payment-replay'
 import { loadReceipt } from '../../lib/receipt'
+import { answerTableCalls } from '../../lib/waiter-calls'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -180,6 +181,8 @@ export default defineEventHandler(async (event) => {
       await releasePaymentLock(db, lockId)
     }
 
+    // Someone was at the table: a call from it is answered.
+    if (parsed.kind === 'table') await answerTableCalls(db, ev.id, tableNo, staff.staffId)
     const statusAfter = await ticketStatusAfter(db, ev.id, ticketRef)
 
     setResponseStatus(event, 201)

@@ -12,6 +12,7 @@ import CartSummary from '~/components/guest/CartSummary.vue'
 import OrderConfirmation from '~/components/guest/OrderConfirmation.vue'
 import EventInfo from '~/components/guest/EventInfo.vue'
 import OrderStatus from '~/components/guest/OrderStatus.vue'
+import CallWaiter from '~/components/guest/CallWaiter.vue'
 import { useBranding } from '~/composables/useBranding'
 import { useFormat } from '~/composables/useFormat'
 import { newIdempotencyKey } from '~/utils/idempotency'
@@ -176,6 +177,8 @@ watch(() => menu.items, (items) => {
     </header>
 
     <EventInfo :branding="branding" />
+
+    <CallWaiter v-if="branding.waiterCallsEnabled && guest.session.value" />
 
     <OrderStatus v-if="polling.data.value?.items.length" :orders="polling.data.value" />
 

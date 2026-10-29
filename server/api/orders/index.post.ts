@@ -11,6 +11,7 @@ import { assertGuestOrderAllowed } from '../../lib/guest-order-limit'
 import { CreateOrderSchema, OrderSchema } from '../../lib/contracts/guest'
 import { createOrderRow, loadOrderResponse, reuseExisting } from '../../lib/order-create'
 import { claimIfFree } from '../../lib/table-assignments'
+import { answerTableCalls } from '../../lib/waiter-calls'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -56,6 +57,8 @@ export default defineEventHandler(async (event) => {
       // Taking an order at a free table makes the waiter responsible; a held
       // table stays with its waiter. Admins helping out never claim tables.
       if (!reusedId && !isWalkin && SERVING_ROLES.includes(staff.role)) await claimIfFree(db, ev.id, tableNo, staff.staffId)
+      // The waiter is at the table: a call from it is answered.
+      if (!reusedId && !isWalkin) await answerTableCalls(db, ev.id, tableNo, staff.staffId)
       const response = await loadOrderResponse(db, orderId, ev.id, tableNo, isWalkin)
       setResponseStatus(event, reusedId ? 200 : 201)
       if (!reusedId) {

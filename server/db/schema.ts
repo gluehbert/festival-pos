@@ -23,6 +23,7 @@ export const events = pgTable(
     trialMode: boolean('trial_mode').notNull().default(false), // rehearsal: orders/payments flagged, out of reports, deletable
     depositEnabled: boolean('deposit_enabled').notNull().default(false), // Pfand: charged with orders, paid back on return
     staffMealsEnabled: boolean('staff_meals_enabled').notNull().default(false), // free meals for helpers
+    waiterCallsEnabled: boolean('waiter_calls_enabled').notNull().default(false), // guests can call the service
     // Legal pages for guests (Impressum, Datenschutz), plain text per event.
     imprintText: text('imprint_text'),
     privacyText: text('privacy_text'),

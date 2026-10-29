@@ -9,6 +9,8 @@ import OrderCard from '~/components/production/OrderCard.vue'
 import StationFilter from '~/components/production/StationFilter.vue'
 import SoldOutPanel from '~/components/production/SoldOutPanel.vue'
 import StaleBanner from '~/components/common/StaleBanner.vue'
+import WaiterCalls from '~/components/staff/WaiterCalls.vue'
+import { useBranding } from '~/composables/useBranding'
 import { useAttention } from '~/composables/useAttention'
 import { createSeenTracker } from '~/utils/arrivals'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
@@ -27,6 +29,8 @@ const UNDO_MS = 6000
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 const isAdmin = computed(() => auth.staff?.role === 'admin')
+// Tables calling for the service show on the bar screen: every waiter passes it.
+const { branding } = useBranding()
 
 // "orders" = one card per order (default), "items" = one tile per item.
 // Remembered per device; storage may be unavailable (private mode).
@@ -179,6 +183,8 @@ async function onFinish(orderId: string) {
     </header>
 
     <StaleBanner :failed="production.syncFailed" :since="production.lastSyncAt" @retry="polling.refresh()" />
+
+    <WaiterCalls v-if="branding.waiterCallsEnabled && effectiveStation === 'bar'" bar />
 
     <SoldOutPanel
       :key="effectiveStation"

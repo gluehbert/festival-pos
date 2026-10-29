@@ -25,6 +25,7 @@ const ev = (over: Partial<EventDto> = {}): EventDto => ({
   trialOrders: 0,
   depositEnabled: false,
   staffMealsEnabled: false,
+  waiterCallsEnabled: false,
   ...over,
 })
 

@@ -16,6 +16,7 @@ import { useDeviceMode } from '~/composables/useDeviceMode'
 import ServiceActions from '~/components/staff/ServiceActions.vue'
 import { useBranding } from '~/composables/useBranding'
 import NeedsSomeone from '~/components/staff/NeedsSomeone.vue'
+import WaiterCalls from '~/components/staff/WaiterCalls.vue'
 import WelcomeCard from '~/components/staff/WelcomeCard.vue'
 import { useWelcome } from '~/composables/useWelcome'
 import { matchesOwner, needsSomeone, ticketAssignee, type OwnerFilter } from '~/utils/table-grid'
@@ -116,6 +117,8 @@ const unattended = computed(() => (expert.value && owner.value === 'mine' ? need
     </NuxtLink>
 
     <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" @retry="polling.refresh()" />
+
+    <WaiterCalls v-if="branding.waiterCallsEnabled" />
 
     <!-- A table paid in full lands here: its receipt can still be printed. -->
     <LastReceipt />

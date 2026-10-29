@@ -179,6 +179,20 @@
       "flyerAlt": "Flyer: {name}",
       "logoAlt": "Logo: {name}",
       "dates": "Event date"
+    },
+    "call": {
+      "button": "Call the service",
+      "ask": "What do you need?",
+      "reasons": {
+        "pay": "Pay",
+        "order": "Order",
+        "question": "Question"
+      },
+      "cancel": "Cancel",
+      "waiting": "The service knows you are waiting ({reason}).",
+      "coming": "Someone is on the way to your table.",
+      "tooSoon": "Your table just called. Please wait a moment.",
+      "failed": "That did not work. Please try again."
     }
   },
   "staff": {
@@ -544,6 +558,15 @@
         "guest": "Guest"
       },
       "failed": "Sign-in failed: {reason}"
+    },
+    "calls": {
+      "heading": "Tables calling",
+      "table": "Table {table}",
+      "justNow": "just now",
+      "waiting": "waiting {min} min",
+      "nobody": "no waiter",
+      "onMyWay": "On my way",
+      "passedOn": "Passed on"
     }
   },
   "admin": {
@@ -991,6 +1014,10 @@
       "staffMealsEnabled": {
         "label": "Helper / staff meals",
         "hint": "Waiters can book free orders for helpers (with a reason)."
+      },
+      "waiterCallsEnabled": {
+        "label": "Call the service",
+        "hint": "Guests can call the service to their table with a reason (pay, order, question). The table's waiter sees it first, after 2 minutes everyone in service; the bar screen shows every call. Off: the button is gone."
       }
     },
     "join": {

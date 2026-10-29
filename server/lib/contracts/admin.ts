@@ -59,6 +59,7 @@ export const EventSchema = z.object({
   trialOrders: z.number().int().nonnegative(),
   depositEnabled: z.boolean(),
   staffMealsEnabled: z.boolean(),
+  waiterCallsEnabled: z.boolean(),
 })
 export type EventDto = z.infer<typeof EventSchema>
 
