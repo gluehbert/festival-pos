@@ -23,6 +23,7 @@ export const UpdateBrandingSchema = z.object({
   privacyText: optionalText(LEGAL_TEXT_MAX),
   depositEnabled: z.boolean().optional(),
   staffMealsEnabled: z.boolean().optional(),
+  waiterCallsEnabled: z.boolean().optional(),
   // Unpaid cents one guest phone may have per station; null = no limit.
   guestOpenLimitBarCents: GuestOpenLimitSchema.optional(),
   guestOpenLimitKitchenCents: GuestOpenLimitSchema.optional(),
@@ -49,6 +50,7 @@ export const BrandingSchema = z.object({
   // Optional features of the event; staff screens hide what is off.
   depositEnabled: z.boolean(),
   staffMealsEnabled: z.boolean(),
+  waiterCallsEnabled: z.boolean(),
   // Footer links on the guest pages; the texts come from /api/event/legal.
   hasImprint: z.boolean(),
   hasPrivacy: z.boolean(),
@@ -78,6 +80,7 @@ export const EMPTY_BRANDING: Branding = {
   trialMode: false,
   depositEnabled: false,
   staffMealsEnabled: false,
+  waiterCallsEnabled: false,
   hasImprint: false,
   hasPrivacy: false,
 }

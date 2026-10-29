@@ -183,6 +183,20 @@
       "flyerAlt": "Flyer: {name}",
       "logoAlt": "Logo: {name}",
       "dates": "Veranstaltungsdatum"
+    },
+    "call": {
+      "button": "Bedienung rufen",
+      "ask": "Worum geht es?",
+      "reasons": {
+        "pay": "Bezahlen",
+        "order": "Bestellen",
+        "question": "Frage"
+      },
+      "cancel": "Abbrechen",
+      "waiting": "Die Bedienung weiß Bescheid ({reason}).",
+      "coming": "Die Bedienung ist auf dem Weg zu euch.",
+      "tooSoon": "Euer Tisch hat gerade erst gerufen. Bitte einen Moment warten.",
+      "failed": "Das hat nicht geklappt. Bitte noch einmal versuchen."
     }
   },
   "staff": {
@@ -551,6 +565,15 @@
         "guest": "Kunde"
       },
       "failed": "Anmelden hat nicht geklappt: {reason}"
+    },
+    "calls": {
+      "heading": "Tische rufen",
+      "table": "Tisch {table}",
+      "justNow": "gerade eben",
+      "waiting": "wartet seit {min} Min.",
+      "nobody": "keine Bedienung",
+      "onMyWay": "Bin unterwegs",
+      "passedOn": "Weitergegeben"
     },
     "shiftEnd": {
       "title": "Schichtende",
@@ -1008,6 +1031,10 @@
       "staffMealsEnabled": {
         "label": "Helfer- / Personalessen",
         "hint": "Service kann kostenlose Bestellungen für Helfer buchen (mit Begründung)."
+      },
+      "waiterCallsEnabled": {
+        "label": "Bedienung rufen",
+        "hint": "Gäste können die Bedienung mit einem Grund an den Tisch rufen (bezahlen, bestellen, Frage). Zuerst sieht es die Bedienung des Tisches, nach 2 Minuten der ganze Service; der Bar-Bildschirm zeigt jeden Ruf. Aus: Der Button verschwindet."
       }
     },
     "join": {

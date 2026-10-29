@@ -36,6 +36,7 @@ export async function ensurePreviewEvent(db: Db): Promise<void> {
     activatedAt: new Date(),
     depositEnabled: true,
     staffMealsEnabled: true,
+    waiterCallsEnabled: true,
   }).returning())[0]!
   const menu = await db.insert(menuItems).values(DEMO_MENU.map((m) => ({ ...m, eventId: ev.id }))).returning()
   const byName = new Map(menu.map((m) => [m.nameDe, m]))
