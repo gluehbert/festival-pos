@@ -30,6 +30,10 @@ export const events = pgTable(
     // Shared join link for helpers (/staff/join/<code>): they enter a name and
     // wait until an admin lets them in. Null until an admin creates one.
     joinCode: varchar('join_code', { length: 32 }).unique(),
+    // Most one guest phone may have ordered and not paid yet, per station (bar = drinks,
+    // kitchen = food), so a passer-by cannot load a table with orders. NULL = no limit.
+    guestOpenLimitBarCents: integer('guest_open_limit_bar_cents').default(5000),
+    guestOpenLimitKitchenCents: integer('guest_open_limit_kitchen_cents').default(8000),
   },
   (t) => [
     uniqueIndex('events_only_one_active').on(t.isActive).where(sql`${t.isActive} = true`),
@@ -263,7 +267,7 @@ export const auditLog = pgTable(
     index('audit_log_staff_idx').on(t.staffId),
     check(
       'audit_log_action_chk',
-      sql`${t.action} IN ('payment','void','event_activate','menu_availability','staff_create','staff_update','refund','event_trial','cash_open','cash_close','deposit_return','staff_meal','price_rule_create','price_rule_update','price_rule_delete','event_trial_data_delete','event_create','event_update','menu_item_create','menu_item_update','menu_import','asset_upload','asset_delete','table_takeover','table_release','passkey_add','passkey_remove','event_end','event_delete')`,
+      sql`${t.action} IN ('payment','void','event_activate','menu_availability','staff_create','staff_update','refund','event_trial','cash_open','cash_close','deposit_return','staff_meal','price_rule_create','price_rule_update','price_rule_delete','event_trial_data_delete','event_create','event_update','menu_item_create','menu_item_update','menu_import','asset_upload','asset_delete','table_takeover','table_release','passkey_add','passkey_remove','event_end','event_delete','guest_sessions_end')`,
     ),
   ],
 )

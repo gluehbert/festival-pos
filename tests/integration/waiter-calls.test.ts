@@ -113,10 +113,14 @@ describe('calling the service', () => {
     expect(open()).toBe(0)
   })
 
-  it('kitchen and guests without a session are turned away', async () => {
+  it('kitchen and guests without a live session are turned away', async () => {
     enable()
     expect((await list(insertStaff('kitchen'), 'kitchen')).status).toBe(403)
     expect((await call(CALLS, { method: 'POST', body: { reason: 'pay' } })).status).toBe(401)
     expect((await call(TABLE, {})).status).toBe(401)
+    // A session ended at the end of a shift cannot call either.
+    const ended = insertGuest(seeded.eventId, 5)
+    ctx.mem.public.none(`UPDATE guest_sessions SET expires_at = now() - interval '1 minute'`)
+    expect((await guestCall(ended, 'pay')).status).toBe(401)
   })
 })

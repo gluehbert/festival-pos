@@ -10,6 +10,8 @@ export const LEGAL_TEXT_MAX = 20_000
 const optionalText = (max: number) =>
   z.string().trim().max(max).transform((v) => (v === '' ? null : v)).nullable().optional()
 
+const GuestOpenLimitSchema = z.number().int().min(100).max(100_000).nullable()
+
 export const UpdateBrandingSchema = z.object({
   name: z.string().trim().min(1, 'Name must not be empty').max(200).optional(),
   accentColor: z.string().regex(HEX_COLOR, 'Farbe im Format #rrggbb').transform((v) => v.toLowerCase()).nullable().optional(),
@@ -22,6 +24,9 @@ export const UpdateBrandingSchema = z.object({
   depositEnabled: z.boolean().optional(),
   staffMealsEnabled: z.boolean().optional(),
   waiterCallsEnabled: z.boolean().optional(),
+  // Unpaid cents one guest phone may have per station; null = no limit.
+  guestOpenLimitBarCents: GuestOpenLimitSchema.optional(),
+  guestOpenLimitKitchenCents: GuestOpenLimitSchema.optional(),
 })
 export type UpdateBranding = z.input<typeof UpdateBrandingSchema>
 

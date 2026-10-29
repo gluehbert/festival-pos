@@ -63,8 +63,9 @@ test.describe('@smoke US1 — QR code link', () => {
     const { eventId } = await (await request.get('/api/menu')).json() as { eventId: string }
     const key = createHmac('sha256', process.env.JWT_SECRET!).update(`table-key:${eventId}:6`).digest('base64url').slice(0, 16)
     await page.goto(`/t/6?k=${key}`)
-    await expect(page).toHaveURL(/\/t\/6\?k=/)
     await expect(await menuItem(page, /^add fries to cart$/i)).toBeVisible()
+    // The key leaves the address bar, so an ended session is not reopened by a reload.
+    await expect(page).toHaveURL(/\/t\/6$/)
   })
 
   test('a forged key falls back to the PIN prompt', async ({ page }) => {

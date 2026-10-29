@@ -1,5 +1,5 @@
 {
-  "id": "00476989-208c-4805-bb79-7d4a5ad1100f",
+  "id": "ddf079a7-505d-4cb9-b3d9-7ecf5bd6ee8e",
   "prevId": "6852aed5-220b-49ae-a5be-61920b69a575",
   "version": "7",
   "dialect": "postgresql",
@@ -118,7 +118,7 @@
       "checkConstraints": {
         "audit_log_action_chk": {
           "name": "audit_log_action_chk",
-          "value": "\"audit_log\".\"action\" IN ('payment','void','event_activate','menu_availability','staff_create','staff_update','refund','event_trial','cash_open','cash_close','deposit_return','staff_meal','price_rule_create','price_rule_update','price_rule_delete','event_trial_data_delete','event_create','event_update','menu_item_create','menu_item_update','menu_import','asset_upload','asset_delete','table_takeover','table_release','passkey_add','passkey_remove','event_end','event_delete')"
+          "value": "\"audit_log\".\"action\" IN ('payment','void','event_activate','menu_availability','staff_create','staff_update','refund','event_trial','cash_open','cash_close','deposit_return','staff_meal','price_rule_create','price_rule_update','price_rule_delete','event_trial_data_delete','event_create','event_update','menu_item_create','menu_item_update','menu_import','asset_upload','asset_delete','table_takeover','table_release','passkey_add','passkey_remove','event_end','event_delete','guest_sessions_end')"
         }
       },
       "isRLSEnabled": false
@@ -345,13 +345,6 @@
           "notNull": true,
           "default": false
         },
-        "waiter_calls_enabled": {
-          "name": "waiter_calls_enabled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
         "imprint_text": {
           "name": "imprint_text",
           "type": "text",
@@ -369,6 +362,20 @@
           "type": "varchar(32)",
           "primaryKey": false,
           "notNull": false
+        },
+        "guest_open_limit_bar_cents": {
+          "name": "guest_open_limit_bar_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 5000
+        },
+        "guest_open_limit_kitchen_cents": {
+          "name": "guest_open_limit_kitchen_cents",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 8000
         }
       },
       "indexes": {
@@ -1995,139 +2002,6 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.waiter_calls": {
-      "name": "waiter_calls",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "event_id": {
-          "name": "event_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "table_no": {
-          "name": "table_no",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "reason": {
-          "name": "reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "acknowledged_at": {
-          "name": "acknowledged_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "acknowledged_by": {
-          "name": "acknowledged_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "waiter_calls_open_uq": {
-          "name": "waiter_calls_open_uq",
-          "columns": [
-            {
-              "expression": "event_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "table_no",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"waiter_calls\".\"acknowledged_at\" IS NULL",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "waiter_calls_event_created_idx": {
-          "name": "waiter_calls_event_created_idx",
-          "columns": [
-            {
-              "expression": "event_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "waiter_calls_event_id_events_id_fk": {
-          "name": "waiter_calls_event_id_events_id_fk",
-          "tableFrom": "waiter_calls",
-          "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "waiter_calls_acknowledged_by_staff_id_fk": {
-          "name": "waiter_calls_acknowledged_by_staff_id_fk",
-          "tableFrom": "waiter_calls",
-          "tableTo": "staff",
-          "columnsFrom": [
-            "acknowledged_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "waiter_calls_reason_chk": {
-          "name": "waiter_calls_reason_chk",
-          "value": "\"waiter_calls\".\"reason\" IN ('pay','order','question')"
-        }
-      },
       "isRLSEnabled": false
     },
     "public.cash_sessions": {

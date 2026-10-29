@@ -4,6 +4,7 @@ import { AppError, sendAppError } from '../../lib/errors'
 import { assertCsrf } from '../../lib/csrf'
 import { requireActiveEvent } from '../../lib/active-event'
 import { createCall, requireWaiterCalls } from '../../lib/waiter-calls'
+import { assertLiveGuestSession } from '../../lib/guest-session'
 import { CreateWaiterCallSchema, TableCallSchema } from '../../lib/contracts/waiter-calls'
 
 // A guest calls the service to their table, with a reason.
@@ -17,6 +18,8 @@ export default defineEventHandler(async (event) => {
     const ev = await requireActiveEvent(db)
     if (ev.id !== guest.eventId) throw new AppError('NOT_FOUND', 404, 'Active event not found')
     requireWaiterCalls(ev)
+    // An ended session (12 h, end of shift) calls no more than it orders.
+    await assertLiveGuestSession(db, guest)
     return TableCallSchema.parse(await createCall(db, ev.id, guest.tableNo, input.reason))
   }
   catch (err) {

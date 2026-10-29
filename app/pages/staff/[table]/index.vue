@@ -129,8 +129,8 @@ async function checked() {
 
 const canVoid = computed(() => auth.hasRole(['waiter', 'lead', 'admin']))
 const canRefund = computed(() => auth.hasRole(['lead', 'admin']))
-// Voiding finished items stays with the admin (server rule).
-const canVoidFinished = computed(() => auth.hasRole(['admin']))
+// Voiding finished items stays with the shift lead and the admin (server rule).
+const canVoidFinished = computed(() => auth.hasRole(['lead', 'admin']))
 const ticket = computed(() => tickets.selected)
 </script>
 

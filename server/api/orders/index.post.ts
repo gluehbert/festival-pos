@@ -8,6 +8,7 @@ import { requireRole, SERVICE_ROLES, SERVING_ROLES } from '../../lib/rbac'
 import { getIdempotencyKey } from '../../lib/idempotency'
 import { log } from '../../lib/log'
 import { assertGuestOrderAllowed } from '../../lib/guest-order-limit'
+import { assertLiveGuestSession } from '../../lib/guest-session'
 import { CreateOrderSchema, OrderSchema } from '../../lib/contracts/guest'
 import { createOrderRow, loadOrderResponse, reuseExisting } from '../../lib/order-create'
 import { claimIfFree } from '../../lib/table-assignments'
@@ -95,6 +96,7 @@ export default defineEventHandler(async (event) => {
       return OrderSchema.parse(reused)
     }
 
+    await assertLiveGuestSession(db, guest)
     await assertGuestOrderAllowed(db, ev.id, guest.tableNo, input)
     const orderId = await createOrderRow(
       db,

@@ -115,7 +115,7 @@
       "title": "Menu",
       "menuHeading": "Menu",
       "statusHeading": "Status of your orders",
-      "statusReady": "{count} ready"
+      "statusReady": "{count} on the way"
     },
     "menu": {
       "loading": "Loading menu …",
@@ -159,7 +159,7 @@
     "production": {
       "pending": "Received",
       "in_progress": "Preparing",
-      "done": "Ready",
+      "done": "On its way",
       "cancelled": "Cancelled"
     },
     "errors": {
@@ -168,7 +168,11 @@
       "unavailable": "Not ordered: something sold out meanwhile. Please check your cart and order again.",
       "tooMany": "This table just sent a lot of orders. Please wait a moment or ask the staff.",
       "tooLarge": "That many items cannot be ordered online at once (at most {max}). Please split the order or ask the staff.",
-      "sessionExpired": "Your session has expired. Please scan the QR code on your table again."
+      "sessionExpired": "Your session has expired. Please scan the QR code on your table again.",
+      "openLimit": {
+        "bar": "This phone may have drinks for at most {amount} ordered and not yet paid. Please pay the staff first or order less.",
+        "kitchen": "This phone may have food for at most {amount} ordered and not yet paid. Please pay the staff first or order less."
+      }
     },
     "languageSwitcher": {
       "label": "Choose language"
@@ -297,10 +301,11 @@
       "errorTooShort": "Reason must be at least 3 characters.",
       "errorPaid": "Paid items cannot be voided – use “Refund” (shift lead or admin).",
       "button": "Void",
-      "errorAdminOnly": "This item is already finished or served. Only an admin can void it.",
+      "errorAdminOnly": "This item is already finished or served. Only the shift lead or an admin can void it.",
       "errorCancelled": "This item is already voided.",
       "errorConflict": "The item just changed. Please reload and try again.",
-      "errorNotFound": "Item not found – does it belong to another event?"
+      "errorNotFound": "Item not found – does it belong to another event?",
+      "notOrdered": "Not ordered by this table"
     },
     "errors": {
       "generic": "Something went wrong.",
@@ -321,7 +326,8 @@
       "hoursAgo": "{h} h {m} min ago",
       "openJustNow": "open since just now",
       "openSince": "open for {n} min",
-      "openSinceHours": "open for {h} h {m} min"
+      "openSinceHours": "open for {h} h {m} min",
+      "device": "Phone {n}"
     },
     "refund": {
       "button": "Refund",
@@ -567,6 +573,15 @@
       "nobody": "no waiter",
       "onMyWay": "On my way",
       "passedOn": "Passed on"
+    },
+    "shiftEnd": {
+      "title": "End of shift",
+      "hint": "Signs out all guest phones. Anyone who wants to order afterwards scans the QR code on their table again. Orders and bills stay as they are.",
+      "button": "Sign out guest phones",
+      "confirmTitle": "Sign out all guest phones?",
+      "confirmBody": "Guests at the tables just scan the QR code again. Phones that have left the festival can no longer order.",
+      "done": "No guest phone was signed in. | 1 guest phone signed out. | {n} guest phones signed out.",
+      "failed": "That did not work. Please try again."
     }
   },
   "admin": {
@@ -737,7 +752,8 @@
         "tables": "Table numbers",
         "guestOrderCount": "of which by app",
         "tip": "Tips",
-        "tipCount": "Payments with tip"
+        "tipCount": "Payments with tip",
+        "table": "Table"
       },
       "cash": {
         "openedAt": "Opened",
@@ -1075,6 +1091,16 @@
       "typeName": "Type the event name to confirm: {name}",
       "confirm": "Delete permanently",
       "done": "Event deleted."
+    },
+    "guestLimits": {
+      "title": "Guest order limits",
+      "hint": "Most one guest phone may have ordered and not yet paid, so nobody can walk past a table and load it with orders. Paid orders no longer count. Empty = no limit.",
+      "bar": "Drinks (bar), €",
+      "kitchen": "Food (kitchen), €",
+      "none": "no limit",
+      "save": "Save limits",
+      "saved": "Limits saved.",
+      "invalid": "Enter an amount of at least €1, or leave the field empty."
     }
   },
   "errors": {},

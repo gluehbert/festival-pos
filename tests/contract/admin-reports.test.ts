@@ -95,7 +95,7 @@ describe('GET /api/admin/events/{id}/reports — contract', () => {
   it('CSV headers per report type match schema', async () => {
     const cases: Array<[string, string[]]> = [
       ['top_items', ['menuItemId', 'nameDe', 'nameEn', 'quantity', 'totalCents']],
-      ['voids', ['orderItemId', 'nameDe', 'nameEn', 'reason', 'voidedAt', 'voidedByStaffId', 'refundedCents']],
+      ['voids', ['orderItemId', 'nameDe', 'nameEn', 'tableNo', 'reason', 'voidedAt', 'voidedByStaffId', 'refundedCents']],
       ['payments_by_staff', ['staffId', 'username', 'paymentCount', 'totalCents', 'refundedCents', 'tipCents']],
       ['tips', ['staffId', 'username', 'paymentCount', 'tipCents']],
       ['orders_per_hour', ['hourEuropeBerlin', 'orderCount', 'guestOrderCount']],
