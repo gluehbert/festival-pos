@@ -52,7 +52,7 @@
     "pdf-lib": "^1.17.1",
     "pg": "^8.23.1",
     "pinia": "^4.1.0",
-    "pngjs": "^5.0.0",
+    "pngjs": "^7.0.0",
     "qrcode": "^1.5.4",
     "read-excel-file": "^9.3.12",
     "tailwindcss": "^4.3.3",
