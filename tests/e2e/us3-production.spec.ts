@@ -27,7 +27,8 @@ test.describe('@smoke US3 — kitchen production queue', () => {
     await page.getByRole('button', { name: 'By order' }).click()
 
     await guest.reload()
-    await expect(guest.getByText(/ready/i).first()).toBeVisible()
+    // Finished reads "on its way": no pressure on the waiter from a "ready" label.
+    await expect(guest.getByText(/on the way/i).first()).toBeVisible()
     await guestContext.close()
   })
 })

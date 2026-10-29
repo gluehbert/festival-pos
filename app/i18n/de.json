@@ -115,7 +115,7 @@
       "title": "Speisekarte",
       "menuHeading": "Speisekarte",
       "statusHeading": "Status deiner Bestellungen",
-      "statusReady": "{count} fertig"
+      "statusReady": "{count} auf dem Weg"
     },
     "menu": {
       "loading": "Lade Speisekarte …",
@@ -159,7 +159,7 @@
     "production": {
       "pending": "Eingegangen",
       "in_progress": "In Zubereitung",
-      "done": "Fertig",
+      "done": "Wird gebracht",
       "cancelled": "Storniert"
     },
     "errors": {

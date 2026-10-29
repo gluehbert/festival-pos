@@ -115,7 +115,7 @@
       "title": "Menu",
       "menuHeading": "Menu",
       "statusHeading": "Status of your orders",
-      "statusReady": "{count} ready"
+      "statusReady": "{count} on the way"
     },
     "menu": {
       "loading": "Loading menu …",
@@ -159,7 +159,7 @@
     "production": {
       "pending": "Received",
       "in_progress": "Preparing",
-      "done": "Ready",
+      "done": "On its way",
       "cancelled": "Cancelled"
     },
     "errors": {
