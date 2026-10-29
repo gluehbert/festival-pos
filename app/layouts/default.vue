@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBranding } from '~/composables/useBranding'
+import { useUpdateAvailable } from '~/composables/useUpdateAvailable'
 import HeaderMenu from '~/components/common/HeaderMenu.vue'
 import AlertBell from '~/components/common/AlertBell.vue'
 import DisplayMenu from '~/components/production/DisplayMenu.vue'
@@ -20,21 +21,7 @@ const showBell = computed(() => auth.isAuthenticated && /^\/(staff|production)(\
 const showDisplay = computed(() => auth.isAuthenticated && /^\/production(\/|$)/.test(route.path))
 const { branding } = useBranding()
 const isOnline = ref(true)
-// A new version is installed but waits until the user reloads (registerType
-// 'prompt'), so a deploy never reloads devices mid-order.
-const { $pwa } = useNuxtApp()
-const updateAvailable = computed(() => $pwa?.needRefresh === true)
-const updating = ref(false)
-
-async function applyUpdate() {
-  updating.value = true
-  try {
-    await $pwa?.updateServiceWorker(true)
-  }
-  finally {
-    updating.value = false
-  }
-}
+const { updateAvailable, updating, applyUpdate } = useUpdateAvailable()
 
 function syncOnline() {
   if (typeof navigator !== 'undefined') {
