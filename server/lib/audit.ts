@@ -13,7 +13,7 @@ export type AuditAction =
   | 'asset_upload' | 'asset_delete'
   | 'staff_create' | 'staff_update' | 'passkey_add' | 'passkey_remove'
   | 'cash_open' | 'cash_close' | 'deposit_return'
-  | 'table_takeover' | 'table_release'
+  | 'table_takeover' | 'table_release' | 'guest_sessions_end'
 
 export interface AuditEntry {
   action: AuditAction

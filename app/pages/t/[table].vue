@@ -22,7 +22,7 @@ import { GUEST_MAX_ITEMS_PER_ORDER, type Order, type SessionOrders } from '~/../
 const route = useRoute()
 const { t } = useI18n()
 const { branding, dates } = useBranding()
-const { itemName } = useFormat()
+const { euro, itemName } = useFormat()
 const tableNo = computed(() => Number.parseInt(String(route.params.table ?? '0'), 10))
 
 const menu = useMenuStore()
@@ -59,6 +59,11 @@ async function ensureSession(): Promise<boolean> {
     await navigateTo({ path: '/', query: { table: tableNo.value } })
     return false
   }
+  // The key leaves the address bar: once the session has ended (after 12 h
+  // or at the end of a shift), reloading this page does not open a new one;
+  // the guest scans the QR code on the table again.
+  const { k: _key, ...query } = route.query
+  await navigateTo({ path: route.path, query }, { replace: true })
   await guest.load()
   return true
 }
@@ -69,7 +74,7 @@ async function ensureSession(): Promise<boolean> {
 let orderKey = ''
 let orderKeyBody = ''
 
-type OrderError = 'network' | 'tooMany' | 'tooLarge' | 'sessionExpired' | 'unavailable' | 'generic'
+type OrderError = 'network' | 'tooMany' | 'tooLarge' | 'openLimit' | 'sessionExpired' | 'unavailable' | 'generic'
 
 function orderError(e: unknown): OrderError {
   const err = e as { statusCode?: number; status?: number; data?: { code?: string; message?: string } }
@@ -77,6 +82,7 @@ function orderError(e: unknown): OrderError {
   if (status === undefined) return 'network'
   if (err.data?.code === 'RATE_LIMITED') return 'tooMany'
   if (err.data?.code === 'ORDER_TOO_LARGE') return 'tooLarge'
+  if (err.data?.code === 'OPEN_LIMIT') return 'openLimit'
   if (status === 401) return 'sessionExpired'
   if (/not available/i.test(err.data?.message ?? '')) return 'unavailable'
   return 'generic'
@@ -109,7 +115,11 @@ async function submitOrder() {
   }
   catch (e: unknown) {
     const kind = orderError(e)
-    submitError.value = t(`guest.errors.${kind}`, { max: GUEST_MAX_ITEMS_PER_ORDER })
+    if (kind === 'openLimit') {
+      const details = (e as { data?: { details?: { station?: string; limitCents?: number } } }).data?.details
+      submitError.value = t(`guest.errors.openLimit.${details?.station === 'kitchen' ? 'kitchen' : 'bar'}`, { amount: euro(details?.limitCents ?? 0) })
+    }
+    else submitError.value = t(`guest.errors.${kind}`, { max: GUEST_MAX_ITEMS_PER_ORDER })
     // Sold out meanwhile: take the articles off the menu (and so the cart),
     // else load the current menu.
     if (kind === 'unavailable') {

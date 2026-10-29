@@ -1,7 +1,9 @@
-import { and, count, eq, gte } from 'drizzle-orm'
+import { and, count, eq, gte, ne, sql } from 'drizzle-orm'
 import type { Db } from '../db/client'
-import { orders } from '../db/schema'
+import { orderItems, orders } from '../db/schema'
+import type { Tx } from './audit'
 import { AppError } from './errors'
+import { lineTotalCents, lineTotalSql } from './line-total'
 import { GUEST_MAX_ITEMS_PER_ORDER, type CreateOrder } from './contracts/guest'
 
 // Guest limits against a photographed QR code or a script: a table may send
@@ -34,5 +36,46 @@ export async function assertGuestOrderAllowed(
     throw new AppError('RATE_LIMITED', 429, 'Too many orders from this table, please ask the staff', {
       retryAfterSeconds: GUEST_ORDER_WINDOW_MS / 1000,
     })
+  }
+}
+
+type Station = 'bar' | 'kitchen'
+export interface OpenLimits {
+  guestOpenLimitBarCents: number | null
+  guestOpenLimitKitchenCents: number | null
+}
+
+// Paying happens when the order is brought, so a phone has little open at a
+// time. A cap per station (drinks, food) stops someone walking past a table
+// from loading it with orders. Runs inside the order transaction, with the
+// booked prices of the new lines.
+export async function assertGuestOpenLimit(
+  tx: Tx,
+  limits: OpenLimits,
+  guestSessionId: string,
+  lines: Array<{ station: string; unitPriceCents: number; depositCents: number; quantity: number }>,
+): Promise<void> {
+  const caps: Record<Station, number | null> = { bar: limits.guestOpenLimitBarCents, kitchen: limits.guestOpenLimitKitchenCents }
+  const stations = (['bar', 'kitchen'] as const).filter((st) => caps[st] !== null && lines.some((l) => l.station === st))
+  if (stations.length === 0) return
+  const rows = await tx
+    .select({ station: orderItems.station, sum: sql<string | number | null>`COALESCE(SUM(${lineTotalSql}), 0)` })
+    .from(orderItems)
+    .innerJoin(orders, eq(orders.id, orderItems.orderId))
+    .where(and(
+      eq(orders.guestSessionId, guestSessionId),
+      eq(orderItems.paymentStatus, 'unpaid'),
+      ne(orderItems.productionStatus, 'cancelled'),
+    ))
+    .groupBy(orderItems.station)
+  for (const station of stations) {
+    const open = Number(rows.find((r) => r.station === station)?.sum ?? 0)
+    const added = lines.filter((l) => l.station === station).reduce((s, l) => s + lineTotalCents(l), 0)
+    if (open + added > caps[station]!) {
+      throw new AppError('OPEN_LIMIT', 409, `At most ${caps[station]} cents of ${station} items may be unpaid per phone`, {
+        station,
+        limitCents: caps[station],
+      })
+    }
   }
 }

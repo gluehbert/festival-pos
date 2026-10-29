@@ -15,6 +15,9 @@ const { dateTime: fmtDate, euro: fmtEur } = useFormat()
           {{ $t('admin.reports.col.item', 'Item') }}
         </th>
         <th class="py-2 pr-3">
+          {{ $t('admin.reports.col.table') }}
+        </th>
+        <th class="py-2 pr-3">
           {{ $t('admin.reports.col.reason', 'Reason') }}
         </th>
         <th class="py-2 pr-3">
@@ -35,6 +38,9 @@ const { dateTime: fmtDate, euro: fmtEur } = useFormat()
             {{ r.nameEn }}
           </div>
         </td>
+        <td class="py-2 pr-3 tabular-nums text-slate-700">
+          {{ r.tableNo || '–' }}
+        </td>
         <td class="py-2 pr-3 text-slate-700">
           {{ r.reason }}
         </td>
@@ -46,7 +52,7 @@ const { dateTime: fmtDate, euro: fmtEur } = useFormat()
         </td>
       </tr>
       <tr v-if="rows.length === 0">
-        <td colspan="4" class="py-4 text-center text-slate-500">
+        <td colspan="5" class="py-4 text-center text-slate-500">
           {{ $t('admin.reports.empty', 'No data in current period.') }}
         </td>
       </tr>

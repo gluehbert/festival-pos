@@ -58,6 +58,7 @@ export default defineEventHandler(async (event) => {
         createdAt: orderItems.createdAt,
         kind: orders.kind,
         createdByStaff: orders.createdByStaff,
+        guestSessionId: orders.guestSessionId,
         tableNo: orders.tableNo,
       })
       .from(orderItems)
@@ -80,6 +81,8 @@ export default defineEventHandler(async (event) => {
     let unpaidCents = 0
     let tableNo = parsed.kind === 'walkin' ? filtered[0]!.tableNo : parsed.tableNo!
     const items: TicketDetailItem[] = []
+    // Rows come oldest first, so a phone keeps its number as more phones order.
+    const devices = new Map<string, number>()
     let lastOrderAt: Date | null = null
     for (const r of filtered) {
       const lineCents = lineTotalCents(r)
@@ -87,6 +90,7 @@ export default defineEventHandler(async (event) => {
         totalCents += lineCents
         if (r.paymentStatus === 'unpaid') unpaidCents += lineCents
       }
+      if (r.guestSessionId && !devices.has(r.guestSessionId)) devices.set(r.guestSessionId, devices.size + 1)
       const createdAt = r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt as unknown as string)
       if (r.productionStatus !== 'cancelled' && (!lastOrderAt || createdAt > lastOrderAt)) lastOrderAt = createdAt
       items.push({
@@ -104,6 +108,7 @@ export default defineEventHandler(async (event) => {
         paymentStatus: r.paymentStatus as 'unpaid' | 'paid',
         served: r.servedAt !== null,
         createdAt: createdAt.toISOString(),
+        device: r.guestSessionId ? devices.get(r.guestSessionId)! : null,
       })
       tableNo = r.tableNo
     }

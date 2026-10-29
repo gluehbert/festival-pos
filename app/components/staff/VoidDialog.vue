@@ -72,6 +72,16 @@ function submit() {
         rows="3"
         class="mt-1 w-full rounded border border-slate-300 px-2 py-1 text-sm focus:border-brand focus:outline-none"
       />
+      <!-- Someone ordered for a table and walked on: one tap, same wording in the report. -->
+      <button
+        v-if="!refund"
+        type="button"
+        class="mt-1 min-h-[44px] rounded-full border border-slate-300 px-3 text-sm text-slate-700 hover:bg-slate-100"
+        data-test="void-not-ordered"
+        @click="reason = $t('staff.void.notOrdered')"
+      >
+        {{ $t('staff.void.notOrdered') }}
+      </button>
       <p v-if="refund && errorCode === 'CASH_SESSION_REQUIRED'" class="mt-2 text-sm text-rose-600" role="alert">
         {{ $t('staff.refund.needsDrawer') }}
         <NuxtLink to="/staff/cash" class="font-semibold underline">

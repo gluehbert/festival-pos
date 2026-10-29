@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
         const updated = await tx.update(events).set(patch).where(eq(events.id, id)).returning({ id: events.id })
         if (updated.length === 0) throw new AppError('NOT_FOUND', 404, 'Event not found')
         // Long texts (programme, legal pages) only by field name.
-        const short = ['name', 'accentColor', 'startsOn', 'endsOn', 'depositEnabled', 'staffMealsEnabled'] as const
+        const short = ['name', 'accentColor', 'startsOn', 'endsOn', 'depositEnabled', 'staffMealsEnabled', 'guestOpenLimitBarCents', 'guestOpenLimitKitchenCents'] as const
         await writeAudit(tx, {
           action: 'event_update',
           staffId: admin.staffId,

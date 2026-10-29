@@ -19,7 +19,7 @@ export function escapeCsv(value: unknown): string {
 const COLUMNS: Record<ReportType, string[]> = {
   revenue_by_category: ['category', 'totalCents', 'itemCount'],
   top_items: ['menuItemId', 'nameDe', 'nameEn', 'quantity', 'totalCents'],
-  voids: ['orderItemId', 'nameDe', 'nameEn', 'reason', 'voidedAt', 'voidedByStaffId', 'refundedCents'],
+  voids: ['orderItemId', 'nameDe', 'nameEn', 'tableNo', 'reason', 'voidedAt', 'voidedByStaffId', 'refundedCents'],
   payments_by_staff: ['staffId', 'username', 'paymentCount', 'totalCents', 'refundedCents', 'tipCents'],
   tips: ['staffId', 'username', 'paymentCount', 'tipCents'],
   orders_per_hour: ['hour', 'orderCount', 'guestOrderCount'],

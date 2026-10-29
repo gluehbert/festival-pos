@@ -26,6 +26,8 @@ const ev = (over: Partial<EventDto> = {}): EventDto => ({
   trialOrders: 0,
   depositEnabled: false,
   staffMealsEnabled: false,
+  guestOpenLimitBarCents: 5000,
+  guestOpenLimitKitchenCents: 8000,
   ...over,
 })
 const ended = () => ev({ isActive: false, deactivatedAt: '2026-06-15T22:00:00.000Z' })
