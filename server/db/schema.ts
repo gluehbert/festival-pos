@@ -24,6 +24,7 @@ export const events = pgTable(
     depositEnabled: boolean('deposit_enabled').notNull().default(false), // Pfand: charged with orders, paid back on return
     staffMealsEnabled: boolean('staff_meals_enabled').notNull().default(false), // free meals for helpers
     waiterCallsEnabled: boolean('waiter_calls_enabled').notNull().default(false), // guests can call the service
+    buzzerKey: varchar('buzzer_key', { length: 32 }), // kitchen/bar buzzer (KeyboardEvent.key) finishes the oldest card; NULL = off
     // Legal pages for guests (Impressum, Datenschutz), plain text per event.
     imprintText: text('imprint_text'),
     privacyText: text('privacy_text'),

@@ -1035,6 +1035,15 @@
       "waiterCallsEnabled": {
         "label": "Bedienung rufen",
         "hint": "Gäste können die Bedienung mit einem Grund an den Tisch rufen (bezahlen, bestellen, Frage). Zuerst sieht es die Bedienung des Tisches, nach 2 Minuten der ganze Service; der Bar-Bildschirm zeigt jeden Ruf. Aus: Der Button verschwindet."
+      },
+      "buzzerKey": {
+        "label": "Buzzer an Küche / Bar",
+        "hint": "Ein großer Taster an der Ausgabe, der wie eine Tastatur mit einer Taste funktioniert (USB oder Bluetooth). Ein Druck schließt die älteste Karte auf dem Küchen- oder Bar-Bildschirm ab, wie „komplett fertig“. Ein zweiter Druck innerhalb einer Sekunde wird ignoriert. Nach dem Ändern der Taste den Küchen-/Bar-Bildschirm neu laden.",
+        "set": "Taste festlegen",
+        "change": "Ändern",
+        "clear": "Entfernen",
+        "listening": "Jetzt den Buzzer drücken …",
+        "space": "Leertaste"
       }
     },
     "join": {
@@ -1168,7 +1177,8 @@
       "exitFullscreen": "Vollbild beenden",
       "keepAwakeOn": "Bildschirm bleibt an",
       "keepAwakeOff": "Bildschirm darf ausgehen"
-    }
+    },
+    "toastDoneFor": "{label} fertig"
   },
   "alerts": {
     "soundLabel": "Ton bei neuen Meldungen",

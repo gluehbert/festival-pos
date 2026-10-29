@@ -5,6 +5,7 @@ import type { ProductionOrderGroup } from '~/stores/production'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 import NoteBadge from '~/components/common/NoteBadge.vue'
 import { shortOrderNo } from '~/utils/order-number'
+import { groupLabel } from '~/utils/production-label'
 
 // oneStep: the bar skips "Start" and finishes open items in one tap.
 const props = defineProps<{ group: ProductionOrderGroup; busyIds: Set<string>; finishing?: boolean; oneStep?: boolean }>()
@@ -16,11 +17,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { itemName } = useFormat()
 
-const label = computed(() => {
-  if (props.group.orderKind === 'staff_meal') return t('production.staffMeal')
-  if (props.group.orderKind === 'walkin') return t('production.counter')
-  return t('staff.detail.table', { n: props.group.tableNo })
-})
+const label = computed(() => groupLabel(props.group, t))
 
 const orderNos = computed(() => {
   const nos = props.group.orderIds.map((id) => `#${shortOrderNo(id)}`)

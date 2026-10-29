@@ -51,6 +51,23 @@ describe('event branding', () => {
     await expect(patch(adminReq('PATCH', undefined, 'waiter').event)).rejects.toMatchObject({ statusCode: 403 })
   })
 
+  it('admin sets and removes the buzzer key; kitchen and bar read it from the branding', async () => {
+    const patch = (await import('../../server/api/admin/events/[id]/branding.patch')).default
+    const pub = (await import('../../server/api/event/branding.get')).default
+    expect(await pub(makeEvent().event)).toMatchObject({ buzzerKey: null })
+
+    ctx.setBody({ buzzerKey: 'F13' })
+    expect(await patch(adminReq('PATCH').event)).toMatchObject({ buzzerKey: 'F13' })
+    expect(await pub(makeEvent().event)).toMatchObject({ buzzerKey: 'F13' })
+
+    for (const buzzerKey of ['', 'x'.repeat(33)]) {
+      ctx.setBody({ buzzerKey })
+      await expect(patch(adminReq('PATCH').event)).rejects.toMatchObject({ statusCode: 400 })
+    }
+    ctx.setBody({ buzzerKey: null })
+    expect(await patch(adminReq('PATCH').event)).toMatchObject({ buzzerKey: null })
+  })
+
   it('renames the event (trimmed), rejects an empty name and keeps other fields', async () => {
     const patch = (await import('../../server/api/admin/events/[id]/branding.patch')).default
     ctx.setBody({ accentColor: '#e30613' })

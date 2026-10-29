@@ -95,10 +95,10 @@ export const useAdminStore = defineStore('admin', () => {
     return res
   }
 
-  // Optional features (Pfand, helper meals, calling the service) and guest limits are saved with the event settings.
+  // Optional features (Pfand, helper meals, calling the service, buzzer key) and guest limits are saved with the event settings.
   async function setFeatures(
     id: string,
-    features: Partial<Pick<EventDto, 'depositEnabled' | 'staffMealsEnabled' | 'waiterCallsEnabled' | 'guestOpenLimitBarCents' | 'guestOpenLimitKitchenCents'>>,
+    features: Partial<Pick<EventDto, 'depositEnabled' | 'staffMealsEnabled' | 'waiterCallsEnabled' | 'buzzerKey' | 'guestOpenLimitBarCents' | 'guestOpenLimitKitchenCents'>>,
   ): Promise<void> {
     await useApi().patch(`/api/admin/events/${id}/branding`, features)
     const ev = events.value.find((e) => e.id === id)

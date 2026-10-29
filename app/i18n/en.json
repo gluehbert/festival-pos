@@ -1035,6 +1035,15 @@
       "waiterCallsEnabled": {
         "label": "Call the service",
         "hint": "Guests can call the service to their table with a reason (pay, order, question). The table's waiter sees it first, after 2 minutes everyone in service; the bar screen shows every call. Off: the button is gone."
+      },
+      "buzzerKey": {
+        "label": "Buzzer at kitchen / bar",
+        "hint": "A big button at the counter that works like a one-key keyboard (USB or Bluetooth). Pressing it finishes the oldest card on the kitchen or bar screen, as \"all done\" does. A second press within a second is ignored. Reload the kitchen/bar screen after changing the key.",
+        "set": "Set key",
+        "change": "Change",
+        "clear": "Remove",
+        "listening": "Press the buzzer now …",
+        "space": "Space"
       }
     },
     "join": {
@@ -1168,7 +1177,8 @@
       "exitFullscreen": "Exit fullscreen",
       "keepAwakeOn": "Screen stays on",
       "keepAwakeOff": "Screen may turn off"
-    }
+    },
+    "toastDoneFor": "{label} done"
   },
   "alerts": {
     "soundLabel": "Sound for new alerts",

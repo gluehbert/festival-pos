@@ -12,6 +12,8 @@ import StaleBanner from '~/components/common/StaleBanner.vue'
 import WaiterCalls from '~/components/staff/WaiterCalls.vue'
 import { useBranding } from '~/composables/useBranding'
 import { useAttention } from '~/composables/useAttention'
+import { useBuzzer } from '~/composables/useBuzzer'
+import { groupLabel } from '~/utils/production-label'
 import { createSeenTracker } from '~/utils/arrivals'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 
@@ -139,18 +141,25 @@ async function onAdvance(orderItemIds: string[], next: 'in_progress' | 'done') {
 }
 
 // One card can hold several orders of a table: finish each of them.
-async function onFinish(group: ProductionOrderGroup) {
+// From the buzzer the toast names the card, as nobody looked at the screen.
+async function onFinish(group: ProductionOrderGroup, named = false) {
   if (finishingIds.value.has(group.key)) return
   finishingIds.value = new Set([...finishingIds.value, group.key])
   const results = await Promise.allSettled(group.orderIds.map((id) =>
     production.finishOrder(id, isAdmin.value ? adminStation.value : undefined)))
   const done = results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
   if (results.some((r) => r.status === 'rejected')) showToast('error', t('production.toastFailed'))
-  else showToast('success', t('production.toastDone'), done)
+  else showToast('success', named ? t('production.toastDoneFor', { label: groupLabel(group, t) }) : t('production.toastDone'), done)
   const after = new Set(finishingIds.value)
   after.delete(group.key)
   finishingIds.value = after
 }
+
+// The buzzer finishes the oldest card that is not already being finished.
+useBuzzer(computed(() => branding.value.buzzerKey), () => {
+  const group = production.groups.find((g) => !finishingIds.value.has(g.key))
+  if (group) void onFinish(group, true)
+})
 </script>
 
 <template>

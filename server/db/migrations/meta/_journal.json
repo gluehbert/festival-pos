@@ -211,6 +211,13 @@
       "when": 1793279886002,
       "tag": "0029_clumsy_eternals",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1793308815754,
+      "tag": "0030_freezing_sally_floyd",
+      "breakpoints": true
     }
   ]
 }

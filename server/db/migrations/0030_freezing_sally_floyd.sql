@@ -1,0 +1,1 @@
+ALTER TABLE "events" ADD COLUMN "buzzer_key" varchar(32);
