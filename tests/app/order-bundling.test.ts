@@ -30,15 +30,24 @@ const item = (id: string, orderId: string, at: string, over: Partial<ProductionQ
 })
 
 describe('production store — orders', () => {
-  it('groups the queue per order, oldest order first', async () => {
+  it('groups the queue per table, oldest first; counter sales stay one card per order', async () => {
     fetchMock.mockResolvedValueOnce({ station: 'kitchen', items: [
       item('a', 'o1', '2026-06-01T18:00:00Z'),
       item('b', 'o2', '2026-06-01T18:01:00Z', { tableNo: 0, orderKind: 'walkin' }),
       item('c', 'o1', '2026-06-01T18:00:00Z'),
+      item('d', 'o3', '2026-06-01T18:02:00Z', { orderKind: 'staff_table' }),
+      item('e', 'o4', '2026-06-01T18:03:00Z', { tableNo: 0, orderKind: 'walkin' }),
+      item('f', 'o5', '2026-06-01T18:04:00Z', { tableNo: 9 }),
     ] })
     const s = useProductionStore()
     await s.fetchQueue()
-    expect(s.groups.map((g) => [g.orderId, g.items.map((i) => i.orderItemId)])).toEqual([['o1', ['a', 'c']], ['o2', ['b']]])
+    expect(s.groups.map((g) => [g.orderIds, g.items.map((i) => i.orderItemId)])).toEqual([
+      [['o1', 'o3'], ['a', 'c', 'd']],
+      [['o2'], ['b']],
+      [['o4'], ['e']],
+      [['o5'], ['f']],
+    ])
+    expect(s.groups[0]!.orderedAt).toBe('2026-06-01T18:00:00Z')
   })
 
   it('finishes a whole order optimistically and rolls back on errors', async () => {
@@ -63,7 +72,8 @@ describe('production store — orders', () => {
 
 describe('OrderCard', () => {
   const group = {
-    orderId: 'o1',
+    key: 'table:8',
+    orderIds: ['o1'],
     tableNo: 8,
     orderKind: 'staff_table' as const,
     orderedAt: new Date(Date.now() - 11 * 60_000).toISOString(),
@@ -80,8 +90,44 @@ describe('OrderCard', () => {
     await buttons[0]!.trigger('click')
     await buttons[1]!.trigger('click')
     await buttons[2]!.trigger('click')
-    expect(w.emitted('advance')).toEqual([['a', 'in_progress'], ['b', 'done']])
+    expect(w.emitted('advance')).toEqual([[['a'], 'in_progress'], [['b'], 'done']])
     expect(w.emitted('finish')).toHaveLength(1)
+  })
+
+  it('merges items of the same article, note and status into one line', async () => {
+    const items = [
+      item('a', 'o1', '', { nameEn: 'Beer' }),
+      item('b', 'o1', '', { nameEn: 'Cola', quantity: 1 }),
+      item('c', 'o1', '', { nameEn: 'Beer', quantity: 3 }),
+      item('d', 'o1', '', { nameEn: 'Cola', quantity: 1, note: 'no ice' }),
+      item('e', 'o1', '', { nameEn: 'Beer', productionStatus: 'in_progress' }),
+    ]
+    const w = mount(OrderCard, { props: { group: { ...group, items }, busyIds: new Set<string>(['c']) } })
+    const lines = w.findAll('[data-test="order-line"]')
+    expect(lines.map((l) => l.find('p').text())).toEqual(['5 × Beer', '1 × Cola', '1 × Cola', '2 × Beer'])
+    expect(lines[3]!.text()).toContain('production.preparing')
+    expect(lines[0]!.text()).not.toContain('production.preparing')
+    // Busy while any of its items is being saved.
+    expect(lines[0]!.find('button').attributes('disabled')).toBeDefined()
+    await lines[1]!.find('button').trigger('click')
+    await lines[3]!.find('button').trigger('click')
+    expect(w.emitted('advance')).toEqual([[['b'], 'in_progress'], [['e'], 'done']])
+    await w.setProps({ busyIds: new Set<string>() })
+    await w.findAll('[data-test="order-line"]')[0]!.find('button').trigger('click')
+    expect(w.emitted('advance')![2]).toEqual([['a', 'c'], 'in_progress'])
+  })
+
+  it('lists all order numbers of a table', () => {
+    const w = mount(OrderCard, { props: { group: { ...group, orderIds: ['17a888', '9d9096'] }, busyIds: new Set<string>() } })
+    expect(w.find('[data-test="order-number"]').text()).toContain('#17A888 · #9D9096')
+  })
+
+  it('finishes open items in one tap at the bar', async () => {
+    const w = mount(OrderCard, { props: { group, busyIds: new Set<string>(), oneStep: true } })
+    const buttons = w.findAll('[data-test="order-line"] button')
+    expect(buttons.map((b) => b.text())).toEqual(['production.done', 'production.done'])
+    await buttons[0]!.trigger('click')
+    expect(w.emitted('advance')).toEqual([[['a'], 'done']])
   })
 
   it('names counter sales instead of table 0', () => {

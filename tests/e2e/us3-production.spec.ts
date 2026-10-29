@@ -24,7 +24,7 @@ test.describe('@smoke US3 — kitchen production queue', () => {
     await card.getByRole('button', { name: 'Start preparing', exact: true }).click()
     await card.getByRole('button', { name: 'Done', exact: true }).click()
     await expect(card).toHaveCount(0)
-    await page.getByRole('button', { name: 'By order' }).click()
+    await page.getByRole('button', { name: 'By table' }).click()
 
     await guest.reload()
     // Finished reads "on its way": no pressure on the waiter from a "ready" label.

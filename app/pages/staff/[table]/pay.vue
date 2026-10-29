@@ -10,7 +10,8 @@ import PayGroupRow from '~/components/staff/PayGroupRow.vue'
 import PaymentSummary from '~/components/staff/PaymentSummary.vue'
 import LastReceipt from '~/components/staff/LastReceipt.vue'
 import PaymentDone from '~/components/staff/PaymentDone.vue'
-import { buildPayRequest, groupOpenItems, lockMessageKey, lockSecondsLeft, selectionCents } from '~/composables/usePaySelection'
+import PayOrderPicker from '~/components/staff/PayOrderPicker.vue'
+import { buildPayRequest, countsForOrders, groupOpenItems, lockMessageKey, lockSecondsLeft, openOrders, selectionCents } from '~/composables/usePaySelection'
 
 const { t } = useI18n()
 const { euro, itemName } = useFormat()
@@ -28,6 +29,8 @@ const ticketKey = computed(() => {
 
 // Chosen count per article group: what this guest pays now.
 const counts = ref<Record<string, number>>({})
+// Orders picked by number: their lines are the ones paid.
+const chosenOrders = ref<Set<string>>(new Set())
 const successMessage = ref<string | null>(null)
 // Set once the ticket is fully paid: the page shows the result instead of
 // leaving at once, so the change and the receipt are still at hand.
@@ -46,6 +49,7 @@ async function load() {
   // Fresh ticket, fresh selection: the next payment gets a new key.
   payments.forgetPending()
   await tickets.load(ticketKey.value)
+  chosenOrders.value = new Set()
   counts.value = everything()
 }
 
@@ -66,6 +70,7 @@ onBeforeUnmount(() => {
 
 const ticket = computed(() => tickets.selected)
 const groups = computed(() => groupOpenItems(ticket.value?.items ?? []))
+const orders = computed(() => openOrders(groups.value))
 const paidItems = computed(() => (ticket.value?.items ?? []).filter((i) => i.paymentStatus === 'paid' && i.productionStatus !== 'cancelled'))
 const selectedCents = computed(() => selectionCents(groups.value, counts.value))
 const selectedUnits = computed(() => groups.value.reduce((n, g) => n + Math.min(counts.value[g.key] ?? 0, g.openQuantity), 0))
@@ -76,7 +81,15 @@ function setCount(key: string, n: number) {
 }
 
 function selectAll() {
+  chosenOrders.value = new Set()
   counts.value = allSelected.value ? {} : everything()
+}
+
+function toggleOrder(orderId: string) {
+  const next = new Set(chosenOrders.value)
+  if (!next.delete(orderId)) next.add(orderId)
+  chosenOrders.value = next
+  counts.value = countsForOrders(groups.value, next)
 }
 
 function startCountdown(expiresAt: string) {
@@ -112,7 +125,7 @@ function paidMessage(amountCents: number, tipCents: number, changeCents: number 
 async function submit({ givenCents, tipCents }: { givenCents: number | null; tipCents: number }) {
   if (!ticket.value || selectedUnits.value <= 0) return
   rejected.value = false
-  const req = buildPayRequest(groups.value, counts.value)
+  const req = buildPayRequest(groups.value, counts.value, chosenOrders.value)
   successMessage.value = null
   const res = await payments.createPayment(ticket.value.ticketKey, req.orderItemIds, req.quantities, tipCents)
   if (res) {
@@ -176,6 +189,8 @@ async function submit({ givenCents, tipCents }: { givenCents: number | null; tip
         <UIcon name="i-lucide-circle-check" class="size-4 shrink-0" aria-hidden="true" /> {{ successMessage }}
       </p>
       <LastReceipt v-if="successMessage" />
+
+      <PayOrderPicker v-if="orders.length > 1" :orders="orders" :chosen="chosenOrders" @toggle="toggleOrder" />
 
       <div v-if="groups.length > 0" class="mt-4 flex items-center justify-between">
         <p class="text-sm text-slate-600">

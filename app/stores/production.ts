@@ -10,9 +10,12 @@ import type {
 
 type Station = 'kitchen' | 'bar'
 
-// All open items of one order at this station: one card on the screen.
+// All open items of one table at this station: one card on the screen.
+// Every send from a table is its own order, so a card can hold several.
+// Counter sales and staff meals have no table and keep one card per order.
 export interface ProductionOrderGroup {
-  orderId: string
+  key: string
+  orderIds: string[]
   tableNo: number
   orderKind: ProductionQueueItem['orderKind']
   orderedAt: string
@@ -132,16 +135,19 @@ export const useProductionStore = defineStore('production', () => {
 
   // The queue is sorted oldest first, so the cards are too.
   const groups = computed<ProductionOrderGroup[]>(() => {
-    const byOrder = new Map<string, ProductionOrderGroup>()
+    const byKey = new Map<string, ProductionOrderGroup>()
     for (const item of queue.value) {
-      let g = byOrder.get(item.orderId)
+      const atTable = item.orderKind === 'guest' || item.orderKind === 'staff_table'
+      const key = atTable ? `table:${item.tableNo}` : `order:${item.orderId}`
+      let g = byKey.get(key)
       if (!g) {
-        g = { orderId: item.orderId, tableNo: item.tableNo, orderKind: item.orderKind, orderedAt: item.orderedAt, items: [] }
-        byOrder.set(item.orderId, g)
+        g = { key, orderIds: [], tableNo: item.tableNo, orderKind: item.orderKind, orderedAt: item.orderedAt, items: [] }
+        byKey.set(key, g)
       }
+      if (!g.orderIds.includes(item.orderId)) g.orderIds.push(item.orderId)
       g.items.push(item)
     }
-    return Array.from(byOrder.values())
+    return Array.from(byKey.values())
   })
 
   // Returns the items that were finished, for "Undo".

@@ -238,6 +238,7 @@
     "pay": {
       "back": "Zurück",
       "title": "Kassieren",
+      "byOrder": "Nach Bestellung bezahlen",
       "selectAll": "Alles auswählen",
       "locked": "Gesperrt durch {user}. Bitte warten oder Auto-Release abwarten.",
       "lockedSelf": "Dieser Tisch wird gerade kassiert, bitte kurz warten",
@@ -1101,7 +1102,8 @@
     "myAccount": "Mein Konto"
   },
   "production": {
-    "start": "In Zubereitung",
+    "start": "Starten",
+    "preparing": "In Zubereitung",
     "done": "Fertig",
     "waiting": "seit {n} Min.",
     "toastDone": "Erledigt",
@@ -1110,10 +1112,11 @@
     "loading": "Lade Warteschlange …",
     "empty": "Keine offenen Positionen.",
     "counter": "Theke",
+    "orderNos": "Bestellungen {nos}",
     "finishOrder": "{label} komplett fertig",
     "viewLabel": "Ansicht",
     "view": {
-      "orders": "Nach Bestellung",
+      "orders": "Nach Tisch",
       "items": "Einzeln"
     },
     "soldOut": {

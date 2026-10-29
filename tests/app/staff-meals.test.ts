@@ -43,7 +43,7 @@ describe('Staff meals in the app', () => {
 
     const card = mount(OrderCard, {
       props: {
-        group: { orderId: 'o', tableNo: 0, orderKind: 'staff_meal', orderedAt: new Date().toISOString(), items: [] },
+        group: { key: 'order:o', orderIds: ['o'], tableNo: 0, orderKind: 'staff_meal', orderedAt: new Date().toISOString(), items: [] },
         busyIds: new Set<string>(),
       },
     })

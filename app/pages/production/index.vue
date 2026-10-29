@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { navigateTo } from '#imports'
 import { useAuthStore } from '~/stores/auth'
-import { useProductionStore } from '~/stores/production'
+import { useProductionStore, type ProductionOrderGroup } from '~/stores/production'
 import { usePolling } from '~/composables/usePolling'
 import QueueItem from '~/components/production/QueueItem.vue'
 import OrderCard from '~/components/production/OrderCard.vue'
@@ -28,7 +28,7 @@ let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 const isAdmin = computed(() => auth.staff?.role === 'admin')
 
-// "orders" = one card per order (default), "items" = one tile per item.
+// "orders" = one card per table (default), "items" = one tile per item.
 // Remembered per device; storage may be unavailable (private mode).
 type View = 'orders' | 'items'
 const VIEW_KEY = 'production-view'
@@ -47,6 +47,9 @@ const effectiveStation = computed<Station | undefined>(() => {
   if (isAdmin.value) return adminStation.value
   return undefined
 })
+
+// A drink is ready in seconds: the bar skips "Start".
+const oneStep = computed(() => effectiveStation.value === 'bar')
 
 async function load() {
   await production.fetchQueue(isAdmin.value ? adminStation.value : undefined)
@@ -115,42 +118,34 @@ async function onUndo() {
   }
 }
 
-async function onAdvance(orderItemId: string, next: 'in_progress' | 'done') {
-  if (busyIds.value.has(orderItemId)) return
-  const ids = new Set(busyIds.value)
-  ids.add(orderItemId)
-  busyIds.value = ids
-  const item = production.queue.find((i) => i.orderItemId === orderItemId)
-  try {
-    await production.advance(orderItemId, next)
-    if (next === 'done' && item) showToast('success', t('production.toastDone'), [item])
-    else showToast('success', t('production.toastStarted'))
-  }
-  catch {
-    showToast('error', t('production.toastFailed'))
-  }
-  finally {
-    const after = new Set(busyIds.value)
-    after.delete(orderItemId)
-    busyIds.value = after
-  }
+// Several ids when the card shows a merged line: one toast, one undo for all.
+async function onAdvance(orderItemIds: string[], next: 'in_progress' | 'done') {
+  const ids = orderItemIds.filter((id) => !busyIds.value.has(id))
+  if (ids.length === 0) return
+  busyIds.value = new Set([...busyIds.value, ...ids])
+  const items = production.queue.filter((i) => ids.includes(i.orderItemId))
+  const results = await Promise.allSettled(ids.map((id) => production.advance(id, next)))
+  const ok = items.filter((i) => results[ids.indexOf(i.orderItemId)]!.status === 'fulfilled')
+  if (ok.length < ids.length) showToast('error', t('production.toastFailed'))
+  else if (next === 'done') showToast('success', t('production.toastDone'), ok)
+  else showToast('success', t('production.toastStarted'))
+  const after = new Set(busyIds.value)
+  for (const id of ids) after.delete(id)
+  busyIds.value = after
 }
 
-async function onFinish(orderId: string) {
-  if (finishingIds.value.has(orderId)) return
-  finishingIds.value = new Set([...finishingIds.value, orderId])
-  try {
-    const done = await production.finishOrder(orderId, isAdmin.value ? adminStation.value : undefined)
-    showToast('success', t('production.toastDone'), done)
-  }
-  catch {
-    showToast('error', t('production.toastFailed'))
-  }
-  finally {
-    const after = new Set(finishingIds.value)
-    after.delete(orderId)
-    finishingIds.value = after
-  }
+// One card can hold several orders of a table: finish each of them.
+async function onFinish(group: ProductionOrderGroup) {
+  if (finishingIds.value.has(group.key)) return
+  finishingIds.value = new Set([...finishingIds.value, group.key])
+  const results = await Promise.allSettled(group.orderIds.map((id) =>
+    production.finishOrder(id, isAdmin.value ? adminStation.value : undefined)))
+  const done = results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
+  if (results.some((r) => r.status === 'rejected')) showToast('error', t('production.toastFailed'))
+  else showToast('success', t('production.toastDone'), done)
+  const after = new Set(finishingIds.value)
+  after.delete(group.key)
+  finishingIds.value = after
 }
 </script>
 
@@ -194,13 +189,14 @@ async function onFinish(orderId: string) {
     </p>
 
     <ul v-else-if="view === 'orders'" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <li v-for="group in production.groups" :key="group.orderId">
+      <li v-for="group in production.groups" :key="group.key">
         <OrderCard
           :group="group"
           :busy-ids="busyIds"
-          :finishing="finishingIds.has(group.orderId)"
-          @advance="(id, n) => onAdvance(id, n)"
-          @finish="onFinish(group.orderId)"
+          :finishing="finishingIds.has(group.key)"
+          :one-step="oneStep"
+          @advance="(ids, n) => onAdvance(ids, n)"
+          @finish="onFinish(group)"
         />
       </li>
     </ul>
@@ -210,7 +206,8 @@ async function onFinish(orderId: string) {
         <QueueItem
           :item="item"
           :busy="busyIds.has(item.orderItemId)"
-          @advance="(n) => onAdvance(item.orderItemId, n)"
+          :one-step="oneStep"
+          @advance="(n) => onAdvance([item.orderItemId], n)"
         />
       </li>
     </ul>

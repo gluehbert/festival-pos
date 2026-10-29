@@ -7,6 +7,8 @@ import NoteBadge from '~/components/common/NoteBadge.vue'
 interface Props {
   item: ProductionQueueItem
   busy?: boolean
+  // The bar skips "Start" and finishes open items in one tap.
+  oneStep?: boolean
 }
 const props = defineProps<Props>()
 const emit = defineEmits<{
@@ -19,18 +21,18 @@ const minutesInQueue = computed(() => {
 })
 
 const nextStatus = computed<'in_progress' | 'done'>(() =>
-  props.item.productionStatus === 'pending' ? 'in_progress' : 'done',
+  props.item.productionStatus === 'pending' && !props.oneStep ? 'in_progress' : 'done',
 )
 
 const { t } = useI18n()
 const { itemName } = useFormat()
 const buttonLabel = computed(() =>
-  props.item.productionStatus === 'pending' ? t('production.start') : t('production.done'),
+  nextStatus.value === 'in_progress' ? t('production.start') : t('production.done'),
 )
 
 const buttonClass = computed(() =>
-  props.item.productionStatus === 'pending'
-    ? 'bg-brand text-brand-contrast hover:brightness-95 active:brightness-90'
+  nextStatus.value === 'in_progress'
+    ? 'border-2 border-slate-300 text-slate-800 hover:bg-slate-100'
     : 'bg-success text-white hover:bg-success-hover',
 )
 
@@ -42,11 +44,7 @@ const ageClass = computed(() => {
 </script>
 
 <template>
-  <article
-    data-test="queue-item"
-    class="rounded-xl border-2 bg-surface p-4 shadow-sm"
-    :class="item.productionStatus === 'in_progress' ? 'border-brand' : 'border-slate-200'"
-  >
+  <article data-test="queue-item" class="rounded-xl border-2 border-slate-200 bg-surface p-4 shadow-sm">
     <header class="flex items-baseline justify-between gap-2">
       <p class="text-lg font-bold text-slate-900">
         {{ item.orderKind === 'staff_meal' ? $t('production.staffMeal') : item.orderKind === 'walkin' ? $t('production.counter') : $t('staff.detail.table', { n: item.tableNo }) }}
@@ -57,6 +55,10 @@ const ageClass = computed(() => {
     </header>
     <p class="mt-2 text-xl font-semibold text-slate-900">
       {{ item.quantity }} × {{ itemName(item) }}
+    </p>
+    <p v-if="item.productionStatus === 'in_progress' && !oneStep" class="flex items-center gap-1 text-sm font-semibold text-slate-500">
+      <UIcon name="i-lucide-timer" class="size-4 shrink-0" aria-hidden="true" />
+      {{ $t('production.preparing') }}
     </p>
     <NoteBadge :note="item.note" large />
     <button

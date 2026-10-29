@@ -238,6 +238,7 @@
     "pay": {
       "back": "Back",
       "title": "Cash out",
+      "byOrder": "Pay by order",
       "selectAll": "Select all",
       "locked": "Locked by {user}. Please wait or try again after auto-release.",
       "lockedSelf": "This table is being cashed out right now, please wait a moment",
@@ -1102,6 +1103,7 @@
   },
   "production": {
     "start": "Start preparing",
+    "preparing": "Preparing",
     "done": "Done",
     "waiting": "{n} min ago",
     "toastDone": "Done",
@@ -1110,10 +1112,11 @@
     "loading": "Loading queue …",
     "empty": "No open items.",
     "counter": "Counter",
+    "orderNos": "Orders {nos}",
     "finishOrder": "{label} all done",
     "viewLabel": "View",
     "view": {
-      "orders": "By order",
+      "orders": "By table",
       "items": "Single items"
     },
     "soldOut": {

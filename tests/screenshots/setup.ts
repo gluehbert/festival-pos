@@ -71,7 +71,7 @@ export async function kitchenFinishes(page: Page, tableNo: number): Promise<void
     await card.getByRole('button', { name: 'Done', exact: true }).click()
     await page.waitForTimeout(300)
   }
-  await page.getByRole('button', { name: 'By order' }).click()
+  await page.getByRole('button', { name: 'By table' }).click()
 }
 
 export async function openLiveEvent(page: Page): Promise<void> {
