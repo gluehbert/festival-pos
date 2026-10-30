@@ -59,6 +59,8 @@ export const waiterCalls = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     acknowledgedAt: timestamp('acknowledged_at', { withTimezone: true }),
     acknowledgedBy: uuid('acknowledged_by').references(() => staff.id, { onDelete: 'set null' }),
+    // Someone served the table (order, payment, "asked"): the guest's notice ends.
+    visitedAt: timestamp('visited_at', { withTimezone: true }),
   },
   (t) => [
     uniqueIndex('waiter_calls_open_uq').on(t.eventId, t.tableNo).where(sql`${t.acknowledgedAt} IS NULL`),

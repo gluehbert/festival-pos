@@ -82,6 +82,24 @@ describe('calling the service', () => {
     expect((await guestCall(guest, 'order')).body).toMatchObject({ reason: 'order', acknowledged: false })
   })
 
+  it('"someone is coming" ends 3 minutes after the answer, or once someone served the table', async () => {
+    enable()
+    const guest = insertGuest(seeded.eventId, 5)
+    await guestCall(guest, 'pay')
+    await ack(seeded.staffId, 'admin', (await list(seeded.staffId, 'admin')).body.calls[0]!.id)
+    ctx.mem.public.none(`UPDATE waiter_calls SET acknowledged_at = now() - interval '2 minutes'`)
+    expect((await tableCall(guest)).body).toMatchObject({ acknowledged: true })
+    ctx.mem.public.none(`UPDATE waiter_calls SET acknowledged_at = now() - interval '4 minutes'`)
+    expect((await tableCall(guest)).body).toBeNull()
+
+    backdate(3)
+    await guestCall(guest, 'question')
+    await ack(seeded.staffId, 'admin', (await list(seeded.staffId, 'admin')).body.calls[0]!.id)
+    expect((await tableCall(guest)).body).toMatchObject({ reason: 'question', acknowledged: true })
+    await call('../../server/api/tickets/[id]/checked.post', { method: 'POST', staff: { staffId: seeded.staffId, role: 'waiter' }, params: { id: 't-5' } })
+    expect((await tableCall(guest)).body).toBeNull()
+  })
+
   it('a staff order, a payment or "asked" at the table answers its call', async () => {
     enable()
     const waiter = insertStaff('waiter')
@@ -109,8 +127,11 @@ describe('calling the service', () => {
 
     backdate(3)
     await guestCall(insertGuest(seeded.eventId, 5), 'question')
+    const guest = insertGuest(seeded.eventId, 5)
     await call('../../server/api/tickets/[id]/checked.post', { method: 'POST', staff: { staffId: waiter, role: 'waiter' }, params: { id: 't-5' } })
     expect(open()).toBe(0)
+    // Served, not just announced: the guest's notice is gone.
+    expect((await tableCall(guest)).body).toBeNull()
   })
 
   it('kitchen and guests without a live session are turned away', async () => {

@@ -1,4 +1,4 @@
-import { and, desc, eq, gt, isNull, or } from 'drizzle-orm'
+import { and, desc, eq, gt, isNull, or, sql } from 'drizzle-orm'
 import type { Db } from '../db/client'
 import { staff, type Event } from '../db/schema'
 import { tableAssignments, waiterCalls } from '../db/schema-service'
@@ -9,8 +9,9 @@ import { AppError, isUniqueViolation } from './errors'
 export const ESCALATE_AFTER_MS = 2 * 60 * 1000
 // A table can call again this long after its last call at the earliest.
 const CALL_COOLDOWN_MS = 2 * 60 * 1000
-// The guest sees "someone is coming" this long after the call was answered.
-const SHOW_ANSWERED_MS = 10 * 60 * 1000
+// The guest sees "someone is coming" this long after the call was answered,
+// unless someone serves the table before.
+const SHOW_ANSWERED_MS = 3 * 60 * 1000
 
 const toDate = (v: Date | string) => (v instanceof Date ? v : new Date(v))
 
@@ -25,6 +26,7 @@ export async function loadTableCall(db: Db, eventId: string, tableNo: number): P
     .where(and(
       eq(waiterCalls.eventId, eventId),
       eq(waiterCalls.tableNo, tableNo),
+      isNull(waiterCalls.visitedAt),
       or(isNull(waiterCalls.acknowledgedAt), gt(waiterCalls.acknowledgedAt, new Date(Date.now() - SHOW_ANSWERED_MS))),
     ))
     .orderBy(desc(waiterCalls.createdAt))
@@ -96,10 +98,16 @@ export async function acknowledgeCall(db: Db, eventId: string, id: string, staff
   if (updated.length === 0) throw new AppError('NOT_FOUND', 404, 'No open call with this id')
 }
 
-// Someone is at the table anyway (payment, order, "asked"): the call is answered.
+// Someone is at the table anyway (payment, order, "asked"): the call is
+// answered and the guest's "someone is coming" ends.
 export async function answerTableCalls(db: Db, eventId: string, tableNo: number, staffId: string): Promise<void> {
+  const now = new Date()
   await db
     .update(waiterCalls)
-    .set({ acknowledgedAt: new Date(), acknowledgedBy: staffId })
-    .where(and(eq(waiterCalls.eventId, eventId), eq(waiterCalls.tableNo, tableNo), isNull(waiterCalls.acknowledgedAt)))
+    .set({
+      acknowledgedAt: sql`coalesce(${waiterCalls.acknowledgedAt}, ${now})`,
+      acknowledgedBy: sql`coalesce(${waiterCalls.acknowledgedBy}, ${staffId})`,
+      visitedAt: now,
+    })
+    .where(and(eq(waiterCalls.eventId, eventId), eq(waiterCalls.tableNo, tableNo), isNull(waiterCalls.visitedAt)))
 }
