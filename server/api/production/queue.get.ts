@@ -4,6 +4,7 @@ import { getDb } from '../../db/client'
 import { events, menuItems, orderItems, orders } from '../../db/schema'
 import { AppError, sendAppError } from '../../lib/errors'
 import { requireRole } from '../../lib/rbac'
+import { activeLanes, fillLanes } from '../../lib/production-lanes'
 import {
   ProductionQueueQuerySchema,
   ProductionQueueSchema,
@@ -77,7 +78,8 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    return ProductionQueueSchema.parse({ station, items })
+    const lanes = await fillLanes(db, ev.id, station, activeLanes(ev), items)
+    return ProductionQueueSchema.parse({ station, items, lanes })
   }
   catch (err) {
     sendAppError(event, err)

@@ -29,12 +29,18 @@ export default defineEventHandler(async (event) => {
       }
       if (!datesInOrder(dates)) throw new AppError('VALIDATION', 400, 'Das Enddatum liegt vor dem Startdatum')
     }
+    if (input.buzzerKey !== undefined || input.buzzerKey2 !== undefined) {
+      const current = (await db.select({ one: events.buzzerKey, two: events.buzzerKey2 }).from(events).where(eq(events.id, id)))[0]
+      const one = input.buzzerKey === undefined ? current?.one : input.buzzerKey
+      const two = input.buzzerKey2 === undefined ? current?.two : input.buzzerKey2
+      if (one && one === two) throw new AppError('VALIDATION', 400, 'Each buzzer needs its own key')
+    }
     if (Object.keys(patch).length > 0) {
       await db.transaction(async (tx) => {
         const updated = await tx.update(events).set(patch).where(eq(events.id, id)).returning({ id: events.id })
         if (updated.length === 0) throw new AppError('NOT_FOUND', 404, 'Event not found')
         // Long texts (programme, legal pages) only by field name.
-        const short = ['name', 'accentColor', 'startsOn', 'endsOn', 'depositEnabled', 'staffMealsEnabled', 'waiterCallsEnabled', 'buzzerKey', 'guestOpenLimitBarCents', 'guestOpenLimitKitchenCents'] as const
+        const short = ['name', 'accentColor', 'startsOn', 'endsOn', 'depositEnabled', 'staffMealsEnabled', 'waiterCallsEnabled', 'buzzerKey', 'buzzerKey2', 'guestOpenLimitBarCents', 'guestOpenLimitKitchenCents'] as const
         await writeAudit(tx, {
           action: 'event_update',
           staffId: admin.staffId,

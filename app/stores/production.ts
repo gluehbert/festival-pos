@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
+import { productionGroupKey } from '~/../server/lib/contracts/production'
 import type {
+  ProductionLane,
   ProductionOrderDoneResponse,
   ProductionQueue,
   ProductionQueueItem,
@@ -25,6 +27,8 @@ export interface ProductionOrderGroup {
 export const useProductionStore = defineStore('production', () => {
   const station = ref<Station | null>(null)
   const queue = ref<ProductionQueueItem[]>([])
+  // Buzzer lanes; empty when the event has no buzzer.
+  const lanes = ref<ProductionLane[]>([])
   const loading = ref(false)
   const error = ref<unknown>(null)
   // Polling health, kept apart from `error` (which failed actions set too):
@@ -77,6 +81,7 @@ export const useProductionStore = defineStore('production', () => {
       }
       station.value = res.station
       queue.value = withOverrides(res.items)
+      lanes.value = res.lanes
       syncFailed.value = false
       lastSyncAt.value = Date.now()
     }
@@ -137,8 +142,7 @@ export const useProductionStore = defineStore('production', () => {
   const groups = computed<ProductionOrderGroup[]>(() => {
     const byKey = new Map<string, ProductionOrderGroup>()
     for (const item of queue.value) {
-      const atTable = item.orderKind === 'guest' || item.orderKind === 'staff_table'
-      const key = atTable ? `table:${item.tableNo}` : `order:${item.orderId}`
+      const key = productionGroupKey(item)
       let g = byKey.get(key)
       if (!g) {
         g = { key, orderIds: [], tableNo: item.tableNo, orderKind: item.orderKind, orderedAt: item.orderedAt, items: [] }
@@ -170,5 +174,5 @@ export const useProductionStore = defineStore('production', () => {
     }
   }
 
-  return { station, queue, groups, loading, error, syncFailed, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
+  return { station, queue, lanes, groups, loading, error, syncFailed, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
 })

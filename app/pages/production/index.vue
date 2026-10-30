@@ -6,14 +6,14 @@ import { useProductionStore, type ProductionOrderGroup } from '~/stores/producti
 import { usePolling } from '~/composables/usePolling'
 import QueueItem from '~/components/production/QueueItem.vue'
 import OrderCard from '~/components/production/OrderCard.vue'
+import LanesView from '~/components/production/LanesView.vue'
 import StationFilter from '~/components/production/StationFilter.vue'
 import SoldOutPanel from '~/components/production/SoldOutPanel.vue'
 import StaleBanner from '~/components/common/StaleBanner.vue'
 import WaiterCalls from '~/components/staff/WaiterCalls.vue'
 import { useBranding } from '~/composables/useBranding'
 import { useAttention } from '~/composables/useAttention'
-import { useBuzzer } from '~/composables/useBuzzer'
-import { groupLabel } from '~/utils/production-label'
+import { groupLabel } from '~/utils/production-card'
 import { createSeenTracker } from '~/utils/arrivals'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 
@@ -53,6 +53,9 @@ const effectiveStation = computed<Station | undefined>(() => {
   if (isAdmin.value) return adminStation.value
   return undefined
 })
+
+// With buzzers the screen shows their lanes instead of the views.
+const lanesActive = computed(() => production.lanes.length > 0)
 
 // A drink is ready in seconds: the bar skips "Start".
 const oneStep = computed(() => effectiveStation.value === 'bar')
@@ -141,7 +144,7 @@ async function onAdvance(orderItemIds: string[], next: 'in_progress' | 'done') {
 }
 
 // One card can hold several orders of a table: finish each of them.
-// From the buzzer the toast names the card, as nobody looked at the screen.
+// From a buzzer the toast names the card, as nobody looked at the screen.
 async function onFinish(group: ProductionOrderGroup, named = false) {
   if (finishingIds.value.has(group.key)) return
   finishingIds.value = new Set([...finishingIds.value, group.key])
@@ -153,13 +156,9 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
   const after = new Set(finishingIds.value)
   after.delete(group.key)
   finishingIds.value = after
+  // The server refills a freed lane on the next poll: ask now, not in 4 s.
+  if (lanesActive.value) await loadQuietly()
 }
-
-// The buzzer finishes the oldest card that is not already being finished.
-useBuzzer(computed(() => branding.value.buzzerKey), () => {
-  const group = production.groups.find((g) => !finishingIds.value.has(g.key))
-  if (group) void onFinish(group, true)
-})
 </script>
 
 <template>
@@ -171,7 +170,7 @@ useBuzzer(computed(() => branding.value.buzzerKey), () => {
           {{ $t(`common.station.${effectiveStation ?? 'kitchen'}`) }}
         </template>
       </h1>
-      <div class="inline-flex gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.viewLabel')">
+      <div v-if="!lanesActive" class="inline-flex gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.viewLabel')">
         <button
           v-for="v in (['orders', 'items'] as const)"
           :key="v"
@@ -202,6 +201,14 @@ useBuzzer(computed(() => branding.value.buzzerKey), () => {
     <p v-else-if="production.queue.length === 0" class="mt-8 text-sm text-slate-500">
       {{ $t('production.empty') }}
     </p>
+
+    <LanesView
+      v-else-if="lanesActive"
+      :groups="production.groups"
+      :lanes="production.lanes"
+      :finishing="finishingIds"
+      @finish="onFinish"
+    />
 
     <ul v-else-if="view === 'orders'" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <li v-for="group in production.groups" :key="group.key">

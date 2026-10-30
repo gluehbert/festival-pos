@@ -26,9 +26,26 @@ export const ProductionQueueItemSchema = z.object({
 })
 export type ProductionQueueItem = z.infer<typeof ProductionQueueItemSchema>
 
+// One card on the screen: all open items of a table at a station; counter
+// sales and helper meals have no table and keep one card per order.
+export function productionGroupKey(item: Pick<ProductionQueueItem, 'orderKind' | 'tableNo' | 'orderId'>): string {
+  const atTable = item.orderKind === 'guest' || item.orderKind === 'staff_table'
+  return atTable ? `table:${item.tableNo}` : `order:${item.orderId}`
+}
+
+// Buzzer lanes (1 = green, 2 = blue) of the event: the buzzer's key and the
+// card the lane holds.
+export const ProductionLaneSchema = z.object({
+  lane: z.number().int().min(1).max(2),
+  key: z.string(),
+  groupKey: z.string().nullable(),
+})
+export type ProductionLane = z.infer<typeof ProductionLaneSchema>
+
 export const ProductionQueueSchema = z.object({
   station: StationEnum,
   items: z.array(ProductionQueueItemSchema),
+  lanes: z.array(ProductionLaneSchema),
 })
 export type ProductionQueue = z.infer<typeof ProductionQueueSchema>
 

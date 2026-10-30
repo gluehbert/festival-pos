@@ -5,7 +5,7 @@ import type { ProductionOrderGroup } from '~/stores/production'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 import NoteBadge from '~/components/common/NoteBadge.vue'
 import { shortOrderNo } from '~/utils/order-number'
-import { groupLabel } from '~/utils/production-label'
+import { ageClass as ageBadge, groupLabel, minutesWaiting } from '~/utils/production-card'
 
 // oneStep: the bar skips "Start" and finishes open items in one tap.
 const props = defineProps<{ group: ProductionOrderGroup; busyIds: Set<string>; finishing?: boolean; oneStep?: boolean }>()
@@ -26,12 +26,8 @@ const orderNos = computed(() => {
     : t('production.orderNos', { nos: nos.join(' · ') })
 })
 
-const minutes = computed(() => Math.max(0, Math.floor((Date.now() - new Date(props.group.orderedAt).getTime()) / 60_000)))
-const ageClass = computed(() => {
-  if (minutes.value >= 10) return 'bg-rose-100 text-rose-800'
-  if (minutes.value >= 5) return 'bg-amber-100 text-amber-800'
-  return 'bg-slate-100 text-slate-600'
-})
+const minutes = computed(() => minutesWaiting(props.group))
+const ageClass = computed(() => ageBadge(minutes.value))
 
 // Rounds ordered at the same table add separate items of the same article.
 // Items with the same article, note and status show as one line; its button

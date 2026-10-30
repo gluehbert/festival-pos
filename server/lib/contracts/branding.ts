@@ -24,8 +24,9 @@ export const UpdateBrandingSchema = z.object({
   depositEnabled: z.boolean().optional(),
   staffMealsEnabled: z.boolean().optional(),
   waiterCallsEnabled: z.boolean().optional(),
-  // KeyboardEvent.key of the buzzer at the kitchen/bar screen; null = off.
+  // KeyboardEvent.key of the buzzers at the kitchen/bar screen (lane 1, lane 2); null = off.
   buzzerKey: z.string().min(1).max(32).nullable().optional(),
+  buzzerKey2: z.string().min(1).max(32).nullable().optional(),
   // Unpaid cents one guest phone may have per station; null = no limit.
   guestOpenLimitBarCents: GuestOpenLimitSchema.optional(),
   guestOpenLimitKitchenCents: GuestOpenLimitSchema.optional(),
@@ -53,7 +54,6 @@ export const BrandingSchema = z.object({
   depositEnabled: z.boolean(),
   staffMealsEnabled: z.boolean(),
   waiterCallsEnabled: z.boolean(),
-  buzzerKey: z.string().nullable(),
   // Footer links on the guest pages; the texts come from /api/event/legal.
   hasImprint: z.boolean(),
   hasPrivacy: z.boolean(),
@@ -84,7 +84,6 @@ export const EMPTY_BRANDING: Branding = {
   depositEnabled: false,
   staffMealsEnabled: false,
   waiterCallsEnabled: false,
-  buzzerKey: null,
   hasImprint: false,
   hasPrivacy: false,
 }

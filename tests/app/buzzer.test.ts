@@ -3,7 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { defineComponent, h, ref } from 'vue'
 import { BUZZER_COOLDOWN_MS, useBuzzer } from '~/composables/useBuzzer'
-import EventFeaturesPanel from '~/components/admin/EventFeaturesPanel.vue'
+import BuzzerKeys from '~/components/admin/BuzzerKeys.vue'
 import type { EventDto } from '~/../server/lib/contracts/admin'
 import { useCookie } from './setup/imports'
 
@@ -81,13 +81,13 @@ describe('useBuzzer', () => {
   })
 })
 
-describe('EventFeaturesPanel — buzzer key', () => {
+describe('BuzzerKeys (admin)', () => {
   const ID = '00000000-0000-4000-8000-000000000001'
-  const ev = (buzzerKey: string | null) => ({
+  const ev = (buzzerKey: string | null, buzzerKey2: string | null = null) => ({
     id: ID, name: 'Fest', pinCode: 'P1', isActive: true, tableRangeFrom: 1, tableRangeTo: 20,
     createdAt: '2026-05-01T10:00:00.000Z', activatedAt: null, deactivatedAt: null, startsOn: null, endsOn: null,
     trialMode: false, trialOrders: 0, depositEnabled: false, staffMealsEnabled: false, waiterCallsEnabled: false,
-    buzzerKey, guestOpenLimitBarCents: 5000, guestOpenLimitKitchenCents: 8000,
+    buzzerKey, buzzerKey2, guestOpenLimitBarCents: 5000, guestOpenLimitKitchenCents: 8000,
   }) satisfies EventDto
   const fetchMock = vi.fn()
 
@@ -101,20 +101,21 @@ describe('EventFeaturesPanel — buzzer key', () => {
   afterEach(() => vi.unstubAllGlobals())
 
   const patches = () => fetchMock.mock.calls.filter(([, o]) => (o as { method?: string })?.method === 'PATCH')
+  const mountKeys = (event: EventDto) => mount(BuzzerKeys, { props: { event }, attachTo: document.body })
 
-  it('stores the next key pressed, skipping modifier keys', async () => {
-    const w = mount(EventFeaturesPanel, { props: { event: ev(null) }, attachTo: document.body })
+  it('stores the next key pressed for that buzzer, skipping modifier keys', async () => {
+    const w = mountKeys(ev(null))
+    const two = w.find('[data-test="buzzer-2"]')
     expect(w.find('[data-test="buzzer-current"]').exists()).toBe(false)
-    await w.find('[data-test="buzzer-set"]').trigger('click')
-    expect(w.find('[role="status"]').text()).toBe('admin.features.buzzerKey.listening')
+    await two.find('[data-test="buzzer-set"]').trigger('click')
+    expect(two.find('[role="status"]').text()).toBe('admin.features.buzzer.listening')
 
     press('Shift')
     expect(patches()).toHaveLength(0)
     const e = press('F13')
     await flushPromises()
     expect(e.defaultPrevented).toBe(true)
-    expect(patches()).toHaveLength(1)
-    expect(patches()[0]).toMatchObject([`/api/admin/events/${ID}/branding`, { body: { buzzerKey: 'F13' } }])
+    expect(patches()).toEqual([[`/api/admin/events/${ID}/branding`, expect.objectContaining({ body: { buzzerKey2: 'F13' } })]])
     expect(w.emitted('saved')).toHaveLength(1)
 
     // Listening ended: later keys are not stored.
@@ -124,16 +125,27 @@ describe('EventFeaturesPanel — buzzer key', () => {
     w.unmount()
   })
 
+  it('refuses the key of the other buzzer without asking the server', async () => {
+    const w = mountKeys(ev('F9'))
+    await w.find('[data-test="buzzer-2"] [data-test="buzzer-set"]').trigger('click')
+    press('F9')
+    await flushPromises()
+    expect(patches()).toHaveLength(0)
+    expect(w.emitted('failed')).toEqual([['admin.features.buzzer.sameKey']])
+    w.unmount()
+  })
+
   it('shows the current key, can cancel a change and remove the key', async () => {
-    const w = mount(EventFeaturesPanel, { props: { event: ev(' ') }, attachTo: document.body })
-    expect(w.find('[data-test="buzzer-current"]').text()).toBe('admin.features.buzzerKey.space')
-    await w.find('[data-test="buzzer-set"]').trigger('click')
-    await w.find('[data-test="buzzer-cancel"]').trigger('click')
+    const w = mountKeys(ev(' '))
+    const one = w.find('[data-test="buzzer-1"]')
+    expect(one.find('[data-test="buzzer-current"]').text()).toBe('admin.features.buzzer.space')
+    await one.find('[data-test="buzzer-set"]').trigger('click')
+    await one.find('[data-test="buzzer-cancel"]').trigger('click')
     press('x')
     await flushPromises()
     expect(patches()).toHaveLength(0)
 
-    await w.find('[data-test="buzzer-clear"]').trigger('click')
+    await one.find('[data-test="buzzer-clear"]').trigger('click')
     await flushPromises()
     expect(patches()[0]).toMatchObject([`/api/admin/events/${ID}/branding`, { body: { buzzerKey: null } }])
     w.unmount()

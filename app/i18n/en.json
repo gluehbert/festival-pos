@@ -1036,14 +1036,17 @@
         "label": "Call the service",
         "hint": "Guests can call the service to their table with a reason (pay, order, question). The table's waiter sees it first, after 2 minutes everyone in service; the bar screen shows every call. Off: the button is gone."
       },
-      "buzzerKey": {
-        "label": "Buzzer at kitchen / bar",
-        "hint": "A big button at the counter that works like a one-key keyboard (USB or Bluetooth). Pressing it finishes the oldest card on the kitchen or bar screen, as \"all done\" does. A second press within a second is ignored. Reload the kitchen/bar screen after changing the key.",
+      "buzzer": {
+        "label1": "Buzzer 1 – green (kitchen / bar)",
+        "hint1": "A big button at the counter that works like a one-key keyboard (USB or Bluetooth). With a buzzer the kitchen and bar screen shows its lane: the oldest order, large, for the person at that buzzer. A press finishes it and the lane takes the next one. A second press within a second is ignored.",
+        "label2": "Buzzer 2 – blue (optional)",
+        "hint2": "For a second person behind the counter: a second lane next to the first. Each lane keeps its order until it is finished.",
         "set": "Set key",
         "change": "Change",
         "clear": "Remove",
         "listening": "Press the buzzer now …",
-        "space": "Space"
+        "space": "Space",
+        "sameKey": "The other buzzer already uses this key."
       }
     },
     "join": {
@@ -1178,7 +1181,13 @@
       "keepAwakeOn": "Screen stays on",
       "keepAwakeOff": "Screen may turn off"
     },
-    "toastDoneFor": "{label} done"
+    "toastDoneFor": "{label} done",
+    "lanes": {
+      "buzzer1": "Green buzzer",
+      "buzzer2": "Blue buzzer",
+      "free": "Free – the next order lands here.",
+      "next": "Next up ({n})"
+    }
   },
   "alerts": {
     "soundLabel": "Sound for new alerts",
