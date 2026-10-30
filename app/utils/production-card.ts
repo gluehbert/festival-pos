@@ -21,16 +21,30 @@ export function ageClass(minutes: number): string {
   return 'bg-slate-100 text-slate-600'
 }
 
-// Rounds ordered at the same table add separate items of the same article:
-// items with the same article and note show as one line.
-export interface CardLine { key: string; first: ProductionQueueItem; quantity: number }
-export function cardLines(items: readonly ProductionQueueItem[]): CardLine[] {
+// Rounds ordered at the same table add separate items of the same article.
+// Items with the same article, note and status show as one line; its button
+// advances all of them. Items ordered after `newSince` (a buzzer lane took
+// the card) stay apart and are marked new, so a changed quantity cannot
+// slip by.
+export interface CardLine { key: string; first: ProductionQueueItem; ids: string[]; quantity: number; isNew: boolean }
+export function cardLines(items: readonly ProductionQueueItem[], newSince?: string | null): CardLine[] {
   const byKey = new Map<string, CardLine>()
   for (const item of items) {
-    const key = JSON.stringify([item.nameDe, item.nameEn, item.note ?? ''])
+    const isNew = !!newSince && Date.parse(item.orderedAt) > Date.parse(newSince)
+    const key = JSON.stringify([item.nameDe, item.nameEn, item.note ?? '', item.productionStatus, isNew])
     const line = byKey.get(key)
-    if (line) line.quantity += item.quantity
-    else byKey.set(key, { key, first: item, quantity: item.quantity })
+    if (line) {
+      line.ids.push(item.orderItemId)
+      line.quantity += item.quantity
+    }
+    else byKey.set(key, { key, first: item, ids: [item.orderItemId], quantity: item.quantity, isNew })
   }
-  return [...byKey.values()]
+  return [...byKey.values()].sort((a, b) => Number(a.isNew) - Number(b.isNew))
+}
+
+// A later round of a table that still has an earlier card open.
+export function isFollowUp(group: ProductionOrderGroup, groups: readonly ProductionOrderGroup[]): boolean {
+  if (group.orderKind !== 'guest' && group.orderKind !== 'staff_table') return false
+  const earlier = groups.slice(0, groups.indexOf(group))
+  return earlier.some((g) => (g.orderKind === 'guest' || g.orderKind === 'staff_table') && g.tableNo === group.tableNo)
 }

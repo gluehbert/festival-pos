@@ -2,7 +2,7 @@ import { and, eq, inArray } from 'drizzle-orm'
 import type { Db } from '../db/client'
 import { orderItems } from '../db/schema'
 import { productionLanes } from '../db/schema-service'
-import { productionGroupKey, type ProductionLane, type ProductionQueueItem, type Station } from './contracts/production'
+import { LANE_ROUND_MS, productionCards, type ProductionLane, type ProductionQueueItem, type Station } from './contracts/production'
 
 // One lane per buzzer key the admin set: lane 1 (green), lane 2 (blue).
 export function activeLanes(ev: { buzzerKey: string | null; buzzerKey2: string | null }): Array<{ lane: number; key: string }> {
@@ -13,8 +13,8 @@ export function activeLanes(ev: { buzzerKey: string | null; buzzerKey2: string |
 // Keeps each lane on its card while the card has open items and gives free
 // lanes the oldest card no lane holds. Runs on every queue poll, so a lane
 // refills as soon as its card is finished (by buzzer or by tap) or a new
-// order comes in. A newly taken card counts as "in preparation" for the
-// guest. `items` is the open queue, oldest first; it is updated in place.
+// order comes in. Cards in a lane count as "in preparation" for the guest.
+// `items` is the open queue, oldest first; it is updated in place.
 export async function fillLanes(
   db: Db,
   eventId: string,
@@ -26,32 +26,36 @@ export async function fillLanes(
   const rows = await db.select().from(productionLanes).where(here)
   if (lanes.length === 0 && rows.length === 0) return []
 
-  const open = [...new Set(items.map(productionGroupKey))]
-  const held = new Map<number, string>()
+  const cards = productionCards(items, LANE_ROUND_MS)
+  const open = cards.map((c) => c.key)
+  const held = new Map<number, { groupKey: string; assignedAt: Date }>()
   for (const r of rows) {
-    if (lanes.some((l) => l.lane === r.lane) && open.includes(r.groupKey)) held.set(r.lane, r.groupKey)
+    if (lanes.some((l) => l.lane === r.lane) && open.includes(r.groupKey)) held.set(r.lane, r)
     else await db.delete(productionLanes).where(and(here, eq(productionLanes.lane, r.lane), eq(productionLanes.groupKey, r.groupKey)))
   }
 
   for (const { lane } of lanes) {
     if (held.has(lane)) continue
-    const next = open.find((k) => ![...held.values()].includes(k))
+    const taken = [...held.values()].map((h) => h.groupKey)
+    const next = open.find((k) => !taken.includes(k))
     if (!next) break
     // Another screen may fill the same lane at the same time: whoever wins holds it.
-    const won = await db.insert(productionLanes).values({ eventId, station, lane, groupKey: next }).onConflictDoNothing().returning()
-    if (won.length === 0) {
-      const now = (await db.select().from(productionLanes).where(and(here, eq(productionLanes.lane, lane))))[0]
-      if (now) held.set(lane, now.groupKey)
-      continue
-    }
-    held.set(lane, next)
-    const started = items.filter((i) => productionGroupKey(i) === next && i.productionStatus === 'pending')
-    if (started.length === 0) continue
+    const won = (await db.insert(productionLanes).values({ eventId, station, lane, groupKey: next }).onConflictDoNothing().returning())[0]
+      ?? (await db.select().from(productionLanes).where(and(here, eq(productionLanes.lane, lane))))[0]
+    if (won) held.set(lane, won)
+  }
+
+  const inLanes = new Set([...held.values()].map((h) => h.groupKey))
+  const started = cards.filter((c) => inLanes.has(c.key)).flatMap((c) => c.items).filter((i) => i.productionStatus === 'pending')
+  if (started.length > 0) {
     await db.update(orderItems).set({ productionStatus: 'in_progress' }).where(and(
       inArray(orderItems.id, started.map((i) => i.orderItemId)),
       eq(orderItems.productionStatus, 'pending'),
     ))
     for (const i of started) i.productionStatus = 'in_progress'
   }
-  return lanes.map(({ lane, key }) => ({ lane, key, groupKey: held.get(lane) ?? null }))
+  return lanes.map(({ lane, key }) => {
+    const h = held.get(lane)
+    return { lane, key, groupKey: h?.groupKey ?? null, assignedAt: h ? new Date(h.assignedAt).toISOString() : null }
+  })
 }

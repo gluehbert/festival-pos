@@ -58,7 +58,8 @@ export default defineEventHandler(async (event) => {
           inArray(orderItems.productionStatus, ['pending', 'in_progress']),
         ),
       )
-      .orderBy(asc(orders.createdAt))
+      // Within an order in menu order, so lines never swap places between polls.
+      .orderBy(asc(orders.createdAt), asc(orders.id), asc(menuItems.sortOrder), asc(orderItems.id))
 
     const items: ProductionQueueItem[] = rows.map((r) => {
       const orderedAt = r.orderedAt instanceof Date

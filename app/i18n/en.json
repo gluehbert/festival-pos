@@ -1186,7 +1186,9 @@
       "buzzer1": "Green buzzer",
       "buzzer2": "Blue buzzer",
       "free": "Free – the next order lands here.",
-      "next": "Next up ({n})"
+      "next": "Next up ({n})",
+      "followUp": "Later order",
+      "new": "New"
     }
   },
   "alerts": {

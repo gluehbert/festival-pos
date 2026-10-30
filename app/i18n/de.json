@@ -1186,7 +1186,9 @@
       "buzzer1": "Grüner Buzzer",
       "buzzer2": "Blauer Buzzer",
       "free": "Frei – die nächste Bestellung landet hier.",
-      "next": "Als Nächstes ({n})"
+      "next": "Als Nächstes ({n})",
+      "followUp": "Nachbestellung",
+      "new": "Neu"
     }
   },
   "alerts": {

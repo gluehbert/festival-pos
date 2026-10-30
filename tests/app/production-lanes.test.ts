@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import LanesView from '~/components/production/LanesView.vue'
 import type { ProductionOrderGroup } from '~/stores/production'
-import type { ProductionLane, ProductionQueueItem } from '~/../server/lib/contracts/production'
+import { LANE_ROUND_MS, productionCards, type ProductionLane, type ProductionQueueItem } from '~/../server/lib/contracts/production'
 
 const item = (tableNo: number, nameEn: string, over: Partial<ProductionQueueItem> = {}): ProductionQueueItem => ({
   orderItemId: crypto.randomUUID(), orderId: crypto.randomUUID(), tableNo, orderKind: 'guest',
@@ -15,7 +15,8 @@ const group = (tableNo: number, items: ProductionQueueItem[]): ProductionOrderGr
 const t12 = group(12, [item(12, 'Lager'), item(12, 'Lager', { quantity: 2 }), item(12, 'Spritz', { note: 'no ice' })])
 const t7 = group(7, [item(7, 'Wheat beer')])
 const t3 = group(3, [item(3, 'Cola')])
-const lanes: ProductionLane[] = [{ lane: 1, key: 'F9', groupKey: 'table:12' }, { lane: 2, key: 'F10', groupKey: 'table:7' }]
+const AT = '2026-06-01T18:00:30Z'
+const lanes: ProductionLane[] = [{ lane: 1, key: 'F9', groupKey: 'table:12', assignedAt: AT }, { lane: 2, key: 'F10', groupKey: 'table:7', assignedAt: AT }]
 
 function press(key: string) {
   document.body.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
@@ -47,7 +48,7 @@ describe('LanesView', () => {
   })
 
   it('a buzzer does nothing while its card is being finished or its lane is free', () => {
-    const free: ProductionLane[] = [{ lane: 1, key: 'F9', groupKey: 'table:12' }, { lane: 2, key: 'F10', groupKey: null }]
+    const free: ProductionLane[] = [{ lane: 1, key: 'F9', groupKey: 'table:12', assignedAt: AT }, { lane: 2, key: 'F10', groupKey: null, assignedAt: null }]
     const w = mount(LanesView, { props: { groups: [t12], lanes: free, finishing: new Set(['table:12']) }, attachTo: document.body })
     expect(w.find('[data-test="lane-2"]').text()).toContain('production.lanes.free')
     press('F9')
@@ -61,5 +62,46 @@ describe('LanesView', () => {
     await w.find('[data-test="lane-queue-card"] button').trigger('click')
     await w.find('[data-test="lane-1"] button').trigger('click')
     expect(w.emitted('finish')).toEqual([[t3, false], [t12, false]])
+  })
+
+  it('marks what came in after the lane took the card and keeps it out of the old quantity', () => {
+    const late = item(12, 'Lager', { orderedAt: '2026-06-01T18:00:45Z' })
+    const card = group(12, [...t12.items, late])
+    const w = mount(LanesView, { props: { groups: [card, t7], lanes, finishing: new Set<string>() } })
+    expect(w.find('[data-test="lane-1"]').text()).toContain('3 × Lager')
+    const added = w.findAll('[data-test="lane-line-new"]')
+    expect(added).toHaveLength(1)
+    expect(added[0]!.text()).toContain('production.lanes.new')
+    expect(added[0]!.text()).toContain('1 × Lager')
+  })
+
+  it('tags a later round of a table and shrinks the type of a long order', () => {
+    const big = group(12, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].map((n) => item(12, n)))
+    const later = { ...group(12, [item(12, 'Cola', { orderedAt: '2026-06-01T18:05:00Z' })]), key: 'table:12:later' }
+    const w = mount(LanesView, { props: { groups: [big, t7, later], lanes, finishing: new Set<string>() } })
+    expect(w.find('[data-test="lane-1"] [data-test="lane-line"]').classes()).toContain('text-2xl')
+    expect(w.find('[data-test="lane-2"] [data-test="lane-line"]').classes()).toContain('text-4xl')
+    expect(w.find('[data-test="lane-1"] [data-test="follow-up"]').exists()).toBe(false)
+    expect(w.find('[data-test="lane-queue-card"] [data-test="follow-up"]').text()).toBe('production.lanes.followUp')
+  })
+})
+
+describe('productionCards', () => {
+  const at = (s: number) => new Date(Date.UTC(2026, 5, 1, 18, 0, s)).toISOString()
+  const first = item(12, 'Lager', { orderedAt: at(0) })
+  const sameOrder = { ...item(12, 'Cola', { orderedAt: at(0) }), orderId: first.orderId }
+  const soon = item(12, 'Spritz', { orderedAt: at(55) })
+  const later = item(12, 'Water', { orderedAt: new Date(Date.parse(at(0)) + LANE_ROUND_MS + 1000).toISOString() })
+  const counter = item(0, 'Lager', { orderKind: 'walkin', orderedAt: at(1) })
+
+  it('keeps all rounds of a table together without lanes', () => {
+    expect(productionCards([first, sameOrder, counter, soon, later]).map((c) => c.items.length)).toEqual([4, 1])
+  })
+
+  it('with lanes, only orders within a minute of the first join its card', () => {
+    const cards = productionCards([first, sameOrder, counter, soon, later], LANE_ROUND_MS)
+    expect(cards.map((c) => c.items.map((i) => i.nameEn))).toEqual([['Lager', 'Cola', 'Spritz'], ['Lager'], ['Water']])
+    expect(cards[0]!.key).toBe(`table:12:${first.orderId}`)
+    expect(cards[2]!.key).toBe(`table:12:${later.orderId}`)
   })
 })

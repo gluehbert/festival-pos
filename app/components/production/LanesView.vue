@@ -5,7 +5,7 @@ import { useBuzzer } from '~/composables/useBuzzer'
 import type { ProductionOrderGroup } from '~/stores/production'
 import type { ProductionLane } from '~/../server/lib/contracts/production'
 import NoteBadge from '~/components/common/NoteBadge.vue'
-import { ageClass, cardLines, groupLabel, minutesWaiting } from '~/utils/production-card'
+import { ageClass, cardLines, groupLabel, isFollowUp, minutesWaiting } from '~/utils/production-card'
 
 // Kitchen/bar screen with buzzers: each buzzer has a lane (1 green, 2 blue)
 // holding the card its person works on, big enough to read from afar. The
@@ -21,10 +21,14 @@ const COLORS: Record<number, { border: string; bg: string; text: string }> = {
   2: { border: 'border-blue-600', bg: 'bg-blue-600', text: 'text-blue-700' },
 }
 
-const laneCards = computed(() => props.lanes.map((l) => ({
-  ...l,
-  group: props.groups.find((g) => g.key === l.groupKey) ?? null,
-})))
+// Long orders get a smaller type so the "done" button stays on screen.
+const sizeFor = (lines: number) => (lines <= 4 ? 'text-4xl' : lines <= 7 ? 'text-3xl' : 'text-2xl')
+
+const laneCards = computed(() => props.lanes.map((l) => {
+  const group = props.groups.find((g) => g.key === l.groupKey) ?? null
+  const lines = group ? cardLines(group.items, l.assignedAt) : []
+  return { ...l, group, lines, size: sizeFor(lines.length) }
+}))
 const waiting = computed(() => props.groups.filter((g) => !props.lanes.some((l) => l.groupKey === g.key)))
 
 function press(lane: number) {
@@ -57,9 +61,17 @@ useBuzzer(computed(() => props.lanes.find((l) => l.lane === 2)?.key ?? null), ()
         <div v-if="l.group" class="flex flex-1 flex-col p-4">
           <p>
             <span class="inline-block rounded-lg bg-slate-900 px-3 py-1 text-3xl font-black text-white" data-test="lane-label">{{ groupLabel(l.group, t) }}</span>
+            <span v-if="isFollowUp(l.group, groups)" class="ml-2 rounded-md bg-slate-200 px-2 py-1 align-middle text-lg font-bold text-slate-800" data-test="follow-up">{{ $t('production.lanes.followUp') }}</span>
           </p>
           <ul class="mt-2 flex-1 divide-y divide-slate-100">
-            <li v-for="line in cardLines(l.group.items)" :key="line.key" class="py-1.5 text-4xl font-extrabold leading-tight text-slate-900">
+            <li
+              v-for="line in l.lines"
+              :key="line.key"
+              class="py-1.5 font-extrabold leading-tight text-slate-900"
+              :class="[l.size, line.isNew ? '-mx-2 rounded-lg bg-amber-100 px-2' : '']"
+              :data-test="line.isNew ? 'lane-line-new' : 'lane-line'"
+            >
+              <span v-if="line.isNew" class="mr-2 rounded bg-amber-500 px-2 py-0.5 align-middle text-base font-black uppercase text-white">{{ $t('production.lanes.new') }}</span>
               {{ line.quantity }} × {{ itemName(line.first) }}
               <div><NoteBadge :note="line.first.note" large /></div>
             </li>
@@ -86,7 +98,10 @@ useBuzzer(computed(() => props.lanes.find((l) => l.lane === 2)?.key ?? null), ()
       <ul class="grid grid-cols-1 gap-3" :class="lanes.length > 1 ? 'sm:grid-cols-2 lg:grid-cols-4' : ''">
         <li v-for="g in waiting" :key="g.key" class="flex flex-col rounded-xl border-2 border-slate-200 bg-surface p-3" data-test="lane-queue-card">
           <div class="flex items-start justify-between gap-2">
-            <span class="text-xl font-black text-slate-900">{{ groupLabel(g, t) }}</span>
+            <span class="text-xl font-black text-slate-900">
+              {{ groupLabel(g, t) }}
+              <span v-if="isFollowUp(g, groups)" class="ml-1 rounded bg-slate-200 px-1.5 py-0.5 align-middle text-xs font-bold text-slate-800" data-test="follow-up">{{ $t('production.lanes.followUp') }}</span>
+            </span>
             <span class="shrink-0 rounded-full px-2 py-0.5 text-sm font-semibold" :class="ageClass(minutesWaiting(g))">
               {{ $t('production.waiting', { n: minutesWaiting(g) }) }}
             </span>

@@ -68,7 +68,7 @@ export const waiterCalls = pgTable(
 )
 
 // Buzzer lanes at the kitchen/bar, one per buzzer key of the event: the card
-// (productionGroupKey) a person behind the counter is working on. A card
+// (key from productionCards) a person behind the counter works on. A card
 // stays in its lane until it is finished; then the lane takes the oldest
 // card no other lane holds.
 export const productionLanes = pgTable(

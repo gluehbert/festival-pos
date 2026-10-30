@@ -237,8 +237,8 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
     <transition name="fade">
       <div
         v-if="toast"
-        class="fixed bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow-lg"
-        :class="toast.kind === 'success' ? 'bg-success' : 'bg-danger'"
+        class="fixed left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow-lg"
+        :class="[toast.kind === 'success' ? 'bg-success' : 'bg-danger', lanesActive ? 'top-20' : 'bottom-6']"
         role="status"
       >
         <UIcon :name="toast.kind === 'success' ? 'i-lucide-circle-check' : 'i-lucide-circle-alert'" class="size-4 shrink-0" aria-hidden="true" />

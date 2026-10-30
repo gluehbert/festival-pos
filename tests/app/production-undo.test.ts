@@ -15,7 +15,7 @@ const item = (id: string, orderId = 'o1', over: Partial<ProductionQueueItem> = {
   orderItemId: id, orderId, tableNo: 4, orderKind: 'guest', nameDe: 'Pommes', nameEn: 'Fries', quantity: 1,
   note: null, productionStatus: 'in_progress', orderedAt: `2026-06-01T18:0${id.charCodeAt(0) % 10}:00Z`, ...over,
 })
-const queue = (...items: ProductionQueueItem[]) => ({ station: 'kitchen', items })
+const queue = (...items: ProductionQueueItem[]) => ({ station: 'kitchen', lanes: [], items })
 
 function deferred<T>() {
   let resolve!: (v: T) => void
