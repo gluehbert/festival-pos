@@ -6,7 +6,8 @@ import { shortOrderNo } from '~/utils/order-number'
 import PriceChangeNotice from '~/components/common/PriceChangeNotice.vue'
 import type { PriceChange } from '~/utils/price-changes'
 
-const props = defineProps<{ order: Order; changes?: PriceChange[] }>()
+// foodWaits: food prepay, the order holds food the kitchen starts once it is paid.
+const props = defineProps<{ order: Order; changes?: PriceChange[]; foodWaits?: boolean }>()
 defineEmits<{ 'new-order': [] }>()
 
 const { locale } = useI18n()
@@ -31,6 +32,10 @@ const total = computed(() => formatCents(props.order.tableBalanceCents, locale.v
     <p class="mt-1 text-sm">
       {{ $t('guest.confirmation.orderId') }}:
       <span class="font-mono text-base font-bold tracking-wider" data-test="order-number" :title="order.orderId">#{{ shortOrderNo(order.orderId) }}</span>
+    </p>
+    <p v-if="foodWaits" class="mt-2 flex items-start gap-2 rounded bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-900" data-test="food-waits">
+      <UIcon name="i-lucide-banknote" class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      {{ $t('guest.confirmation.foodWaits') }}
     </p>
     <PriceChangeNotice v-if="changes?.length" :changes="changes" class="mt-2" />
     <p class="text-sm">

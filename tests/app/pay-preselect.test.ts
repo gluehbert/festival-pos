@@ -4,7 +4,8 @@ import { useAuthStore } from '~/stores/auth'
 import PayPage from '~/pages/staff/[table]/pay.vue'
 import { useCookie } from './setup/imports'
 
-vi.mock('vue-router', () => ({ useRoute: () => ({ params: { table: '5' }, path: '/staff/5/pay' }) }))
+const route = vi.hoisted(() => ({ params: { table: '5' }, path: '/staff/5/pay', query: {} as Record<string, string> }))
+vi.mock('vue-router', () => ({ useRoute: () => route }))
 
 const fetchMock = vi.fn()
 const stubs = { NuxtLink: RouterLinkStub }
@@ -25,6 +26,7 @@ beforeEach(() => {
   useCookie<string>('csrf').value = 'c'.repeat(64)
   useAuthStore().staff = { staffId: 's', username: 'anna', role: 'waiter', theme: 'system' }
   fetchMock.mockResolvedValue(ticket)
+  route.query = {}
 })
 afterEach(() => vi.unstubAllGlobals())
 
@@ -66,6 +68,16 @@ describe('cashing up', () => {
     await flushPromises()
     const call = fetchMock.mock.calls.find((c) => c[0] === '/api/payments')!
     expect((call[1] as { body: { orderItemIds: string[] } }).body.orderItemIds).toEqual([other.orderItemId])
+  })
+
+  it('"Cash food" (food prepay) starts with only the food selected', async () => {
+    route.query = { food: '1' }
+    const items = ticket.items.map((i) => (i.menuItemId === 'wurst' ? { ...i, station: 'kitchen', productionStatus: 'pending', served: false } : i))
+    fetchMock.mockResolvedValue({ ...ticket, items })
+    const w = mount(PayPage, { global: { stubs } })
+    await flushPromises()
+    expect(w.get('[data-test="pay-submit"]').text()).toContain('4.00')
+    expect(w.text()).toContain('staff.pay.hint')
   })
 
   it('hides "pay by order" when only one order is open', async () => {

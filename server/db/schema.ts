@@ -24,6 +24,7 @@ export const events = pgTable(
     depositEnabled: boolean('deposit_enabled').notNull().default(false), // Pfand: charged with orders, paid back on return
     staffMealsEnabled: boolean('staff_meals_enabled').notNull().default(false), // free meals for helpers
     waiterCallsEnabled: boolean('waiter_calls_enabled').notNull().default(false), // guests can call the service
+    foodPrepayEnabled: boolean('food_prepay_enabled').notNull().default(false), // kitchen gets food only once paid (lib/food-prepay.ts)
     // Legal pages for guests (Impressum, Datenschutz), plain text per event.
     imprintText: text('imprint_text'),
     privacyText: text('privacy_text'),

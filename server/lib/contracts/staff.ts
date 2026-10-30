@@ -45,6 +45,8 @@ export const TicketSummarySchema = z.object({
   lockedBy: z.string().uuid().nullable(),
   // Finished at kitchen/bar but not yet brought to the table (quantities).
   ready: z.object({ kitchen: z.number().int(), bar: z.number().int() }),
+  // Food prepay: unpaid food the kitchen gets only once a waiter has cashed it (quantity).
+  foodToPay: z.number().int(),
   // When the table last ordered (guest QR or waiter) and when a waiter last
   // asked there without an order; drives "Last order X min ago".
   lastOrderAt: z.string().datetime(),

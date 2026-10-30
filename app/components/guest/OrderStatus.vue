@@ -23,7 +23,8 @@ const ready = computed(() => props.orders.items.filter((i) => i.productionStatus
           {{ item.quantity }} × {{ locale === 'de' ? item.nameDe : item.nameEn }}
           <span v-if="item.note" class="text-xs text-amber-800">({{ item.note }})</span>
         </span>
-        <span class="text-slate-500">{{ $t(`guest.production.${item.productionStatus}`) }}</span>
+        <span v-if="item.awaitingPayment" class="font-semibold text-sky-800" data-test="awaiting-payment">{{ $t('guest.production.awaitingPayment') }}</span>
+        <span v-else class="text-slate-500">{{ $t(`guest.production.${item.productionStatus}`) }}</span>
       </li>
     </ul>
   </details>

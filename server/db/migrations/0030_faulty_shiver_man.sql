@@ -1,0 +1,1 @@
+ALTER TABLE "events" ADD COLUMN "food_prepay_enabled" boolean DEFAULT false NOT NULL;

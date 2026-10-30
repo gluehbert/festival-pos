@@ -70,6 +70,7 @@ export async function loadBranding(db: Db, eventId: string): Promise<Branding> {
     depositEnabled: ev.depositEnabled,
     staffMealsEnabled: ev.staffMealsEnabled,
     waiterCallsEnabled: ev.waiterCallsEnabled,
+    foodPrepayEnabled: ev.foodPrepayEnabled,
     hasImprint: !!ev.imprintText,
     hasPrivacy: !!ev.privacyText,
   })
