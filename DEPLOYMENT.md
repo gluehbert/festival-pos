@@ -87,7 +87,7 @@ Each event has its own workspace. At the top of `/admin/events` is the event tha
 
 | Symptom | Cause / solution |
 | --- | --- |
-| Build fails at `migrate` | `DATABASE_URL` is missing or wrong (check the Production scope). |
+| Build fails at `migrate` | The line `migrate: failed: …` names the reason. `ECONNREFUSED`/authentication: `DATABASE_URL` is missing or wrong (check the scope). `… already exists` on a preview: all previews share the `preview` database branch, and another branch's migrations got there first. Reset the `preview` branch from its parent in Neon, then redeploy. |
 | `/api/healthz` → 503 | See the message; set the variable, redeploy. |
 | Login → 429 | 10 failed attempts in 15 minutes for this user. Wait, or run `DELETE FROM login_attempts WHERE username = '…'` in Neon. |
 | Guest sees "Your session has expired" | Scan the QR code again; guest sessions last 12 hours, and the shift lead can end them all at the end of a shift. |
