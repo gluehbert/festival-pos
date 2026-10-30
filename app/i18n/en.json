@@ -154,13 +154,15 @@
       "title": "Order received!",
       "orderId": "Order ID",
       "tableBalance": "Table balance",
-      "newOrder": "Place another order"
+      "newOrder": "Place another order",
+      "foodWaits": "Your food goes to the kitchen as soon as you have paid for it. The service is on the way. Drinks are paid when they are brought."
     },
     "production": {
       "pending": "Received",
       "in_progress": "Preparing",
       "done": "On its way",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "awaitingPayment": "waiting for payment"
     },
     "errors": {
       "generic": "Something went wrong.",
@@ -248,7 +250,9 @@
       "served_kitchen": "Food served",
       "served_bar": "Drinks served",
       "servedHint": "Clears by itself when you cash out.",
-      "empty": "Nothing ordered yet"
+      "empty": "Nothing ordered yet",
+      "foodToPay": "{n} food waiting for payment: the kitchen starts once it is cashed.",
+      "payFood": "Cash food"
     },
     "pay": {
       "back": "Back",
@@ -329,7 +333,8 @@
       "openJustNow": "open since just now",
       "openSince": "open for {n} min",
       "openSinceHours": "open for {h} h {m} min",
-      "device": "Phone {n}"
+      "device": "Phone {n}",
+      "foodToPay": "Cash food ({n})"
     },
     "refund": {
       "button": "Refund",
@@ -355,7 +360,8 @@
       "linesTitle": "Items & notes",
       "linesEmpty": "Nothing selected yet.",
       "blockTable": "Please enter the table number first.",
-      "blockMealReason": "Please enter a reason (at least 3 characters)."
+      "blockMealReason": "Please enter a reason (at least 3 characters).",
+      "sendAndPayFood": "Send & food paid cash"
     },
     "activity": {
       "order": "Last order {age}",
@@ -473,13 +479,15 @@
         "free": "empty",
         "busy": "in progress",
         "ready": "to serve",
-        "late": "quiet for a while"
+        "late": "quiet for a while",
+        "pay": "food to cash"
       },
       "state": {
         "free": "empty",
         "busy": "in progress",
         "ready": "{n} to serve",
-        "late": "quiet for {n} min"
+        "late": "quiet for {n} min",
+        "pay": "cash food ({n})"
       },
       "none": "No tables.",
       "noneMine": "You have no tables yet. The shift lead will hand them to you. Until then, \"All\" shows every table.",
@@ -1036,6 +1044,10 @@
       "waiterCallsEnabled": {
         "label": "Call the service",
         "hint": "Guests can call the service to their table with a reason (pay, order, question). The table's waiter sees it first, after 2 minutes everyone in service; the bar screen shows every call. Off: the button is gone."
+      },
+      "foodPrepayEnabled": {
+        "label": "Pay for food when ordering",
+        "hint": "The kitchen only gets food once it is paid, so food runners can hand it out without cashing. Guests' food (QR code) waits until a waiter has cashed it; the table shows \"Food to cash\". Drinks are still paid when they are brought."
       }
     },
     "join": {

@@ -6,6 +6,7 @@ import { AppError, sendAppError } from '../../../lib/errors'
 import { assertCsrf } from '../../../lib/csrf'
 import { requireRole } from '../../../lib/rbac'
 import { requireActiveEvent } from '../../../lib/active-event'
+import { isHeldFood } from '../../../lib/food-prepay'
 import {
   ProductionPatchResponseSchema,
   ProductionStatusPatchSchema,
@@ -49,6 +50,10 @@ export default defineEventHandler(async (event) => {
         403,
         `Role '${staff.role}' cannot modify items for station '${item.station}'`,
       )
+    }
+
+    if (isHeldFood(ev, item)) {
+      throw new AppError('NOT_PAID', 409, 'Food is cooked once it is paid')
     }
 
     // A drink is ready in seconds: the bar may skip "in progress".

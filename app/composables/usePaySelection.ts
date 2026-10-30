@@ -35,6 +35,11 @@ export function groupOpenItems(items: TicketDetailItem[]): PayGroup[] {
   return Array.from(groups.values())
 }
 
+// Food prepay: "Essen kassieren" selects only the food; drinks are paid when brought.
+export function foodCounts(groups: PayGroup[]): Record<string, number> {
+  return Object.fromEntries(groups.filter((g) => g.sample.station === 'kitchen').map((g) => [g.key, g.openQuantity]))
+}
+
 // Spreads the chosen count per group over its order lines: "2 Bier" from
 // lines of 1 and 3 becomes the whole first line plus 1 of the second.
 // Lines of the chosen orders go first, so a guest picked by order number

@@ -3,6 +3,7 @@ import { and, asc, eq, inArray } from 'drizzle-orm'
 import { getDb } from '../../db/client'
 import { events, menuItems, orderItems, orders } from '../../db/schema'
 import { AppError, sendAppError } from '../../lib/errors'
+import { kitchenReleased } from '../../lib/food-prepay'
 import { requireRole } from '../../lib/rbac'
 import {
   ProductionQueueQuerySchema,
@@ -55,6 +56,7 @@ export default defineEventHandler(async (event) => {
           eq(orders.eventId, ev.id),
           eq(orderItems.station, station),
           inArray(orderItems.productionStatus, ['pending', 'in_progress']),
+          kitchenReleased(ev, station),
         ),
       )
       .orderBy(asc(orders.createdAt))

@@ -27,6 +27,7 @@ const ev = (over: Partial<EventDto> = {}): EventDto => ({
   depositEnabled: false,
   staffMealsEnabled: false,
   waiterCallsEnabled: false,
+  foodPrepayEnabled: false,
   guestOpenLimitBarCents: 5000,
   guestOpenLimitKitchenCents: 8000,
   ...over,

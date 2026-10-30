@@ -76,7 +76,7 @@ describe('ItemRow', () => {
 
 describe('TicketCard', () => {
   const ticket = {
-    ticketKey: 't-4', tableNo: 4, status: 'open', totalCents: 1200, unpaidCents: 800, lockedBy: null, ready: { kitchen: 0, bar: 0 },
+    ticketKey: 't-4', tableNo: 4, status: 'open', totalCents: 1200, unpaidCents: 800, lockedBy: null, ready: { kitchen: 0, bar: 0 }, foodToPay: 0,
     oldestItemAt: new Date(Date.now() - 5 * 60_000).toISOString(),
   } as unknown as TicketSummary
 

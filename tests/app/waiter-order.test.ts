@@ -150,6 +150,18 @@ describe('staff order store', () => {
     expect((fetchMock.mock.calls[1]![1] as { body: unknown }).body).toEqual({ ticketKey: 'w-o2', orderItemIds: ['i1'] })
   })
 
+  it('table with pay now (food prepay) cashes only the food', async () => {
+    const pad = useStaffOrderStore()
+    pad.add(menuItem(BEER, 400))
+    pad.add({ ...menuItem(WURST, 550), station: 'kitchen' })
+    fetchMock
+      .mockResolvedValueOnce({ orderId: 'o4', tableNo: 9, items: [{ orderItemId: 'i1', menuItemId: BEER }, { orderItemId: 'i2', menuItemId: WURST }], tableBalanceCents: 950 })
+      .mockResolvedValueOnce({ paymentId: 'p', totalCents: 550, ticketStatusAfter: 'open' })
+    const res = await pad.submit('staff_table', 9, true)
+    expect(res?.paid?.totalCents).toBe(550)
+    expect((fetchMock.mock.calls[1]![1] as { body: unknown }).body).toEqual({ ticketKey: 't-9', orderItemIds: ['i2'] })
+  })
+
   it('keeps the order when paying right away fails', async () => {
     const pad = useStaffOrderStore()
     pad.add(menuItem(BEER, 400))

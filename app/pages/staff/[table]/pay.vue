@@ -11,7 +11,7 @@ import PaymentSummary from '~/components/staff/PaymentSummary.vue'
 import LastReceipt from '~/components/staff/LastReceipt.vue'
 import PaymentDone from '~/components/staff/PaymentDone.vue'
 import PayOrderPicker from '~/components/staff/PayOrderPicker.vue'
-import { buildPayRequest, countsForOrders, groupOpenItems, lockMessageKey, lockSecondsLeft, openOrders, selectionCents } from '~/composables/usePaySelection'
+import { buildPayRequest, countsForOrders, foodCounts, groupOpenItems, lockMessageKey, lockSecondsLeft, openOrders, selectionCents } from '~/composables/usePaySelection'
 
 const { t } = useI18n()
 const { euro, itemName } = useFormat()
@@ -45,12 +45,16 @@ function everything(): Record<string, number> {
   return Object.fromEntries(groups.value.map((g) => [g.key, g.openQuantity]))
 }
 
+// Opened by "Essen kassieren": the first selection is the food only.
+let foodFirst = route.query.food === '1'
+
 async function load() {
   // Fresh ticket, fresh selection: the next payment gets a new key.
   payments.forgetPending()
   await tickets.load(ticketKey.value)
   chosenOrders.value = new Set()
-  counts.value = everything()
+  counts.value = foodFirst ? foodCounts(groups.value) : everything()
+  foodFirst = false
 }
 
 onMounted(async () => {
