@@ -5,6 +5,7 @@ import TicketCard from '~/components/staff/TicketCard.vue'
 import { buildTiles, isWalkin, matchesOwner, type OwnerFilter } from '~/utils/table-grid'
 import type { TicketSummary } from '~/../server/lib/contracts/staff'
 import type { TableAssignment } from '~/../server/lib/contracts/tables'
+import { useBranding } from '~/composables/useBranding'
 
 interface Props {
   tickets: TicketSummary[]
@@ -34,8 +35,10 @@ const tiles = computed(() => buildTiles(props.tableRange, props.tickets, props.a
 const walkins = computed(() => props.tickets
   .filter((ticket) => isWalkin(ticket) && matchesOwner(ticket.assignee, props.owner, props.myId)))
 
-const LEGEND = ['free', 'busy', 'ready', 'late'] as const
-const DOT = { free: 'bg-slate-300', busy: 'bg-amber-400', ready: 'bg-emerald-500', late: 'bg-red-500' } as const
+// "Food to cash" only exists with food prepay.
+const { branding } = useBranding()
+const LEGEND = computed(() => (['free', 'busy', 'pay', 'ready', 'late'] as const).filter((s) => s !== 'pay' || branding.value.foodPrepayEnabled))
+const DOT = { free: 'bg-slate-300', busy: 'bg-amber-400', pay: 'bg-sky-500', ready: 'bg-emerald-500', late: 'bg-red-500' } as const
 </script>
 
 <template>

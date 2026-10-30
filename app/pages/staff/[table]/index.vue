@@ -14,6 +14,7 @@ import TableActivity from '~/components/staff/TableActivity.vue'
 import StaleBanner from '~/components/common/StaleBanner.vue'
 import TableAssignment from '~/components/staff/TableAssignment.vue'
 import { useAttention } from '~/composables/useAttention'
+import { useBranding } from '~/composables/useBranding'
 import { createIncreaseTracker } from '~/utils/arrivals'
 import type { TicketDetailItem } from '~/../server/lib/contracts/staff'
 
@@ -93,6 +94,15 @@ const ready = computed(() => {
     if (i.productionStatus === 'done' && !i.served && (walkin.value || i.paymentStatus === 'unpaid')) r[i.station] += i.quantity
   }
   return r
+})
+
+// Food prepay: unpaid food waits here until it is cashed, then the kitchen starts.
+const { branding } = useBranding()
+const foodToPay = computed(() => {
+  if (!branding.value.foodPrepayEnabled) return 0
+  return (ticket.value?.items ?? [])
+    .filter((i) => i.station === 'kitchen' && i.paymentStatus === 'unpaid' && i.productionStatus === 'pending')
+    .reduce((n, i) => n + i.quantity, 0)
 })
 
 // More finished items at this table: tone + vibration.
@@ -209,6 +219,16 @@ const ticket = computed(() => tickets.selected)
       >
         {{ $t('staff.detail.checked') }}
       </button>
+    </div>
+
+    <div v-if="foodToPay > 0" class="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border-2 border-sky-500 bg-sky-50 px-3 py-2 text-sky-900" data-test="food-to-pay">
+      <p class="flex items-center gap-2 text-sm font-semibold">
+        <UIcon name="i-lucide-banknote" class="size-5 shrink-0" aria-hidden="true" />
+        {{ $t('staff.detail.foodToPay', { n: foodToPay }) }}
+      </p>
+      <NuxtLink :to="`/staff/${tableParam}/pay?food=1`" class="inline-flex min-h-[44px] items-center rounded-lg bg-success px-3 text-sm font-semibold text-white" data-test="food-to-pay-go">
+        {{ $t('staff.detail.payFood') }}
+      </NuxtLink>
     </div>
 
     <ReadyBanner :kitchen="ready.kitchen" :bar="ready.bar" :busy="serving" :walkin="walkin" @served="served" />

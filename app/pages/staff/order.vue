@@ -18,6 +18,7 @@ import { useElementHeight } from '~/composables/useElementHeight'
 import PriceChangeNotice from '~/components/common/PriceChangeNotice.vue'
 import type { PriceChange } from '~/utils/price-changes'
 import { sendBlock } from '~/utils/send-block'
+import { useBranding } from '~/composables/useBranding'
 import type { MenuItemDto } from '~/../server/lib/contracts/guest'
 
 const { t } = useI18n()
@@ -44,6 +45,10 @@ const tableValid = computed(() => isWalkin.value || (Number.isInteger(tableNo.va
 const block = computed(() => sendBlock({ empty: pad.isEmpty, tableValid: tableValid.value, mealValid: mealValid.value }))
 const notice = ref<string | null>(null)
 const changedPrices = ref<PriceChange[]>([])
+
+// Food prepay: a table pays its food when ordering, so the kitchen starts at once.
+const { branding } = useBranding()
+const canPayFood = computed(() => !isWalkin.value && branding.value.foodPrepayEnabled && pad.lines.some((l) => l.menuItem.station === 'kitchen'))
 
 const quantities = computed(() => Object.fromEntries(pad.lines.map((l) => [l.menuItem.id, pad.qtyOf(l.menuItem.id)])))
 
@@ -102,6 +107,7 @@ async function send(payNow = false) {
   }
   if (res.paid) {
     notice.value = t('staff.order.paidNotice', { amount: euro(res.paid.totalCents) })
+    if (!isWalkin.value && !route.query.table) tableInput.value = ''
     return
   }
   if (isWalkin.value && !payNow) {
@@ -215,6 +221,16 @@ const backTo = computed(() => (!isWalkin.value && route.query.table ? `/staff/${
             @click="send(true)"
           >
             {{ $t('staff.order.sendAndPay') }}
+          </button>
+          <button
+            v-if="canPayFood"
+            type="button"
+            class="min-h-[52px] flex-1 rounded-lg bg-success px-4 font-semibold text-white disabled:bg-slate-300"
+            :disabled="!!block || pad.submitting"
+            data-test="order-send-pay-food"
+            @click="send(true)"
+          >
+            {{ $t('staff.order.sendAndPayFood') }}
           </button>
         </div>
       </div>

@@ -154,13 +154,15 @@
       "title": "Bestellung eingegangen!",
       "orderId": "Bestell-Nr",
       "tableBalance": "Tischsumme",
-      "newOrder": "Weitere Bestellung"
+      "newOrder": "Weitere Bestellung",
+      "foodWaits": "Dein Essen geht an die Küche, sobald du es bezahlt hast. Die Bedienung kommt zu dir. Getränke bezahlst du beim Bringen."
     },
     "production": {
       "pending": "Eingegangen",
       "in_progress": "In Zubereitung",
       "done": "Wird gebracht",
-      "cancelled": "Storniert"
+      "cancelled": "Storniert",
+      "awaitingPayment": "wartet auf Zahlung"
     },
     "errors": {
       "generic": "Etwas ist schiefgelaufen.",
@@ -247,7 +249,9 @@
       "served_kitchen": "Essen gebracht",
       "served_bar": "Getränke gebracht",
       "servedHint": "Verschwindet beim Kassieren von selbst.",
-      "empty": "Noch nichts bestellt"
+      "empty": "Noch nichts bestellt",
+      "foodToPay": "{n} Essen warten auf Zahlung: Die Küche beginnt, sobald es kassiert ist.",
+      "payFood": "Essen kassieren"
     },
     "pay": {
       "back": "Zurück",
@@ -328,7 +332,8 @@
       "openJustNow": "offen seit eben",
       "openSince": "offen seit {n} Min.",
       "openSinceHours": "offen seit {h} Std. {m} Min.",
-      "device": "Handy {n}"
+      "device": "Handy {n}",
+      "foodToPay": "Essen kassieren ({n})"
     },
     "refund": {
       "button": "Erstatten",
@@ -354,7 +359,8 @@
       "linesTitle": "Positionen & Notizen",
       "linesEmpty": "Noch nichts ausgewählt.",
       "blockTable": "Bitte zuerst die Tischnummer eingeben.",
-      "blockMealReason": "Bitte einen Grund eingeben (mind. 3 Zeichen)."
+      "blockMealReason": "Bitte einen Grund eingeben (mind. 3 Zeichen).",
+      "sendAndPayFood": "Senden & Essen bar kassiert"
     },
     "activity": {
       "order": "Letzte Bestellung {age}",
@@ -472,13 +478,15 @@
         "free": "leer",
         "busy": "in Arbeit",
         "ready": "bringen",
-        "late": "lange nichts gehört"
+        "late": "lange nichts gehört",
+        "pay": "Essen kassieren"
       },
       "state": {
         "free": "leer",
         "busy": "in Arbeit",
         "ready": "{n} zum Bringen",
-        "late": "seit {n} Min. nichts"
+        "late": "seit {n} Min. nichts",
+        "pay": "Essen kassieren ({n})"
       },
       "none": "Keine Tische.",
       "noneMine": "Du hast noch keine Tische. Die Schichtleitung teilt sie dir zu. Bis dahin findest du unter „Alle“ jeden Tisch.",
@@ -1035,6 +1043,10 @@
       "waiterCallsEnabled": {
         "label": "Bedienung rufen",
         "hint": "Gäste können die Bedienung mit einem Grund an den Tisch rufen (bezahlen, bestellen, Frage). Zuerst sieht es die Bedienung des Tisches, nach 2 Minuten der ganze Service; der Bar-Bildschirm zeigt jeden Ruf. Aus: Der Button verschwindet."
+      },
+      "foodPrepayEnabled": {
+        "label": "Essen bei Bestellung bezahlen",
+        "hint": "Die Küche bekommt Essen erst, wenn es bezahlt ist, so kann die Essensausgabe verteilen, ohne zu kassieren. Essen der Gäste (QR-Code) wartet, bis eine Bedienung es kassiert hat; der Tisch zeigt „Essen kassieren“. Getränke werden weiter beim Bringen bezahlt."
       }
     },
     "join": {

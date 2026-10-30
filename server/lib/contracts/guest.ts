@@ -129,6 +129,8 @@ export const SessionOrderItemSchema = z.object({
   note: z.string().nullable(),
   productionStatus: ProductionStatusEnum,
   paymentStatus: PaymentStatusEnum,
+  // Food prepay: the kitchen starts once the waiter has cashed this food.
+  awaitingPayment: z.boolean(),
 })
 export type SessionOrderItem = z.infer<typeof SessionOrderItemSchema>
 
