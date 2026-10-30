@@ -1,6 +1,6 @@
 {
-  "id": "387a7673-4d89-43fb-afcc-cb16a1e3037e",
-  "prevId": "b4865901-4249-4c0b-957a-be671fa33d61",
+  "id": "2b4fb2f8-4962-4291-9729-80059263ef38",
+  "prevId": "4d69dd15-71a1-4893-940c-169fc225546a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -363,6 +363,13 @@
           "type": "varchar(32)",
           "primaryKey": false,
           "notNull": false
+        },
+        "food_prepay_enabled": {
+          "name": "food_prepay_enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "imprint_text": {
           "name": "imprint_text",

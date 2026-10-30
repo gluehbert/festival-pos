@@ -273,4 +273,15 @@ describe('OrderStatus', () => {
     expect(w.find('[data-test="order-status-ready"]').text()).toContain('guest.page.statusReady')
     expect(w.findAll('li')).toHaveLength(2)
   })
+
+  it('says when food waits for payment (food prepay)', () => {
+    const base = { menuItemId: 'm', nameDe: 'Wurst', nameEn: 'Sausage', quantity: 1, note: null, productionStatus: 'pending' }
+    const orders = { tableNo: 7, ticketStatus: 'open', tableBalanceCents: 0, items: [
+      { ...base, orderItemId: '1', awaitingPayment: true },
+      { ...base, orderItemId: '2', awaitingPayment: false },
+    ] } as unknown as SessionOrders
+    const w = mount(OrderStatus, { props: { orders } })
+    expect(w.findAll('[data-test="awaiting-payment"]')).toHaveLength(1)
+    expect(w.text()).toContain('guest.production.awaitingPayment')
+  })
 })

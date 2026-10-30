@@ -62,6 +62,7 @@ export const EventSchema = z.object({
   waiterCallsEnabled: z.boolean(),
   buzzerKey: z.string().nullable(),
   buzzerKey2: z.string().nullable(),
+  foodPrepayEnabled: z.boolean(),
   guestOpenLimitBarCents: z.number().int().nullable(),
   guestOpenLimitKitchenCents: z.number().int().nullable(),
 })

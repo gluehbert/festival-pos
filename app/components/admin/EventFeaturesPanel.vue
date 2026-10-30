@@ -15,7 +15,7 @@ const admin = useAdminStore()
 // The service screen reads the switches from the public branding.
 const { refresh: refreshPublicBranding } = useBranding()
 const busy = ref(false)
-const FEATURES = ['depositEnabled', 'staffMealsEnabled'] as const
+const FEATURES = ['depositEnabled', 'staffMealsEnabled', 'waiterCallsEnabled', 'foodPrepayEnabled'] as const
 
 async function toggle(key: (typeof FEATURES)[number]) {
   busy.value = true

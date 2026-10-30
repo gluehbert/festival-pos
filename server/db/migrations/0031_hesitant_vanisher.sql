@@ -9,6 +9,7 @@ CREATE TABLE "production_lanes" (
 	CONSTRAINT "production_lanes_station_chk" CHECK ("production_lanes"."station" IN ('kitchen','bar'))
 );
 --> statement-breakpoint
+ALTER TABLE "events" ADD COLUMN "buzzer_key" varchar(32);--> statement-breakpoint
 ALTER TABLE "events" ADD COLUMN "buzzer_key_2" varchar(32);--> statement-breakpoint
 ALTER TABLE "production_lanes" ADD CONSTRAINT "production_lanes_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "production_lanes_group_uq" ON "production_lanes" USING btree ("event_id","station","group_key");

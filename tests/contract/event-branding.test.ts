@@ -70,6 +70,15 @@ describe('event branding', () => {
     expect(stored()).toEqual({ buzzer_key: null })
   })
 
+  it('admin switches food prepay on; staff and guest screens read it from the branding', async () => {
+    const patch = (await import('../../server/api/admin/events/[id]/branding.patch')).default
+    const pub = (await import('../../server/api/event/branding.get')).default
+    expect(await pub(makeEvent().event)).toMatchObject({ foodPrepayEnabled: false })
+    ctx.setBody({ foodPrepayEnabled: true })
+    expect(await patch(adminReq('PATCH').event)).toMatchObject({ foodPrepayEnabled: true })
+    expect(await pub(makeEvent().event)).toMatchObject({ foodPrepayEnabled: true })
+  })
+
   it('renames the event (trimmed), rejects an empty name and keeps other fields', async () => {
     const patch = (await import('../../server/api/admin/events/[id]/branding.patch')).default
     ctx.setBody({ accentColor: '#e30613' })

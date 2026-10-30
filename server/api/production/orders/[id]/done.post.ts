@@ -3,6 +3,7 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { getDb } from '../../../../db/client'
 import { events, orderItems, orders } from '../../../../db/schema'
 import { AppError, sendAppError } from '../../../../lib/errors'
+import { kitchenReleased } from '../../../../lib/food-prepay'
 import { assertCsrf } from '../../../../lib/csrf'
 import { requireRole } from '../../../../lib/rbac'
 import {
@@ -41,12 +42,13 @@ export default defineEventHandler(async (event) => {
 
     const db = getDb()
     const found = await db
-      .select({ id: orders.id })
+      .select({ id: orders.id, foodPrepayEnabled: events.foodPrepayEnabled })
       .from(orders)
       .innerJoin(events, eq(events.id, orders.eventId))
       .where(and(eq(orders.id, orderId), eq(events.isActive, true)))
       .limit(1)
-    if (found.length === 0) {
+    const ev = found[0]
+    if (!ev) {
       throw new AppError('NOT_FOUND', 404, 'Order not found')
     }
 
@@ -57,6 +59,8 @@ export default defineEventHandler(async (event) => {
         eq(orderItems.orderId, orderId),
         eq(orderItems.station, station),
         inArray(orderItems.productionStatus, ['pending', 'in_progress']),
+        // Unpaid food is not on the kitchen screen, so it is not part of this tap.
+        kitchenReleased(ev, station),
       ))
       .returning({ id: orderItems.id })
 

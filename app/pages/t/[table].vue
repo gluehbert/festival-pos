@@ -32,6 +32,8 @@ const guest = useGuestSession()
 const api = useApi()
 
 const lastOrder = ref<Order | null>(null)
+// Food prepay: the order holds food that waits for the waiter to cash it.
+const lastOrderFoodWaits = ref(false)
 // Booked prices that differ from the cart (a promotion started or ended).
 const changedPrices = ref<PriceChange[]>([])
 const submitting = ref(false)
@@ -98,6 +100,7 @@ async function submitOrder() {
     items: toOrderItems(cart.lines),
   }
   const sent = snapshotLines(cart.lines)
+  const hasFood = cart.lines.some((l) => l.menuItem.station === 'kitchen')
   const bodyJson = JSON.stringify(body)
   if (bodyJson !== orderKeyBody) {
     orderKey = newIdempotencyKey()
@@ -107,6 +110,7 @@ async function submitOrder() {
     const order = await api.post<Order>('/api/orders', body, { headers: { 'idempotency-key': orderKey }, ...begin() })
     changedPrices.value = priceChanges(cart.lines, order.items)
     lastOrder.value = order
+    lastOrderFoodWaits.value = branding.value.foodPrepayEnabled && hasFood
     orderKeyBody = ''
     // Cart changes made while sending stay for the next order.
     cart.clearSent(sent)
@@ -197,6 +201,7 @@ watch(() => menu.items, (items) => {
         ref="confirmationHeading"
         :order="lastOrder"
         :changes="changedPrices"
+        :food-waits="lastOrderFoodWaits"
         @new-order="lastOrder = null"
       />
     </section>

@@ -3,6 +3,7 @@ import { and, asc, eq, inArray } from 'drizzle-orm'
 import { getDb } from '../../db/client'
 import { events, menuItems, orderItems, orders } from '../../db/schema'
 import { AppError, sendAppError } from '../../lib/errors'
+import { kitchenReleased } from '../../lib/food-prepay'
 import { requireRole } from '../../lib/rbac'
 import { activeLanes, fillLanes } from '../../lib/production-lanes'
 import {
@@ -56,6 +57,7 @@ export default defineEventHandler(async (event) => {
           eq(orders.eventId, ev.id),
           eq(orderItems.station, station),
           inArray(orderItems.productionStatus, ['pending', 'in_progress']),
+          kitchenReleased(ev, station),
         ),
       )
       // Within an order in menu order, so lines never swap places between polls.

@@ -25,11 +25,11 @@ export const events = pgTable(
     staffMealsEnabled: boolean('staff_meals_enabled').notNull().default(false), // free meals for helpers
     waiterCallsEnabled: boolean('waiter_calls_enabled').notNull().default(false), // guests can call the service
     buzzerKey: varchar('buzzer_key', { length: 32 }), buzzerKey2: varchar('buzzer_key_2', { length: 32 }), // kitchen/bar buzzers, lanes 1 and 2 (schema-service.ts); NULL = off
+    foodPrepayEnabled: boolean('food_prepay_enabled').notNull().default(false), // kitchen gets food only once paid (lib/food-prepay.ts)
     // Legal pages for guests (Impressum, Datenschutz), plain text per event.
     imprintText: text('imprint_text'),
     privacyText: text('privacy_text'),
-    // Shared join link for helpers (/staff/join/<code>): they enter a name and
-    // wait until an admin lets them in. Null until an admin creates one.
+    // Join link for helpers (/staff/join/<code>): name in, wait for an admin. Null until one is created.
     joinCode: varchar('join_code', { length: 32 }).unique(),
     // Most one guest phone may have ordered and not paid yet, per station (bar = drinks,
     // kitchen = food), so a passer-by cannot load a table with orders. NULL = no limit.

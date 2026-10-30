@@ -139,7 +139,7 @@ describe('OrderCard', () => {
 describe('waiter sees what is ready', () => {
   const ticket: TicketSummary = {
     ticketKey: 't-8', tableNo: 8, status: 'open', totalCents: 900, unpaidCents: 900,
-    oldestItemAt: new Date().toISOString(), lockedBy: null, ready: { kitchen: 2, bar: 0 },
+    oldestItemAt: new Date().toISOString(), lockedBy: null, ready: { kitchen: 2, bar: 0 }, foodToPay: 0,
   }
 
   it('flags tickets with finished food or drinks', () => {

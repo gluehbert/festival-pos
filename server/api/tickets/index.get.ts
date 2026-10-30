@@ -27,6 +27,8 @@ const sumInt = (expr: SQL) => sql<number>`SUM(${expr})`.mapWith(Number)
 const readyAt = (station: 'kitchen' | 'bar') => sumInt(sql`CASE WHEN ${orderItems.station} = ${station}
   AND ${orderItems.productionStatus} = 'done' AND ${orderItems.servedAt} IS NULL
   AND (${isWalk} OR ${orderItems.paymentStatus} = 'unpaid') THEN ${orderItems.quantity} ELSE 0 END`)
+const heldFood = sumInt(sql`CASE WHEN ${orderItems.station} = 'kitchen' AND ${orderItems.paymentStatus} = 'unpaid'
+  AND ${orderItems.productionStatus} = 'pending' THEN ${orderItems.quantity} ELSE 0 END`)
 const hasStation = (station: 'kitchen' | 'bar') =>
   sumInt(sql`CASE WHEN ${orderItems.station} = ${station} THEN 1 ELSE 0 END`)
 
@@ -63,6 +65,7 @@ export default defineEventHandler(async (event) => {
         hasBar: hasStation('bar'),
         readyKitchen: readyAt('kitchen'),
         readyBar: readyAt('bar'),
+        heldFood,
       })
       .from(orderItems)
       .innerJoin(orders, eq(orders.id, orderItems.orderId))
@@ -117,6 +120,7 @@ export default defineEventHandler(async (event) => {
         oldestItemAt: toDate(r.oldestItemAt).toISOString(),
         lockedBy: lockByKey.get(ticketKey) ?? null,
         ready,
+        foodToPay: ev.foodPrepayEnabled ? r.heldFood : 0,
         lastOrderAt: toDate(r.lastOrderAt).toISOString(),
         lastCheckAt: r.walkinOrderId ? null : checks.get(r.tableNo)?.toISOString() ?? null,
         assignee: r.walkinOrderId ? walkinOwner(r.walkinCreator, usernames) : byTable.get(r.tableNo) ?? null,
