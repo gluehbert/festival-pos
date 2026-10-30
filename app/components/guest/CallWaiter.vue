@@ -6,8 +6,9 @@ import type { CallReason, TableCall } from '~/../server/lib/contracts/waiter-cal
 
 // "Call the service": the guest picks a reason, the table's waiter (then
 // everyone in service and the bar screen) sees it. While a call is going on,
-// the page asks every 8 s whether someone is coming.
-const REASONS: readonly CallReason[] = ['pay', 'order', 'question']
+// the page asks every 8 s whether someone is coming. Right after the service
+// was at the table, the table cannot call again for a while.
+const REASONS: readonly CallReason[] = ['order', 'question']
 
 const api = useApi()
 const call = ref<TableCall>(null)
@@ -43,9 +44,13 @@ async function send(reason: CallReason) {
 
 <template>
   <section class="rounded-lg border border-slate-200 bg-surface p-3" aria-live="polite" data-test="call-waiter">
-    <p v-if="call && call.acknowledged" class="flex items-center gap-2 font-semibold text-emerald-800" data-test="call-coming">
+    <p v-if="call?.status === 'coming'" class="flex items-center gap-2 font-semibold text-emerald-800" data-test="call-coming">
       <UIcon name="i-lucide-footprints" class="size-5 shrink-0" aria-hidden="true" />
       {{ $t('guest.call.coming') }}
+    </p>
+    <p v-else-if="call?.status === 'paused'" class="flex items-center gap-2 text-slate-700" data-test="call-paused">
+      <UIcon name="i-lucide-hourglass" class="size-5 shrink-0" aria-hidden="true" />
+      {{ $t('guest.call.paused') }}
     </p>
     <p v-else-if="call" class="flex items-center gap-2 font-semibold text-slate-900" data-test="call-waiting">
       <UIcon name="i-lucide-bell-ring" class="size-5 shrink-0" aria-hidden="true" />

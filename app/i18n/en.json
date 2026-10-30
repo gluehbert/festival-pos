@@ -195,6 +195,7 @@
       "cancel": "Cancel",
       "waiting": "The service knows you are waiting ({reason}).",
       "coming": "Someone is on the way to your table.",
+      "paused": "The service was just at your table. You can call again in a few minutes.",
       "tooSoon": "Your table just called. Please wait a moment.",
       "failed": "That did not work. Please try again."
     }

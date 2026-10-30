@@ -195,6 +195,7 @@
       "cancel": "Abbrechen",
       "waiting": "Die Bedienung weiß Bescheid ({reason}).",
       "coming": "Die Bedienung ist auf dem Weg zu euch.",
+      "paused": "Die Bedienung war gerade bei euch. In ein paar Minuten könnt ihr wieder rufen.",
       "tooSoon": "Euer Tisch hat gerade erst gerufen. Bitte einen Moment warten.",
       "failed": "Das hat nicht geklappt. Bitte noch einmal versuchen."
     }

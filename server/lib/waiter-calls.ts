@@ -7,11 +7,12 @@ import { AppError, isUniqueViolation } from './errors'
 
 // Nobody answered within this time: the call goes to everyone in service.
 export const ESCALATE_AFTER_MS = 2 * 60 * 1000
-// A table can call again this long after its last call at the earliest.
-const CALL_COOLDOWN_MS = 2 * 60 * 1000
 // The guest sees "someone is coming" this long after the call was answered,
 // unless someone serves the table before.
-const SHOW_ANSWERED_MS = 3 * 60 * 1000
+const SHOW_COMING_MS = 3 * 60 * 1000
+// After the service was at the table, the table cannot call again for this
+// long: whoever wanted something could have said so.
+const CALL_PAUSE_MS = 5 * 60 * 1000
 
 const toDate = (v: Date | string) => (v instanceof Date ? v : new Date(v))
 
@@ -21,32 +22,25 @@ export function requireWaiterCalls(ev: Pick<Event, 'waiterCallsEnabled'>): void 
 
 export async function loadTableCall(db: Db, eventId: string, tableNo: number): Promise<TableCall> {
   const [row] = await db
-    .select({ reason: waiterCalls.reason, createdAt: waiterCalls.createdAt, acknowledgedAt: waiterCalls.acknowledgedAt })
-    .from(waiterCalls)
-    .where(and(
-      eq(waiterCalls.eventId, eventId),
-      eq(waiterCalls.tableNo, tableNo),
-      isNull(waiterCalls.visitedAt),
-      or(isNull(waiterCalls.acknowledgedAt), gt(waiterCalls.acknowledgedAt, new Date(Date.now() - SHOW_ANSWERED_MS))),
-    ))
-    .orderBy(desc(waiterCalls.createdAt))
-    .limit(1)
-  if (!row) return null
-  return { reason: row.reason as CallReason, createdAt: toDate(row.createdAt).toISOString(), acknowledged: row.acknowledgedAt !== null }
-}
-
-// One open call per table: calling again while one is open changes nothing.
-export async function createCall(db: Db, eventId: string, tableNo: number, reason: CallReason): Promise<TableCall> {
-  const [last] = await db
-    .select({ createdAt: waiterCalls.createdAt, acknowledgedAt: waiterCalls.acknowledgedAt })
+    .select({ reason: waiterCalls.reason, createdAt: waiterCalls.createdAt, acknowledgedAt: waiterCalls.acknowledgedAt, visitedAt: waiterCalls.visitedAt })
     .from(waiterCalls)
     .where(and(eq(waiterCalls.eventId, eventId), eq(waiterCalls.tableNo, tableNo)))
     .orderBy(desc(waiterCalls.createdAt))
     .limit(1)
-  if (last && last.acknowledgedAt === null) return await loadTableCall(db, eventId, tableNo)
-  if (last && Date.now() - toDate(last.createdAt).getTime() < CALL_COOLDOWN_MS) {
-    throw new AppError('RATE_LIMITED', 429, 'This table just called, please wait a moment', { retryAfterSeconds: CALL_COOLDOWN_MS / 1000 })
-  }
+  if (!row) return null
+  const base = { reason: row.reason as CallReason, createdAt: toDate(row.createdAt).toISOString() }
+  const since = (at: Date | string) => Date.now() - toDate(at).getTime()
+  if (row.visitedAt !== null) return since(row.visitedAt) < CALL_PAUSE_MS ? { ...base, status: 'paused' } : null
+  if (row.acknowledgedAt !== null) return since(row.acknowledgedAt) < SHOW_COMING_MS ? { ...base, status: 'coming' } : null
+  return { ...base, status: 'waiting' }
+}
+
+// One call per table at a time: calling again while one is open changes
+// nothing; while someone is coming or just was there, the table waits.
+export async function createCall(db: Db, eventId: string, tableNo: number, reason: CallReason): Promise<TableCall> {
+  const current = await loadTableCall(db, eventId, tableNo)
+  if (current?.status === 'waiting') return current
+  if (current) throw new AppError('RATE_LIMITED', 429, 'The service is on the way or was just here, please wait a moment')
   try {
     await db.insert(waiterCalls).values({ eventId, tableNo, reason })
   }
@@ -99,7 +93,7 @@ export async function acknowledgeCall(db: Db, eventId: string, id: string, staff
 }
 
 // Someone is at the table anyway (payment, order, "asked"): the call is
-// answered and the guest's "someone is coming" ends.
+// answered, "someone is coming" ends and the table's pause starts now.
 export async function answerTableCalls(db: Db, eventId: string, tableNo: number, staffId: string): Promise<void> {
   const now = new Date()
   await db
@@ -109,5 +103,12 @@ export async function answerTableCalls(db: Db, eventId: string, tableNo: number,
       acknowledgedBy: sql`coalesce(${waiterCalls.acknowledgedBy}, ${staffId})`,
       visitedAt: now,
     })
-    .where(and(eq(waiterCalls.eventId, eventId), eq(waiterCalls.tableNo, tableNo), isNull(waiterCalls.visitedAt)))
+    .where(and(
+      eq(waiterCalls.eventId, eventId),
+      eq(waiterCalls.tableNo, tableNo),
+      isNull(waiterCalls.visitedAt),
+      // Only a call still going on: serving a table that called long ago
+      // must not pause it.
+      or(isNull(waiterCalls.acknowledgedAt), gt(waiterCalls.acknowledgedAt, new Date(now.getTime() - SHOW_COMING_MS))),
+    ))
 }
