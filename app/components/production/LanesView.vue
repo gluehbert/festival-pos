@@ -10,7 +10,8 @@ import { fitText } from '~/utils/fit-text'
 
 // Kitchen/bar screen with buzzers: each buzzer has a lane (1 green, 2 blue)
 // holding the card its person works on, big enough to read from afar. The
-// rest waits under "Next up"; a tap finishes any card, the lanes stay put.
+// rest waits on the right under "Next up"; a tap finishes any card, the
+// lanes stay put.
 // On a tablet or TV the view fills the screen exactly: nobody scrolls.
 const props = defineProps<{ groups: ProductionOrderGroup[]; lanes: ProductionLane[]; finishing: Set<string> }>()
 const emit = defineEmits<{ (e: 'finish', group: ProductionOrderGroup, named: boolean): void }>()
@@ -47,9 +48,6 @@ const height = ref<number | null>(null)
 // Lanes whose order does not fit even in the smallest type: they say so,
 // a buzzer must not finish what nobody could see.
 const cut = ref<number[]>([])
-// Low screens (a TV browser often reports 960 × 540) keep the waiting
-// orders to one slim row, so the lanes keep their room.
-const compact = computed(() => height.value !== null && height.value < 520)
 function layout() {
   const el = root.value
   if (!el) return
@@ -78,11 +76,10 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
 <template>
   <div
     ref="root"
-    class="mt-4 flex flex-col gap-4"
-    :class="single ? 'md:grid md:grid-cols-[3fr_2fr]' : ''"
+    class="mt-2 flex flex-col gap-3 md:flex-row"
     :style="height ? { height: `${height}px` } : undefined"
   >
-    <div class="grid min-h-0 flex-1 grid-cols-1 gap-4" :class="single ? '' : 'md:grid-cols-2'">
+    <div class="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3" :class="single ? '' : 'md:grid-cols-2'">
       <section
         v-for="l in laneCards"
         :key="l.lane"
@@ -91,11 +88,11 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
         :class="COLORS[l.lane]!.border"
       >
         <header class="flex shrink-0 items-center justify-between gap-2 px-4 py-1.5 text-white" :class="COLORS[l.lane]!.bg">
-          <span class="flex items-center gap-2 text-lg font-extrabold uppercase tracking-wide">
+          <span class="flex min-w-0 items-center gap-2 truncate text-lg font-extrabold uppercase tracking-wide">
             <span class="flex size-8 items-center justify-center rounded-full bg-white text-lg font-black" :class="COLORS[l.lane]!.text">{{ l.lane }}</span>
             {{ $t(`production.lanes.buzzer${l.lane}`) }}
           </span>
-          <span v-if="l.group" class="rounded-full px-3 py-0.5 text-base font-semibold" :class="ageClass(minutesWaiting(l.group))">
+          <span v-if="l.group" class="shrink-0 whitespace-nowrap rounded-full px-3 py-0.5 text-base font-semibold" :class="ageClass(minutesWaiting(l.group))">
             {{ $t('production.waiting', { n: minutesWaiting(l.group) }) }}
           </span>
         </header>
@@ -135,43 +132,23 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
       </section>
     </div>
 
-    <section v-if="waiting.length > 0" class="flex min-h-0 shrink-0 flex-col">
-      <h2 class="mb-1 text-lg font-semibold text-slate-600">
+    <section v-if="waiting.length > 0" class="flex min-h-0 shrink-0 flex-col md:w-[clamp(12rem,22%,22rem)]">
+      <h2 class="mb-1 text-base font-semibold text-slate-600">
         {{ $t('production.lanes.next', { n: waiting.length }) }}
       </h2>
-      <ul v-if="compact && !single" class="flex gap-2 overflow-x-auto pb-1">
-        <li v-for="g in waiting" :key="g.key" class="flex shrink-0 items-center gap-2 rounded-xl border-2 border-slate-200 bg-surface pl-3" data-test="lane-queue-card">
-          <span class="text-lg font-black text-slate-900">{{ groupLabel(g, t) }}</span>
-          <span v-if="isFollowUp(g, groups)" class="rounded bg-slate-200 px-1.5 py-0.5 text-xs font-bold text-slate-800" data-test="follow-up">{{ $t('production.lanes.followUp') }}</span>
-          <span class="text-sm font-semibold text-slate-600">{{ $t('production.lanes.items', { n: g.items.reduce((n, i) => n + i.quantity, 0) }) }}</span>
-          <button
-            type="button"
-            class="flex size-11 items-center justify-center rounded-r-lg border-l-2 border-slate-200 text-emerald-800 hover:bg-emerald-50 disabled:opacity-60"
-            :disabled="finishing.has(g.key)"
-            :aria-label="$t('production.toastDoneFor', { label: groupLabel(g, t) })"
-            @click="emit('finish', g, false)"
-          >
-            <UIcon name="i-lucide-check" class="size-5" aria-hidden="true" />
-          </button>
-        </li>
-      </ul>
-      <ul
-        v-else
-        class="gap-3"
-        :class="single ? 'grid min-h-0 grid-cols-1 content-start overflow-y-auto' : 'grid auto-cols-[minmax(13rem,1fr)] grid-flow-col overflow-x-auto pb-1'"
-      >
-        <li v-for="g in waiting" :key="g.key" class="flex flex-col rounded-xl border-2 border-slate-200 bg-surface p-3" data-test="lane-queue-card">
+      <ul class="grid min-h-0 grid-cols-1 content-start gap-2 overflow-y-auto" data-test="lane-queue">
+        <li v-for="g in waiting" :key="g.key" class="flex flex-col rounded-xl border-2 border-slate-200 bg-surface p-2.5" data-test="lane-queue-card">
           <div class="flex items-start justify-between gap-2">
-            <span class="text-xl font-black text-slate-900">
+            <span class="text-lg font-black leading-tight text-slate-900">
               {{ groupLabel(g, t) }}
               <span v-if="isFollowUp(g, groups)" class="ml-1 rounded bg-slate-200 px-1.5 py-0.5 align-middle text-xs font-bold text-slate-800" data-test="follow-up">{{ $t('production.lanes.followUp') }}</span>
             </span>
-            <span class="shrink-0 rounded-full px-2 py-0.5 text-sm font-semibold" :class="ageClass(minutesWaiting(g))">
-              {{ $t('production.waiting', { n: minutesWaiting(g) }) }}
+            <span class="shrink-0 whitespace-nowrap rounded-full px-2 py-0.5 text-sm font-semibold" :class="ageClass(minutesWaiting(g))">
+              {{ $t('production.lanes.minutes', { n: minutesWaiting(g) }) }}
             </span>
           </div>
           <ul class="mt-1 flex-1">
-            <li v-for="line in cardLines(g.items).slice(0, PREVIEW_LINES)" :key="line.key" class="text-lg font-semibold leading-snug text-slate-800">
+            <li v-for="line in cardLines(g.items).slice(0, PREVIEW_LINES)" :key="line.key" class="text-base font-semibold leading-snug text-slate-800">
               {{ line.quantity }} × {{ itemName(line.first) }}
               <NoteBadge :note="line.first.note" />
             </li>

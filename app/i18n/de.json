@@ -1164,7 +1164,8 @@
       "stock": "Bestand: {n}",
       "markSoldOut": "Ausverkauft",
       "markAvailable": "Wieder da",
-      "saved": "Gespeichert"
+      "saved": "Gespeichert",
+      "short": "Ausverkauft"
     },
     "staffMeal": "Helfer",
     "undo": "Rückgängig",
@@ -1190,8 +1191,8 @@
       "followUp": "Nachbestellung",
       "new": "Neu",
       "more": "+{n} weitere",
-      "items": "{n} Stück",
-      "cut": "Nicht alles sichtbar – im Bildschirm-Menü (Monitor-Symbol oben) verkleinern."
+      "cut": "Nicht alles sichtbar – im Bildschirm-Menü (Monitor-Symbol oben) verkleinern.",
+      "minutes": "{n} Min."
     }
   },
   "alerts": {

@@ -13,6 +13,9 @@ import { useCartStore } from '~/stores/cart'
 
 const cake = { id: 'c', nameDe: 'Kuchen', nameEn: 'Cake', priceCents: 250, depositCents: 0, stock: 3, category: 'Food', subcategory: null, station: 'kitchen', isAvailable: true, sortOrder: 0 } as MenuItemDto
 
+// The popover renders trigger and content inline, so tests see both.
+const UPopover = { template: '<div><slot /><slot name="content" /></div>' }
+
 const fetchMock = vi.fn()
 beforeEach(() => {
   fetchMock.mockReset()
@@ -24,10 +27,9 @@ afterEach(() => vi.unstubAllGlobals())
 describe('Stock in the app', () => {
   it('kitchen loads its articles and marks one sold out', async () => {
     fetchMock.mockResolvedValueOnce({ eventId: 'e', items: [cake, { ...cake, id: 'd', nameDe: 'Torte', stock: 0, isAvailable: false }] })
-    const w = mount(SoldOutPanel, { props: {} })
-    // Opening the panel (happy-dom fires "toggle") loads the list.
-    ;(w.find('details').element as HTMLDetailsElement).open = true
-    await new Promise((r) => setTimeout(r, 0))
+    const w = mount(SoldOutPanel, { props: {}, global: { stubs: { UPopover } } })
+    // Opening the list (the button in the app bar) loads it.
+    await w.find('[data-test="sold-out-panel"]').trigger('click')
     await flushPromises()
     expect(fetchMock.mock.calls[0]![0]).toBe('/api/production/menu')
     const rows = w.findAll('[data-test="sold-out-item"]')
@@ -46,9 +48,8 @@ describe('Stock in the app', () => {
 
   it('admin station is passed on and failures are reported', async () => {
     fetchMock.mockRejectedValueOnce({ statusCode: 500 })
-    const w = mount(SoldOutPanel, { props: { station: 'bar' } })
-    ;(w.find('details').element as HTMLDetailsElement).open = true
-    await new Promise((r) => setTimeout(r, 0))
+    const w = mount(SoldOutPanel, { props: { station: 'bar' }, global: { stubs: { UPopover } } })
+    await w.find('[data-test="sold-out-panel"]').trigger('click')
     await flushPromises()
     expect(fetchMock.mock.calls[0]![0]).toBe('/api/production/menu?station=bar')
     expect(w.emitted('result')).toEqual([[false]])
@@ -114,9 +115,8 @@ describe('Stock in the app', () => {
   it('lists the station\'s articles by name, so the sizes stand together', async () => {
     const drink = (id: string, nameDe: string) => ({ ...cake, id, nameDe, nameEn: nameDe })
     fetchMock.mockResolvedValueOnce({ eventId: 'e', items: [drink('1', 'Apfelschorle 0,5 l'), drink('2', 'Pils 0,5 l'), drink('3', 'Cola 0,33 l'), drink('4', 'Apfelschorle 0,4 l'), drink('5', 'Cola 0,3 l')] })
-    const w = mount(SoldOutPanel, { props: {} })
-    ;(w.find('details').element as HTMLDetailsElement).open = true
-    await new Promise((r) => setTimeout(r, 0))
+    const w = mount(SoldOutPanel, { props: {}, global: { stubs: { UPopover } } })
+    await w.find('[data-test="sold-out-panel"]').trigger('click')
     await flushPromises()
     expect(w.findAll('[data-test="sold-out-item"] p:first-child').map((p) => p.text()))
       .toEqual(['Apfelschorle 0,4 l', 'Apfelschorle 0,5 l', 'Cola 0,3 l', 'Cola 0,33 l', 'Pils 0,5 l'])

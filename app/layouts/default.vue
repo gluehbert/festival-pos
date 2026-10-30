@@ -47,14 +47,19 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="min-h-screen bg-app text-slate-900">
-    <header class="flex items-center justify-between bg-surface px-4 py-2">
-      <NuxtLink to="/" class="flex min-w-0 items-center gap-2 text-sm font-semibold text-brand-ink">
-        <EventLogo :branding="branding" alt="" img-class="h-8 w-auto max-w-24 object-contain" />
-        <span class="truncate" :class="branding.eventName ? '' : 'uppercase tracking-widest'">
-          {{ branding.eventName ?? 'Festival POS' }}
-        </span>
-      </NuxtLink>
+    <header class="flex items-center justify-between gap-2 bg-surface px-4 py-2">
+      <div class="flex min-w-0 items-center gap-3">
+        <NuxtLink to="/" class="flex min-w-0 items-center gap-2 text-sm font-semibold text-brand-ink">
+          <EventLogo :branding="branding" alt="" img-class="h-8 w-auto max-w-24 object-contain" />
+          <span class="truncate" :class="branding.eventName ? '' : 'uppercase tracking-widest'">
+            {{ branding.eventName ?? 'Festival POS' }}
+          </span>
+        </NuxtLink>
+        <!-- Pages that need every pixel (kitchen/bar) put their title here. -->
+        <div id="page-title" class="flex min-w-0 items-center" />
+      </div>
       <div class="flex shrink-0 items-center gap-1">
+        <div id="page-tools" class="flex items-center gap-1" />
         <DisplayMenu v-if="showDisplay" />
         <AlertBell v-if="showBell" />
         <HeaderMenu />

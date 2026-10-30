@@ -1164,7 +1164,8 @@
       "stock": "Stock: {n}",
       "markSoldOut": "Sold out",
       "markAvailable": "Back again",
-      "saved": "Saved"
+      "saved": "Saved",
+      "short": "Sold out"
     },
     "staffMeal": "Helpers",
     "undo": "Undo",
@@ -1190,8 +1191,8 @@
       "followUp": "Later order",
       "new": "New",
       "more": "+{n} more",
-      "items": "{n} items",
-      "cut": "Not everything fits – zoom out in the display menu (screen icon at the top)."
+      "cut": "Not everything fits – zoom out in the display menu (screen icon at the top).",
+      "minutes": "{n} min"
     }
   },
   "alerts": {
