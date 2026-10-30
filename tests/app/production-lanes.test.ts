@@ -75,14 +75,15 @@ describe('LanesView', () => {
     expect(added[0]!.text()).toContain('1 × Lager')
   })
 
-  it('tags a later round of a table and shrinks the type of a long order', () => {
-    const big = group(12, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].map((n) => item(12, n)))
-    const later = { ...group(12, [item(12, 'Cola', { orderedAt: '2026-06-01T18:05:00Z' })]), key: 'table:12:later' }
-    const w = mount(LanesView, { props: { groups: [big, t7, later], lanes, finishing: new Set<string>() } })
-    expect(w.find('[data-test="lane-1"] [data-test="lane-line"]').classes()).toContain('text-2xl')
-    expect(w.find('[data-test="lane-2"] [data-test="lane-line"]').classes()).toContain('text-4xl')
+  it('tags a later round of a table and previews a long waiting order', () => {
+    const later = { ...group(12, ['A', 'B', 'C', 'D', 'E'].map((n) => item(12, n, { orderedAt: '2026-06-01T18:05:00Z' }))), key: 'table:12:later' }
+    const w = mount(LanesView, { props: { groups: [t12, t7, later], lanes, finishing: new Set<string>() } })
     expect(w.find('[data-test="lane-1"] [data-test="follow-up"]').exists()).toBe(false)
-    expect(w.find('[data-test="lane-queue-card"] [data-test="follow-up"]').text()).toBe('production.lanes.followUp')
+    const card = w.find('[data-test="lane-queue-card"]')
+    expect(card.find('[data-test="follow-up"]').text()).toBe('production.lanes.followUp')
+    expect(card.text()).toContain('1 × C')
+    expect(card.text()).not.toContain('1 × D')
+    expect(card.text()).toContain('production.lanes.more:{"n":2}')
   })
 })
 

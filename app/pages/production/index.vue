@@ -162,7 +162,7 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
 </script>
 
 <template>
-  <main class="mx-auto max-w-5xl px-4 py-6">
+  <main class="mx-auto px-4 py-6" :class="lanesActive ? 'max-w-none pb-0' : 'max-w-5xl'">
     <header class="flex flex-wrap items-center justify-between gap-3">
       <h1 class="text-2xl font-bold text-slate-900">
         <StationFilter v-if="isAdmin" v-model="adminStation" />

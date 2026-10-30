@@ -1188,7 +1188,10 @@
       "free": "Frei – die nächste Bestellung landet hier.",
       "next": "Als Nächstes ({n})",
       "followUp": "Nachbestellung",
-      "new": "Neu"
+      "new": "Neu",
+      "more": "+{n} weitere",
+      "items": "{n} Stück",
+      "cut": "Nicht alles sichtbar – im Bildschirm-Menü (Monitor-Symbol oben) verkleinern."
     }
   },
   "alerts": {

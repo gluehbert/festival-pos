@@ -1188,7 +1188,10 @@
       "free": "Free – the next order lands here.",
       "next": "Next up ({n})",
       "followUp": "Later order",
-      "new": "New"
+      "new": "New",
+      "more": "+{n} more",
+      "items": "{n} items",
+      "cut": "Not everything fits – zoom out in the display menu (screen icon at the top)."
     }
   },
   "alerts": {
