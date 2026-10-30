@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
+import { LANE_ROUND_MS, productionCards } from '~/../server/lib/contracts/production'
 import type {
+  ProductionLane,
   ProductionOrderDoneResponse,
   ProductionQueue,
   ProductionQueueItem,
@@ -13,6 +15,7 @@ type Station = 'kitchen' | 'bar'
 // All open items of one table at this station: one card on the screen.
 // Every send from a table is its own order, so a card can hold several.
 // Counter sales and staff meals have no table and keep one card per order.
+// With buzzer lanes a later round of a table is a card of its own.
 export interface ProductionOrderGroup {
   key: string
   orderIds: string[]
@@ -25,6 +28,8 @@ export interface ProductionOrderGroup {
 export const useProductionStore = defineStore('production', () => {
   const station = ref<Station | null>(null)
   const queue = ref<ProductionQueueItem[]>([])
+  // Buzzer lanes; empty when the event has no buzzer.
+  const lanes = ref<ProductionLane[]>([])
   const loading = ref(false)
   const error = ref<unknown>(null)
   // Polling health, kept apart from `error` (which failed actions set too):
@@ -77,6 +82,7 @@ export const useProductionStore = defineStore('production', () => {
       }
       station.value = res.station
       queue.value = withOverrides(res.items)
+      lanes.value = res.lanes
       syncFailed.value = false
       lastSyncAt.value = Date.now()
     }
@@ -134,21 +140,15 @@ export const useProductionStore = defineStore('production', () => {
   }
 
   // The queue is sorted oldest first, so the cards are too.
-  const groups = computed<ProductionOrderGroup[]>(() => {
-    const byKey = new Map<string, ProductionOrderGroup>()
-    for (const item of queue.value) {
-      const atTable = item.orderKind === 'guest' || item.orderKind === 'staff_table'
-      const key = atTable ? `table:${item.tableNo}` : `order:${item.orderId}`
-      let g = byKey.get(key)
-      if (!g) {
-        g = { key, orderIds: [], tableNo: item.tableNo, orderKind: item.orderKind, orderedAt: item.orderedAt, items: [] }
-        byKey.set(key, g)
-      }
-      if (!g.orderIds.includes(item.orderId)) g.orderIds.push(item.orderId)
-      g.items.push(item)
-    }
-    return Array.from(byKey.values())
-  })
+  const groups = computed<ProductionOrderGroup[]>(() =>
+    productionCards(queue.value, lanes.value.length > 0 ? LANE_ROUND_MS : undefined).map(({ key, items }) => ({
+      key,
+      orderIds: [...new Set(items.map((i) => i.orderId))],
+      tableNo: items[0]!.tableNo,
+      orderKind: items[0]!.orderKind,
+      orderedAt: items[0]!.orderedAt,
+      items,
+    })))
 
   // Returns the items that were finished, for "Undo".
   async function finishOrder(orderId: string, stationParam?: Station): Promise<ProductionQueueItem[]> {
@@ -170,5 +170,5 @@ export const useProductionStore = defineStore('production', () => {
     }
   }
 
-  return { station, queue, groups, loading, error, syncFailed, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
+  return { station, queue, lanes, groups, loading, error, syncFailed, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
 })

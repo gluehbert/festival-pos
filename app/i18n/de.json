@@ -1044,6 +1044,18 @@
         "label": "Bedienung rufen",
         "hint": "Gäste können die Bedienung mit einem Grund an den Tisch rufen (bezahlen, bestellen, Frage). Zuerst sieht es die Bedienung des Tisches, nach 2 Minuten der ganze Service; der Bar-Bildschirm zeigt jeden Ruf. Aus: Der Button verschwindet."
       },
+      "buzzer": {
+        "label1": "Buzzer 1 – grün (Küche / Bar)",
+        "hint1": "Ein großer Taster an der Ausgabe, der wie eine Tastatur mit einer Taste funktioniert (USB oder Bluetooth). Mit Buzzer zeigt der Küchen- und Bar-Bildschirm seine Spur: die älteste Bestellung, groß, für die Person an diesem Buzzer. Ein Druck schließt sie ab, und die Spur holt sich die nächste. Ein zweiter Druck innerhalb einer Sekunde wird ignoriert.",
+        "label2": "Buzzer 2 – blau (optional)",
+        "hint2": "Für eine zweite Person hinter der Theke: eine zweite Spur neben der ersten. Jede Spur behält ihre Bestellung, bis sie fertig ist.",
+        "set": "Taste festlegen",
+        "change": "Ändern",
+        "clear": "Entfernen",
+        "listening": "Jetzt den Buzzer drücken …",
+        "space": "Leertaste",
+        "sameKey": "Diese Taste nutzt schon der andere Buzzer."
+      },
       "foodPrepayEnabled": {
         "label": "Essen bei Bestellung bezahlen",
         "hint": "Die Küche bekommt Essen erst, wenn es bezahlt ist, so kann die Essensausgabe verteilen, ohne zu kassieren. Essen der Gäste (QR-Code) wartet, bis eine Bedienung es kassiert hat; der Tisch zeigt „Essen kassieren“. Getränke werden weiter beim Bringen bezahlt."
@@ -1164,7 +1176,8 @@
       "stock": "Bestand: {n}",
       "markSoldOut": "Ausverkauft",
       "markAvailable": "Wieder da",
-      "saved": "Gespeichert"
+      "saved": "Gespeichert",
+      "short": "Ausverkauft"
     },
     "staffMeal": "Helfer",
     "undo": "Rückgängig",
@@ -1180,6 +1193,18 @@
       "exitFullscreen": "Vollbild beenden",
       "keepAwakeOn": "Bildschirm bleibt an",
       "keepAwakeOff": "Bildschirm darf ausgehen"
+    },
+    "toastDoneFor": "{label} fertig",
+    "lanes": {
+      "buzzer1": "Grüner Buzzer",
+      "buzzer2": "Blauer Buzzer",
+      "free": "Frei – die nächste Bestellung landet hier.",
+      "next": "Als Nächstes ({n})",
+      "followUp": "Nachbestellung",
+      "new": "Neu",
+      "more": "+{n} weitere",
+      "cut": "Nicht alles sichtbar – im Bildschirm-Menü (Monitor-Symbol oben) verkleinern.",
+      "minutes": "{n} Min."
     }
   },
   "alerts": {

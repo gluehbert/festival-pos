@@ -65,6 +65,29 @@ describe('GET /api/production/queue', () => {
     expect(parsed.items.every((i) => ['pending', 'in_progress'].includes(i.productionStatus))).toBe(true)
   })
 
+  it('lists the items of one order in menu order, the same on every poll', async () => {
+    const guestId = (ctx.mem.public.one(
+      `INSERT INTO guest_sessions (event_id, table_no, expires_at) VALUES ('${seeded.eventId}', 4, now() + interval '7 days') RETURNING id`,
+    ) as { id: string }).id
+    const orderId = (ctx.mem.public.one(
+      `INSERT INTO orders (event_id, table_no, guest_session_id) VALUES ('${seeded.eventId}', 4, '${guestId}') RETURNING id`,
+    ) as { id: string }).id
+    const kitchen = ctx.mem.public.many(`SELECT id, name_en FROM menu_items WHERE event_id = '${seeded.eventId}'`) as Array<{ id: string; name_en: string }>
+    expect(kitchen.length).toBeGreaterThan(1)
+    // Menu order: reverse of the insertion order below.
+    kitchen.forEach((m, n) => ctx.mem.public.none(`UPDATE menu_items SET sort_order = ${100 - n} WHERE id = '${m.id}'`))
+    for (const m of kitchen) {
+      ctx.mem.public.none(`INSERT INTO order_items (order_id, menu_item_id, quantity, unit_price_cents, station) VALUES ('${orderId}', '${m.id}', 1, 100, 'kitchen')`)
+    }
+
+    const { makeEvent } = await import('../setup/h3-event')
+    const handler = (await import('../../server/api/production/queue.get')).default
+    const { event } = makeEvent({ method: 'GET', url: '/api/production/queue' })
+    event.context.auth = { staff: { staffId: seeded.staffId, role: 'kitchen', username: 'k' } }
+    const r = await handler(event) as { items: Array<{ nameEn: string }> }
+    expect(r.items.map((i) => i.nameEn)).toEqual(kitchen.map((m) => m.name_en).reverse())
+  })
+
   it('kitchen role ignores station=bar query and still returns kitchen', async () => {
     await seedOrderItem(1, 0, 'pending', 0) // kitchen
     await seedOrderItem(2, 1, 'pending', 0) // bar

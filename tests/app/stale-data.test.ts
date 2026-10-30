@@ -20,7 +20,7 @@ afterEach(() => {
 describe('polling stores report failed syncs', () => {
   it('production: throws, flags the queue as outdated and keeps the last data', async () => {
     const s = useProductionStore()
-    fetchMock.mockResolvedValueOnce({ station: 'kitchen', items: [{ orderItemId: 'a' }] })
+    fetchMock.mockResolvedValueOnce({ station: 'kitchen', lanes: [], items: [{ orderItemId: 'a' }] })
     await s.fetchQueue()
     expect(s.syncFailed).toBe(false)
     const at = s.lastSyncAt
@@ -32,7 +32,7 @@ describe('polling stores report failed syncs', () => {
     expect(s.lastSyncAt).toBe(at)
     expect(s.queue).toHaveLength(1)
 
-    fetchMock.mockResolvedValueOnce({ station: 'kitchen', items: [] })
+    fetchMock.mockResolvedValueOnce({ station: 'kitchen', lanes: [], items: [] })
     await s.fetchQueue()
     expect(s.syncFailed).toBe(false)
   })

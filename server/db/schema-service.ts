@@ -66,3 +66,24 @@ export const waiterCalls = pgTable(
     check('waiter_calls_reason_chk', sql`${t.reason} IN ('pay','order','question')`),
   ],
 )
+
+// Buzzer lanes at the kitchen/bar, one per buzzer key of the event: the card
+// (key from productionCards) a person behind the counter works on. A card
+// stays in its lane until it is finished; then the lane takes the oldest
+// card no other lane holds.
+export const productionLanes = pgTable(
+  'production_lanes',
+  {
+    eventId: uuid('event_id').notNull().references(() => events.id, { onDelete: 'cascade' }),
+    station: text('station').notNull(),
+    lane: integer('lane').notNull(),
+    groupKey: text('group_key').notNull(),
+    assignedAt: timestamp('assigned_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.eventId, t.station, t.lane] }),
+    uniqueIndex('production_lanes_group_uq').on(t.eventId, t.station, t.groupKey),
+    check('production_lanes_lane_chk', sql`${t.lane} IN (1, 2)`),
+    check('production_lanes_station_chk', sql`${t.station} IN ('kitchen','bar')`),
+  ],
+)

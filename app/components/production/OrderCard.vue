@@ -2,9 +2,9 @@
 import { computed } from 'vue'
 import { useFormat } from '~/composables/useFormat'
 import type { ProductionOrderGroup } from '~/stores/production'
-import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 import NoteBadge from '~/components/common/NoteBadge.vue'
 import { shortOrderNo } from '~/utils/order-number'
+import { ageClass as ageBadge, cardLines, groupLabel, minutesWaiting, type CardLine } from '~/utils/production-card'
 
 // oneStep: the bar skips "Start" and finishes open items in one tap.
 const props = defineProps<{ group: ProductionOrderGroup; busyIds: Set<string>; finishing?: boolean; oneStep?: boolean }>()
@@ -16,11 +16,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { itemName } = useFormat()
 
-const label = computed(() => {
-  if (props.group.orderKind === 'staff_meal') return t('production.staffMeal')
-  if (props.group.orderKind === 'walkin') return t('production.counter')
-  return t('staff.detail.table', { n: props.group.tableNo })
-})
+const label = computed(() => groupLabel(props.group, t))
 
 const orderNos = computed(() => {
   const nos = props.group.orderIds.map((id) => `#${shortOrderNo(id)}`)
@@ -29,32 +25,12 @@ const orderNos = computed(() => {
     : t('production.orderNos', { nos: nos.join(' · ') })
 })
 
-const minutes = computed(() => Math.max(0, Math.floor((Date.now() - new Date(props.group.orderedAt).getTime()) / 60_000)))
-const ageClass = computed(() => {
-  if (minutes.value >= 10) return 'bg-rose-100 text-rose-800'
-  if (minutes.value >= 5) return 'bg-amber-100 text-amber-800'
-  return 'bg-slate-100 text-slate-600'
-})
+const minutes = computed(() => minutesWaiting(props.group))
+const ageClass = computed(() => ageBadge(minutes.value))
 
-// Rounds ordered at the same table add separate items of the same article.
-// Items with the same article, note and status show as one line; its button
-// advances all of them.
-interface Line { key: string; first: ProductionQueueItem; ids: string[]; quantity: number }
-const lines = computed<Line[]>(() => {
-  const byKey = new Map<string, Line>()
-  for (const item of props.group.items) {
-    const key = JSON.stringify([item.nameDe, item.nameEn, item.note ?? '', item.productionStatus])
-    const line = byKey.get(key)
-    if (line) {
-      line.ids.push(item.orderItemId)
-      line.quantity += item.quantity
-    }
-    else byKey.set(key, { key, first: item, ids: [item.orderItemId], quantity: item.quantity })
-  }
-  return [...byKey.values()]
-})
+const lines = computed(() => cardLines(props.group.items))
 
-function next(line: Line): 'in_progress' | 'done' {
+function next(line: CardLine): 'in_progress' | 'done' {
   return line.first.productionStatus === 'pending' && !props.oneStep ? 'in_progress' : 'done'
 }
 </script>

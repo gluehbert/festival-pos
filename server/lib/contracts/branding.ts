@@ -24,6 +24,9 @@ export const UpdateBrandingSchema = z.object({
   depositEnabled: z.boolean().optional(),
   staffMealsEnabled: z.boolean().optional(),
   waiterCallsEnabled: z.boolean().optional(),
+  // KeyboardEvent.key of the buzzers at the kitchen/bar screen (lane 1, lane 2); null = off.
+  buzzerKey: z.string().min(1).max(32).nullable().optional(),
+  buzzerKey2: z.string().min(1).max(32).nullable().optional(),
   foodPrepayEnabled: z.boolean().optional(),
   // Unpaid cents one guest phone may have per station; null = no limit.
   guestOpenLimitBarCents: GuestOpenLimitSchema.optional(),

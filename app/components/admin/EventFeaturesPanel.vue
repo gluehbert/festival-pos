@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useAdminStore } from '~/stores/admin'
 import { useBranding } from '~/composables/useBranding'
 import type { EventDto } from '~/../server/lib/contracts/admin'
+import BuzzerKeys from '~/components/admin/BuzzerKeys.vue'
 
 // Optional features of an event. Off, they take no room on the staff
 // screens and the server refuses them.
@@ -58,5 +59,6 @@ async function toggle(key: (typeof FEATURES)[number]) {
         </span>
       </button>
     </li>
+    <BuzzerKeys :event="event" @saved="(m) => emit('saved', m)" @failed="(m) => emit('failed', m)" />
   </ul>
 </template>
