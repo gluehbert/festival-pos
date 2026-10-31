@@ -4,7 +4,6 @@ import { navigateTo } from '#imports'
 import { useAuthStore } from '~/stores/auth'
 import { useProductionStore, type ProductionOrderGroup } from '~/stores/production'
 import { usePolling } from '~/composables/usePolling'
-import QueueItem from '~/components/production/QueueItem.vue'
 import OrderCard from '~/components/production/OrderCard.vue'
 import LanesView from '~/components/production/LanesView.vue'
 import StationFilter from '~/components/production/StationFilter.vue'
@@ -34,18 +33,6 @@ const isAdmin = computed(() => auth.staff?.role === 'admin')
 // Tables calling for the service show on the bar screen: every waiter passes it.
 const { branding } = useBranding()
 
-// "orders" = one card per table (default), "items" = one tile per item.
-// Remembered per device; storage may be unavailable (private mode).
-type View = 'orders' | 'items'
-const VIEW_KEY = 'production-view'
-const view = ref<View>('orders')
-function setView(v: View) {
-  view.value = v
-  try {
-    localStorage.setItem(VIEW_KEY, v)
-  }
-  catch { /* not remembered, still works */ }
-}
 const finishingIds = ref<Set<string>>(new Set())
 
 const effectiveStation = computed<Station | undefined>(() => {
@@ -88,10 +75,6 @@ onMounted(async () => {
     await navigateTo('/staff')
     return
   }
-  try {
-    if (localStorage.getItem(VIEW_KEY) === 'items') view.value = 'items'
-  }
-  catch { /* default view */ }
   await loadQuietly()
 })
 
@@ -163,7 +146,7 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
 
 <template>
   <main class="mx-auto px-4 py-3" :class="lanesActive ? 'max-w-none pb-0' : 'max-w-5xl'">
-    <!-- Title, views and "sold out" sit in the app bar: the screen is for orders. -->
+    <!-- Title and "sold out" sit in the app bar: the screen is for orders. -->
     <ClientOnly>
       <Teleport to="#page-title">
         <h1 class="truncate text-xl font-extrabold text-slate-900">
@@ -174,21 +157,6 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
         </h1>
       </Teleport>
       <Teleport to="#page-tools">
-        <div v-if="!lanesActive" class="inline-flex gap-1 rounded-full bg-slate-100 p-0.5" role="group" :aria-label="$t('production.viewLabel')">
-          <button
-            v-for="v in (['orders', 'items'] as const)"
-            :key="v"
-            type="button"
-            class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full px-3 text-sm font-semibold"
-            :class="view === v ? 'bg-primary text-white' : 'text-slate-700 hover:bg-slate-200'"
-            :aria-pressed="view === v"
-            :aria-label="$t(`production.view.${v}`)"
-            @click="setView(v)"
-          >
-            <UIcon :name="v === 'orders' ? 'i-lucide-layout-grid' : 'i-lucide-list'" class="size-4" aria-hidden="true" />
-            <span class="hidden md:inline">{{ $t(`production.view.${v}`) }}</span>
-          </button>
-        </div>
         <SoldOutPanel
           :key="effectiveStation"
           :station="isAdmin ? adminStation : undefined"
@@ -216,7 +184,7 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
       @finish="onFinish"
     />
 
-    <ul v-else-if="view === 'orders'" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <ul v-else class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <li v-for="group in production.groups" :key="group.key">
         <OrderCard
           :group="group"
@@ -225,17 +193,6 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
           :one-step="oneStep"
           @advance="(ids, n) => onAdvance(ids, n)"
           @finish="onFinish(group)"
-        />
-      </li>
-    </ul>
-
-    <ul v-else class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <li v-for="item in production.queue" :key="item.orderItemId">
-        <QueueItem
-          :item="item"
-          :busy="busyIds.has(item.orderItemId)"
-          :one-step="oneStep"
-          @advance="(n) => onAdvance([item.orderItemId], n)"
         />
       </li>
     </ul>
