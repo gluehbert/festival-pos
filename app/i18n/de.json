@@ -1165,11 +1165,6 @@
     "counter": "Theke",
     "orderNos": "Bestellungen {nos}",
     "finishOrder": "{label} komplett fertig",
-    "viewLabel": "Ansicht",
-    "view": {
-      "orders": "Nach Tisch",
-      "items": "Einzeln"
-    },
     "soldOut": {
       "title": "Ausverkauft verwalten",
       "empty": "Keine Artikel für diese Station.",

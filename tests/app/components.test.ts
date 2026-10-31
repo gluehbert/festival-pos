@@ -4,13 +4,11 @@ import VoidDialog from '~/components/staff/VoidDialog.vue'
 import PaymentSummary from '~/components/staff/PaymentSummary.vue'
 import PaymentDone from '~/components/staff/PaymentDone.vue'
 import { lockMessageKey, lockSecondsLeft } from '~/composables/usePaySelection'
-import QueueItem from '~/components/production/QueueItem.vue'
 import StaffForm from '~/components/admin/StaffForm.vue'
 import CartSummary from '~/components/guest/CartSummary.vue'
 import MenuItem from '~/components/guest/MenuItem.vue'
 import OrderStatus from '~/components/guest/OrderStatus.vue'
 import { useCartStore } from '~/stores/cart'
-import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 import type { MenuItemDto, SessionOrders } from '~/../server/lib/contracts/guest'
 
 describe('VoidDialog', () => {
@@ -148,41 +146,6 @@ describe('lockSecondsLeft', () => {
     expect(lockMessageKey('s2', 's1')).toBe('staff.pay.locked')
   })
 
-})
-
-describe('QueueItem', () => {
-  const item: ProductionQueueItem = {
-    orderItemId: '00000000-0000-4000-8000-000000000001',
-    tableNo: 7,
-    nameDe: 'Pommes',
-    nameEn: 'Fries',
-    quantity: 2,
-    productionStatus: 'pending',
-    orderedAt: new Date(Date.now() - 12 * 60_000).toISOString(),
-  } as ProductionQueueItem
-
-  it('advances pending -> in_progress -> done and flags old items', async () => {
-    const w = mount(QueueItem, { props: { item } })
-    expect(w.text()).toContain('2 × Fries')
-    expect(w.find('header p:last-child').classes()).toContain('text-rose-700')
-    await w.find('button').trigger('click')
-    expect(w.emitted('advance')).toEqual([['in_progress']])
-    await w.setProps({ item: { ...item, productionStatus: 'in_progress' } })
-    expect(w.find('button').text()).toBe('production.done')
-    await w.find('button').trigger('click')
-    expect(w.emitted('advance')![1]).toEqual(['done'])
-    expect(w.text()).toContain('production.preparing')
-  })
-
-  it('finishes open items in one tap at the bar', async () => {
-    const w = mount(QueueItem, { props: { item, oneStep: true } })
-    expect(w.find('button').text()).toBe('production.done')
-    await w.find('button').trigger('click')
-    expect(w.emitted('advance')).toEqual([['done']])
-    // Started before the bar went one-step: no "preparing" label there.
-    await w.setProps({ item: { ...item, productionStatus: 'in_progress' } })
-    expect(w.text()).not.toContain('production.preparing')
-  })
 })
 
 describe('StaffForm', () => {

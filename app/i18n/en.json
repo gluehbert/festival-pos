@@ -1165,11 +1165,6 @@
     "counter": "Counter",
     "orderNos": "Orders {nos}",
     "finishOrder": "{label} all done",
-    "viewLabel": "View",
-    "view": {
-      "orders": "By table",
-      "items": "Single items"
-    },
     "soldOut": {
       "title": "Manage sold out",
       "empty": "No items for this station.",
