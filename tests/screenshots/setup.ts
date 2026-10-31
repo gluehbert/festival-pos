@@ -61,17 +61,11 @@ export async function guestOrders(page: Page, tableNo: number, itemNames: RegExp
   await submitCart(page)
 }
 
-// Kitchen side: starts and finishes every queued item of a table.
+// Kitchen side: finishes every queued item of a table.
 export async function kitchenFinishes(page: Page, tableNo: number): Promise<void> {
-  await page.getByRole('button', { name: 'Single items' }).click()
-  const items = page.locator('[data-test="queue-item"]').filter({ hasText: `Table ${tableNo}` })
-  while (await items.count() > 0) {
-    const card = items.first()
-    await card.getByRole('button', { name: 'Start preparing', exact: true }).click()
-    await card.getByRole('button', { name: 'Done', exact: true }).click()
-    await page.waitForTimeout(300)
-  }
-  await page.getByRole('button', { name: 'By table' }).click()
+  const card = page.locator('[data-test="order-card"]').filter({ hasText: `Table ${tableNo}` })
+  await card.getByRole('button', { name: `Table ${tableNo} all done` }).click()
+  await card.waitFor({ state: 'detached' })
 }
 
 export async function openLiveEvent(page: Page): Promise<void> {
