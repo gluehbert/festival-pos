@@ -19,6 +19,8 @@ const isGuestPage = computed(() => !/^\/(staff|admin|production)(\/|$)/.test(rou
 const showBell = computed(() => auth.isAuthenticated && /^\/(staff|production)(\/|$)/.test(route.path))
 // Zoom, fullscreen and screen-on for the kitchen/bar screen.
 const showDisplay = computed(() => auth.isAuthenticated && /^\/production(\/|$)/.test(route.path))
+// On a phone the kitchen/bar station name needs the room: the logo alone names the event.
+const stationTitle = computed(() => /^\/production(\/|$)/.test(route.path))
 const { branding } = useBranding()
 const isOnline = ref(true)
 const { updateAvailable, updating, applyUpdate } = useUpdateAvailable()
@@ -51,7 +53,7 @@ onBeforeUnmount(() => {
       <div class="flex min-w-0 items-center gap-3">
         <NuxtLink to="/" class="flex min-w-0 items-center gap-2 text-sm font-semibold text-brand-ink">
           <EventLogo :branding="branding" alt="" img-class="h-8 w-auto max-w-24 object-contain" />
-          <span class="truncate" :class="branding.eventName ? '' : 'uppercase tracking-widest'">
+          <span class="truncate" :class="[branding.eventName ? '' : 'uppercase tracking-widest', stationTitle ? 'hidden sm:inline' : '']">
             {{ branding.eventName ?? 'Festival POS' }}
           </span>
         </NuxtLink>
