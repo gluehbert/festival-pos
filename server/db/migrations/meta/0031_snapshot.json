@@ -1,5 +1,5 @@
 {
-  "id": "df6f714b-e0fb-49e1-8811-0c7a66654b19",
+  "id": "2b4fb2f8-4962-4291-9729-80059263ef38",
   "prevId": "4d69dd15-71a1-4893-940c-169fc225546a",
   "version": "7",
   "dialect": "postgresql",
@@ -351,6 +351,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
+        },
+        "buzzer_key": {
+          "name": "buzzer_key",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "buzzer_key_2": {
+          "name": "buzzer_key_2",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false
         },
         "food_prepay_enabled": {
           "name": "food_prepay_enabled",
@@ -1815,6 +1827,110 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.production_lanes": {
+      "name": "production_lanes",
+      "schema": "",
+      "columns": {
+        "event_id": {
+          "name": "event_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "station": {
+          "name": "station",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lane": {
+          "name": "lane",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "group_key": {
+          "name": "group_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "assigned_at": {
+          "name": "assigned_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "production_lanes_group_uq": {
+          "name": "production_lanes_group_uq",
+          "columns": [
+            {
+              "expression": "event_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "station",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "group_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "production_lanes_event_id_events_id_fk": {
+          "name": "production_lanes_event_id_events_id_fk",
+          "tableFrom": "production_lanes",
+          "tableTo": "events",
+          "columnsFrom": [
+            "event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "production_lanes_event_id_station_lane_pk": {
+          "name": "production_lanes_event_id_station_lane_pk",
+          "columns": [
+            "event_id",
+            "station",
+            "lane"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "production_lanes_lane_chk": {
+          "name": "production_lanes_lane_chk",
+          "value": "\"production_lanes\".\"lane\" IN (1, 2)"
+        },
+        "production_lanes_station_chk": {
+          "name": "production_lanes_station_chk",
+          "value": "\"production_lanes\".\"station\" IN ('kitchen','bar')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.table_assignments": {
       "name": "table_assignments",
       "schema": "",
@@ -2063,12 +2179,6 @@
         "acknowledged_by": {
           "name": "acknowledged_by",
           "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "visited_at": {
-          "name": "visited_at",
-          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
         }

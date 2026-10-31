@@ -31,7 +31,7 @@ const item = (id: string, orderId: string, at: string, over: Partial<ProductionQ
 
 describe('production store — orders', () => {
   it('groups the queue per table, oldest first; counter sales stay one card per order', async () => {
-    fetchMock.mockResolvedValueOnce({ station: 'kitchen', items: [
+    fetchMock.mockResolvedValueOnce({ station: 'kitchen', lanes: [], items: [
       item('a', 'o1', '2026-06-01T18:00:00Z'),
       item('b', 'o2', '2026-06-01T18:01:00Z', { tableNo: 0, orderKind: 'walkin' }),
       item('c', 'o1', '2026-06-01T18:00:00Z'),
@@ -51,7 +51,7 @@ describe('production store — orders', () => {
   })
 
   it('finishes a whole order optimistically and rolls back on errors', async () => {
-    fetchMock.mockResolvedValueOnce({ station: 'kitchen', items: [
+    fetchMock.mockResolvedValueOnce({ station: 'kitchen', lanes: [], items: [
       item('a', 'o1', '2026-06-01T18:00:00Z'),
       item('b', 'o2', '2026-06-01T18:01:00Z'),
     ] })

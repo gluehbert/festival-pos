@@ -88,7 +88,7 @@ describe('production store', () => {
   const item = (id: string) => ({ orderItemId: id, tableNo: 1, nameDe: 'P', nameEn: 'F', quantity: 1, productionStatus: 'pending', orderedAt: new Date().toISOString(), station: 'kitchen' })
 
   it('loads the queue and advances optimistically, rolling back on errors', async () => {
-    fetchMock.mockResolvedValueOnce({ station: 'kitchen', items: [item('a'), item('b')] })
+    fetchMock.mockResolvedValueOnce({ station: 'kitchen', lanes: [], items: [item('a'), item('b')] })
     const s = useProductionStore()
     await s.fetchQueue('kitchen')
     expect(call(0).path).toBe('/api/production/queue?station=kitchen')
