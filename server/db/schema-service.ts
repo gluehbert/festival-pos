@@ -86,6 +86,6 @@ export const productionLanes = pgTable(
     primaryKey({ columns: [t.eventId, t.station, t.lane] }),
     uniqueIndex('production_lanes_group_uq').on(t.eventId, t.station, t.groupKey),
     check('production_lanes_lane_chk', sql`${t.lane} IN (1, 2)`),
-    check('production_lanes_station_chk', sql`${t.station} IN ('kitchen','bar')`),
+    check('production_lanes_station_chk', sql`${t.station} IN ('kitchen','bar','cafe')`),
   ],
 )

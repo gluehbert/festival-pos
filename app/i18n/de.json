@@ -5,7 +5,8 @@
     "updateAvailable": "Neue Version verfügbar",
     "station": {
       "kitchen": "Küche",
-      "bar": "Bar"
+      "bar": "Bar",
+      "cafe": "Kuchen & Kaffee"
     },
     "trialBanner": "PROBELAUF – Bestellungen sind nur Tests",
     "theme": {
@@ -144,7 +145,8 @@
       "items": "keine Artikel | 1 Artikel | {n} Artikel",
       "group": {
         "kitchen": "Essen",
-        "bar": "Getränke"
+        "bar": "Getränke",
+        "cafe": "Kuchen & Kaffee"
       },
       "depositEach": "je {amount} Pfand",
       "grow": "Warenkorb vergrößern",
@@ -249,6 +251,7 @@
       "checked": "Nachgefragt – nichts gewünscht",
       "served_kitchen": "Essen gebracht",
       "served_bar": "Getränke gebracht",
+      "served_cafe": "Kuchen & Kaffee gebracht",
       "servedHint": "Verschwindet beim Kassieren von selbst.",
       "empty": "Noch nichts bestellt",
       "foodToPay": "{n} Essen warten auf Zahlung: Die Küche beginnt, sobald es kassiert ist.",
@@ -328,6 +331,7 @@
       "voided": "storniert",
       "foodReady": "Essen fertig ({n})",
       "drinksReady": "Getränke fertig ({n})",
+      "cafeReady": "Kuchen & Kaffee fertig ({n})",
       "readyToServe": "bringen",
       "hoursAgo": "vor {h} Std. {m} Min.",
       "openJustNow": "offen seit eben",
@@ -581,6 +585,7 @@
         "lead": "Schichtleitung",
         "kitchen": "Küche",
         "bar": "Bar",
+        "cafe": "Kuchen & Kaffee",
         "admin": "Admin",
         "guest": "Kunde"
       },
@@ -859,7 +864,8 @@
         "waiter": "Service",
         "lead": "Schichtleitung",
         "kitchen": "Küche",
-        "bar": "Bar"
+        "bar": "Bar",
+        "cafe": "Kuchen & Kaffee"
       },
       "passkeys": {
         "toggle": "Passkeys",
@@ -1132,7 +1138,7 @@
     "guestLimits": {
       "title": "Grenzen für Gastbestellungen",
       "hint": "So viel darf ein Gast-Handy höchstens bestellt und noch nicht bezahlt haben, damit niemand im Vorbeigehen einen Tisch mit Bestellungen belädt. Bezahlte Bestellungen zählen nicht mehr. Leer = keine Grenze.",
-      "bar": "Getränke (Bar), €",
+      "bar": "Getränke, Kuchen & Kaffee, €",
       "kitchen": "Essen (Küche), €",
       "none": "keine Grenze",
       "save": "Grenzen speichern",

@@ -103,7 +103,7 @@ export default defineEventHandler(async (event) => {
         unitPriceCents: r.unitPriceCents,
         depositCents: r.depositCents,
         note: r.note,
-        station: r.station as 'kitchen' | 'bar',
+        station: r.station as 'kitchen' | 'bar' | 'cafe',
         productionStatus: r.productionStatus as 'pending' | 'in_progress' | 'done' | 'cancelled',
         paymentStatus: r.paymentStatus as 'unpaid' | 'paid',
         served: r.servedAt !== null,

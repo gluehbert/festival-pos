@@ -130,13 +130,13 @@ describe('GET /api/tickets', () => {
     const handler = (await import('../../server/api/tickets/index.get')).default
     const { event } = makeEvent({ method: 'GET', url: '/api/tickets?status=all' })
     event.context.auth = { staff: waiter }
-    const r = await handler(event) as { tickets: Array<{ ticketKey: string; status: string; totalCents: number; unpaidCents: number; ready: { kitchen: number; bar: number }; assignee: { staffId: string } | null }> }
+    const r = await handler(event) as { tickets: Array<{ ticketKey: string; status: string; totalCents: number; unpaidCents: number; ready: { kitchen: number; bar: number; cafe: number }; assignee: { staffId: string } | null }> }
     const byKey = new Map(r.tickets.map((t) => [t.ticketKey, t]))
     expect(r.tickets).toHaveLength(3)
-    expect(byKey.get('t-3')).toMatchObject({ status: 'open', totalCents: 2400, unpaidCents: 1600, ready: { kitchen: 3, bar: 1 }, assignee: null })
-    expect(byKey.get(`w-${walkA}`)).toMatchObject({ status: 'paid', totalCents: 400, unpaidCents: 0, ready: { kitchen: 1, bar: 0 } })
+    expect(byKey.get('t-3')).toMatchObject({ status: 'open', totalCents: 2400, unpaidCents: 1600, ready: { kitchen: 3, bar: 1, cafe: 0 }, assignee: null })
+    expect(byKey.get(`w-${walkA}`)).toMatchObject({ status: 'paid', totalCents: 400, unpaidCents: 0, ready: { kitchen: 1, bar: 0, cafe: 0 } })
     expect(byKey.get(`w-${walkA}`)!.assignee?.staffId).toBe(seeded.staffId)
-    expect(byKey.get(`w-${walkB}`)).toMatchObject({ status: 'open', totalCents: 800, unpaidCents: 800, ready: { kitchen: 0, bar: 0 } })
+    expect(byKey.get(`w-${walkB}`)).toMatchObject({ status: 'open', totalCents: 800, unpaidCents: 800, ready: { kitchen: 0, bar: 0, cafe: 0 } })
   })
 })
 

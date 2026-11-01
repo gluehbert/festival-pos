@@ -11,7 +11,7 @@ const emit = defineEmits<{
   setActive: [staffId: string, isActive: boolean]
 }>()
 
-const ROLES = ['waiter', 'lead', 'kitchen', 'bar'] as const
+const ROLES = ['waiter', 'lead', 'kitchen', 'bar', 'cafe'] as const
 // Chosen role per request; Bedienung unless the person had another role before.
 const roles = reactive<Record<string, JoinRole>>({})
 const roleOf = (r: JoinOverview['pending'][number]) => roles[r.id] ?? r.role ?? 'waiter'

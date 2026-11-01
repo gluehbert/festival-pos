@@ -44,7 +44,7 @@ function loadQuietly() {
 const attention = useAttention()
 const ready = createIncreaseTracker()
 watch(() => tickets.lastSyncAt, () => {
-  const counts = new Map(tickets.tickets.map((t) => [t.ticketKey, t.ready.kitchen + t.ready.bar + t.foodToPay]))
+  const counts = new Map(tickets.tickets.map((t) => [t.ticketKey, t.ready.kitchen + t.ready.bar + t.ready.cafe + t.foodToPay]))
   if (ready.update(counts).length > 0) attention.notify()
 })
 

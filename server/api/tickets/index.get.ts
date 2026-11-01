@@ -24,12 +24,12 @@ const sumInt = (expr: SQL) => sql<number>`SUM(${expr})`.mapWith(Number)
 // At a table, paid items are not the waiter's to bring: food paid at
 // ordering is handed out by other helpers (and paying marks finished items
 // brought). A walk-in pays first and collects at the counter.
-const readyAt = (station: 'kitchen' | 'bar') => sumInt(sql`CASE WHEN ${orderItems.station} = ${station}
+const readyAt = (station: 'kitchen' | 'bar' | 'cafe') => sumInt(sql`CASE WHEN ${orderItems.station} = ${station}
   AND ${orderItems.productionStatus} = 'done' AND ${orderItems.servedAt} IS NULL
   AND (${isWalk} OR ${orderItems.paymentStatus} = 'unpaid') THEN ${orderItems.quantity} ELSE 0 END`)
 const heldFood = sumInt(sql`CASE WHEN ${orderItems.station} = 'kitchen' AND ${orderItems.paymentStatus} = 'unpaid'
   AND ${orderItems.productionStatus} = 'pending' THEN ${orderItems.quantity} ELSE 0 END`)
-const hasStation = (station: 'kitchen' | 'bar') =>
+const hasStation = (station: 'kitchen' | 'bar' | 'cafe') =>
   sumInt(sql`CASE WHEN ${orderItems.station} = ${station} THEN 1 ELSE 0 END`)
 
 const toDate = (d: Date | string) => (d instanceof Date ? d : new Date(d))
@@ -63,8 +63,10 @@ export default defineEventHandler(async (event) => {
         lastOrderAt: sql<Date | string>`MAX(${orderItems.createdAt})`,
         hasKitchen: hasStation('kitchen'),
         hasBar: hasStation('bar'),
+        hasCafe: hasStation('cafe'),
         readyKitchen: readyAt('kitchen'),
         readyBar: readyAt('bar'),
+        readyCafe: readyAt('cafe'),
         heldFood,
       })
       .from(orderItems)
@@ -104,13 +106,14 @@ export default defineEventHandler(async (event) => {
     for (const r of rows) {
       const ticketKey = r.walkinOrderId ? makeWalkKey(r.walkinOrderId) : makeTableKey(r.tableNo)
       const status: 'open' | 'paid' = r.unpaidCents > 0 ? 'open' : 'paid'
-      const ready = { kitchen: r.readyKitchen, bar: r.readyBar }
+      const ready = { kitchen: r.readyKitchen, bar: r.readyBar, cafe: r.readyCafe }
       // Paid but food/drinks still to bring (e.g. walk-in paid at once): keep it listed.
-      const needsService = ready.kitchen + ready.bar > 0
+      const needsService = ready.kitchen + ready.bar + ready.cafe > 0
       if (query.status === 'open' && status !== 'open' && !needsService) continue
       if (query.status === 'paid' && status !== 'paid') continue
       if (query.station === 'kitchen' && !r.hasKitchen) continue
       if (query.station === 'bar' && !r.hasBar) continue
+      if (query.station === 'cafe' && !r.hasCafe) continue
       tickets.push({
         ticketKey,
         tableNo: r.tableNo,

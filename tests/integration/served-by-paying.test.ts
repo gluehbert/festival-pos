@@ -25,7 +25,7 @@ const finish = (orderId: string, role: Role) =>
 const pay = (tableNo: number, orderItemIds: string[], quantities?: Record<string, number>) =>
   call(`${API}/payments/index.post`, { method: 'POST', staff: waiter, body: { ticketKey: `t-${tableNo}`, orderItemIds, quantities } })
 const ready = async (tableNo: number) => {
-  const list = await call<{ tickets: Array<{ tableNo: number; ready: { kitchen: number; bar: number } }> }>(`${API}/tickets/index.get`, { staff: waiter })
+  const list = await call<{ tickets: Array<{ tableNo: number; ready: { kitchen: number; bar: number; cafe: number } }> }>(`${API}/tickets/index.get`, { staff: waiter })
   return list.body.tickets.find((t) => t.tableNo === tableNo)?.ready
 }
 const servedRows = () => ctx.mem.public.many(`SELECT quantity, payment_status, served_at FROM order_items ORDER BY quantity`) as Array<{ quantity: number; payment_status: string; served_at: Date | null }>
@@ -42,14 +42,14 @@ describe('ready to bring follows cashing, not the "Gebracht" button', () => {
   it('counts finished drinks as brought once they are cashed', async () => {
     const o = await order(5, [{ menuItemId: BIER(), quantity: 3 }, { menuItemId: POMMES(), quantity: 1 }])
     await finish(o.orderId, 'bar')
-    expect(await ready(5)).toEqual({ kitchen: 0, bar: 3 })
+    expect(await ready(5)).toEqual({ kitchen: 0, bar: 3, cafe: 0 })
 
     // One guest pays two beers: those are brought, the third is still to bring.
     const beer = o.items.find((i) => i.menuItemId === BIER())!.orderItemId
     expect((await pay(5, [beer], { [beer]: 2 })).status).toBe(201)
-    expect(await ready(5)).toEqual({ kitchen: 0, bar: 1 })
+    expect(await ready(5)).toEqual({ kitchen: 0, bar: 1, cafe: 0 })
     expect((await pay(5, [beer])).status).toBe(201)
-    expect(await ready(5)).toEqual({ kitchen: 0, bar: 0 })
+    expect(await ready(5)).toEqual({ kitchen: 0, bar: 0, cafe: 0 })
     expect(servedRows().filter((r) => r.payment_status === 'paid').every((r) => r.served_at !== null)).toBe(true)
   })
 
@@ -60,6 +60,6 @@ describe('ready to bring follows cashing, not the "Gebracht" button', () => {
     // Paid before it was finished: not marked brought, the kitchen's helpers hand it out.
     expect(servedRows().find((r) => r.payment_status === 'paid')!.served_at).toBeNull()
     await finish(o.orderId, 'kitchen')
-    expect(await ready(6)).toEqual({ kitchen: 0, bar: 0 })
+    expect(await ready(6)).toEqual({ kitchen: 0, bar: 0, cafe: 0 })
   })
 })

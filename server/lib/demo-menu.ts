@@ -5,7 +5,7 @@ export interface MenuSeed {
   nameEn: string
   priceCents: number
   category: string
-  station: 'kitchen' | 'bar'
+  station: 'kitchen' | 'bar' | 'cafe'
   sortOrder: number
   // Allergen keys (server/lib/allergens.ts); left out = not recorded yet.
   allergens?: string[]
@@ -23,4 +23,6 @@ export const DEMO_MENU: MenuSeed[] = [
   { nameDe: 'Cola 0,33', nameEn: 'Cola 0.33', priceCents: 300, category: 'Softdrinks', station: 'bar', sortOrder: 130, allergens: [], diet: 'vegan' },
   { nameDe: 'Wasser 0,5', nameEn: 'Water 0.5', priceCents: 250, category: 'Softdrinks', station: 'bar', sortOrder: 140, allergens: [], diet: 'vegan' },
   { nameDe: 'Aperol Spritz', nameEn: 'Aperol Spritz', priceCents: 650, category: 'Cocktails', station: 'bar', sortOrder: 150 },
+  { nameDe: 'Kuchen', nameEn: 'Cake', priceCents: 350, category: 'Cafe', station: 'cafe', sortOrder: 210, allergens: ['gluten', 'eggs', 'milk'], diet: 'vegetarian' },
+  { nameDe: 'Kaffee', nameEn: 'Coffee', priceCents: 250, category: 'Cafe', station: 'cafe', sortOrder: 220, allergens: [], diet: 'vegan' },
 ]

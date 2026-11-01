@@ -17,7 +17,7 @@ describe('PreviewLogin', () => {
   it('offers every role and the guest', () => {
     const w = mount(PreviewLogin)
     expect(w.findAll('button').map((b) => b.attributes('data-test'))).toEqual([
-      'preview-login-waiter', 'preview-login-lead', 'preview-login-kitchen', 'preview-login-bar', 'preview-login-admin', 'preview-login-guest',
+      'preview-login-waiter', 'preview-login-lead', 'preview-login-kitchen', 'preview-login-bar', 'preview-login-cafe', 'preview-login-admin', 'preview-login-guest',
     ])
   })
 

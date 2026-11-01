@@ -5,7 +5,8 @@
     "updateAvailable": "New version available",
     "station": {
       "kitchen": "Kitchen",
-      "bar": "Bar"
+      "bar": "Bar",
+      "cafe": "Cake & coffee"
     },
     "trialBanner": "REHEARSAL – orders are tests only",
     "theme": {
@@ -144,7 +145,8 @@
       "items": "no items | 1 item | {n} items",
       "group": {
         "kitchen": "Food",
-        "bar": "Drinks"
+        "bar": "Drinks",
+        "cafe": "Cake & coffee"
       },
       "depositEach": "{amount} deposit each",
       "grow": "Enlarge cart",
@@ -249,6 +251,7 @@
       "checked": "Asked – nothing wanted",
       "served_kitchen": "Food served",
       "served_bar": "Drinks served",
+      "served_cafe": "Cake & coffee served",
       "servedHint": "Clears by itself when you cash out.",
       "empty": "Nothing ordered yet",
       "foodToPay": "{n} food waiting for payment: the kitchen starts once it is cashed.",
@@ -328,6 +331,7 @@
       "voided": "voided",
       "foodReady": "Food ready ({n})",
       "drinksReady": "Drinks ready ({n})",
+      "cafeReady": "Cake & coffee ready ({n})",
       "readyToServe": "serve",
       "hoursAgo": "{h} h {m} min ago",
       "openJustNow": "open since just now",
@@ -581,6 +585,7 @@
         "lead": "Shift lead",
         "kitchen": "Kitchen",
         "bar": "Bar",
+        "cafe": "Cake & coffee",
         "admin": "Admin",
         "guest": "Guest"
       },
@@ -859,7 +864,8 @@
         "waiter": "Service",
         "lead": "Shift lead",
         "kitchen": "Kitchen",
-        "bar": "Bar"
+        "bar": "Bar",
+        "cafe": "Cake & coffee"
       },
       "passkeys": {
         "toggle": "Passkeys",
@@ -1132,7 +1138,7 @@
     "guestLimits": {
       "title": "Guest order limits",
       "hint": "Most one guest phone may have ordered and not yet paid, so nobody can walk past a table and load it with orders. Paid orders no longer count. Empty = no limit.",
-      "bar": "Drinks (bar), €",
+      "bar": "Drinks and cake & coffee, €",
       "kitchen": "Food (kitchen), €",
       "none": "no limit",
       "save": "Save limits",

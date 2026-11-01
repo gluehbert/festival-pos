@@ -33,6 +33,16 @@ describe('parseMenuRows', () => {
     ])
   })
 
+  it('reads the cake and coffee counter as its own station', () => {
+    const { items, errors } = parseMenuRows([
+      header,
+      ['Kuchen', 'Cake', '3,00', 'Cafe', 'Cafe', 10, ''],
+      ['Kaffee', 'Coffee', '2,00', 'Cafe', 'Kaffeetheke', 20, ''],
+    ])
+    expect(errors).toEqual([])
+    expect(items.map((i) => i.station)).toEqual(['cafe', 'cafe'])
+  })
+
   it('reads an optional subcategory column; empty cells clear it, a missing column leaves it alone', () => {
     const { items, errors } = parseMenuRows([
       ['Name (DE)', 'Price (€)', 'Category', 'Subcategory', 'Station'],

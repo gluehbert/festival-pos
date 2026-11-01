@@ -4,7 +4,7 @@ import { getDb } from '../../db/client'
 import { events, menuItems, orderItems, orders } from '../../db/schema'
 import { AppError, sendAppError } from '../../lib/errors'
 import { kitchenReleased } from '../../lib/food-prepay'
-import { requireRole } from '../../lib/rbac'
+import { isStationRole, requireRole, STATION_ROLES } from '../../lib/rbac'
 import { activeLanes, fillLanes } from '../../lib/production-lanes'
 import {
   ProductionQueueQuerySchema,
@@ -15,11 +15,11 @@ import {
 
 export default defineEventHandler(async (event) => {
   try {
-    const staff = requireRole(event, ['kitchen', 'bar', 'admin'])
+    const staff = requireRole(event, [...STATION_ROLES, 'admin'])
     const query = ProductionQueueQuerySchema.parse(getQuery(event))
 
     let station: Station
-    if (staff.role === 'kitchen' || staff.role === 'bar') {
+    if (isStationRole(staff.role)) {
       station = staff.role
     }
     else {

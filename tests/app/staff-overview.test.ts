@@ -12,7 +12,7 @@ const stubs = { NuxtLink: RouterLinkStub }
 // Table 3 has an open order but nobody in charge; table 2 is anna's.
 const unattended = {
   ticketKey: 't-3', tableNo: 3, status: 'open', totalCents: 800, unpaidCents: 800, lockedBy: null,
-  ready: { kitchen: 0, bar: 0 }, foodToPay: 0, oldestItemAt: '2026-10-16T18:00:00.000Z', lastOrderAt: '2026-10-16T18:00:00.000Z', lastCheckAt: null, assignee: null,
+  ready: { kitchen: 0, bar: 0, cafe: 0 }, foodToPay: 0, oldestItemAt: '2026-10-16T18:00:00.000Z', lastOrderAt: '2026-10-16T18:00:00.000Z', lastCheckAt: null, assignee: null,
 }
 
 beforeEach(() => {
