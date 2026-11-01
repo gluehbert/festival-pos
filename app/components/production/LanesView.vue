@@ -98,7 +98,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
         </header>
         <div v-if="l.group" class="flex min-h-0 flex-1 flex-col px-4 pb-3 pt-2">
           <p class="shrink-0">
-            <span class="inline-block rounded-lg bg-slate-900 px-3 py-0.5 text-3xl font-black text-white" data-test="lane-label">{{ groupLabel(l.group, t) }}</span>
+            <span class="inline-block rounded-lg bg-slate-900 px-3 py-0.5 text-3xl font-black text-slate-50" data-test="lane-label">{{ groupLabel(l.group, t) }}</span>
             <span v-if="isFollowUp(l.group, groups)" class="ml-2 rounded-md bg-slate-200 px-2 py-1 align-middle text-lg font-bold text-slate-800" data-test="follow-up">{{ $t('production.lanes.followUp') }}</span>
           </p>
           <ul :ref="(el) => el ? lists.set(l.lane, el as HTMLElement) : lists.delete(l.lane)" class="mt-1 min-h-0 flex-1 gap-6 overflow-hidden text-4xl" data-test="lane-lines">
