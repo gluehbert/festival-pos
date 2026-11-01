@@ -492,6 +492,10 @@
       "noneMine": "You have no tables yet. The shift lead will hand them to you. Until then, \"All\" shows every table.",
       "walkins": "Walk-ins / counter"
     },
+    "readyElsewhere": {
+      "heading": "Ready at the counter",
+      "hint": "Other tables. If you are at the counter, take it along; you can cash it at the table."
+    },
     "needsSomeone": {
       "heading": "Needs someone",
       "hint": "Open order, but nobody is in charge. Give it to someone under \"Hand out tables\"."

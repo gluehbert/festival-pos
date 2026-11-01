@@ -16,10 +16,11 @@ import { useDeviceMode } from '~/composables/useDeviceMode'
 import ServiceActions from '~/components/staff/ServiceActions.vue'
 import { useBranding } from '~/composables/useBranding'
 import NeedsSomeone from '~/components/staff/NeedsSomeone.vue'
+import ReadyElsewhere from '~/components/staff/ReadyElsewhere.vue'
 import WaiterCalls from '~/components/staff/WaiterCalls.vue'
 import WelcomeCard from '~/components/staff/WelcomeCard.vue'
 import { useWelcome } from '~/composables/useWelcome'
-import { matchesOwner, needsSomeone, ticketAssignee, type OwnerFilter } from '~/utils/table-grid'
+import { matchesOwner, needsSomeone, readyElsewhere, ticketAssignee, type OwnerFilter } from '~/utils/table-grid'
 
 const auth = useAuthStore()
 const tickets = useTicketsStore()
@@ -98,6 +99,8 @@ const assigneeOf = (t: (typeof tickets.tickets)[number]) => ticketAssignee(t, ti
 const filtered = computed(() => tickets.tickets.filter((t) => matchesOwner(assigneeOf(t), owner.value, myId.value)))
 // Under "Alle" these tables are in the list/grid anyway.
 const unattended = computed(() => (expert.value && owner.value === 'mine' ? needsSomeone(tickets.tickets, tickets.assignments) : []))
+// Under "Alle" these trays are green in the list/grid anyway.
+const takeAlong = computed(() => (owner.value === 'mine' ? readyElsewhere(tickets.tickets, tickets.assignments, myId.value) : []))
 </script>
 
 <template>
@@ -139,6 +142,8 @@ const unattended = computed(() => (expert.value && owner.value === 'mine' ? need
     </div>
 
     <OverviewControls :owner="owner" :view="view" :show-view="expert" @owner="(o: OwnerFilter) => staffView.setOwner(o)" @view="setView" />
+
+    <ReadyElsewhere :tickets="takeAlong" :assignments="tickets.assignments" />
 
     <NeedsSomeone :tickets="unattended" />
 

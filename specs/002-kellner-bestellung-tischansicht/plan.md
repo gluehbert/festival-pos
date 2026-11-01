@@ -106,7 +106,7 @@ Each phase is runnable on its own and is delivered as its own PR.
 
 ### Phase 5 (optional, later)
 
-- "My tables"/take over a table (Master Plan 5F) – implemented: `table_assignments`, filter "Mine/All" (hint "Needs someone" for open tables without an assignee), table grid.
+- "My tables"/take over a table (Master Plan 5F) – implemented: `table_assignments`, filter "Mine/All" (hint "Needs someone" for open tables without an assignee), table grid, strip "Ready at the counter" under "Mine" for finished trays of other tables (any waiter brings and cashes them).
 - Status "served" after "done", so the waiter marking disappears after delivery.
 - Further payment methods (SumUp, PayPal, …) via `payments.method`.
 

@@ -58,6 +58,25 @@ describe('service overview', () => {
   })
 })
 
+describe('trays at the counter', () => {
+  it('shows a waiter finished trays of other tables under "My tables" only', async () => {
+    const ready = (tableNo: number) => ({ ...unattended, ticketKey: `t-${tableNo}`, tableNo, ready: { kitchen: 0, bar: 2 } })
+    fetchMock.mockImplementation(async (url: string) => (url.startsWith('/api/tickets')
+      ? {
+          tickets: [unattended, ready(2), ready(4)],
+          assignments: [{ tableNo: 2, ...ANNA, assignedAt: '2026-10-16T18:00:00.000Z' }],
+          tableRange: { from: 1, to: 4 },
+          serverNow: new Date().toISOString(),
+        }
+      : {}))
+    const w = await open('waiter')
+    // Table 2 is anna's own and already in her grid; table 3 has nothing ready.
+    expect(w.findAll('[data-test="ready-elsewhere-table"]').map((r) => r.text().match(/\d+/)![0])).toEqual(['4'])
+    await w.get('[data-test="owner-all"]').trigger('click')
+    expect(w.find('[data-test="ready-elsewhere"]').exists()).toBe(false)
+  })
+})
+
 describe('short guide', () => {
   it('opens once per account on this device and closes with "Los geht\'s"', async () => {
     const w = await open('waiter')

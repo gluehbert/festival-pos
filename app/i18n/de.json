@@ -492,6 +492,10 @@
       "noneMine": "Du hast noch keine Tische. Die Schichtleitung teilt sie dir zu. Bis dahin findest du unter „Alle“ jeden Tisch.",
       "walkins": "Walk-ins / Theke"
     },
+    "readyElsewhere": {
+      "heading": "Fertig an der Theke",
+      "hint": "Andere Tische. Wer gerade an der Theke ist, nimmt es mit und kann am Tisch gleich kassieren."
+    },
     "needsSomeone": {
       "heading": "Braucht jemanden",
       "hint": "Offene Bestellung, aber niemand zuständig. Unter „Tische verteilen“ jemandem geben."

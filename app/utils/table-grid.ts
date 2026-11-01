@@ -65,3 +65,9 @@ export function ticketAssignee(ticket: TicketSummary, assignments: TableAssignme
 export function needsSomeone(tickets: TicketSummary[], assignments: TableAssignment[]): TicketSummary[] {
   return tickets.filter((t) => !isWalkin(t) && t.status === 'open' && ticketAssignee(t, assignments) === null)
 }
+
+// Finished trays for tables someone else (or nobody) looks after: whoever is
+// at the counter takes them along. Cashing at the table clears them.
+export function readyElsewhere(tickets: TicketSummary[], assignments: TableAssignment[], myId: string | undefined): TicketSummary[] {
+  return tickets.filter((t) => !isWalkin(t) && t.ready.kitchen + t.ready.bar > 0 && ticketAssignee(t, assignments)?.staffId !== myId)
+}
