@@ -8,6 +8,9 @@ import type { Assignee, TableAssignment } from '~/../server/lib/contracts/tables
 export type TileState = 'free' | 'busy' | 'pay' | 'ready' | 'late'
 export const LATE_AFTER_MINUTES = 20
 
+// The traffic light's colour per state (overview legend and table picker).
+export const STATE_DOT: Record<TileState, string> = { free: 'bg-slate-300', busy: 'bg-amber-400', pay: 'bg-sky-500', ready: 'bg-emerald-500', late: 'bg-red-500' }
+
 export type OwnerFilter = 'mine' | 'all'
 
 export interface Tile {

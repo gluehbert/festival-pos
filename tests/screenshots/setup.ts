@@ -45,6 +45,15 @@ export async function tapMenuItem(page: Page, name: RegExp, times = 1): Promise<
   for (let i = 0; i < times; i++) await button.click()
 }
 
+// New order: tap the table in the grid (all tables if the waiter holds some).
+export async function pickTable(page: Page, tableNo: number): Promise<void> {
+  await page.locator('[data-test="picker-table"]').first().waitFor()
+  const all = page.locator('[data-test="picker-all"]')
+  if (await all.isVisible()) await all.click()
+  await page.getByRole('button', { name: new RegExp(`^table ${tableNo},`, 'i') }).click()
+  await page.locator('[data-test="order-table-chosen"]').waitFor()
+}
+
 export async function openCart(page: Page): Promise<void> {
   await page.locator('[data-test="cart-toggle"]').click()
 }

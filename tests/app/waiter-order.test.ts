@@ -176,12 +176,13 @@ describe('staff order store', () => {
 
 describe('send block reason', () => {
   it('tells why the pad cannot be sent yet', () => {
-    const ok = { empty: false, tableValid: true, mealValid: true }
+    const ok = { empty: false, picking: false, mealValid: true }
     expect(sendBlock(ok)).toBeNull()
-    expect(sendBlock({ ...ok, tableValid: false })).toBe('table')
     expect(sendBlock({ ...ok, mealValid: false })).toBe('mealReason')
+    // The open table grid asks for the table itself: blocked, but no red hint.
+    expect(sendBlock({ ...ok, picking: true })).toBe('picking')
     // An empty pad is obvious from the summary, no extra hint needed.
-    expect(sendBlock({ ...ok, empty: true, tableValid: false })).toBe('empty')
+    expect(sendBlock({ ...ok, empty: true, picking: true })).toBe('empty')
   })
 })
 

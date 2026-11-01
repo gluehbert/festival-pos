@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { collectPayment, joinTable, loginStaff, openEventTab, openLiveEvent, tapMenuItem } from './helpers'
+import { collectPayment, joinTable, loginStaff, openEventTab, openLiveEvent, pickTable, tapMenuItem } from './helpers'
 
 // US8: festival extras — notes for the kitchen, cash drawer with closing,
 // printable receipt, staff meals and the legal pages.
@@ -24,7 +24,7 @@ test.describe('@smoke US8 — club festival extras', () => {
     await expect(page.locator('[data-test="cash-expected"]')).toContainText('50.00')
 
     await page.goto('/staff/order')
-    await page.locator('[data-test="order-table"]').fill('9')
+    await pickTable(page, 9)
     await tapMenuItem(page, /^add sausage$/i, 1)
     await page.locator('[data-test="pad-lines"] summary').click()
     await page.getByRole('button', { name: /add a note to sausage/i }).click()
