@@ -68,7 +68,7 @@ export const menuItems = pgTable(
     check('menu_items_price_chk', sql`${t.priceCents} >= 0`),
     check('menu_items_deposit_chk', sql`${t.depositCents} >= 0`),
     check('menu_items_stock_chk', sql`${t.stock} IS NULL OR ${t.stock} >= 0`),
-    check('menu_items_station_chk', sql`${t.station} IN ('kitchen','bar')`),
+    check('menu_items_station_chk', sql`${t.station} IN ('kitchen','bar','cafe')`),
     check('menu_items_diet_chk', sql`${t.diet} IS NULL OR ${t.diet} IN ('vegetarian','vegan')`),
   ],
 )
@@ -91,7 +91,7 @@ export const staff = pgTable(
   },
   (t) => [
     check('staff_theme_chk', sql`${t.theme} IN ('system','light','dark')`),
-    check('staff_role_chk', sql`${t.role} IN ('admin','lead','waiter','kitchen','bar')`),
+    check('staff_role_chk', sql`${t.role} IN ('admin','lead','waiter','kitchen','bar','cafe')`),
     check('staff_secret_chk', sql`${t.passwordHash} IS NOT NULL OR ${t.pinHash} IS NOT NULL OR ${t.eventId} IS NOT NULL`),
     check('staff_event_role_chk', sql`${t.eventId} IS NULL OR ${t.role} <> 'admin'`),
     // Login names are unique among permanent staff; a joined name only
@@ -190,7 +190,7 @@ export const orderItems = pgTable(
     index('order_items_payment_status_idx').on(t.paymentStatus),
     check('order_items_quantity_chk', sql`${t.quantity} >= 1`),
     check('order_items_price_chk', sql`${t.unitPriceCents} >= 0 AND ${t.depositCents} >= 0`),
-    check('order_items_station_chk', sql`${t.station} IN ('kitchen','bar')`),
+    check('order_items_station_chk', sql`${t.station} IN ('kitchen','bar','cafe')`),
     check(
       'order_items_prod_status_chk',
       sql`${t.productionStatus} IN ('pending','in_progress','done','cancelled')`,

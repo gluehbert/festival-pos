@@ -3,7 +3,7 @@ import { SignJWT, jwtVerify } from 'jose'
 import { deleteCookie, setCookie, type H3Event } from 'h3'
 import { serverEnv } from './env'
 
-export type StaffRole = 'admin' | 'lead' | 'waiter' | 'kitchen' | 'bar'
+export type StaffRole = 'admin' | 'lead' | 'waiter' | 'kitchen' | 'bar' | 'cafe'
 
 export interface StaffJwtPayload {
   staffId: string

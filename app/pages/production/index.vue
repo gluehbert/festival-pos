@@ -16,7 +16,7 @@ import { groupLabel } from '~/utils/production-card'
 import { createSeenTracker } from '~/utils/arrivals'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 
-type Station = 'kitchen' | 'bar'
+type Station = 'kitchen' | 'bar' | 'cafe'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -36,7 +36,7 @@ const { branding } = useBranding()
 const finishingIds = ref<Set<string>>(new Set())
 
 const effectiveStation = computed<Station | undefined>(() => {
-  if (auth.staff?.role === 'kitchen' || auth.staff?.role === 'bar') return auth.staff.role
+  if (auth.staff?.role === 'kitchen' || auth.staff?.role === 'bar' || auth.staff?.role === 'cafe') return auth.staff.role
   if (isAdmin.value) return adminStation.value
   return undefined
 })
@@ -44,8 +44,8 @@ const effectiveStation = computed<Station | undefined>(() => {
 // With buzzers the screen shows their lanes instead of the views.
 const lanesActive = computed(() => production.lanes.length > 0)
 
-// A drink is ready in seconds: the bar skips "Start".
-const oneStep = computed(() => effectiveStation.value === 'bar')
+// A drink or a slice of cake is ready in seconds: bar and cafe skip "Start".
+const oneStep = computed(() => effectiveStation.value === 'bar' || effectiveStation.value === 'cafe')
 
 async function load() {
   await production.fetchQueue(isAdmin.value ? adminStation.value : undefined)
@@ -71,7 +71,7 @@ onMounted(async () => {
       return
     }
   }
-  if (!['kitchen', 'bar', 'admin'].includes(auth.staff?.role ?? '')) {
+  if (!['kitchen', 'bar', 'cafe', 'admin'].includes(auth.staff?.role ?? '')) {
     await navigateTo('/staff')
     return
   }

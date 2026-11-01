@@ -9,7 +9,7 @@ import { previewAccount, requirePreviewLogin } from '../../lib/preview-login'
 import { ensurePreviewEvent } from '../../lib/preview-demo'
 import { PreviewLoginResponseSchema, PreviewLoginSchema } from '../../lib/contracts/preview'
 
-const HOME: Record<StaffRole, string> = { waiter: '/staff', lead: '/staff', kitchen: '/production', bar: '/production', admin: '/admin/events' }
+const HOME: Record<StaffRole, string> = { waiter: '/staff', lead: '/staff', kitchen: '/production', bar: '/production', cafe: '/production', admin: '/admin/events' }
 
 // Preview deployments only: sign in as service, shift lead, kitchen, bar,
 // admin or as a guest at a table with one tap (404 everywhere else).

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { AssigneeSchema, TableAssignmentSchema } from './tables'
 
-export const StaffRoleEnum = z.enum(['admin', 'lead', 'waiter', 'kitchen', 'bar'])
+export const StaffRoleEnum = z.enum(['admin', 'lead', 'waiter', 'kitchen', 'bar', 'cafe'])
 export type StaffRoleDto = z.infer<typeof StaffRoleEnum>
 
 export const StaffLoginSchema = z.object({
@@ -31,7 +31,7 @@ export type Ok = z.infer<typeof OkSchema>
 
 export const TicketsQuerySchema = z.object({
   status: z.enum(['open', 'paid', 'all']).optional().default('open'),
-  station: z.enum(['kitchen', 'bar']).optional(),
+  station: z.enum(['kitchen', 'bar', 'cafe']).optional(),
 })
 export type TicketsQuery = z.infer<typeof TicketsQuerySchema>
 
@@ -44,7 +44,7 @@ export const TicketSummarySchema = z.object({
   oldestItemAt: z.string().datetime(),
   lockedBy: z.string().uuid().nullable(),
   // Finished at kitchen/bar but not yet brought to the table (quantities).
-  ready: z.object({ kitchen: z.number().int(), bar: z.number().int() }),
+  ready: z.object({ kitchen: z.number().int(), bar: z.number().int(), cafe: z.number().int() }),
   // Food prepay: unpaid food the kitchen gets only once a waiter has cashed it (quantity).
   foodToPay: z.number().int(),
   // When the table last ordered (guest QR or waiter) and when a waiter last
@@ -76,7 +76,7 @@ export const TicketDetailItemSchema = z.object({
   unitPriceCents: z.number().int(),
   depositCents: z.number().int(),
   note: z.string().nullable(),
-  station: z.enum(['kitchen', 'bar']),
+  station: z.enum(['kitchen', 'bar', 'cafe']),
   productionStatus: z.enum(['pending', 'in_progress', 'done', 'cancelled']),
   paymentStatus: z.enum(['unpaid', 'paid']),
   served: z.boolean(),

@@ -24,7 +24,7 @@ export function tileState(ticket: TicketSummary | null, nowMs: number): TileStat
   if (!ticket) return 'free'
   // The kitchen waits for this money: it comes first.
   if (ticket.foodToPay > 0) return 'pay'
-  if (ticket.ready.kitchen + ticket.ready.bar > 0) return 'ready'
+  if (ticket.ready.kitchen + ticket.ready.bar + ticket.ready.cafe > 0) return 'ready'
   if (ticket.status !== 'open') return 'free'
   const { minutes } = tableActivity(ticket.lastOrderAt, ticket.lastCheckAt, nowMs)
   return minutes >= LATE_AFTER_MINUTES ? 'late' : 'busy'

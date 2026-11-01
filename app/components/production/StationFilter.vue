@@ -1,15 +1,15 @@
 <script setup lang="ts">
-type Station = 'kitchen' | 'bar'
+type Station = 'kitchen' | 'bar' | 'cafe'
 
 // The page title doubles as the station picker: shows the current station,
-// a tap offers the others. Only admins get it; kitchen and bar staff are
+// a tap offers the others. Only admins get it; station staff are
 // bound to their station by role.
 defineProps<{ modelValue: Station }>()
 const emit = defineEmits<{
   (e: 'update:modelValue', v: Station): void
 }>()
 
-const options: ReadonlyArray<Station> = ['kitchen', 'bar']
+const options: ReadonlyArray<Station> = ['kitchen', 'bar', 'cafe']
 
 function pick(opt: Station, close: () => void) {
   emit('update:modelValue', opt)

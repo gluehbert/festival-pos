@@ -4,7 +4,7 @@ import { getDb } from '../../../db/client'
 import { orderItems, orders } from '../../../db/schema'
 import { AppError, sendAppError } from '../../../lib/errors'
 import { assertCsrf } from '../../../lib/csrf'
-import { requireRole } from '../../../lib/rbac'
+import { requireRole, STATION_ROLES } from '../../../lib/rbac'
 import { requireActiveEvent } from '../../../lib/active-event'
 import { isHeldFood } from '../../../lib/food-prepay'
 import {
@@ -23,7 +23,7 @@ const TRANSITIONS: Record<string, ReadonlyArray<'in_progress' | 'done'>> = {
 export default defineEventHandler(async (event) => {
   try {
     assertCsrf(event)
-    const staff = requireRole(event, ['kitchen', 'bar', 'admin'])
+    const staff = requireRole(event, [...STATION_ROLES, 'admin'])
     const id = getRouterParam(event, 'id') ?? ''
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
       throw new AppError('VALIDATION', 400, 'Invalid order item id')
@@ -56,9 +56,9 @@ export default defineEventHandler(async (event) => {
       throw new AppError('NOT_PAID', 409, 'Food is cooked once it is paid')
     }
 
-    // A drink is ready in seconds: the bar may skip "in progress".
+    // A drink or a slice of cake is ready in seconds: bar and cafe counter may skip "in progress".
     const allowed = TRANSITIONS[item.productionStatus] ?? []
-    const barSkip = item.station === 'bar' && item.productionStatus === 'pending' && input.nextStatus === 'done'
+    const barSkip = item.station !== 'kitchen' && item.productionStatus === 'pending' && input.nextStatus === 'done'
     if (!allowed.includes(input.nextStatus) && !barSkip) {
       throw new AppError(
         'CONFLICT',

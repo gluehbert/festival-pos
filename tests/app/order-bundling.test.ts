@@ -139,7 +139,7 @@ describe('OrderCard', () => {
 describe('waiter sees what is ready', () => {
   const ticket: TicketSummary = {
     ticketKey: 't-8', tableNo: 8, status: 'open', totalCents: 900, unpaidCents: 900,
-    oldestItemAt: new Date().toISOString(), lockedBy: null, ready: { kitchen: 2, bar: 0 }, foodToPay: 0,
+    oldestItemAt: new Date().toISOString(), lockedBy: null, ready: { kitchen: 2, bar: 0, cafe: 0 }, foodToPay: 0,
   }
 
   it('flags tickets with finished food or drinks', () => {
@@ -147,7 +147,7 @@ describe('waiter sees what is ready', () => {
     expect(w.find('[data-test="ticket-ready"]').text()).toContain('staff.ticket.foodReady')
     expect(w.find('[data-test="ticket-ready"]').text()).not.toContain('staff.ticket.drinksReady')
     const none = mount(TicketCard, {
-      props: { ticket: { ...ticket, ready: { kitchen: 0, bar: 0 } } },
+      props: { ticket: { ...ticket, ready: { kitchen: 0, bar: 0, cafe: 0 } } },
       global: { stubs: { NuxtLink: { template: '<a><slot /></a>' } } },
     })
     expect(none.find('[data-test="ticket-ready"]').exists()).toBe(false)

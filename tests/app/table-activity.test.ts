@@ -59,7 +59,7 @@ describe('TableActivity', () => {
 
 describe('TicketCard activity line', () => {
   const ticket = {
-    ticketKey: 't-4', tableNo: 4, status: 'open', totalCents: 800, unpaidCents: 800, lockedBy: null, ready: { kitchen: 0, bar: 0 }, foodToPay: 0,
+    ticketKey: 't-4', tableNo: 4, status: 'open', totalCents: 800, unpaidCents: 800, lockedBy: null, ready: { kitchen: 0, bar: 0, cafe: 0 }, foodToPay: 0,
     oldestItemAt: ago(5), lastOrderAt: ago(5), lastCheckAt: null,
   } as TicketSummary
   const stubs = { NuxtLink: RouterLinkStub }

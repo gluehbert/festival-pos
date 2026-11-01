@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const StaffRoleEnum = z.enum(['admin', 'lead', 'waiter', 'kitchen', 'bar'])
+export const StaffRoleEnum = z.enum(['admin', 'lead', 'waiter', 'kitchen', 'bar', 'cafe'])
 
 const Username = z.string().trim().regex(/^[\w.-]{3,64}$/, 'username: 3-64 letters, digits, . _ -')
 // Admins log in with a password, everyone else may use a PIN.

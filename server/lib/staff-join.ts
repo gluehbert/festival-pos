@@ -63,10 +63,10 @@ export async function joinOverview(db: Db, ev: Event, baseUrl: string): Promise<
       id: r.id,
       name: r.name,
       rejoin: r.staffId !== null,
-      role: (r.role as 'waiter' | 'lead' | 'kitchen' | 'bar' | null) ?? null,
+      role: (r.role as 'waiter' | 'lead' | 'kitchen' | 'bar' | 'cafe' | null) ?? null,
       createdAt: r.createdAt.toISOString(),
     })),
-    members: members.map((m) => ({ ...m, role: m.role as 'waiter' | 'lead' | 'kitchen' | 'bar' })),
+    members: members.map((m) => ({ ...m, role: m.role as 'waiter' | 'lead' | 'kitchen' | 'bar' | 'cafe' })),
   }
 }
 

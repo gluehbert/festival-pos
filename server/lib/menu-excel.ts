@@ -67,10 +67,11 @@ export function parsePriceCents(value: unknown): number | null {
   return Math.round(Number(normalized) * 100)
 }
 
-function parseStation(value: unknown): 'kitchen' | 'bar' | null {
+function parseStation(value: unknown): 'kitchen' | 'bar' | 'cafe' | null {
   const n = norm(value)
   if (['kitchen', 'kueche', 'k', 'essen', 'food'].includes(n)) return 'kitchen'
   if (['bar', 'b', 'getraenke', 'drinks', 'theke'].includes(n)) return 'bar'
+  if (['cafe', 'kaffee', 'kuchen', 'kuchentheke', 'kaffeetheke', 'cake', 'coffee'].includes(n)) return 'cafe'
   return null
 }
 
@@ -129,7 +130,7 @@ export function parseMenuRows(rows: unknown[][]): ParsedMenuSheet {
     const problems: string[] = []
     if (priceCents === null) problems.push('Price invalid (e.g. 3.50)')
     if (depositCents === null) problems.push('Deposit invalid (e.g. 2.00)')
-    if (station === null) problems.push('Station must be "Kitchen" or "Bar"')
+    if (station === null) problems.push('Station must be "Kitchen", "Bar" or "Cafe"')
     if (isAvailable === null) problems.push('Available must be "yes" or "no"')
     if (sortOrder !== undefined && !Number.isInteger(sortOrder)) problems.push('Sort order must be a whole number')
     if (allergens && !allergens.ok) problems.push(`Allergens unknown: ${allergens.unknown.join(', ')} (codes A–R, names or "none")`)
@@ -213,6 +214,8 @@ export async function readMenuFile(data: Buffer): Promise<ParsedMenuSheet> {
   return parseMenuRows(rows)
 }
 
+const STATION_LABEL = { kitchen: 'Kitchen', bar: 'Bar', cafe: 'Cafe' } as const
+
 export interface TemplateItem {
   nameDe: string
   nameEn: string
@@ -220,7 +223,7 @@ export interface TemplateItem {
   depositCents: number
   category: string
   subcategory: string | null
-  station: 'kitchen' | 'bar'
+  station: 'kitchen' | 'bar' | 'cafe'
   sortOrder: number
   isAvailable: boolean
   allergens: Allergen[] | null
@@ -240,7 +243,7 @@ const HELP = [
   '1. Fill in one row per item on the "Menu" sheet. Do not change the header row.',
   '2. Name (DE), Price, Category and Station are required. Name (EN) is optional (Name (DE) is used otherwise).',
   '3. Price in euros, e.g. 3.50. Deposit (optional) is charged in addition when ordering, e.g. 2.00 (empty = no deposit).',
-  '   Station: "Kitchen" or "Bar". Available: "yes" or "no" (empty = yes).',
+  '   Station: "Kitchen", "Bar" or "Cafe" (cake and coffee counter). Available: "yes" or "no" (empty = yes).',
   '4. Each category becomes its own tab in the order view (e.g. "Food", "Drinks"). Subcategory is optional',
   '   and divides a tab further (e.g. "Beers", "Wines", "Non-alcoholic"). Empty = no subcategory.',
   '5. Sort order: smaller numbers appear higher in the menu (optional). Tabs appear in the order of',
@@ -267,7 +270,7 @@ export async function buildMenuWorkbook(items: TemplateItem[]): Promise<Buffer> 
       it.depositCents > 0 ? { value: it.depositCents / 100, type: Number, format: '#,##0.00' } : null,
       { value: it.category },
       it.subcategory ? { value: it.subcategory } : null,
-      { value: it.station === 'bar' ? 'Bar' : 'Kitchen' },
+      { value: STATION_LABEL[it.station] },
       { value: it.sortOrder, type: Number },
       { value: it.isAvailable ? 'yes' : 'no' },
       it.allergens ? { value: it.allergens.length > 0 ? allergenCodes(it.allergens) : 'none' } : null,
