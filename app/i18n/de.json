@@ -358,7 +358,6 @@
       "soldOutRemoved": "Ausverkauft, vom Block genommen: {items}",
       "linesTitle": "Positionen & Notizen",
       "linesEmpty": "Noch nichts ausgewählt.",
-      "blockTable": "Bitte zuerst einen Tisch wählen.",
       "blockMealReason": "Bitte einen Grund eingeben (mind. 3 Zeichen).",
       "sendAndPayFood": "Senden & Essen bar kassiert",
       "picker": {

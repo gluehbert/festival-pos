@@ -358,7 +358,6 @@
       "soldOutRemoved": "Sold out, removed from the pad: {items}",
       "linesTitle": "Items & notes",
       "linesEmpty": "Nothing selected yet.",
-      "blockTable": "Please pick a table first.",
       "blockMealReason": "Please enter a reason (at least 3 characters).",
       "sendAndPayFood": "Send & food paid cash",
       "picker": {

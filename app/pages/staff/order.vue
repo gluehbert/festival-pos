@@ -48,7 +48,6 @@ const mealValid = computed(() => !isMeal.value || mealReason.value.trim().length
 const queryTable = typeof route.query.table === 'string' ? Number.parseInt(route.query.table, 10) : Number.NaN
 const tableNo = ref<number | null>(Number.isInteger(queryTable) && queryTable >= 1 ? queryTable : null)
 const picking = ref(!isWalkin.value && tableNo.value === null)
-const tableValid = computed(() => isWalkin.value || (tableNo.value !== null && !picking.value))
 const tiles = computed(() => buildTiles(tickets.tableRange, tickets.tickets, tickets.assignments, Date.now() + tickets.clockOffsetMs))
 
 function pickTable(n: number) {
@@ -64,7 +63,7 @@ function nextTable() {
   picking.value = true
   void tickets.refresh({ status: 'open' }).catch(() => {})
 }
-const block = computed(() => sendBlock({ empty: pad.isEmpty, tableValid: tableValid.value, mealValid: mealValid.value }))
+const block = computed(() => sendBlock({ empty: pad.isEmpty, picking: picking.value, mealValid: mealValid.value }))
 const notice = ref<string | null>(null)
 const changedPrices = ref<PriceChange[]>([])
 
@@ -75,7 +74,7 @@ const canPayFood = computed(() => !isWalkin.value && branding.value.foodPrepayEn
 const quantities = computed(() => Object.fromEntries(pad.lines.map((l) => [l.menuItem.id, pad.qtyOf(l.menuItem.id)])))
 
 // "Frequent" follows the picked table (walk-ins: best sellers only).
-const popularTable = computed(() => (!isWalkin.value && tableValid.value ? tableNo.value : null))
+const popularTable = computed(() => (!isWalkin.value && !picking.value ? tableNo.value : null))
 let popularTimer: ReturnType<typeof setTimeout> | undefined
 watch(popularTable, (table) => {
   clearTimeout(popularTimer)
@@ -234,9 +233,9 @@ const backTo = computed(() => (!isWalkin.value && route.query.table ? `/staff/${
           <span v-if="isMeal">{{ euro(0) }} <span class="text-xs font-normal text-slate-500">({{ $t('staff.meal.value', { amount: euro(pad.valueCents) }) }})</span></span>
           <span v-else>{{ euro(pad.totalCents) }}</span>
         </p>
-        <p v-if="block === 'table' || block === 'mealReason'" class="flex items-center gap-2 text-sm font-semibold text-rose-700" role="status" data-test="order-send-block">
+        <p v-if="block === 'mealReason'" class="flex items-center gap-2 text-sm font-semibold text-rose-700" role="status" data-test="order-send-block">
           <UIcon name="i-lucide-circle-alert" class="size-4 shrink-0" aria-hidden="true" />
-          {{ block === 'table' ? $t('staff.order.blockTable') : $t('staff.order.blockMealReason') }}
+          {{ $t('staff.order.blockMealReason') }}
         </p>
         <SendingState :sending="pad.sending" @cancel="pad.cancelSending" />
         <div class="flex gap-2">
