@@ -25,7 +25,10 @@ async function save() {
     emit('saved', t('admin.tables.saved', { from: ev.tableRangeFrom, to: ev.tableRangeTo }))
   }
   catch (e) {
-    const data = (e as { data?: { code?: string; details?: { tableNos?: number[] } } }).data
+    // h3 nests the AppError payload under `data` of the response body.
+    type Payload = { code?: string; details?: { tableNos?: number[] } }
+    const body = (e as { data?: Payload & { data?: Payload } }).data
+    const data = body?.code ? body : body?.data
     emit('failed', data?.code === 'TABLES_OPEN'
       ? t('admin.tables.open', { tables: (data.details?.tableNos ?? []).join(', ') })
       : t('admin.toast.actionFailed'))

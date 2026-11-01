@@ -56,7 +56,9 @@ describe('EventTablesPanel', () => {
   it('names the tables that still have open bills', async () => {
     const w = mount(EventTablesPanel, { props: { event: ev() } })
     await w.get('input[name="to"]').setValue(8)
-    fetchMock.mockRejectedValueOnce(Object.assign(new Error('409'), { statusCode: 409, data: { code: 'TABLES_OPEN', details: { tableNos: [9, 10] } } }))
+    // Shaped like the real response: h3 nests the AppError payload under `data`.
+    const payload = { code: 'TABLES_OPEN', details: { tableNos: [9, 10] } }
+    fetchMock.mockRejectedValueOnce(Object.assign(new Error('409'), { statusCode: 409, data: { statusCode: 409, data: payload } }))
     await w.get('form').trigger('submit')
     await flushPromises()
     expect(w.emitted('failed')).toEqual([['admin.tables.open:{"tables":"9, 10"}']])
