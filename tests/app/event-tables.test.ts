@@ -5,6 +5,7 @@ import EventTablesPanel from '~/components/admin/EventTablesPanel.vue'
 import { useAdminStore } from '~/stores/admin'
 import type { EventDto } from '~/../server/lib/contracts/admin'
 import { useCookie } from './setup/imports'
+import { apiFailure } from './setup/api-error'
 
 const ID = '00000000-0000-4000-8000-000000000001'
 const ev = (over: Partial<EventDto> = {}): EventDto => ({
@@ -56,9 +57,7 @@ describe('EventTablesPanel', () => {
   it('names the tables that still have open bills', async () => {
     const w = mount(EventTablesPanel, { props: { event: ev() } })
     await w.get('input[name="to"]').setValue(8)
-    // Shaped like the real response: h3 nests the AppError payload under `data`.
-    const payload = { code: 'TABLES_OPEN', details: { tableNos: [9, 10] } }
-    fetchMock.mockRejectedValueOnce(Object.assign(new Error('409'), { statusCode: 409, data: { statusCode: 409, data: payload } }))
+    fetchMock.mockRejectedValueOnce(apiFailure(409, 'TABLES_OPEN', { details: { tableNos: [9, 10] } }))
     await w.get('form').trigger('submit')
     await flushPromises()
     expect(w.emitted('failed')).toEqual([['admin.tables.open:{"tables":"9, 10"}']])

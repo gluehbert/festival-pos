@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import PreviewLogin from '~/components/staff/PreviewLogin.vue'
 import { useAuthStore } from '~/stores/auth'
 import { navigateTo, useCookie } from './setup/imports'
+import { apiFailure } from './setup/api-error'
 
 const fetchMock = vi.fn()
 beforeEach(() => {
@@ -38,7 +39,7 @@ describe('PreviewLogin', () => {
     await flushPromises()
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(navigateTo).toHaveBeenCalledWith('/t/3')
-    fetchMock.mockRejectedValueOnce({ statusCode: 404, data: { code: 'NOT_FOUND', message: 'No active event' } })
+    fetchMock.mockRejectedValueOnce(apiFailure(404, 'NOT_FOUND', { message: 'No active event' }))
     await w.get('[data-test="preview-login-guest"]').trigger('click')
     await flushPromises()
     expect(w.find('[role="alert"]').text()).toBe('staff.previewLogin.failed:{"reason":"No active event"}')

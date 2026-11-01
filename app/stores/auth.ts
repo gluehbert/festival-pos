@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { startAuthentication, type PublicKeyCredentialRequestOptionsJSON } from '@simplewebauthn/browser'
 import { useApi } from '~/composables/useApi'
+import { apiError } from '~/utils/api-error'
 import { useTheme, type Theme } from '~/composables/useTheme'
 
 export type StaffRole = 'admin' | 'lead' | 'waiter' | 'kitchen' | 'bar'
@@ -108,10 +109,7 @@ export const useAuthStore = defineStore('auth', () => {
     catch (e) {
       const status = (e as { status?: number; statusCode?: number }).status ?? (e as { statusCode?: number }).statusCode
       if (status === 429) return 'rateLimited'
-      // h3 nests the AppError payload under `data` of the response body.
-      type Payload = { code?: string; data?: { code?: string } }
-      const body = (e as { data?: Payload }).data
-      return (body?.code ?? body?.data?.code) === 'WRONG_SECRET' ? 'wrong' : 'failed'
+      return apiError(e).code === 'WRONG_SECRET' ? 'wrong' : 'failed'
     }
   }
 

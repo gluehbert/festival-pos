@@ -5,6 +5,7 @@ import { usePaymentsStore } from '~/stores/payments'
 import TablePage from '~/pages/staff/[table]/index.vue'
 import VoidDialog from '~/components/staff/VoidDialog.vue'
 import { useCookie } from './setup/imports'
+import { apiFailure } from './setup/api-error'
 
 vi.mock('vue-router', () => ({ useRoute: () => ({ params: { table: '5' }, path: '/staff/5' }) }))
 
@@ -44,8 +45,7 @@ describe('refund button on the table page', () => {
 
 describe('refund without an open drawer', () => {
   it('keeps the server code and links to the cash page', async () => {
-    // Shape of a real server response: the code sits in `data.data`.
-    fetchMock.mockRejectedValue({ data: { message: 'Open your drawer first, then refund', data: { code: 'CASH_SESSION_REQUIRED' } } })
+    fetchMock.mockRejectedValue(apiFailure(409, 'CASH_SESSION_REQUIRED', { message: 'Open your drawer first, then refund' }))
     const payments = usePaymentsStore()
     expect(await payments.refundItem('id', 'too cold')).toBe(false)
     expect(payments.errorCode).toBe('CASH_SESSION_REQUIRED')

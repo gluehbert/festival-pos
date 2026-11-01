@@ -10,6 +10,7 @@ import { useCookie } from './setup/imports'
 import { useMenuStore } from '~/stores/menu'
 import { useStaffOrderStore } from '~/stores/staffOrder'
 import { useCartStore } from '~/stores/cart'
+import { apiFailure } from './setup/api-error'
 
 const cake = { id: 'c', nameDe: 'Kuchen', nameEn: 'Cake', priceCents: 250, depositCents: 0, stock: 3, category: 'Food', subcategory: null, station: 'kitchen', isAvailable: true, sortOrder: 0 } as MenuItemDto
 
@@ -91,7 +92,7 @@ describe('Stock in the app', () => {
     const pad = useStaffOrderStore()
     pad.add(cake)
     pad.add(schorle)
-    fetchMock.mockRejectedValueOnce({ statusCode: 409, data: { code: 'SOLD_OUT', message: 'x', details: { menuItemIds: ['s'] } } })
+    fetchMock.mockRejectedValueOnce(apiFailure(409, 'SOLD_OUT', { details: { menuItemIds: ['s'] } }))
     expect(await pad.submit('staff_table', 4)).toBeNull()
     expect(pad.error).toBe('sold_out')
     expect(menu.items.map((i) => i.id)).toEqual(['c'])

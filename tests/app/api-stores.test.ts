@@ -6,6 +6,7 @@ import { useTicketsStore } from '~/stores/tickets'
 import { useStaffAdminStore } from '~/stores/staff-admin'
 import { useAdminStore } from '~/stores/admin'
 import { useCookie } from './setup/imports'
+import { apiFailure } from './setup/api-error'
 
 const fetchMock = vi.fn()
 
@@ -29,7 +30,7 @@ describe('payments store', () => {
 
   it('exposes lock conflicts', async () => {
     const details = { lockedBy: 'x', expiresAt: new Date().toISOString() }
-    fetchMock.mockRejectedValue({ statusCode: 409, data: { code: 'LOCK_CONFLICT', message: 'locked', details } })
+    fetchMock.mockRejectedValue(apiFailure(409, 'LOCK_CONFLICT', { message: 'locked', details }))
     const s = usePaymentsStore()
     await expect(s.createPayment('t-3', ['a'])).resolves.toBeNull()
     expect(s.lockConflict).toEqual(details)
@@ -60,7 +61,7 @@ describe('payments store', () => {
     expect(keyOf(6)).not.toBe(keyOf(5))
 
     // A clear "no" from the server also starts over.
-    fetchMock.mockRejectedValueOnce({ statusCode: 409, data: { code: 'CONFLICT', message: 'paid' } })
+    fetchMock.mockRejectedValueOnce(apiFailure(409, 'CONFLICT', { message: 'paid' }))
     await s.createPayment('t-3', ['b'])
     expect(s.unconfirmed).toBe(false)
     fetchMock.mockResolvedValueOnce({ paymentId: 'r', totalCents: 400, ticketStatusAfter: 'paid' })
@@ -75,10 +76,10 @@ describe('payments store', () => {
     await expect(s.refundItem('i2', 'cold')).resolves.toBe(true)
     expect(call(0)).toMatchObject({ path: '/api/order-items/i1/void', opts: { body: { reason: 'cold' } } })
     expect(call(1)).toMatchObject({ path: '/api/admin/order-items/i2/refund', opts: { body: { reason: 'cold' } } })
-    fetchMock.mockRejectedValue({ data: { message: 'nope' } })
+    fetchMock.mockRejectedValue(apiFailure(409, 'CONFLICT', { message: 'nope' }))
     await expect(s.refundItem('i2', 'cold')).resolves.toBe(false)
     expect(s.error).toBe('nope')
-    fetchMock.mockRejectedValue({ data: { code: 'VOID_ADMIN_ONLY', message: 'admin only' } })
+    fetchMock.mockRejectedValue(apiFailure(403, 'VOID_ADMIN_ONLY', { message: 'admin only' }))
     await expect(s.voidItem('i1', 'cold')).resolves.toBe(false)
     expect(s.errorCode).toBe('VOID_ADMIN_ONLY')
   })
@@ -174,7 +175,7 @@ describe('payments store retry', () => {
   })
 
   it('does not retry a lock conflict', async () => {
-    fetchMock.mockRejectedValue({ statusCode: 409, data: { code: 'LOCK_CONFLICT', message: 'locked', details: { lockedBy: 'x', expiresAt: 'e' } } })
+    fetchMock.mockRejectedValue(apiFailure(409, 'LOCK_CONFLICT', { message: 'locked', details: { lockedBy: 'x', expiresAt: 'e' } }))
     const s = usePaymentsStore()
     await expect(s.createPayment('t-3', ['a'])).resolves.toBeNull()
     expect(fetchMock).toHaveBeenCalledTimes(1)

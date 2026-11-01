@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useAdminStore } from '~/stores/admin'
+import { apiError } from '~/utils/api-error'
 import type { EventDto } from '~/../server/lib/contracts/admin'
 
 // Changes the table numbers of an event, also while it is live.
@@ -25,12 +26,9 @@ async function save() {
     emit('saved', t('admin.tables.saved', { from: ev.tableRangeFrom, to: ev.tableRangeTo }))
   }
   catch (e) {
-    // h3 nests the AppError payload under `data` of the response body.
-    type Payload = { code?: string; details?: { tableNos?: number[] } }
-    const body = (e as { data?: Payload & { data?: Payload } }).data
-    const data = body?.code ? body : body?.data
-    emit('failed', data?.code === 'TABLES_OPEN'
-      ? t('admin.tables.open', { tables: (data.details?.tableNos ?? []).join(', ') })
+    const { code, details } = apiError<{ tableNos?: number[] }>(e)
+    emit('failed', code === 'TABLES_OPEN'
+      ? t('admin.tables.open', { tables: (details?.tableNos ?? []).join(', ') })
       : t('admin.toast.actionFailed'))
   }
   finally {
