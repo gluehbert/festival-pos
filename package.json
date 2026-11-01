@@ -36,7 +36,7 @@
     "*.ts": "bash -c 'tsc --noEmit -p tsconfig.json'"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.147",
+    "@iconify-json/lucide": "^1.2.149",
     "@neondatabase/serverless": "^1.2.0",
     "@nuxt/ui": "^4.12.0",
     "@nuxtjs/i18n": "^10.6.0",
@@ -47,14 +47,14 @@
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.4",
     "h3": "^1.15.11",
-    "jose": "^6.2.13",
+    "jose": "^6.2.14",
     "nuxt": "^4.6.2",
     "pdf-lib": "^1.17.1",
     "pg": "^8.23.1",
     "pinia": "^4.1.0",
     "pngjs": "^7.0.0",
     "qrcode": "^1.5.4",
-    "read-excel-file": "^9.3.12",
+    "read-excel-file": "^9.3.14",
     "tailwindcss": "^4.3.3",
     "vue": "^3.5.44",
     "vue-router": "^5.4.0",
@@ -82,7 +82,7 @@
     "pg-mem": "^3.0.14",
     "typescript": "~6.0.3",
     "vitest": "^5.0.5",
-    "vue-tsc": "^3.3.13"
+    "vue-tsc": "^3.3.14"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
