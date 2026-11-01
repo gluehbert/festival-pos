@@ -16,6 +16,7 @@ import CallWaiter from '~/components/guest/CallWaiter.vue'
 import { useBranding } from '~/composables/useBranding'
 import { useFormat } from '~/composables/useFormat'
 import { newIdempotencyKey } from '~/utils/idempotency'
+import { apiErrorData, orderError } from '~/utils/order-error'
 import { snapshotLines, toOrderItems } from '~/utils/order-lines'
 import { priceChanges, type PriceChange } from '~/utils/price-changes'
 import { GUEST_MAX_ITEMS_PER_ORDER, type Order, type SessionOrders } from '~/../server/lib/contracts/guest'
@@ -77,20 +78,6 @@ async function ensureSession(): Promise<boolean> {
 let orderKey = ''
 let orderKeyBody = ''
 
-type OrderError = 'network' | 'tooMany' | 'tooLarge' | 'openLimit' | 'sessionExpired' | 'unavailable' | 'generic'
-
-function orderError(e: unknown): OrderError {
-  const err = e as { statusCode?: number; status?: number; data?: { code?: string; message?: string } }
-  const status = err.statusCode ?? err.status
-  if (status === undefined) return 'network'
-  if (err.data?.code === 'RATE_LIMITED') return 'tooMany'
-  if (err.data?.code === 'ORDER_TOO_LARGE') return 'tooLarge'
-  if (err.data?.code === 'OPEN_LIMIT') return 'openLimit'
-  if (status === 401) return 'sessionExpired'
-  if (/not available/i.test(err.data?.message ?? '')) return 'unavailable'
-  return 'generic'
-}
-
 async function submitOrder() {
   if (cart.isEmpty) return
   submitting.value = true
@@ -121,14 +108,14 @@ async function submitOrder() {
   catch (e: unknown) {
     const kind = orderError(e)
     if (kind === 'openLimit') {
-      const details = (e as { data?: { details?: { station?: string; limitCents?: number } } }).data?.details
+      const details = apiErrorData(e).details
       submitError.value = t(`guest.errors.openLimit.${details?.station === 'kitchen' ? 'kitchen' : 'bar'}`, { amount: euro(details?.limitCents ?? 0) })
     }
     else submitError.value = t(`guest.errors.${kind}`, { max: GUEST_MAX_ITEMS_PER_ORDER })
     // Sold out meanwhile: take the articles off the menu (and so the cart),
     // else load the current menu.
     if (kind === 'unavailable') {
-      const ids = (e as { data?: { details?: { menuItemIds?: string[] } } }).data?.details?.menuItemIds ?? []
+      const ids = apiErrorData(e).details?.menuItemIds ?? []
       if (ids.length > 0) menu.markSoldOut(ids)
       else void menu.refresh()
     }

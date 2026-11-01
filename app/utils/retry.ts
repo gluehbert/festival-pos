@@ -1,5 +1,7 @@
 // Automatic retry of calls that carry an idempotency key: the server returns
 // the booking already made, so sending again is safe.
+import { apiErrorData } from './order-error'
+
 export const MAX_RETRIES = 4
 export const ATTEMPT_TIMEOUT_MS = 10_000
 // All attempts and waits together.
@@ -13,9 +15,9 @@ export function nextDelay(retry: number): number | null {
 // Network error (no status), timeout or an overloaded server. Answers from
 // the application (4xx, RATE_LIMITED, 500) are final.
 export function shouldRetry(err: unknown): boolean {
-  const e = err as { status?: number, statusCode?: number, response?: { status?: number }, data?: { code?: string } }
+  const e = err as { status?: number, statusCode?: number, response?: { status?: number } }
   const status = e.status ?? e.statusCode ?? e.response?.status
   if (status === undefined) return true
-  if (status === 429) return e.data?.code !== 'RATE_LIMITED'
+  if (status === 429) return apiErrorData(err).code !== 'RATE_LIMITED'
   return [408, 502, 503, 504].includes(status)
 }
