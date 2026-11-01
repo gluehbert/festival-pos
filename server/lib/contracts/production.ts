@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const StationEnum = z.enum(['kitchen', 'bar'])
+export const StationEnum = z.enum(['kitchen', 'bar', 'cafe'])
 export type Station = z.infer<typeof StationEnum>
 
 export const ProductionStatusEnum = z.enum(['pending', 'in_progress', 'done', 'cancelled'])

@@ -25,12 +25,13 @@ pnpm db:seed                  # demo event, menu, demo accounts (local only!)
 pnpm dev                      # http://localhost:3000
 ```
 
-Demo logins from `db:seed`: `admin` / `admin123` (password), `lead1` (shift lead), `waiter1`, `kitchen1`, `bar1` with PIN `1111`. Guest view: `http://localhost:3000/t/3`.
+Demo logins from `db:seed`: `admin` / `admin123` (password), `lead1` (shift lead), `waiter1`, `kitchen1`, `bar1`, `cafe1` with PIN `1111`. Guest view: `http://localhost:3000/t/3`.
 
 **Passkeys:** After a login with PIN or password, the app offers once per device to set up a passkey (not on the shared kitchen and bar tablets). Afterwards people sign in with fingerprint, face, device PIN or a password manager, without typing a username. Passkeys are managed under "Passkeys" (`/staff/passkeys`); admins can see and delete them in staff management. If an admin deletes a passkey (for example because a phone was lost), that person is signed out on all devices. Passkeys require HTTPS or `localhost`; an IP address such as `127.0.0.1` does not work.
 
 ## At the festival
 
+- **Cake and coffee counter** as a third station next to kitchen and bar: each menu item picks its station (Kitchen, Bar or Cafe; Excel import accepts "Cafe"). Cake made in the kitchen stays on "Kitchen", a separate counter uses "Cafe" and a staff role of the same name with its own screen. Like the bar it skips "Start"; its open amount counts toward the guests' drinks limit. Waiters get a "Cake & coffee ready" hint and a serve button of its own.
 - **Notes per item** ("no onions", max. 80 characters) from guests and waiters; kitchen and bar see them highlighted, and items with different notes are never merged.
 - **Cash register and closing** per waiter (`/staff/cash`): opening float, expected = opening + collected − refunds paid out from this drawer − deposit returns (excluding rehearsal mode), counted amount and difference; all closings appear in the reports.
 - **Deposit** per item, included when ordering; returns are handled at `/staff/deposit`; reported separately from revenue.

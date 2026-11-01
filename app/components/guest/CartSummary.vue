@@ -14,8 +14,8 @@ const { locale } = useI18n()
 const fmt = (cents: number) => formatCents(cents, locale.value === 'de' ? 'de' : 'en')
 const total = computed(() => fmt(cart.totalCents))
 
-// Food and drinks go to kitchen and bar: headed groups once both are in the cart.
-const groups = computed(() => (['kitchen', 'bar'] as const)
+// Food, drinks and cake go to kitchen, bar and cafe counter: headed groups once both are in the cart.
+const groups = computed(() => (['kitchen', 'bar', 'cafe'] as const)
   .map((station) => ({ station, lines: cart.lines.filter((l) => l.menuItem.station === station) }))
   .filter((g) => g.lines.length > 0))
 

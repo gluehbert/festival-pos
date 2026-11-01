@@ -35,7 +35,7 @@ async function waiterOrder(tableNo: number, mode: 'staff_table' | 'walkin' = 'st
   }) as { orderId: string; items: Array<{ orderItemId: string; menuItemId: string }> }
 }
 
-type Summary = { ticketKey: string; status: string; ready: { kitchen: number; bar: number } }
+type Summary = { ticketKey: string; status: string; ready: { kitchen: number; bar: number; cafe: number } }
 async function openTickets(): Promise<Summary[]> {
   return (await call('tickets/index.get', { role: 'waiter', method: 'GET' }) as { tickets: Summary[] }).tickets
 }
@@ -67,7 +67,7 @@ describe('US7 kitchen/bar finish whole orders, waiter sees what is ready — int
 
     const barQueue = await call('production/queue.get', { role: 'bar', method: 'GET' }) as { items: unknown[] }
     expect(barQueue.items).toHaveLength(1)
-    expect((await openTickets())[0]!.ready).toEqual({ kitchen: 2, bar: 0 })
+    expect((await openTickets())[0]!.ready).toEqual({ kitchen: 2, bar: 0, cafe: 0 })
 
     // Twice is harmless: nothing left to finish.
     const again = await call('production/orders/[id]/done.post', { role: 'kitchen', body: {}, params: { id: order.orderId } }) as {
@@ -79,7 +79,7 @@ describe('US7 kitchen/bar finish whole orders, waiter sees what is ready — int
       servedItemIds: string[]
     }
     expect(served.servedItemIds).toEqual([pommesLine.orderItemId])
-    expect((await openTickets())[0]!.ready).toEqual({ kitchen: 0, bar: 0 })
+    expect((await openTickets())[0]!.ready).toEqual({ kitchen: 0, bar: 0, cafe: 0 })
 
     const detail = await call('tickets/[id].get', { role: 'waiter', method: 'GET', params: { id: 't-5' } }) as {
       items: Array<{ orderItemId: string; served: boolean }>
@@ -87,7 +87,7 @@ describe('US7 kitchen/bar finish whole orders, waiter sees what is ready — int
     expect(detail.items.find((i) => i.orderItemId === pommesLine.orderItemId)!.served).toBe(true)
 
     await call('production/orders/[id]/done.post', { role: 'bar', body: {}, params: { id: order.orderId } })
-    expect((await openTickets())[0]!.ready).toEqual({ kitchen: 0, bar: 1 })
+    expect((await openTickets())[0]!.ready).toEqual({ kitchen: 0, bar: 1, cafe: 0 })
   })
 
   it('guards roles and ids', async () => {
@@ -120,7 +120,7 @@ describe('US7 kitchen/bar finish whole orders, waiter sees what is ready — int
     expect((await openTickets()).map((t) => t.ticketKey)).toEqual([])
 
     await call('production/orders/[id]/done.post', { role: 'kitchen', body: {}, params: { id: walk.orderId } })
-    expect(await openTickets()).toMatchObject([{ ticketKey: key, status: 'paid', ready: { kitchen: 2, bar: 0 } }])
+    expect(await openTickets()).toMatchObject([{ ticketKey: key, status: 'paid', ready: { kitchen: 2, bar: 0, cafe: 0 } }])
 
     await call('tickets/[id]/served.post', { role: 'waiter', body: { station: 'kitchen' }, params: { id: key } })
     expect(await openTickets()).toEqual([])

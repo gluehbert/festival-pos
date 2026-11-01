@@ -84,7 +84,7 @@ describe('one-tap login on Vercel preview deployments', () => {
     expect((await login('guest')).body).toEqual({ to: '/t/1' })
     const ev = mem.one(`SELECT id, name, is_active, deposit_enabled FROM events WHERE pin_code = 'PREVIEW1'`) as { id: string; name: string; is_active: boolean; deposit_enabled: boolean }
     expect(ev).toMatchObject({ name: 'Preview-Fest', is_active: true, deposit_enabled: true })
-    expect((mem.one(`SELECT count(*)::int AS n FROM menu_items WHERE event_id = '${ev.id}'`) as { n: number }).n).toBe(10)
+    expect((mem.one(`SELECT count(*)::int AS n FROM menu_items WHERE event_id = '${ev.id}'`) as { n: number }).n).toBe(12)
     // Open orders of preview-waiter: table 3 in the works, 5 and 7 ready to bring.
     const tables = mem.many(`SELECT o.table_no, i.production_status FROM orders o JOIN order_items i ON i.order_id = o.id WHERE o.event_id = '${ev.id}' ORDER BY o.table_no, i.production_status`) as Array<{ table_no: number; production_status: string }>
     expect([...new Set(tables.map((t) => `${t.table_no}:${t.production_status}`))]).toEqual(['3:pending', '5:done', '7:done'])

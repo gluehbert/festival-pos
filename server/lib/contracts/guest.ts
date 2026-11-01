@@ -21,7 +21,7 @@ export const GuestSessionSchema = z.object({
 })
 export type GuestSession = z.infer<typeof GuestSessionSchema>
 
-export const StationEnum = z.enum(['kitchen', 'bar'])
+export const StationEnum = z.enum(['kitchen', 'bar', 'cafe'])
 export const ProductionStatusEnum = z.enum(['pending', 'in_progress', 'done', 'cancelled'])
 export const PaymentStatusEnum = z.enum(['unpaid', 'paid'])
 

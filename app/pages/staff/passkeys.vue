@@ -18,7 +18,7 @@ const name = ref('')
 const busy = ref(false)
 const notice = ref<{ kind: 'success' | 'error'; text: string } | null>(null)
 
-const sharedDevice = computed(() => auth.staff?.role === 'kitchen' || auth.staff?.role === 'bar')
+const sharedDevice = computed(() => auth.staff?.role === 'kitchen' || auth.staff?.role === 'bar' || auth.staff?.role === 'cafe')
 const back = computed(() => homeForRole(auth.staff?.role))
 
 onMounted(async () => {

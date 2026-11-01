@@ -37,7 +37,7 @@ const since = computed(() => {
   return t('staff.ticket.openSinceHours', { h: Math.floor(mins / 60), m: mins % 60 })
 })
 
-const hasReady = computed(() => props.ticket.ready.kitchen + props.ticket.ready.bar > 0)
+const hasReady = computed(() => props.ticket.ready.kitchen + props.ticket.ready.bar + props.ticket.ready.cafe > 0)
 
 const targetHref = computed(() => {
   if (props.ticket.ticketKey.startsWith('w-')) return `/staff/${props.ticket.ticketKey}`

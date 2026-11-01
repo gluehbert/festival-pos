@@ -25,7 +25,7 @@ const depositEuros = ref(props.item?.depositCents ? euros(props.item.depositCent
 const stockInput = ref(props.item?.stock != null ? String(props.item.stock) : '')
 const category = ref(props.item?.category ?? '')
 const subcategory = ref(props.item?.subcategory ?? '')
-const station = ref<'kitchen' | 'bar'>(props.item?.station ?? 'kitchen')
+const station = ref<'kitchen' | 'bar' | 'cafe'>(props.item?.station ?? 'kitchen')
 const sortOrder = ref(props.item?.sortOrder ?? 0)
 const allergens = ref<Allergen[] | null>(props.item?.allergens ?? null)
 const diet = ref<Diet | null>(props.item?.diet ?? null)
@@ -143,6 +143,7 @@ async function onSubmit() {
       <select v-model="station" class="mt-1 w-full rounded border border-slate-300 px-2 py-1">
         <option value="kitchen">{{ $t('common.station.kitchen') }}</option>
         <option value="bar">{{ $t('common.station.bar') }}</option>
+        <option value="cafe">{{ $t('common.station.cafe') }}</option>
       </select>
     </label>
     <label class="text-sm">

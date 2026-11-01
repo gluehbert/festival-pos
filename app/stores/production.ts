@@ -10,7 +10,7 @@ import type {
   ProductionStatus,
 } from '~/../server/lib/contracts/production'
 
-type Station = 'kitchen' | 'bar'
+type Station = 'kitchen' | 'bar' | 'cafe'
 
 // All open items of one table at this station: one card on the screen.
 // Every send from a table is its own order, so a card can hold several.

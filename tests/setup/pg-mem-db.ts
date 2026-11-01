@@ -167,7 +167,7 @@ export interface SeedOptions {
     nameEn: string
     priceCents: number
     category: string
-    station: 'kitchen' | 'bar'
+    station: 'kitchen' | 'bar' | 'cafe'
     isAvailable?: boolean
     sortOrder?: number
   }>

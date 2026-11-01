@@ -4,7 +4,7 @@ import { getDb } from '../../../db/client'
 import { auditLog, menuItems } from '../../../db/schema'
 import { AppError, sendAppError } from '../../../lib/errors'
 import { assertCsrf } from '../../../lib/csrf'
-import { requireRole } from '../../../lib/rbac'
+import { requireRole, STATION_ROLES } from '../../../lib/rbac'
 import { requireActiveEvent } from '../../../lib/active-event'
 import { AdminMenuItemSchema, AvailabilityPatchSchema } from '../../../lib/contracts/admin'
 import { toAdminMenuItem } from '../../../lib/menu-dto'
@@ -16,7 +16,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 export default defineEventHandler(async (event) => {
   try {
     assertCsrf(event)
-    const staff = requireRole(event, ['admin', 'kitchen', 'bar'])
+    const staff = requireRole(event, ['admin', ...STATION_ROLES])
     const id = getRouterParam(event, 'id') ?? ''
     if (!UUID.test(id)) {
       throw new AppError('VALIDATION', 400, 'Invalid menu item id')

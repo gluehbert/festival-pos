@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
       depositCents: r.depositCents,
       category: r.category,
       subcategory: r.subcategory ?? null,
-      station: r.station as 'kitchen' | 'bar',
+      station: r.station as 'kitchen' | 'bar' | 'cafe',
       sortOrder: r.sortOrder,
       isAvailable: r.isAvailable,
       allergens: (r.allergens ?? null) as Allergen[] | null,

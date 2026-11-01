@@ -36,7 +36,7 @@ export const useTicketsStore = defineStore('tickets', () => {
   }
 
   // Throws on failure so the poller backs off.
-  async function refresh(params: { status?: 'open' | 'paid' | 'all'; station?: 'kitchen' | 'bar' } = {}): Promise<void> {
+  async function refresh(params: { status?: 'open' | 'paid' | 'all'; station?: 'kitchen' | 'bar' | 'cafe' } = {}): Promise<void> {
     loading.value = true
     error.value = null
     try {
@@ -94,7 +94,7 @@ export const useTicketsStore = defineStore('tickets', () => {
   }
 
   // The waiter brought the finished items (optionally only food or drinks).
-  async function markServed(ticketKey: string, station?: 'kitchen' | 'bar'): Promise<boolean> {
+  async function markServed(ticketKey: string, station?: 'kitchen' | 'bar' | 'cafe'): Promise<boolean> {
     try {
       await useApi().post(`/api/tickets/${encodeURIComponent(ticketKey)}/served`, station ? { station } : {})
       return true

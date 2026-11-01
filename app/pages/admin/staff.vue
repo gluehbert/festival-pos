@@ -109,7 +109,7 @@ async function resetSecret(member: StaffDto, value: string) {
             class="min-h-[44px] rounded border border-slate-300 px-2"
             @change="run(m, { role: ($event.target as HTMLSelectElement).value as StaffDto['role'] }, $t('admin.staff.saved'))"
           >
-            <option v-for="r in ['waiter', 'lead', 'kitchen', 'bar', 'admin']" :key="r" :value="r">{{ $t(`admin.staff.roles.${r}`) }}</option>
+            <option v-for="r in ['waiter', 'lead', 'kitchen', 'bar', 'cafe', 'admin']" :key="r" :value="r">{{ $t(`admin.staff.roles.${r}`) }}</option>
           </select>
           <span class="flex-1 text-xs text-slate-500">
             {{ m.hasPassword ? $t('admin.staff.password') : '' }}{{ m.hasPassword && m.hasPin ? ' · ' : '' }}{{ m.hasPin ? $t('admin.staff.pin') : '' }}

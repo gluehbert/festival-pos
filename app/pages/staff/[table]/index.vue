@@ -87,7 +87,7 @@ function goPay() {
 
 const walkin = computed(() => ticketKey.value.startsWith('w-'))
 const ready = computed(() => {
-  const r = { kitchen: 0, bar: 0 }
+  const r = { kitchen: 0, bar: 0, cafe: 0 }
   for (const i of ticket.value?.items ?? []) {
     // Same rule as the overview: at a table, paid items are not the waiter's
     // to bring; a walk-in pays first and collects at the counter.
@@ -110,12 +110,12 @@ const attention = useAttention()
 const readyTracker = createIncreaseTracker()
 watch(() => tickets.lastSyncAt, () => {
   if (tickets.selected?.ticketKey !== ticketKey.value) return
-  if (readyTracker.update(new Map([['ready', ready.value.kitchen + ready.value.bar]])).length > 0) attention.notify()
+  if (readyTracker.update(new Map([['ready', ready.value.kitchen + ready.value.bar + ready.value.cafe]])).length > 0) attention.notify()
 })
 
 // Per station: food and drinks are often brought separately.
 const serving = ref(false)
-async function served(station: 'kitchen' | 'bar') {
+async function served(station: 'kitchen' | 'bar' | 'cafe') {
   serving.value = true
   try {
     if (await tickets.markServed(ticketKey.value, station)) await load()
@@ -231,7 +231,7 @@ const ticket = computed(() => tickets.selected)
       </NuxtLink>
     </div>
 
-    <ReadyBanner :kitchen="ready.kitchen" :bar="ready.bar" :busy="serving" :walkin="walkin" @served="served" />
+    <ReadyBanner :kitchen="ready.kitchen" :bar="ready.bar" :cafe="ready.cafe" :busy="serving" :walkin="walkin" @served="served" />
 
     <p v-if="ticket && ticket.lockedBy" class="mt-3 flex items-center gap-2 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800">
       <UIcon name="i-lucide-lock" class="size-4 shrink-0" aria-hidden="true" /> {{ $t('staff.detail.locked') }}

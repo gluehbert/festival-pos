@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { AllergenEnum, AllergenListSchema, DietEnum } from '../allergens'
 
-export const StationEnum = z.enum(['kitchen', 'bar'])
+export const StationEnum = z.enum(['kitchen', 'bar', 'cafe'])
 export type Station = z.infer<typeof StationEnum>
 
 // Calendar day (YYYY-MM-DD) without time zone, e.g. from <input type="date">.

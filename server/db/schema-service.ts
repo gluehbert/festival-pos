@@ -84,7 +84,7 @@ export const stationBuzzers = pgTable(
     primaryKey({ columns: [t.eventId, t.station, t.lane] }),
     uniqueIndex('station_buzzers_key_uq').on(t.eventId, t.station, t.key),
     check('station_buzzers_lane_chk', sql`${t.lane} BETWEEN 1 AND 4`),
-    check('station_buzzers_station_chk', sql`${t.station} IN ('kitchen','bar')`),
+    check('station_buzzers_station_chk', sql`${t.station} IN ('kitchen','bar','cafe')`),
   ],
 )
 
@@ -105,6 +105,6 @@ export const productionLanes = pgTable(
     primaryKey({ columns: [t.eventId, t.station, t.lane] }),
     uniqueIndex('production_lanes_group_uq').on(t.eventId, t.station, t.groupKey),
     check('production_lanes_lane_chk', sql`${t.lane} BETWEEN 1 AND 4`),
-    check('production_lanes_station_chk', sql`${t.station} IN ('kitchen','bar')`),
+    check('production_lanes_station_chk', sql`${t.station} IN ('kitchen','bar','cafe')`),
   ],
 )
