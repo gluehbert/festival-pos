@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useApi } from '~/composables/useApi'
+import { apiError } from '~/utils/api-error'
 import type {
   TicketDetail,
   TicketSummary,
@@ -138,11 +139,8 @@ export const useTicketsStore = defineStore('tickets', () => {
     }
     catch (e) {
       error.value = e
-      // h3 nests the AppError payload under `data` of the response body.
-      type Payload = { code?: string; details?: { assignee?: Assignee } }
-      const body = (e as { data?: Payload & { data?: Payload } }).data
-      const data = body?.code ? body : body?.data
-      return { ok: false, heldBy: data?.code === 'TABLE_TAKEN' ? data.details?.assignee ?? null : null }
+      const { code, details } = apiError<{ assignee?: Assignee }>(e)
+      return { ok: false, heldBy: code === 'TABLE_TAKEN' ? details?.assignee ?? null : null }
     }
   }
 

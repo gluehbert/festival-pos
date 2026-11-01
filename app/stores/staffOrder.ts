@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useSendState } from '~/composables/useSendState'
 import { newIdempotencyKey } from '~/utils/idempotency'
+import { apiError } from '~/utils/api-error'
 import { usePaymentsStore } from '~/stores/payments'
 import { useMenuStore } from '~/stores/menu'
 import type { MenuItemDto, Order } from '~/../server/lib/contracts/guest'
@@ -125,15 +126,15 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
       return { order, ticketKey, paid, priceChanges: changes }
     }
     catch (e: unknown) {
-      const data = (e as { data?: { code?: string; message?: string; details?: { menuItemIds?: string[] } } }).data
+      const { code, details } = apiError<{ menuItemIds?: string[] }>(e)
       // Sold out meanwhile: nothing was booked; the articles leave the menu
       // and, through syncWithMenu, the pad.
-      if (data?.code === 'SOLD_OUT') {
+      if (code === 'SOLD_OUT') {
         error.value = 'sold_out'
-        useMenuStore().markSoldOut(data.details?.menuItemIds ?? [])
+        useMenuStore().markSoldOut(details?.menuItemIds ?? [])
         return null
       }
-      error.value = data?.message ?? 'order_failed'
+      error.value = (e as { data?: { message?: string } }).data?.message ?? 'order_failed'
       return null
     }
     finally {

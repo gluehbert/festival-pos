@@ -6,6 +6,7 @@ import WaiterCalls from '~/components/staff/WaiterCalls.vue'
 import { useAuthStore } from '~/stores/auth'
 import type { OpenCall } from '~/../server/lib/contracts/waiter-calls'
 import { useCookie } from './setup/imports'
+import { apiFailure } from './setup/api-error'
 
 const openCall = (over: Partial<OpenCall>): OpenCall => ({
   id: '00000000-0000-4000-8000-000000000001', tableNo: 5, reason: 'pay', waitingSeconds: 30, assignee: null, escalated: true, ...over,
@@ -45,7 +46,7 @@ describe('calling the service', () => {
     const w = mount(CallWaiter)
     await flushPromises()
     await w.get('[data-test="call-open"]').trigger('click')
-    fetchMock.mockRejectedValueOnce(Object.assign(new Error('429'), { statusCode: 429, data: { code: 'RATE_LIMITED' } }))
+    fetchMock.mockRejectedValueOnce(apiFailure(429, 'RATE_LIMITED'))
     await w.get('[data-reason="question"]').trigger('click')
     await flushPromises()
     expect(w.get('[role="alert"]').text()).toBe('guest.call.tooSoon')

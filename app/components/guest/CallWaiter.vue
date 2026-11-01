@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { usePolling } from '~/composables/usePolling'
+import { apiError } from '~/utils/api-error'
 import type { CallReason, TableCall } from '~/../server/lib/contracts/waiter-calls'
 
 // "Call the service": the guest picks a reason, the table's waiter (then
@@ -33,7 +34,7 @@ async function send(reason: CallReason) {
     polling.start()
   }
   catch (e) {
-    error.value = (e as { data?: { code?: string } }).data?.code === 'RATE_LIMITED' ? 'tooSoon' : 'failed'
+    error.value = apiError(e).code === 'RATE_LIMITED' ? 'tooSoon' : 'failed'
   }
   finally {
     busy.value = false

@@ -3,6 +3,7 @@ import { flushPromises, mount, RouterLinkStub } from '@vue/test-utils'
 import { useAuthStore } from '~/stores/auth'
 import AccountPage from '~/pages/staff/account.vue'
 import { useCookie } from './setup/imports'
+import { apiFailure } from './setup/api-error'
 
 const fetchMock = vi.fn()
 const stubs = { NuxtLink: RouterLinkStub }
@@ -15,7 +16,7 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllGlobals())
 
-const wrong = { statusCode: 400, data: { code: 'WRONG_SECRET', message: 'wrong' } }
+const wrong = apiFailure(400, 'WRONG_SECRET', { message: 'wrong' })
 
 describe('auth store: changePassword', () => {
   it('reports success, a wrong password, the throttle and other failures', async () => {
@@ -26,9 +27,7 @@ describe('auth store: changePassword', () => {
     expect(fetchMock.mock.calls[0]![1]).toMatchObject({ method: 'POST', body: { current: 'old', next: 'new-password-1' } })
     fetchMock.mockRejectedValueOnce(wrong)
     expect(await auth.changePassword('x', 'new-password-1')).toBe('wrong')
-    fetchMock.mockRejectedValueOnce({ statusCode: 400, data: { statusCode: 400, data: { code: 'WRONG_SECRET' } } })
-    expect(await auth.changePassword('x', 'new-password-1')).toBe('wrong')
-    fetchMock.mockRejectedValueOnce({ statusCode: 429, data: { code: 'RATE_LIMITED' } })
+    fetchMock.mockRejectedValueOnce(apiFailure(429, 'RATE_LIMITED'))
     expect(await auth.changePassword('x', 'new-password-1')).toBe('rateLimited')
     fetchMock.mockRejectedValueOnce(new Error('offline'))
     expect(await auth.changePassword('x', 'new-password-1')).toBe('failed')

@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useSendState } from '~/composables/useSendState'
 import { newIdempotencyKey } from '~/utils/idempotency'
+import { apiError } from '~/utils/api-error'
 import type { PaymentResponse } from '~/../server/lib/contracts/staff'
 
 export interface LockConflict {
@@ -60,10 +61,11 @@ export const usePaymentsStore = defineStore('payments', () => {
       return res
     }
     catch (e: unknown) {
-      const err = e as { statusCode?: number; status?: number; data?: { code?: string; message?: string; details?: LockConflict } }
+      const err = e as { statusCode?: number; status?: number; data?: { message?: string } }
       const status = err.statusCode ?? err.status
-      if (status === 409 && err.data?.code === 'LOCK_CONFLICT' && err.data.details) {
-        lockConflict.value = err.data.details
+      const { code, details } = apiError<LockConflict>(e)
+      if (status === 409 && code === 'LOCK_CONFLICT' && details) {
+        lockConflict.value = details
       }
       if (status === undefined || status >= 500) {
         unconfirmed.value = true
@@ -95,9 +97,8 @@ export const usePaymentsStore = defineStore('payments', () => {
       return true
     }
     catch (e: unknown) {
-      const err = e as { data?: { code?: string; message?: string } }
-      error.value = err.data?.message ?? 'void_failed'
-      errorCode.value = err.data?.code ?? null
+      error.value = (e as { data?: { message?: string } }).data?.message ?? 'void_failed'
+      errorCode.value = apiError(e).code ?? null
       return false
     }
     finally {
@@ -114,10 +115,8 @@ export const usePaymentsStore = defineStore('payments', () => {
       return true
     }
     catch (e: unknown) {
-      // The real response nests the code in `data.data`; unit tests mock it flat.
-      const err = e as { data?: { code?: string; message?: string; data?: { code?: string } } }
-      error.value = err.data?.message ?? 'refund_failed'
-      errorCode.value = err.data?.data?.code ?? err.data?.code ?? null
+      error.value = (e as { data?: { message?: string } }).data?.message ?? 'refund_failed'
+      errorCode.value = apiError(e).code ?? null
       return false
     }
     finally {

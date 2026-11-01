@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useProductionStore } from '~/stores/production'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 import { useCookie } from './setup/imports'
+import { apiFailure } from './setup/api-error'
 
 const fetchMock = vi.fn()
 beforeEach(() => {
@@ -93,7 +94,7 @@ describe('production store — polling race and undo', () => {
     await s.fetchQueue()
     fetchMock.mockResolvedValueOnce({})
     await s.advance('a', 'done')
-    fetchMock.mockRejectedValueOnce({ statusCode: 409, data: { code: 'ALREADY_SERVED' } })
+    fetchMock.mockRejectedValueOnce(apiFailure(409, 'ALREADY_SERVED'))
     await expect(s.undoDone([item('a')])).rejects.toMatchObject({ statusCode: 409 })
     expect(s.queue).toEqual([])
   })
