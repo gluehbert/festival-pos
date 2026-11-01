@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { installCommonMocks, makeCtx, setCtx, type RouteTestCtx } from '../setup/route-mocks'
 
@@ -8,8 +10,8 @@ beforeAll(async () => {
 let ctx: RouteTestCtx
 let seeded: { eventId: string; menuItemIds: string[]; staffId: string }
 
-// One guest order with one kitchen item (menu 0) at the table, `offset` seconds after now.
-function order(tableNo: number, offset: number): string {
+// One guest order with one item of the station at the table, `offset` seconds after now.
+function order(tableNo: number, offset: number, station: 'kitchen' | 'bar' = 'kitchen'): string {
   const guestId = (ctx.mem.public.one(
     `INSERT INTO guest_sessions (event_id, table_no, expires_at)
      VALUES ('${seeded.eventId}', ${tableNo}, now() + interval '7 days') RETURNING id`,
@@ -21,13 +23,19 @@ function order(tableNo: number, offset: number): string {
   const menuId = seeded.menuItemIds[0]!
   return (ctx.mem.public.one(
     `INSERT INTO order_items (order_id, menu_item_id, quantity, unit_price_cents, station)
-     VALUES ('${orderId}', '${menuId}', 1, 100, 'kitchen') RETURNING id`,
+     VALUES ('${orderId}', '${menuId}', 1, 100, '${station}') RETURNING id`,
   ) as { id: string }).id
 }
 
+const q = (v: string | null) => (v === null ? 'NULL' : `'${v}'`)
+
+// Kitchen buzzer keys (columns kept from when one pair served both stations).
 function buzzers(one: string | null, two: string | null) {
-  const q = (v: string | null) => (v === null ? 'NULL' : `'${v}'`)
   ctx.mem.public.none(`UPDATE events SET buzzer_key = ${q(one)}, buzzer_key_2 = ${q(two)} WHERE id = '${seeded.eventId}'`)
+}
+
+function barBuzzers(one: string | null, two: string | null) {
+  ctx.mem.public.none(`UPDATE events SET bar_buzzer_key = ${q(one)}, bar_buzzer_key_2 = ${q(two)} WHERE id = '${seeded.eventId}'`)
 }
 
 function finish(itemId: string) {
@@ -39,11 +47,12 @@ interface Polled { lanes: Array<{ lane: number; key: string; groupKey: string | 
 // Lane -> table it holds ("table:12:<order id>" -> 12).
 const tables = (r: Polled) => r.lanes.map((l) => [l.lane, l.groupKey === null ? null : Number(l.groupKey.split(':')[1])])
 
-async function poll(): Promise<Polled> {
+// One display of the station polling; `staffId` tells displays apart.
+async function poll(role: 'kitchen' | 'bar' = 'kitchen', staffId = seeded.staffId): Promise<Polled> {
   const { makeEvent } = await import('../setup/h3-event')
   const handler = (await import('../../server/api/production/queue.get')).default
   const { event } = makeEvent({ method: 'GET', url: '/api/production/queue' })
-  event.context.auth = { staff: { staffId: seeded.staffId, role: 'kitchen', username: 'k' } }
+  event.context.auth = { staff: { staffId, role, username: role } }
   return await handler(event) as never
 }
 
@@ -107,6 +116,48 @@ describe('production lanes (buzzers)', () => {
     expect(ctx.mem.public.many('SELECT * FROM production_lanes')).toEqual([])
   })
 
+  it('each station has its own keys; an empty key is no lane', async () => {
+    order(12, 0)
+    order(7, 10, 'bar')
+    order(3, 20, 'bar')
+    buzzers('F9', null)
+    barBuzzers(null, 'F9')
+    const kitchen = await poll('kitchen')
+    expect(kitchen.lanes.map((l) => [l.lane, l.key])).toEqual([[1, 'F9']])
+    expect(tables(kitchen)).toEqual([[1, 12]])
+    const bar = await poll('bar')
+    expect(bar.lanes.map((l) => [l.lane, l.key])).toEqual([[2, 'F9']])
+    expect(tables(bar)).toEqual([[2, 7]])
+
+    barBuzzers(null, null)
+    expect((await poll('bar')).lanes).toEqual([])
+    expect(tables(await poll('kitchen'))).toEqual([[1, 12]])
+  })
+
+  it('the migration gives the bar the keys both stations shared before', async () => {
+    buzzers('F9', 'F10')
+    barBuzzers(null, null)
+    ctx.mem.public.none(readFileSync(resolve(import.meta.dirname, '../../server/db/migrations/0034_copy_buzzer_keys_to_bar.sql'), 'utf8'))
+    order(12, 0)
+    order(7, 10, 'bar')
+    expect((await poll('kitchen')).lanes.map((l) => l.key)).toEqual(['F9', 'F10'])
+    expect((await poll('bar')).lanes.map((l) => l.key)).toEqual(['F9', 'F10'])
+  })
+
+  it('every display of a station shows the same lanes', async () => {
+    const t12 = order(12, 0)
+    order(7, 10)
+    order(3, 20)
+    buzzers('F9', 'F10')
+    const other = crypto.randomUUID()
+    const first = await poll('kitchen')
+    expect((await poll('kitchen', other)).lanes).toEqual(first.lanes)
+    finish(t12)
+    const refilled = await poll('kitchen', other)
+    expect(tables(refilled)).toEqual([[1, 3], [2, 7]])
+    expect((await poll('kitchen')).lanes).toEqual(refilled.lanes)
+  })
+
   it('only an order within a minute of the first joins its card; a later round is a card of its own', async () => {
     order(12, 0)
     const soon = order(12, 50)
@@ -125,7 +176,7 @@ describe('production lanes (buzzers)', () => {
     expect(r.items.filter((i) => i.tableNo === 12)).toHaveLength(3)
   })
 
-  it('the admin cannot give both buzzers the same key', async () => {
+  it('the admin cannot give both buzzers of a station the same key; the other station may use it', async () => {
     const { makeEvent } = await import('../setup/h3-event')
     const patch = (await import('../../server/api/admin/events/[id]/branding.patch')).default
     const req = (body: unknown) => {
@@ -136,11 +187,13 @@ describe('production lanes (buzzers)', () => {
       event.context.params = { id: seeded.eventId }
       return patch(event)
     }
-    const stored = () => ctx.mem.public.one(`SELECT buzzer_key, buzzer_key_2 FROM events WHERE id = '${seeded.eventId}'`)
-    await req({ buzzerKey: 'F9' })
-    await expect(req({ buzzerKey2: 'F9' })).rejects.toMatchObject({ statusCode: 400 })
-    await expect(req({ buzzerKey: 'F10', buzzerKey2: 'F10' })).rejects.toMatchObject({ statusCode: 400 })
-    await req({ buzzerKey2: 'F10' })
-    expect(stored()).toEqual({ buzzer_key: 'F9', buzzer_key_2: 'F10' })
+    const stored = () => ctx.mem.public.one(`SELECT buzzer_key, buzzer_key_2, bar_buzzer_key, bar_buzzer_key_2 FROM events WHERE id = '${seeded.eventId}'`)
+    await req({ kitchenBuzzerKey: 'F9' })
+    await expect(req({ kitchenBuzzerKey2: 'F9' })).rejects.toMatchObject({ statusCode: 400 })
+    await expect(req({ kitchenBuzzerKey: 'F10', kitchenBuzzerKey2: 'F10' })).rejects.toMatchObject({ statusCode: 400 })
+    await req({ kitchenBuzzerKey2: 'F10' })
+    await req({ barBuzzerKey: 'F10', barBuzzerKey2: 'F9' })
+    await expect(req({ barBuzzerKey: 'F9' })).rejects.toMatchObject({ statusCode: 400 })
+    expect(stored()).toEqual({ buzzer_key: 'F9', buzzer_key_2: 'F10', bar_buzzer_key: 'F10', bar_buzzer_key_2: 'F9' })
   })
 })

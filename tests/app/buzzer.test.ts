@@ -83,11 +83,11 @@ describe('useBuzzer', () => {
 
 describe('BuzzerKeys (admin)', () => {
   const ID = '00000000-0000-4000-8000-000000000001'
-  const ev = (buzzerKey: string | null, buzzerKey2: string | null = null) => ({
+  const ev = (kitchenBuzzerKey: string | null, kitchenBuzzerKey2: string | null = null, barBuzzerKey: string | null = null) => ({
     id: ID, name: 'Fest', pinCode: 'P1', isActive: true, tableRangeFrom: 1, tableRangeTo: 20,
     createdAt: '2026-05-01T10:00:00.000Z', activatedAt: null, deactivatedAt: null, startsOn: null, endsOn: null,
     trialMode: false, trialOrders: 0, depositEnabled: false, staffMealsEnabled: false, waiterCallsEnabled: false,
-    buzzerKey, buzzerKey2, guestOpenLimitBarCents: 5000, guestOpenLimitKitchenCents: 8000,
+    kitchenBuzzerKey, kitchenBuzzerKey2, barBuzzerKey, barBuzzerKey2: null, guestOpenLimitBarCents: 5000, guestOpenLimitKitchenCents: 8000,
   }) satisfies EventDto
   const fetchMock = vi.fn()
 
@@ -105,7 +105,7 @@ describe('BuzzerKeys (admin)', () => {
 
   it('stores the next key pressed for that buzzer, skipping modifier keys', async () => {
     const w = mountKeys(ev(null))
-    const two = w.find('[data-test="buzzer-2"]')
+    const two = w.find('[data-test="buzzer-kitchen-2"]')
     expect(w.find('[data-test="buzzer-current"]').exists()).toBe(false)
     await two.find('[data-test="buzzer-set"]').trigger('click')
     expect(two.find('[role="status"]').text()).toBe('admin.features.buzzer.listening')
@@ -115,7 +115,7 @@ describe('BuzzerKeys (admin)', () => {
     const e = press('F13')
     await flushPromises()
     expect(e.defaultPrevented).toBe(true)
-    expect(patches()).toEqual([[`/api/admin/events/${ID}/branding`, expect.objectContaining({ body: { buzzerKey2: 'F13' } })]])
+    expect(patches()).toEqual([[`/api/admin/events/${ID}/branding`, expect.objectContaining({ body: { kitchenBuzzerKey2: 'F13' } })]])
     expect(w.emitted('saved')).toHaveLength(1)
 
     // Listening ended: later keys are not stored.
@@ -125,19 +125,34 @@ describe('BuzzerKeys (admin)', () => {
     w.unmount()
   })
 
-  it('refuses the key of the other buzzer without asking the server', async () => {
-    const w = mountKeys(ev('F9'))
-    await w.find('[data-test="buzzer-2"] [data-test="buzzer-set"]').trigger('click')
+  it('refuses the key of the other buzzer of the station without asking the server', async () => {
+    const w = mountKeys(ev('F9', null, 'F10'))
+    await w.find('[data-test="buzzer-kitchen-2"] [data-test="buzzer-set"]').trigger('click')
     press('F9')
     await flushPromises()
+    await w.find('[data-test="buzzer-bar-2"] [data-test="buzzer-set"]').trigger('click')
+    press('F10')
+    await flushPromises()
     expect(patches()).toHaveLength(0)
-    expect(w.emitted('failed')).toEqual([['admin.features.buzzer.sameKey']])
+    expect(w.emitted('failed')).toEqual([['admin.features.buzzer.sameKey'], ['admin.features.buzzer.sameKey']])
+    w.unmount()
+  })
+
+  it('shows two buzzers per station; a key of the kitchen is free for the bar', async () => {
+    const w = mountKeys(ev('F9'))
+    expect(w.findAll('[data-test^="buzzer-"][data-test$="-1"], [data-test^="buzzer-"][data-test$="-2"]').map((r) => r.attributes('data-test')))
+      .toEqual(['buzzer-kitchen-1', 'buzzer-kitchen-2', 'buzzer-bar-1', 'buzzer-bar-2'])
+    expect(w.find('[data-test="buzzer-bar-1"] p').text()).toBe('admin.features.buzzer.label.bar1')
+    await w.find('[data-test="buzzer-bar-1"] [data-test="buzzer-set"]').trigger('click')
+    press('F9')
+    await flushPromises()
+    expect(patches()).toEqual([[`/api/admin/events/${ID}/branding`, expect.objectContaining({ body: { barBuzzerKey: 'F9' } })]])
     w.unmount()
   })
 
   it('shows the current key, can cancel a change and remove the key', async () => {
     const w = mountKeys(ev(' '))
-    const one = w.find('[data-test="buzzer-1"]')
+    const one = w.find('[data-test="buzzer-kitchen-1"]')
     expect(one.find('[data-test="buzzer-current"]').text()).toBe('admin.features.buzzer.space')
     await one.find('[data-test="buzzer-set"]').trigger('click')
     await one.find('[data-test="buzzer-cancel"]').trigger('click')
@@ -147,7 +162,7 @@ describe('BuzzerKeys (admin)', () => {
 
     await one.find('[data-test="buzzer-clear"]').trigger('click')
     await flushPromises()
-    expect(patches()[0]).toMatchObject([`/api/admin/events/${ID}/branding`, { body: { buzzerKey: null } }])
+    expect(patches()[0]).toMatchObject([`/api/admin/events/${ID}/branding`, { body: { kitchenBuzzerKey: null } }])
     w.unmount()
   })
 })

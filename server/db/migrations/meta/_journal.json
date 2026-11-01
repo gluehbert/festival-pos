@@ -232,6 +232,20 @@
       "when": 1793431439291,
       "tag": "0032_faithful_supernaut",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1793564403974,
+      "tag": "0033_bar_buzzer_keys",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1793564404989,
+      "tag": "0034_copy_buzzer_keys_to_bar",
+      "breakpoints": true
     }
   ]
 }

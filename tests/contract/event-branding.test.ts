@@ -56,16 +56,16 @@ describe('event branding', () => {
     const pub = (await import('../../server/api/event/branding.get')).default
     const stored = () => ctx.mem.public.one(`SELECT buzzer_key FROM events WHERE id = '${eventId}'`)
 
-    ctx.setBody({ buzzerKey: 'F13' })
-    expect(await patch(adminReq('PATCH').event)).not.toHaveProperty('buzzerKey')
+    ctx.setBody({ kitchenBuzzerKey: 'F13' })
+    expect(await patch(adminReq('PATCH').event)).not.toHaveProperty('kitchenBuzzerKey')
     expect(stored()).toEqual({ buzzer_key: 'F13' })
-    expect(await pub(makeEvent().event)).not.toHaveProperty('buzzerKey')
+    expect(await pub(makeEvent().event)).not.toHaveProperty('kitchenBuzzerKey')
 
-    for (const buzzerKey of ['', 'x'.repeat(33)]) {
-      ctx.setBody({ buzzerKey })
+    for (const barBuzzerKey of ['', 'x'.repeat(33)]) {
+      ctx.setBody({ barBuzzerKey })
       await expect(patch(adminReq('PATCH').event)).rejects.toMatchObject({ statusCode: 400 })
     }
-    ctx.setBody({ buzzerKey: null })
+    ctx.setBody({ kitchenBuzzerKey: null })
     await patch(adminReq('PATCH').event)
     expect(stored()).toEqual({ buzzer_key: null })
   })

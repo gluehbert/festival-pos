@@ -4,9 +4,12 @@ import { orderItems } from '../db/schema'
 import { productionLanes } from '../db/schema-service'
 import { LANE_ROUND_MS, productionCards, type ProductionLane, type ProductionQueueItem, type Station } from './contracts/production'
 
-// One lane per buzzer key the admin set: lane 1 (green), lane 2 (blue).
-export function activeLanes(ev: { buzzerKey: string | null; buzzerKey2: string | null }): Array<{ lane: number; key: string }> {
-  return [{ lane: 1, key: ev.buzzerKey }, { lane: 2, key: ev.buzzerKey2 }]
+type BuzzerKeys = Record<'kitchenBuzzerKey' | 'kitchenBuzzerKey2' | 'barBuzzerKey' | 'barBuzzerKey2', string | null>
+
+// One lane per buzzer key the admin set for this station: lane 1 (green),
+// lane 2 (blue). An empty key means no lane.
+export function activeLanes(ev: BuzzerKeys, station: Station): Array<{ lane: number; key: string }> {
+  return [{ lane: 1, key: ev[`${station}BuzzerKey`] }, { lane: 2, key: ev[`${station}BuzzerKey2`] }]
     .filter((l): l is { lane: number; key: string } => l.key !== null)
 }
 

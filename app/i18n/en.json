@@ -1057,16 +1057,20 @@
         "hint": "Guests can call the service to their table with a reason (pay, order, question). The table's waiter sees it first, after 2 minutes everyone in service; the bar screen shows every call. Off: the button is gone."
       },
       "buzzer": {
-        "label1": "Buzzer 1 – green (kitchen / bar)",
-        "hint1": "A big button at the counter that works like a one-key keyboard (USB or Bluetooth). With a buzzer the kitchen and bar screen shows its lane: the oldest order, large, for the person at that buzzer. A press finishes it and the lane takes the next one. A second press within a second is ignored.",
-        "label2": "Buzzer 2 – blue (optional)",
+        "label": {
+          "kitchen1": "Kitchen buzzer 1 – green",
+          "kitchen2": "Kitchen buzzer 2 – blue (optional)",
+          "bar1": "Bar buzzer 1 – green",
+          "bar2": "Bar buzzer 2 – blue (optional)"
+        },
+        "hint1": "A big button at the counter that works like a one-key keyboard (USB or Bluetooth). With a buzzer this station's screens show its lane: the oldest order, large, for the person at that buzzer. A press finishes it and the lane takes the next one. A second press within a second is ignored. Without a key there is no lane.",
         "hint2": "For a second person behind the counter: a second lane next to the first. Each lane keeps its order until it is finished.",
         "set": "Set key",
         "change": "Change",
         "clear": "Remove",
         "listening": "Press the buzzer now …",
         "space": "Space",
-        "sameKey": "The other buzzer already uses this key."
+        "sameKey": "The other buzzer of this station already uses this key."
       },
       "foodPrepayEnabled": {
         "label": "Pay for food when ordering",

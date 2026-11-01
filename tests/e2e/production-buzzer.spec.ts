@@ -2,17 +2,17 @@ import { test, expect, type Page } from '@playwright/test'
 import { guestOrders, loginStaff, openLiveEvent } from './helpers'
 
 async function setBuzzer(page: Page, n: 1 | 2, key: string) {
-  const row = page.locator(`[data-test="buzzer-${n}"]`)
+  const row = page.locator(`[data-test="buzzer-kitchen-${n}"]`)
   await row.locator('[data-test="buzzer-set"]').click()
   await expect(row.getByRole('status')).toContainText('Press the buzzer now')
   await page.keyboard.press(key)
   await expect(row.locator('[data-test="buzzer-current"]')).toHaveText(key)
 }
 
-// Two buzzers at the counter, each a one-key keyboard with its own lane:
+// Two kitchen buzzers at the counter, each a one-key keyboard with its own lane:
 // a press finishes the lane's card, the lane takes the next one, the other
 // lane keeps its card.
-test.describe('@smoke Buzzers at the kitchen/bar', () => {
+test.describe('@smoke Buzzers at the kitchen', () => {
   test('admin sets two buzzers, each finishes its own lane, the other lane stays put', async ({ browser, page }) => {
     await loginStaff(page, 'admin', 'admin123', 'password')
     await openLiveEvent(page)
@@ -66,7 +66,7 @@ test.describe('@smoke Buzzers at the kitchen/bar', () => {
     await expect(empty).toBeVisible()
     await kitchenContext.close()
 
-    for (const n of [1, 2]) await page.locator(`[data-test="buzzer-${n}"] [data-test="buzzer-clear"]`).click()
+    for (const n of [1, 2]) await page.locator(`[data-test="buzzer-kitchen-${n}"] [data-test="buzzer-clear"]`).click()
     await expect(page.locator('[data-test="buzzer-current"]')).toHaveCount(0)
   })
 })

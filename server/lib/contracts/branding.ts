@@ -10,6 +10,8 @@ export const LEGAL_TEXT_MAX = 20_000
 const optionalText = (max: number) =>
   z.string().trim().max(max).transform((v) => (v === '' ? null : v)).nullable().optional()
 
+const BuzzerKeySchema = z.string().min(1).max(32).nullable().optional()
+
 const GuestOpenLimitSchema = z.number().int().min(100).max(100_000).nullable()
 
 export const UpdateBrandingSchema = z.object({
@@ -24,9 +26,11 @@ export const UpdateBrandingSchema = z.object({
   depositEnabled: z.boolean().optional(),
   staffMealsEnabled: z.boolean().optional(),
   waiterCallsEnabled: z.boolean().optional(),
-  // KeyboardEvent.key of the buzzers at the kitchen/bar screen (lane 1, lane 2); null = off.
-  buzzerKey: z.string().min(1).max(32).nullable().optional(),
-  buzzerKey2: z.string().min(1).max(32).nullable().optional(),
+  // KeyboardEvent.key of the buzzers per station screen (lane 1, lane 2); null = no lane.
+  kitchenBuzzerKey: BuzzerKeySchema,
+  kitchenBuzzerKey2: BuzzerKeySchema,
+  barBuzzerKey: BuzzerKeySchema,
+  barBuzzerKey2: BuzzerKeySchema,
   foodPrepayEnabled: z.boolean().optional(),
   // Unpaid cents one guest phone may have per station; null = no limit.
   guestOpenLimitBarCents: GuestOpenLimitSchema.optional(),

@@ -18,13 +18,13 @@ export const events = pgTable(
     welcomeText: text('welcome_text'),
     program: text('program'),
     // Shown to guests only; ordering is controlled by isActive, not by date.
-    startsOn: date('starts_on', { mode: 'string' }),
-    endsOn: date('ends_on', { mode: 'string' }),
+    startsOn: date('starts_on', { mode: 'string' }), endsOn: date('ends_on', { mode: 'string' }),
     trialMode: boolean('trial_mode').notNull().default(false), // rehearsal: orders/payments flagged, out of reports, deletable
     depositEnabled: boolean('deposit_enabled').notNull().default(false), // Pfand: charged with orders, paid back on return
     staffMealsEnabled: boolean('staff_meals_enabled').notNull().default(false), // free meals for helpers
     waiterCallsEnabled: boolean('waiter_calls_enabled').notNull().default(false), // guests can call the service
-    buzzerKey: varchar('buzzer_key', { length: 32 }), buzzerKey2: varchar('buzzer_key_2', { length: 32 }), // kitchen/bar buzzers, lanes 1 and 2 (schema-service.ts); NULL = off
+    kitchenBuzzerKey: varchar('buzzer_key', { length: 32 }), kitchenBuzzerKey2: varchar('buzzer_key_2', { length: 32 }), // buzzers per station, lanes 1 and 2
+    barBuzzerKey: varchar('bar_buzzer_key', { length: 32 }), barBuzzerKey2: varchar('bar_buzzer_key_2', { length: 32 }), // (schema-service.ts); NULL = no lane
     foodPrepayEnabled: boolean('food_prepay_enabled').notNull().default(false), // kitchen gets food only once paid (lib/food-prepay.ts)
     // Legal pages for guests (Impressum, Datenschutz), plain text per event.
     imprintText: text('imprint_text'),

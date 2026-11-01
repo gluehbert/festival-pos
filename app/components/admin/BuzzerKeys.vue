@@ -2,24 +2,29 @@
 import { onBeforeUnmount, ref } from 'vue'
 import { useAdminStore } from '~/stores/admin'
 import type { EventDto } from '~/../server/lib/contracts/admin'
+import type { Station } from '~/../server/lib/contracts/production'
 
-// Up to two buzzers at the kitchen/bar, each a one-key keyboard with its
-// own lane (1 green, 2 blue). The admin presses the buzzer once and its key
-// is stored; rows of the features list.
+// Up to two buzzers per station (kitchen, bar), each a one-key keyboard with
+// its own lane (1 green, 2 blue). The admin presses the buzzer once and its
+// key is stored; rows of the features list.
 const props = defineProps<{ event: EventDto }>()
 const emit = defineEmits<{ (e: 'saved' | 'failed', text: string): void }>()
 
 const { t } = useI18n()
 const admin = useAdminStore()
-const FIELDS = ['buzzerKey', 'buzzerKey2'] as const
-type Field = (typeof FIELDS)[number]
+type Field = `${Station}BuzzerKey` | `${Station}BuzzerKey2`
+// `other` is the second buzzer of the same station; it needs another key.
+const ROWS = (['kitchen', 'bar'] as const).flatMap((station) => [
+  { station, n: 1, field: `${station}BuzzerKey` as Field, other: `${station}BuzzerKey2` as Field },
+  { station, n: 2, field: `${station}BuzzerKey2` as Field, other: `${station}BuzzerKey` as Field },
+])
 const MODIFIERS = ['Shift', 'Control', 'Alt', 'Meta', 'AltGraph', 'CapsLock']
 const busy = ref(false)
 const listening = ref<Field | null>(null)
 
 async function save(field: Field, key: string | null) {
-  const other = props.event[field === 'buzzerKey' ? 'buzzerKey2' : 'buzzerKey']
-  if (key !== null && key === other) {
+  const other = ROWS.find((r) => r.field === field)!.other
+  if (key !== null && key === props.event[other]) {
     emit('failed', t('admin.features.buzzer.sameKey'))
     return
   }
@@ -59,13 +64,13 @@ onBeforeUnmount(stop)
 </script>
 
 <template>
-  <li v-for="(field, n) in FIELDS" :key="field" class="flex flex-wrap items-center justify-between gap-4 py-3" :data-test="`buzzer-${n + 1}`">
+  <li v-for="{ station, n, field } in ROWS" :key="field" class="flex flex-wrap items-center justify-between gap-4 py-3" :data-test="`buzzer-${station}-${n}`">
     <div class="min-w-0 flex-1">
       <p class="font-semibold text-slate-800">
-        {{ $t(`admin.features.buzzer.label${n + 1}`) }}
+        {{ $t(`admin.features.buzzer.label.${station}${n}`) }}
       </p>
       <p class="text-slate-600">
-        {{ $t(`admin.features.buzzer.hint${n + 1}`) }}
+        {{ $t(`admin.features.buzzer.hint${n}`) }}
       </p>
     </div>
     <div class="flex shrink-0 items-center gap-2">

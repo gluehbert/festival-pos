@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    const lanes = await fillLanes(db, ev.id, station, activeLanes(ev), items)
+    const lanes = await fillLanes(db, ev.id, station, activeLanes(ev, station), items)
     return ProductionQueueSchema.parse({ station, items, lanes })
   }
   catch (err) {
