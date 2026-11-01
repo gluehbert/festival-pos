@@ -29,6 +29,16 @@ export async function loginStaff(page: Page, username: string, secret: string, k
   await expect(page).not.toHaveURL(/\/staff\/login/)
 }
 
+// New order: tap the table in the grid (switching to all tables when the
+// waiter holds some from an earlier run).
+export async function pickTable(page: Page, tableNo: number): Promise<void> {
+  await page.locator('[data-test="picker-table"]').first().waitFor()
+  const all = page.locator('[data-test="picker-all"]')
+  if (await all.isVisible()) await all.click()
+  await page.getByRole('button', { name: new RegExp(`^table ${tableNo},`, 'i') }).click()
+  await expect(page.locator('[data-test="order-table-chosen"]')).toContainText(String(tableNo))
+}
+
 // Opens the cash drawer unless one is still open from an earlier run.
 export async function ensureDrawerOpen(page: Page): Promise<void> {
   await page.goto('/staff/cash')

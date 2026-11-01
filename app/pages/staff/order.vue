@@ -5,10 +5,12 @@ import { navigateTo } from '#imports'
 import { useAuthStore } from '~/stores/auth'
 import { useMenuStore } from '~/stores/menu'
 import { useStaffOrderStore } from '~/stores/staffOrder'
+import { useTicketsStore } from '~/stores/tickets'
 import { useFormat } from '~/composables/useFormat'
 import { usePolling } from '~/composables/usePolling'
 import OrderMenuRow from '~/components/staff/OrderMenuRow.vue'
 import MenuBrowser from '~/components/common/MenuBrowser.vue'
+import TablePicker from '~/components/staff/TablePicker.vue'
 import SendingState from '~/components/common/SendingState.vue'
 import PadLines from '~/components/staff/PadLines.vue'
 import LastReceipt from '~/components/staff/LastReceipt.vue'
@@ -19,6 +21,7 @@ import PriceChangeNotice from '~/components/common/PriceChangeNotice.vue'
 import type { PriceChange } from '~/utils/price-changes'
 import { sendBlock } from '~/utils/send-block'
 import { useBranding } from '~/composables/useBranding'
+import { buildTiles } from '~/utils/table-grid'
 import type { MenuItemDto } from '~/../server/lib/contracts/guest'
 
 const { t } = useI18n()
@@ -27,6 +30,7 @@ const route = useRoute()
 const auth = useAuthStore()
 const menu = useMenuStore()
 const pad = useStaffOrderStore()
+const tickets = useTicketsStore()
 const { shown: showAllergens } = useAllergenDisplay()
 
 // The fixed pad grows when its line list opens: keep the last menu rows
@@ -39,9 +43,27 @@ const isMeal = computed(() => route.query.meal === '1')
 const isWalkin = computed(() => route.query.walkin === '1' || isMeal.value)
 const mealReason = ref('')
 const mealValid = computed(() => !isMeal.value || mealReason.value.trim().length >= 3)
-const tableInput = ref(typeof route.query.table === 'string' ? route.query.table : '')
-const tableNo = computed(() => Number.parseInt(tableInput.value, 10))
-const tableValid = computed(() => isWalkin.value || (Number.isInteger(tableNo.value) && tableNo.value >= 1))
+// The table comes first: picked from the grid (or prefilled from the table's
+// page), then the grid folds away and the menu shows.
+const queryTable = typeof route.query.table === 'string' ? Number.parseInt(route.query.table, 10) : Number.NaN
+const tableNo = ref<number | null>(Number.isInteger(queryTable) && queryTable >= 1 ? queryTable : null)
+const picking = ref(!isWalkin.value && tableNo.value === null)
+const tableValid = computed(() => isWalkin.value || (tableNo.value !== null && !picking.value))
+const tiles = computed(() => buildTiles(tickets.tableRange, tickets.tickets, tickets.assignments, Date.now() + tickets.clockOffsetMs))
+
+function pickTable(n: number) {
+  tableNo.value = n
+  picking.value = false
+  notice.value = null
+}
+
+// The next order is usually for another table: back to the grid.
+function nextTable() {
+  if (route.query.table) return
+  tableNo.value = null
+  picking.value = true
+  void tickets.refresh({ status: 'open' }).catch(() => {})
+}
 const block = computed(() => sendBlock({ empty: pad.isEmpty, tableValid: tableValid.value, mealValid: mealValid.value }))
 const notice = ref<string | null>(null)
 const changedPrices = ref<PriceChange[]>([])
@@ -52,7 +74,7 @@ const canPayFood = computed(() => !isWalkin.value && branding.value.foodPrepayEn
 
 const quantities = computed(() => Object.fromEntries(pad.lines.map((l) => [l.menuItem.id, pad.qtyOf(l.menuItem.id)])))
 
-// "Frequent" follows the table number being typed (walk-ins: best sellers only).
+// "Frequent" follows the picked table (walk-ins: best sellers only).
 const popularTable = computed(() => (!isWalkin.value && tableValid.value ? tableNo.value : null))
 let popularTimer: ReturnType<typeof setTimeout> | undefined
 watch(popularTable, (table) => {
@@ -90,6 +112,7 @@ onMounted(async () => {
     }
   }
   pad.clear()
+  if (!isWalkin.value) void tickets.refresh({ status: 'open' }).catch(() => {})
   await Promise.all([menu.refresh(), menu.refreshPopular(popularTable.value)])
 })
 
@@ -97,7 +120,8 @@ async function send(payNow = false) {
   if (block.value) return
   const value = euro(pad.valueCents)
   const mode = isMeal.value ? 'staff_meal' : isWalkin.value ? 'walkin' : 'staff_table'
-  const res = await pad.submit(mode, isWalkin.value ? 0 : tableNo.value, payNow, mealReason.value.trim())
+  const table = isWalkin.value ? 0 : tableNo.value ?? 0
+  const res = await pad.submit(mode, table, payNow, mealReason.value.trim())
   if (!res) return
   changedPrices.value = res.priceChanges
   if (res.priceChanges.length > 0) void menu.refresh()
@@ -107,7 +131,7 @@ async function send(payNow = false) {
   }
   if (res.paid) {
     notice.value = t('staff.order.paidNotice', { amount: euro(res.paid.totalCents) })
-    if (!isWalkin.value && !route.query.table) tableInput.value = ''
+    if (!isWalkin.value) nextTable()
     return
   }
   if (isWalkin.value && !payNow) {
@@ -118,9 +142,8 @@ async function send(payNow = false) {
   void menu.refreshPopular(popularTable.value)
   // Booked prices, not the pad's: a promotion may have started or ended.
   const booked = res.order.items.reduce((s, i) => s + (i.unitPriceCents + i.depositCents) * i.quantity, 0)
-  notice.value = t('staff.order.sentNotice', { table: tableNo.value, amount: euro(booked) })
-  // Next order is usually for another table: ask for the number again.
-  if (!route.query.table) tableInput.value = ''
+  notice.value = t('staff.order.sentNotice', { table, amount: euro(booked) })
+  nextTable()
 }
 
 const backTo = computed(() => (!isWalkin.value && route.query.table ? `/staff/${route.query.table}` : '/staff'))
@@ -135,19 +158,21 @@ const backTo = computed(() => (!isWalkin.value && route.query.table ? `/staff/${
       {{ isMeal ? $t('staff.meal.title') : isWalkin ? $t('staff.order.walkinTitle') : $t('staff.order.title') }}
     </h1>
 
-    <label v-if="!isWalkin" class="mt-4 flex items-center gap-3 text-base font-semibold text-slate-900">
-      {{ $t('staff.order.tableLabel') }}
-      <input
-        v-model="tableInput"
-        type="number"
-        inputmode="numeric"
-        min="1"
-        class="w-28 rounded-lg border-2 px-3 py-2 text-2xl font-bold"
-        :class="block === 'table' ? 'border-rose-500' : 'border-slate-300'"
-        :aria-invalid="block === 'table'"
-        data-test="order-table"
-      >
-    </label>
+    <button
+      v-if="!isWalkin && !picking && tableNo !== null"
+      type="button"
+      class="mt-4 flex w-full items-center gap-3 rounded-xl border-2 border-brand bg-brand-soft px-4 py-2 text-left text-slate-900"
+      :aria-label="$t('staff.order.picker.changeAria', { n: tableNo })"
+      data-test="order-table-chosen"
+      @click="picking = true"
+    >
+      <span class="text-sm font-semibold text-brand-ink">{{ $t('staff.order.tableLabel') }}</span>
+      <span class="text-3xl leading-none font-extrabold tabular-nums">{{ tableNo }}</span>
+      <span class="ml-auto flex items-center gap-1 text-sm font-semibold text-brand-ink">
+        {{ $t('staff.order.picker.change') }}
+        <UIcon name="i-lucide-chevron-down" class="size-5 shrink-0" aria-hidden="true" />
+      </span>
+    </button>
 
     <label v-if="isMeal" class="mt-4 block text-base font-semibold text-slate-900">
       {{ $t('staff.meal.reasonLabel') }}
@@ -174,22 +199,32 @@ const backTo = computed(() => (!isWalkin.value && route.query.table ? `/staff/${
       <UIcon name="i-lucide-circle-alert" class="size-4 shrink-0" aria-hidden="true" /> {{ soldOutNotice }}
     </p>
 
-    <p v-if="menu.loading && menu.items.length === 0" class="mt-6 text-sm text-slate-500">
-      {{ $t('guest.menu.loading') }}
-    </p>
-    <MenuBrowser
-      class="mt-4"
-      :items="menu.items"
-      :popular="menu.popular"
-      :quantities="quantities"
-      list-class="rounded-lg border border-slate-200 bg-surface px-2"
-      tuck-search
-    >
-      <template #item="{ item }">
-        <OrderMenuRow :item="item" :quantity="pad.qtyOf(item.id)" @set="(q) => setQty(item, q)" />
-      </template>
-    </MenuBrowser>
-    <AllergenLegend v-if="showAllergens && menu.items.length > 0" class="mt-4" />
+    <TablePicker
+      v-if="picking"
+      :tiles="tiles"
+      :my-id="auth.staff?.staffId"
+      :current="tableNo"
+      @pick="pickTable"
+      @keep="picking = false"
+    />
+    <template v-else>
+      <p v-if="menu.loading && menu.items.length === 0" class="mt-6 text-sm text-slate-500">
+        {{ $t('guest.menu.loading') }}
+      </p>
+      <MenuBrowser
+        class="mt-4"
+        :items="menu.items"
+        :popular="menu.popular"
+        :quantities="quantities"
+        list-class="rounded-lg border border-slate-200 bg-surface px-2"
+        tuck-search
+      >
+        <template #item="{ item }">
+          <OrderMenuRow :item="item" :quantity="pad.qtyOf(item.id)" @set="(q) => setQty(item, q)" />
+        </template>
+      </MenuBrowser>
+      <AllergenLegend v-if="showAllergens && menu.items.length > 0" class="mt-4" />
+    </template>
 
     <aside ref="padBar" class="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-surface px-4 py-3 shadow-lg">
       <div class="mx-auto flex max-w-2xl flex-col gap-2">

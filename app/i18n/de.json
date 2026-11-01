@@ -358,9 +358,21 @@
       "soldOutRemoved": "Ausverkauft, vom Block genommen: {items}",
       "linesTitle": "Positionen & Notizen",
       "linesEmpty": "Noch nichts ausgewählt.",
-      "blockTable": "Bitte zuerst die Tischnummer eingeben.",
+      "blockTable": "Bitte zuerst einen Tisch wählen.",
       "blockMealReason": "Bitte einen Grund eingeben (mind. 3 Zeichen).",
-      "sendAndPayFood": "Senden & Essen bar kassiert"
+      "sendAndPayFood": "Senden & Essen bar kassiert",
+      "picker": {
+        "title": "Für welchen Tisch?",
+        "mine": "Meine ({n})",
+        "all": "Alle",
+        "other": "Andere Nr.",
+        "ok": "OK",
+        "keep": "Bei Tisch {n} bleiben",
+        "change": "ändern",
+        "changeAria": "Tisch {n} – Tisch ändern",
+        "tileAria": "Tisch {n}, {state}",
+        "tileMineAria": "Tisch {n}, mein Tisch, {state}"
+      }
     },
     "activity": {
       "order": "Letzte Bestellung {age}",
@@ -549,7 +561,7 @@
       "title": "So geht’s",
       "order": {
         "title": "Bestellen",
-        "text": "„Neue Bestellung“ tippen, Tischnummer eingeben, Sachen antippen, „An Küche/Bar senden“."
+        "text": "„Neue Bestellung“ tippen, Tisch antippen, Sachen antippen, „An Küche/Bar senden“."
       },
       "bring": {
         "title": "Bringen",

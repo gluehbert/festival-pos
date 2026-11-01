@@ -358,9 +358,21 @@
       "soldOutRemoved": "Sold out, removed from the pad: {items}",
       "linesTitle": "Items & notes",
       "linesEmpty": "Nothing selected yet.",
-      "blockTable": "Please enter the table number first.",
+      "blockTable": "Please pick a table first.",
       "blockMealReason": "Please enter a reason (at least 3 characters).",
-      "sendAndPayFood": "Send & food paid cash"
+      "sendAndPayFood": "Send & food paid cash",
+      "picker": {
+        "title": "Which table?",
+        "mine": "Mine ({n})",
+        "all": "All",
+        "other": "Other no.",
+        "ok": "OK",
+        "keep": "Stay at table {n}",
+        "change": "change",
+        "changeAria": "Table {n} – change table",
+        "tileAria": "Table {n}, {state}",
+        "tileMineAria": "Table {n}, my table, {state}"
+      }
     },
     "activity": {
       "order": "Last order {age}",
@@ -549,7 +561,7 @@
       "title": "How it works",
       "order": {
         "title": "Order",
-        "text": "Tap “New order”, enter the table number, tap the items, “Send to kitchen/bar”."
+        "text": "Tap “New order”, tap the table, tap the items, “Send to kitchen/bar”."
       },
       "bring": {
         "title": "Bring",
