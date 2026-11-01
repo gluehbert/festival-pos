@@ -27,20 +27,29 @@ describe('calling the service', () => {
     const w = mount(CallWaiter)
     await flushPromises()
     await w.get('[data-test="call-open"]').trigger('click')
-    fetchMock.mockResolvedValueOnce({ reason: 'pay', createdAt: new Date().toISOString(), acknowledged: false })
-    await w.get('[data-reason="pay"]').trigger('click')
+    // Guests pay when served: no "pay" to pick.
+    expect(w.findAll('[data-reason]').map((b) => b.attributes('data-reason'))).toEqual(['order', 'question'])
+    fetchMock.mockResolvedValueOnce({ reason: 'order', createdAt: new Date().toISOString(), status: 'waiting' })
+    await w.get('[data-reason="order"]').trigger('click')
     await flushPromises()
-    expect(fetchMock.mock.calls.at(-1)).toMatchObject(['/api/waiter-calls', { method: 'POST', body: { reason: 'pay' } }])
-    expect(w.get('[data-test="call-waiting"]').text()).toBe('guest.call.waiting:{"reason":"guest.call.reasons.pay"}')
+    expect(fetchMock.mock.calls.at(-1)).toMatchObject(['/api/waiter-calls', { method: 'POST', body: { reason: 'order' } }])
+    expect(w.get('[data-test="call-waiting"]').text()).toBe('guest.call.waiting:{"reason":"guest.call.reasons.order"}')
     w.unmount()
   })
 
-  it('shows "someone is coming" and says when the table just called', async () => {
-    fetchMock.mockResolvedValueOnce({ reason: 'order', createdAt: new Date().toISOString(), acknowledged: true })
+  it('shows "someone is coming", the pause after a visit, and when the table just called', async () => {
+    fetchMock.mockResolvedValueOnce({ reason: 'order', createdAt: new Date().toISOString(), status: 'coming' })
     const coming = mount(CallWaiter)
     await flushPromises()
     expect(coming.get('[data-test="call-coming"]').text()).toBe('guest.call.coming')
     coming.unmount()
+
+    fetchMock.mockResolvedValueOnce({ reason: 'order', createdAt: new Date().toISOString(), status: 'paused' })
+    const paused = mount(CallWaiter)
+    await flushPromises()
+    expect(paused.get('[data-test="call-paused"]').text()).toBe('guest.call.paused')
+    expect(paused.find('[data-test="call-open"]').exists()).toBe(false)
+    paused.unmount()
 
     fetchMock.mockResolvedValueOnce(null)
     const w = mount(CallWaiter)

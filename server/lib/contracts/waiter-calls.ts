@@ -1,18 +1,21 @@
 import { z } from 'zod'
 import { AssigneeSchema } from './tables'
 
+// 'pay' only on older calls: guests pay when served, so they cannot pick it.
 export const CallReasonEnum = z.enum(['pay', 'order', 'question'])
 export type CallReason = z.infer<typeof CallReasonEnum>
 
 // Guest: POST /api/waiter-calls
-export const CreateWaiterCallSchema = z.object({ reason: CallReasonEnum })
+export const CreateWaiterCallSchema = z.object({ reason: z.enum(['order', 'question']) })
 
-// Guest: the table's current call, also while "someone is coming" is still
-// shown after it was acknowledged. null = nothing going on.
+// Guest: the table's current call. waiting = nobody answered yet; coming =
+// someone is on the way; paused = the service was at the table, which cannot
+// call again for a while. null = nothing going on.
+export const TableCallStatusEnum = z.enum(['waiting', 'coming', 'paused'])
 export const TableCallSchema = z.object({
   reason: CallReasonEnum,
   createdAt: z.string().datetime(),
-  acknowledged: z.boolean(),
+  status: TableCallStatusEnum,
 }).nullable()
 export type TableCall = z.infer<typeof TableCallSchema>
 
