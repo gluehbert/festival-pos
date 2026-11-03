@@ -48,9 +48,12 @@ describe('Kassenabschluss — open, cash, refund, close', () => {
     ctx.mem.public.none(`INSERT INTO payments (event_id, staff_id, total_cents, is_trial)
       VALUES ('${seeded.eventId}', '${anna.staffId}', 777, true)`)
 
+    // The refund is paid out of the refunding admin's drawer, not Anna's.
+    const admin = { staffId: seeded.staffId, role: 'admin' as const }
+    await call('../../server/api/cash/session.post', { method: 'POST', staff: admin, body: { openingCents: 1000 } })
     const refund = await call('../../server/api/admin/order-items/[id]/refund.post', {
       method: 'POST',
-      staff: { staffId: seeded.staffId, role: 'admin' },
+      staff: admin,
       params: { id: second.orderItemId },
       body: { reason: 'zu warm' },
     })
@@ -60,14 +63,19 @@ describe('Kassenabschluss — open, cash, refund, close', () => {
       '../../server/api/cash/session.get',
       { staff: anna },
     )
-    expect(live.body.session).toMatchObject({ collectedCents: 1100, refundedCents: 400, expectedCents: 5700 })
+    expect(live.body.session).toMatchObject({ collectedCents: 1100, refundedCents: 0, expectedCents: 6100 })
+    const adminLive = await call<{ session: { collectedCents: number; refundedCents: number; expectedCents: number } }>(
+      '../../server/api/cash/session.get',
+      { staff: admin },
+    )
+    expect(adminLive.body.session).toMatchObject({ collectedCents: 0, refundedCents: 400, expectedCents: 600 })
 
     const closed = await call<{ expectedCents: number; countedCents: number; differenceCents: number; closedAt: string }>(
       '../../server/api/cash/session/close.post',
-      { method: 'POST', staff: anna, body: { countedCents: 5650, note: 'Münze verloren' } },
+      { method: 'POST', staff: anna, body: { countedCents: 6050, note: 'Münze verloren' } },
     )
     expect(closed.status).toBe(200)
-    expect(closed.body).toMatchObject({ expectedCents: 5700, countedCents: 5650, differenceCents: -50 })
+    expect(closed.body).toMatchObject({ expectedCents: 6100, countedCents: 6050, differenceCents: -50 })
     expect(closed.body.closedAt).toBeTruthy()
 
     // Later payments do not change a closed drawer; a new one can be opened.
@@ -76,11 +84,18 @@ describe('Kassenabschluss — open, cash, refund, close', () => {
       '../../server/api/admin/events/[id]/reports.get',
       { staff: { staffId: seeded.staffId, role: 'admin' }, params: { id: seeded.eventId }, url: '/x?type=cash_sessions' },
     )
-    expect(report.body.rows).toMatchObject([{ username: 'anna', expectedCents: 5700, differenceCents: -50, note: 'Münze verloren' }])
+    expect(report.body.rows.filter((r) => r.username === 'anna')).toMatchObject([{ username: 'anna', expectedCents: 6100, differenceCents: -50, note: 'Münze verloren' }])
+    // The per-staff report shows the refund at the refunding admin, not at Anna.
+    const perStaff = await call<{ rows: Array<{ username: string; refundedCents: number; totalCents: number }> }>(
+      '../../server/api/admin/events/[id]/reports.get',
+      { staff: admin, params: { id: seeded.eventId }, url: '/x?type=payments_by_staff' },
+    )
+    expect(perStaff.body.rows.find((r) => r.username === 'anna')).toMatchObject({ refundedCents: 0 })
+    expect(perStaff.body.rows.find((r) => r.username !== 'anna' && r.refundedCents > 0)).toMatchObject({ refundedCents: 400, totalCents: -400 })
     expect((await call('../../server/api/cash/session.post', { method: 'POST', staff: anna, body: { openingCents: 0 } })).status).toBe(201)
 
     const audit = ctx.mem.public.many(`SELECT action, payload FROM audit_log WHERE action = 'cash_close'`) as Array<{ payload: Record<string, number> }>
     expect(audit).toHaveLength(1)
-    expect(audit[0]!.payload).toMatchObject({ expectedCents: 5700, countedCents: 5650, differenceCents: -50 })
+    expect(audit[0]!.payload).toMatchObject({ expectedCents: 6100, countedCents: 6050, differenceCents: -50 })
   })
 })

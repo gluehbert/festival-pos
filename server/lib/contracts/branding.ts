@@ -10,6 +10,8 @@ export const LEGAL_TEXT_MAX = 20_000
 const optionalText = (max: number) =>
   z.string().trim().max(max).transform((v) => (v === '' ? null : v)).nullable().optional()
 
+const GuestOpenLimitSchema = z.number().int().min(100).max(100_000).nullable()
+
 export const UpdateBrandingSchema = z.object({
   name: z.string().trim().min(1, 'Name must not be empty').max(200).optional(),
   accentColor: z.string().regex(HEX_COLOR, 'Farbe im Format #rrggbb').transform((v) => v.toLowerCase()).nullable().optional(),
@@ -21,6 +23,11 @@ export const UpdateBrandingSchema = z.object({
   privacyText: optionalText(LEGAL_TEXT_MAX),
   depositEnabled: z.boolean().optional(),
   staffMealsEnabled: z.boolean().optional(),
+  waiterCallsEnabled: z.boolean().optional(),
+  foodPrepayEnabled: z.boolean().optional(),
+  // Unpaid cents one guest phone may have per station; null = no limit.
+  guestOpenLimitBarCents: GuestOpenLimitSchema.optional(),
+  guestOpenLimitKitchenCents: GuestOpenLimitSchema.optional(),
 })
 export type UpdateBranding = z.input<typeof UpdateBrandingSchema>
 
@@ -44,6 +51,8 @@ export const BrandingSchema = z.object({
   // Optional features of the event; staff screens hide what is off.
   depositEnabled: z.boolean(),
   staffMealsEnabled: z.boolean(),
+  waiterCallsEnabled: z.boolean(),
+  foodPrepayEnabled: z.boolean(),
   // Footer links on the guest pages; the texts come from /api/event/legal.
   hasImprint: z.boolean(),
   hasPrivacy: z.boolean(),
@@ -73,6 +82,8 @@ export const EMPTY_BRANDING: Branding = {
   trialMode: false,
   depositEnabled: false,
   staffMealsEnabled: false,
+  waiterCallsEnabled: false,
+  foodPrepayEnabled: false,
   hasImprint: false,
   hasPrivacy: false,
 }

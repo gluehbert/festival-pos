@@ -1,10 +1,11 @@
 // Why the staff pad cannot send yet: a greyed-out button alone does not tell
-// the waiter that the table number (or the staff meal reason) is missing.
-export type SendBlock = 'empty' | 'table' | 'mealReason' | null
+// the waiter that the staff meal reason is missing. While the table grid is
+// open ('picking') the grid itself asks for the table, so no extra hint.
+export type SendBlock = 'empty' | 'picking' | 'mealReason' | null
 
-export function sendBlock(state: { empty: boolean, tableValid: boolean, mealValid: boolean }): SendBlock {
+export function sendBlock(state: { empty: boolean, picking: boolean, mealValid: boolean }): SendBlock {
   if (state.empty) return 'empty'
-  if (!state.tableValid) return 'table'
+  if (state.picking) return 'picking'
   if (!state.mealValid) return 'mealReason'
   return null
 }

@@ -10,6 +10,7 @@ import type {
   EventDto,
   EventsList,
   MenuImportResult,
+  TableRange,
   TrialReset,
   UpdateMenuItem,
 } from '~/../server/lib/contracts/admin'
@@ -88,8 +89,17 @@ export const useAdminStore = defineStore('admin', () => {
     return res
   }
 
-  // Optional features (Pfand, helper meals) are saved with the event settings.
-  async function setFeatures(id: string, features: Partial<Pick<EventDto, 'depositEnabled' | 'staffMealsEnabled'>>): Promise<void> {
+  async function setTableRange(id: string, range: TableRange): Promise<EventDto> {
+    const res = await useApi().request<EventDto>(`/api/admin/events/${id}/tables`, { method: 'PUT', body: range })
+    replaceEvent(res)
+    return res
+  }
+
+  // Optional features (Pfand, helper meals, calling the service, food prepay) and guest limits are saved with the event settings.
+  async function setFeatures(
+    id: string,
+    features: Partial<Pick<EventDto, 'depositEnabled' | 'staffMealsEnabled' | 'waiterCallsEnabled' | 'foodPrepayEnabled' | 'guestOpenLimitBarCents' | 'guestOpenLimitKitchenCents'>>,
+  ): Promise<void> {
     await useApi().patch(`/api/admin/events/${id}/branding`, features)
     const ev = events.value.find((e) => e.id === id)
     if (ev) replaceEvent({ ...ev, ...features })
@@ -214,6 +224,7 @@ export const useAdminStore = defineStore('admin', () => {
     deleteEvent,
     dropEvent,
     setTrialMode,
+    setTableRange,
     setFeatures,
     deleteTrialData,
     fetchMenuItems,

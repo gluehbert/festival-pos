@@ -7,6 +7,7 @@ import { assertCsrf } from '../../../lib/csrf'
 import { requireRole, SERVICE_ROLES } from '../../../lib/rbac'
 import { parseTicketKey } from '../../../lib/tickets'
 import { recordTableCheck } from '../../../lib/table-checks'
+import { answerTableCalls } from '../../../lib/waiter-calls'
 import { TableCheckResponseSchema } from '../../../lib/contracts/staff'
 
 // The waiter asked at the table and nobody wanted anything: the overview then
@@ -36,6 +37,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const checkedAt = await recordTableCheck(db, ev.id, tableNo, staff.staffId)
+    await answerTableCalls(db, ev.id, tableNo, staff.staffId)
     return TableCheckResponseSchema.parse({ ticketKey: id, checkedAt: checkedAt.toISOString() })
   }
   catch (err) {

@@ -2,9 +2,10 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import TableTile from '~/components/staff/TableTile.vue'
 import TicketCard from '~/components/staff/TicketCard.vue'
-import { buildTiles, isWalkin, matchesOwner, type OwnerFilter } from '~/utils/table-grid'
+import { buildTiles, isWalkin, matchesOwner, STATE_DOT, type OwnerFilter } from '~/utils/table-grid'
 import type { TicketSummary } from '~/../server/lib/contracts/staff'
 import type { TableAssignment } from '~/../server/lib/contracts/tables'
+import { useBranding } from '~/composables/useBranding'
 
 interface Props {
   tickets: TicketSummary[]
@@ -34,15 +35,16 @@ const tiles = computed(() => buildTiles(props.tableRange, props.tickets, props.a
 const walkins = computed(() => props.tickets
   .filter((ticket) => isWalkin(ticket) && matchesOwner(ticket.assignee, props.owner, props.myId)))
 
-const LEGEND = ['free', 'busy', 'ready', 'late'] as const
-const DOT = { free: 'bg-slate-300', busy: 'bg-amber-400', ready: 'bg-emerald-500', late: 'bg-red-500' } as const
+// "Food to cash" only exists with food prepay.
+const { branding } = useBranding()
+const LEGEND = computed(() => (['free', 'busy', 'pay', 'ready', 'late'] as const).filter((s) => s !== 'pay' || branding.value.foodPrepayEnabled))
 </script>
 
 <template>
   <section class="mt-4" data-test="table-grid">
     <ul class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600" :aria-label="$t('staff.grid.legend')">
       <li v-for="s in LEGEND" :key="s" class="flex items-center gap-1">
-        <span class="inline-block size-3 rounded-full" :class="DOT[s]" aria-hidden="true" />
+        <span class="inline-block size-3 rounded-full" :class="STATE_DOT[s]" aria-hidden="true" />
         {{ $t(`staff.grid.legendState.${s}`) }}
       </li>
       <li v-if="owner !== 'mine'" class="flex items-center gap-1">

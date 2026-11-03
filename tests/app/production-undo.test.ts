@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useProductionStore } from '~/stores/production'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 import { useCookie } from './setup/imports'
+import { apiFailure } from './setup/api-error'
 
 const fetchMock = vi.fn()
 beforeEach(() => {
@@ -15,7 +16,7 @@ const item = (id: string, orderId = 'o1', over: Partial<ProductionQueueItem> = {
   orderItemId: id, orderId, tableNo: 4, orderKind: 'guest', nameDe: 'Pommes', nameEn: 'Fries', quantity: 1,
   note: null, productionStatus: 'in_progress', orderedAt: `2026-06-01T18:0${id.charCodeAt(0) % 10}:00Z`, ...over,
 })
-const queue = (...items: ProductionQueueItem[]) => ({ station: 'kitchen', items })
+const queue = (...items: ProductionQueueItem[]) => ({ station: 'kitchen', lanes: [], items })
 
 function deferred<T>() {
   let resolve!: (v: T) => void
@@ -93,7 +94,7 @@ describe('production store — polling race and undo', () => {
     await s.fetchQueue()
     fetchMock.mockResolvedValueOnce({})
     await s.advance('a', 'done')
-    fetchMock.mockRejectedValueOnce({ statusCode: 409, data: { code: 'ALREADY_SERVED' } })
+    fetchMock.mockRejectedValueOnce(apiFailure(409, 'ALREADY_SERVED'))
     await expect(s.undoDone([item('a')])).rejects.toMatchObject({ statusCode: 409 })
     expect(s.queue).toEqual([])
   })

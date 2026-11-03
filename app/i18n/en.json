@@ -34,7 +34,11 @@
     "retry": "Retry",
     "stale": {
       "since": "No connection – data as of {time}",
-      "never": "No connection – nothing loaded yet"
+      "never": "No connection – nothing loaded yet",
+      "noEvent": "No active event – nothing to load",
+      "server": "Server error – data could not be loaded",
+      "schema": "App version and database do not match – please tell the admin",
+      "lastSync": "Data as of {time}"
     },
     "note": {
       "label": "Note",
@@ -115,7 +119,7 @@
       "title": "Menu",
       "menuHeading": "Menu",
       "statusHeading": "Status of your orders",
-      "statusReady": "{count} ready"
+      "statusReady": "{count} on the way"
     },
     "menu": {
       "loading": "Loading menu …",
@@ -154,13 +158,15 @@
       "title": "Order received!",
       "orderId": "Order ID",
       "tableBalance": "Table balance",
-      "newOrder": "Place another order"
+      "newOrder": "Place another order",
+      "foodWaits": "Your food goes to the kitchen as soon as you have paid for it. The service is on the way. Drinks are paid when they are brought."
     },
     "production": {
       "pending": "Received",
       "in_progress": "Preparing",
-      "done": "Ready",
-      "cancelled": "Cancelled"
+      "done": "On its way",
+      "cancelled": "Cancelled",
+      "awaitingPayment": "waiting for payment"
     },
     "errors": {
       "generic": "Something went wrong.",
@@ -168,7 +174,11 @@
       "unavailable": "Not ordered: something sold out meanwhile. Please check your cart and order again.",
       "tooMany": "This table just sent a lot of orders. Please wait a moment or ask the staff.",
       "tooLarge": "That many items cannot be ordered online at once (at most {max}). Please split the order or ask the staff.",
-      "sessionExpired": "Your session has expired. Please scan the QR code on your table again."
+      "sessionExpired": "Your session has expired. Please scan the QR code on your table again.",
+      "openLimit": {
+        "bar": "This phone may have drinks for at most {amount} ordered and not yet paid. Please pay the staff first or order less.",
+        "kitchen": "This phone may have food for at most {amount} ordered and not yet paid. Please pay the staff first or order less."
+      }
     },
     "languageSwitcher": {
       "label": "Choose language"
@@ -179,6 +189,21 @@
       "flyerAlt": "Flyer: {name}",
       "logoAlt": "Logo: {name}",
       "dates": "Event date"
+    },
+    "call": {
+      "button": "Call the service",
+      "ask": "What do you need?",
+      "reasons": {
+        "pay": "Pay",
+        "order": "Order",
+        "question": "Question"
+      },
+      "cancel": "Cancel",
+      "waiting": "The service knows you are waiting ({reason}).",
+      "coming": "Someone is on the way to your table.",
+      "paused": "The service was just at your table. You can call again in a few minutes.",
+      "tooSoon": "Your table just called. Please wait a moment.",
+      "failed": "That did not work. Please try again."
     }
   },
   "staff": {
@@ -229,11 +254,14 @@
       "served_kitchen": "Food served",
       "served_bar": "Drinks served",
       "servedHint": "Clears by itself when you cash out.",
-      "empty": "Nothing ordered yet"
+      "empty": "Nothing ordered yet",
+      "foodToPay": "{n} food waiting for payment: the kitchen starts once it is cashed.",
+      "payFood": "Cash food"
     },
     "pay": {
       "back": "Back",
       "title": "Cash out",
+      "byOrder": "Pay by order",
       "selectAll": "Select all",
       "locked": "Locked by {user}. Please wait or try again after auto-release.",
       "lockedSelf": "This table is being cashed out right now, please wait a moment",
@@ -281,12 +309,13 @@
       "confirm": "Void",
       "cancel": "Cancel",
       "errorTooShort": "Reason must be at least 3 characters.",
-      "errorPaid": "Paid items cannot be voided – use “Refund” (admin).",
+      "errorPaid": "Paid items cannot be voided – use “Refund” (shift lead or admin).",
       "button": "Void",
-      "errorAdminOnly": "This item is already finished or served. Only an admin can void it.",
+      "errorAdminOnly": "This item is already finished or served. Only the shift lead or an admin can void it.",
       "errorCancelled": "This item is already voided.",
       "errorConflict": "The item just changed. Please reload and try again.",
-      "errorNotFound": "Item not found – does it belong to another event?"
+      "errorNotFound": "Item not found – does it belong to another event?",
+      "notOrdered": "Not ordered by this table"
     },
     "errors": {
       "generic": "Something went wrong.",
@@ -307,13 +336,17 @@
       "hoursAgo": "{h} h {m} min ago",
       "openJustNow": "open since just now",
       "openSince": "open for {n} min",
-      "openSinceHours": "open for {h} h {m} min"
+      "openSinceHours": "open for {h} h {m} min",
+      "device": "Phone {n}",
+      "foodToPay": "Cash food ({n})"
     },
     "refund": {
       "button": "Refund",
       "title": "Refund paid item",
       "confirm": "Refund",
-      "hint": "The amount is handed back in cash and removed from revenue and the cashier's total."
+      "hint": "The amount is taken from your drawer.",
+      "needsDrawer": "Open your drawer first, then refund.",
+      "toCash": "Go to cash drawer"
     },
     "order": {
       "title": "Take order",
@@ -330,8 +363,20 @@
       "soldOutRemoved": "Sold out, removed from the pad: {items}",
       "linesTitle": "Items & notes",
       "linesEmpty": "Nothing selected yet.",
-      "blockTable": "Please enter the table number first.",
-      "blockMealReason": "Please enter a reason (at least 3 characters)."
+      "blockMealReason": "Please enter a reason (at least 3 characters).",
+      "sendAndPayFood": "Send & food paid cash",
+      "picker": {
+        "title": "Which table?",
+        "mine": "Mine ({n})",
+        "all": "All",
+        "other": "Other no.",
+        "ok": "OK",
+        "keep": "Stay at table {n}",
+        "change": "change",
+        "changeAria": "Table {n} – change table",
+        "tileAria": "Table {n}, {state}",
+        "tileMineAria": "Table {n}, my table, {state}"
+      }
     },
     "activity": {
       "order": "Last order {age}",
@@ -347,7 +392,7 @@
       "refresh": "Refresh",
       "opening": "Opening float",
       "collected": "Collected",
-      "refunded": "Refunds",
+      "refunded": "Refunded (paid out)",
       "expected": "Expected",
       "counted": "Counted",
       "difference": "Difference",
@@ -449,13 +494,15 @@
         "free": "empty",
         "busy": "in progress",
         "ready": "to serve",
-        "late": "quiet for a while"
+        "late": "quiet for a while",
+        "pay": "food to cash"
       },
       "state": {
         "free": "empty",
         "busy": "in progress",
         "ready": "{n} to serve",
-        "late": "quiet for {n} min"
+        "late": "quiet for {n} min",
+        "pay": "cash food ({n})"
       },
       "none": "No tables.",
       "noneMine": "You have no tables yet. The shift lead will hand them to you. Until then, \"All\" shows every table.",
@@ -518,7 +565,7 @@
       "title": "How it works",
       "order": {
         "title": "Order",
-        "text": "Tap “New order”, enter the table number, tap the items, “Send to kitchen/bar”."
+        "text": "Tap “New order”, tap the table, tap the items, “Send to kitchen/bar”."
       },
       "bring": {
         "title": "Bring",
@@ -542,6 +589,24 @@
         "guest": "Guest"
       },
       "failed": "Sign-in failed: {reason}"
+    },
+    "calls": {
+      "heading": "Tables calling",
+      "table": "Table {table}",
+      "justNow": "just now",
+      "waiting": "waiting {min} min",
+      "nobody": "no waiter",
+      "onMyWay": "On my way",
+      "passedOn": "Passed on"
+    },
+    "shiftEnd": {
+      "title": "End of shift",
+      "hint": "Signs out all guest phones. Anyone who wants to order afterwards scans the QR code on their table again. Orders and bills stay as they are.",
+      "button": "Sign out guest phones",
+      "confirmTitle": "Sign out all guest phones?",
+      "confirmBody": "Guests at the tables just scan the QR code again. Phones that have left the festival can no longer order.",
+      "done": "No guest phone was signed in. | 1 guest phone signed out. | {n} guest phones signed out.",
+      "failed": "That did not work. Please try again."
     }
   },
   "admin": {
@@ -674,6 +739,8 @@
     },
     "reports": {
       "internalNote": "Internal control, not a tax-compliant cash closing",
+      "asOf": "As of {time}",
+      "refreshNow": "Refresh now",
       "exportCsv": "Export CSV",
       "empty": "No data in current period.",
       "sections": {
@@ -704,12 +771,14 @@
         "hour": "Hour",
         "orderCount": "Orders",
         "refunded": "Refunded",
+        "refundedPaidOut": "Refunded (paid out)",
         "netCash": "Net cash",
         "tableCount": "Tables",
         "tables": "Table numbers",
         "guestOrderCount": "of which by app",
         "tip": "Tips",
-        "tipCount": "Payments with tip"
+        "tipCount": "Payments with tip",
+        "table": "Table"
       },
       "cash": {
         "openedAt": "Opened",
@@ -717,7 +786,7 @@
         "stillOpen": "still open",
         "opening": "Float",
         "collected": "Collected",
-        "refunded": "Refunded",
+        "refunded": "Refunded (paid out)",
         "expected": "Expected",
         "counted": "Counted",
         "difference": "Difference",
@@ -969,6 +1038,13 @@
         "dates": "The end date is before the start date."
       }
     },
+    "tables": {
+      "title": "Tables",
+      "hint": "Add or remove tables at any time, also during the event. A table with an open bill cannot be removed.",
+      "save": "Save tables",
+      "saved": "Tables are now {from}–{to}.",
+      "open": "Tables {tables} still have open bills. Settle them first."
+    },
     "features": {
       "title": "Features",
       "saved": "Saved.",
@@ -979,6 +1055,31 @@
       "staffMealsEnabled": {
         "label": "Helper / staff meals",
         "hint": "Waiters can book free orders for helpers (with a reason)."
+      },
+      "waiterCallsEnabled": {
+        "label": "Call the service",
+        "hint": "Guests can call the service to their table with a reason (pay, order, question). The table's waiter sees it first, after 2 minutes everyone in service; the bar screen shows every call. Off: the button is gone."
+      },
+      "buzzer": {
+        "label": "Buzzers at the kitchen and bar",
+        "hint": "A buzzer is a big button at the counter that works like a one-key keyboard (USB or Bluetooth). With buzzers, the station's screen shows one lane per buzzer: the oldest order, large, for the person at that buzzer. A press finishes it and the lane takes the next one. A second press within a second is ignored. Up to four buzzers per station.",
+        "lane": "Buzzer {n} – {color}",
+        "color": {
+          "green": "green",
+          "blue": "blue",
+          "amber": "amber",
+          "violet": "violet"
+        },
+        "add": "Add buzzer",
+        "change": "Change",
+        "clear": "Remove",
+        "listening": "Press the buzzer now …",
+        "space": "Space",
+        "sameKey": "Another buzzer at this station already uses this key."
+      },
+      "foodPrepayEnabled": {
+        "label": "Pay for food when ordering",
+        "hint": "The kitchen only gets food once it is paid, so food runners can hand it out without cashing. Guests' food (QR code) waits until a waiter has cashed it; the table shows \"Food to cash\". Drinks are still paid when they are brought."
       }
     },
     "join": {
@@ -1036,6 +1137,16 @@
       "typeName": "Type the event name to confirm: {name}",
       "confirm": "Delete permanently",
       "done": "Event deleted."
+    },
+    "guestLimits": {
+      "title": "Guest order limits",
+      "hint": "Most one guest phone may have ordered and not yet paid, so nobody can walk past a table and load it with orders. Paid orders no longer count. Empty = no limit.",
+      "bar": "Drinks (bar), €",
+      "kitchen": "Food (kitchen), €",
+      "none": "no limit",
+      "save": "Save limits",
+      "saved": "Limits saved.",
+      "invalid": "Enter an amount of at least €1, or leave the field empty."
     }
   },
   "errors": {},
@@ -1064,6 +1175,7 @@
   },
   "production": {
     "start": "Start preparing",
+    "preparing": "Preparing",
     "done": "Done",
     "waiting": "{n} min ago",
     "toastDone": "Done",
@@ -1072,25 +1184,46 @@
     "loading": "Loading queue …",
     "empty": "No open items.",
     "counter": "Counter",
+    "orderNos": "Orders {nos}",
     "finishOrder": "{label} all done",
-    "viewLabel": "View",
-    "view": {
-      "orders": "By order",
-      "items": "Single items"
-    },
     "soldOut": {
       "title": "Manage sold out",
       "empty": "No items for this station.",
       "stock": "Stock: {n}",
       "markSoldOut": "Sold out",
       "markAvailable": "Back again",
-      "saved": "Saved"
+      "saved": "Saved",
+      "short": "Sold out"
     },
     "staffMeal": "Helpers",
     "undo": "Undo",
     "toastUndone": "Back in progress",
     "toastUndoFailed": "Cannot undo – already served?",
-    "stationLabel": "Choose station"
+    "stationLabel": "Choose station",
+    "display": {
+      "label": "Display",
+      "zoomLabel": "Zoom",
+      "zoomOut": "Zoom out",
+      "zoomIn": "Zoom in",
+      "fullscreen": "Fullscreen",
+      "exitFullscreen": "Exit fullscreen",
+      "keepAwakeOn": "Screen stays on",
+      "keepAwakeOff": "Screen may turn off"
+    },
+    "toastDoneFor": "{label} done",
+    "lanes": {
+      "buzzer1": "Green buzzer",
+      "buzzer2": "Blue buzzer",
+      "buzzer3": "Amber buzzer",
+      "buzzer4": "Violet buzzer",
+      "free": "Free – the next order lands here.",
+      "next": "Next up ({n})",
+      "followUp": "Later order",
+      "new": "New",
+      "more": "+{n} more",
+      "cut": "Not everything fits – zoom out in the display menu (screen icon at the top).",
+      "minutes": "{n} min"
+    }
   },
   "alerts": {
     "soundLabel": "Sound for new alerts",

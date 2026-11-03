@@ -33,7 +33,7 @@ Leave `COOKIE_DOMAIN` and `NUXT_PUBLIC_APP_URL` empty. The app automatically use
 
 Passkeys are bound to a domain. Without `WEBAUTHN_RP_ID`/`WEBAUTHN_ORIGIN`, that is the domain the app runs on. A passkey from the production domain therefore does not work on preview URLs, and after a domain change everyone has to set up their passkeys again (PIN and password keep working).
 
-**Quick sign-in on previews:** On preview deployments (`VERCEL_ENV=preview`), `/staff/login` additionally shows buttons for waiter, shift lead, kitchen, bar, admin and guest. One tap signs in without a PIN or password. The accounts `preview-waiter`, `preview-admin` etc. are created by the app on the first tap, with a password nobody knows. "Guest" sits at the first table of the active event. If the preview database has no active event, the first tap creates the "Preview-Fest": tables 1–20, event PIN `PREVIEW1`, a demo menu with deposit and staff meals, and open orders at table 3 (in progress), 5 and 7 (ready to serve), all three assigned to `preview-waiter`. An existing active event is left untouched. For the schema to be correct, set `MIGRATE=1` on previews that have their own database branch (see below). In production and locally the buttons do not exist, and the server rejects the endpoint there. The only protection is the Vercel login in front of preview URLs: **keep Deployment Protection enabled for previews** and run previews against their own `preview` database branch, otherwise the preview accounts end up in your production data.
+**Quick sign-in on previews:** On preview deployments (`VERCEL_ENV=preview`), the start page `/` redirects to `/staff/login` (the guest landing stays reachable as `/?table=N`), and `/staff/login` additionally shows buttons for waiter, shift lead, kitchen, bar, admin and guest. One tap signs in without a PIN or password. The accounts `preview-waiter`, `preview-admin` etc. are created by the app on the first tap, with a password nobody knows. "Guest" sits at the first table of the active event. If the preview database has no active event, the first tap creates the "Preview-Fest": tables 1–20, event PIN `PREVIEW1`, a demo menu with deposit and staff meals, and open orders at table 3 (in progress), 5 and 7 (ready to serve), all three assigned to `preview-waiter`. An existing active event is left untouched. For the schema to be correct, set `MIGRATE=1` on previews that have their own database branch (see below). In production and locally the buttons do not exist, and the server rejects the endpoint there. The only protection is the Vercel login in front of preview URLs: **keep Deployment Protection enabled for previews** and run previews against their own `preview` database branch, otherwise the preview accounts end up in your production data.
 
 4. **Deploy**.
 
@@ -46,10 +46,12 @@ Passkeys are bound to a domain. Without `WEBAUTHN_RP_ID`/`WEBAUTHN_ORIGIN`, that
 
 ```bash
 curl https://<your-app>.vercel.app/api/healthz
-# {"status":"ok","dbLatencyMs":12}
+# {"status":"ok","dbLatencyMs":12,"schema":"0033_mushy_maddog"}
 ```
 
 A 503 response names the missing variable, for example `JWT_SECRET is missing or shorter than 32 characters`. Add the variable in Vercel and **Redeploy**. Values are read at runtime, but a redeploy applies them to all running instances.
+
+A 503 with the code `SCHEMA_MISMATCH` means app and database are out of step, for example `App expects migration 0033_…, database is at newer than 0033_…`. Typical causes: a preview running older code against a shared preview database that a newer branch already migrated, a production build that failed after its migration ran, or an Instant Rollback (the database is not rolled back). Staff screens then say "App version and database do not match" instead of "No connection". Fix: deploy the newest code, or give each preview its own Neon branch with `MIGRATE=1`. To avoid it in production, never drop or rename a column in the same release that stops using it (see AGENTS.md).
 
 ## 4. Create the first admin
 
@@ -87,10 +89,10 @@ Each event has its own workspace. At the top of `/admin/events` is the event tha
 
 | Symptom | Cause / solution |
 | --- | --- |
-| Build fails at `migrate` | `DATABASE_URL` is missing or wrong (check the Production scope). |
+| Build fails at `migrate` | The line `migrate: failed: …` names the reason. `ECONNREFUSED`/authentication: `DATABASE_URL` is missing or wrong (check the scope). `… already exists` on a preview: all previews share the `preview` database branch, and another branch's migrations got there first. Reset the `preview` branch from its parent in Neon, then redeploy. |
 | `/api/healthz` → 503 | See the message; set the variable, redeploy. |
 | Login → 429 | 10 failed attempts in 15 minutes for this user. Wait, or run `DELETE FROM login_attempts WHERE username = '…'` in Neon. |
-| Guest sees "Your session has expired" | Scan the QR code again; guest sessions last 7 days. |
+| Guest sees "Your session has expired" | Scan the QR code again; guest sessions last 12 hours, and the shift lead can end them all at the end of a shift. |
 | Logs | Vercel → Project → Logs. Every response has an `x-request-id` header, which also appears in the JSON logs. |
 
 ## Go-live checklist before the festival

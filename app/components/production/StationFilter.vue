@@ -21,7 +21,7 @@ function pick(opt: Station, close: () => void) {
   <UPopover :ui="{ content: 'bg-surface ring-slate-200' }">
     <button
       type="button"
-      class="-ml-2 inline-flex min-h-[44px] items-center gap-1 rounded px-2 text-2xl font-bold text-slate-900 hover:bg-slate-100"
+      class="-ml-2 inline-flex min-h-[44px] items-center gap-1 rounded px-2 text-xl font-extrabold text-slate-900 hover:bg-slate-100"
       :aria-label="$t('production.stationLabel')"
       data-test="station-picker"
     >

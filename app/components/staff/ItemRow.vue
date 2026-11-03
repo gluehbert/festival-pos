@@ -10,7 +10,7 @@ interface Props {
   selectable?: boolean
   selected?: boolean
   canVoid?: boolean
-  /** Admin: may also void items kitchen/bar already finished. */
+  /** Shift lead, admin: may also void items kitchen/bar already finished. */
   canVoidFinished?: boolean
   canRefund?: boolean
   /** Walk-in: paid items are still collected at the counter. */
@@ -57,6 +57,9 @@ const statusBadge = computed(() => {
         {{ lineEur }}
         <template v-if="item.depositCents > 0">· {{ $t('common.deposit.includedShort', { amount: euro(item.depositCents * item.quantity) }) }}</template>
         · <span class="font-mono tracking-wider" data-test="order-number">{{ $t('common.orderNo', { no: shortOrderNo(item.orderId) }) }}</span>
+        <template v-if="item.device">
+          · <span data-test="order-device">{{ $t('staff.ticket.device', { n: item.device }) }}</span>
+        </template>
       </p>
     </div>
     <span

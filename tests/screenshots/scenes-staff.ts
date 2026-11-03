@@ -1,5 +1,5 @@
 import type { Ctx, Scene } from './scenes.ts'
-import { collectPayment, guestOrders, kitchenFinishes, loginStaff, tapMenuItem } from './setup.ts'
+import { collectPayment, guestOrders, kitchenFinishes, loginStaff, pickTable, tapMenuItem } from './setup.ts'
 
 // Open tickets at 3 and 9, table 5 with food that is ready, table 11 paid.
 // Runs once per invocation, however many scenes need it.
@@ -69,7 +69,7 @@ export const staffOrder: Scene = async (ctx) => {
   const { page } = await ctx.open('staff')
   await loginStaff(page, 'waiter1', '1111', 'pin')
   await page.getByRole('link', { name: /new order/i }).click()
-  await page.locator('[data-test="order-table"]').fill('7')
+  await pickTable(page, 7)
   await tapMenuItem(page, /^add beer 0\.5$/i, 2)
   await tapMenuItem(page, /^add sausage$/i, 1)
   await ctx.shoot(page, 'staff-order')

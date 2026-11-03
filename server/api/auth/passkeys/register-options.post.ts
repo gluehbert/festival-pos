@@ -1,6 +1,6 @@
 import { defineEventHandler } from 'h3'
 import { eq } from 'drizzle-orm'
-import { generateRegistrationOptions, type AuthenticatorTransportFuture } from '@simplewebauthn/server'
+import { generateRegistrationOptions } from '@simplewebauthn/server'
 import { isoUint8Array } from '@simplewebauthn/server/helpers'
 import { getDb } from '../../../db/client'
 import { staffPasskeys } from '../../../db/schema-auth'
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       // The same authenticator twice for one account would only confuse.
       excludeCredentials: existing.map((c) => ({
         id: c.credentialId,
-        transports: c.transports ? (c.transports.split(',') as AuthenticatorTransportFuture[]) : undefined,
+        transports: c.transports ? c.transports.split(',') : undefined,
       })),
       // Discoverable, so login needs no username; always unlocked by
       // fingerprint, face or device PIN, never by a bare tap.

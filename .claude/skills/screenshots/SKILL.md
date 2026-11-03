@@ -20,6 +20,7 @@ pnpm screenshots --scene <name> --out docs/screenshots/<package>
 ## Scenes
 
 `guest-menu`, `guest-cart`, `guest-status`, `staff-grid`, `staff-table`, `staff-pay`, `staff-order`, `staff-cash`, `production-orders`, `admin-event`, `admin-menu`, `admin-reports`, `admin-end-check`, `admin-end-clean`, `admin-delete`, `staff-cash-other-event` (die letzten vier beenden das Demo-Event und schalten es danach wieder live).
+Refund scenes (shift lead): `staff-refund-lead`, `staff-refund-needs-drawer`, `staff-cash-refund-line`.
 
 Viewports: guest and service use Pixel 5, kitchen/bar 1180×820, admin 1280×900. Language: English.
 

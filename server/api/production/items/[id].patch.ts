@@ -6,6 +6,7 @@ import { AppError, sendAppError } from '../../../lib/errors'
 import { assertCsrf } from '../../../lib/csrf'
 import { requireRole } from '../../../lib/rbac'
 import { requireActiveEvent } from '../../../lib/active-event'
+import { isHeldFood } from '../../../lib/food-prepay'
 import {
   ProductionPatchResponseSchema,
   ProductionStatusPatchSchema,
@@ -51,8 +52,14 @@ export default defineEventHandler(async (event) => {
       )
     }
 
+    if (isHeldFood(ev, item)) {
+      throw new AppError('NOT_PAID', 409, 'Food is cooked once it is paid')
+    }
+
+    // A drink is ready in seconds: the bar may skip "in progress".
     const allowed = TRANSITIONS[item.productionStatus] ?? []
-    if (!allowed.includes(input.nextStatus)) {
+    const barSkip = item.station === 'bar' && item.productionStatus === 'pending' && input.nextStatus === 'done'
+    if (!allowed.includes(input.nextStatus) && !barSkip) {
       throw new AppError(
         'CONFLICT',
         409,

@@ -48,6 +48,7 @@ describe('Tips: drawer, revenue, reports', () => {
     await call('../../server/api/cash/session.post', { method: 'POST', staff: anna, body: { openingCents: 5000 } })
     await pay(anna, fries, 1, 150) // 350 + 150
     const second = await pay(anna, beer, 2, 0) // 400
+    await call('../../server/api/cash/session.post', { method: 'POST', staff: admin(), body: { openingCents: 1000 } })
     await call('../../server/api/admin/order-items/[id]/refund.post', {
       method: 'POST', staff: admin(), params: { id: second.orderItemId }, body: { reason: 'too warm' },
     })
@@ -55,13 +56,13 @@ describe('Tips: drawer, revenue, reports', () => {
     const live = await call<{ session: { collectedCents: number; tipCents: number; refundedCents: number; expectedCents: number } }>(
       '../../server/api/cash/session.get', { staff: anna },
     )
-    // 5000 + 750 + 150 − 400
-    expect(live.body.session).toMatchObject({ collectedCents: 750, tipCents: 150, refundedCents: 400, expectedCents: 5500 })
+    // 5000 + 750 + 150; the 400 refund comes out of the admin's drawer
+    expect(live.body.session).toMatchObject({ collectedCents: 750, tipCents: 150, refundedCents: 0, expectedCents: 5900 })
 
     const closed = await call<{ expectedCents: number; tipCents: number }>('../../server/api/cash/session/close.post', {
-      method: 'POST', staff: anna, body: { countedCents: 5500 },
+      method: 'POST', staff: anna, body: { countedCents: 5900 },
     })
-    expect(closed.body).toMatchObject({ expectedCents: 5500, tipCents: 150 })
+    expect(closed.body).toMatchObject({ expectedCents: 5900, tipCents: 150 })
 
     const revenue = await report<{ category: string; totalCents: number }>('revenue_by_category')
     expect(revenue.rows.reduce((s, r) => s + r.totalCents, 0)).toBe(350)

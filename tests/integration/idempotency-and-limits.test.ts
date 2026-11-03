@@ -118,6 +118,8 @@ describe('idempotent payments and orders, guest limits', () => {
        VALUES ('${seeded.eventId}', 3, now() + interval '7 days') RETURNING id`,
     ) as { id: string }).id
     ctx.setGuest({ sessionId: guestId, eventId: seeded.eventId, tableNo: 3 })
+    // 15 unpaid beers are over the default open limit per phone; this test is about the counts.
+    ctx.mem.public.none(`UPDATE events SET guest_open_limit_bar_cents = NULL`)
     const order = (quantity: number, key: string) =>
       call('orders', { tableNo: 3, items: [{ menuItemId: seeded.menuItemIds[1]!, quantity }] }, { key, guest: true })
 

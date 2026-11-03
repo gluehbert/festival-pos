@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useApi } from '~/composables/useApi'
+import { apiError } from '~/utils/api-error'
 import type {
   TicketDetail,
   TicketSummary,
@@ -24,6 +25,8 @@ export const useTicketsStore = defineStore('tickets', () => {
   // may be outdated.
   const syncFailed = ref(false)
   const lastSyncAt = ref<number | null>(null)
+  // The last failed poll, for the warning's text.
+  const syncError = ref<unknown>(null)
   // Server clock minus device clock, from the last response ("vor X Min.").
   const clockOffsetMs = ref(0)
 
@@ -53,6 +56,7 @@ export const useTicketsStore = defineStore('tickets', () => {
     catch (e) {
       error.value = e
       syncFailed.value = true
+      syncError.value = e
       throw e
     }
     finally {
@@ -84,6 +88,7 @@ export const useTicketsStore = defineStore('tickets', () => {
         return null
       }
       syncFailed.value = true
+      syncError.value = e
       if (selected.value?.ticketKey !== ticketKey) selected.value = null
       return null
     }
@@ -138,11 +143,8 @@ export const useTicketsStore = defineStore('tickets', () => {
     }
     catch (e) {
       error.value = e
-      // h3 nests the AppError payload under `data` of the response body.
-      type Payload = { code?: string; details?: { assignee?: Assignee } }
-      const body = (e as { data?: Payload & { data?: Payload } }).data
-      const data = body?.code ? body : body?.data
-      return { ok: false, heldBy: data?.code === 'TABLE_TAKEN' ? data.details?.assignee ?? null : null }
+      const { code, details } = apiError<{ assignee?: Assignee }>(e)
+      return { ok: false, heldBy: code === 'TABLE_TAKEN' ? details?.assignee ?? null : null }
     }
   }
 
@@ -161,5 +163,5 @@ export const useTicketsStore = defineStore('tickets', () => {
     selected.value = null
   }
 
-  return { tickets, assignments, tableRange, assign, release, missing, selected, loading, error, syncFailed, lastSyncAt, clockOffsetMs, refresh, load, markServed, markChecked, clearSelection }
+  return { tickets, assignments, tableRange, assign, release, missing, selected, loading, error, syncFailed, syncError, lastSyncAt, clockOffsetMs, refresh, load, markServed, markChecked, clearSelection }
 })

@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # h3 must stay on the major Nitro bundles (nitropack 2 uses h3 1); upgrade it with Nuxt/Nitro.
+      - dependency-name: h3
+        update-types: ['version-update:semver-major']
     groups:
       nuxt:
         patterns: ['nuxt', '@nuxt/*', '@nuxtjs/*', '@vite-pwa/*', '@pinia/*', 'pinia', 'vue*']

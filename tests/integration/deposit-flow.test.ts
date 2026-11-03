@@ -79,8 +79,10 @@ describe('deposit — order, cash, return, reports', () => {
     })
     const itemId = order.body.items[0]!.orderItemId
     await call('../../server/api/payments/index.post', { method: 'POST', staff: waiter, body: { ticketKey: `w-${order.body.orderId}`, orderItemIds: [itemId] } })
+    const admin = { staffId: seeded.staffId, role: 'admin' as const }
+    await call('../../server/api/cash/session.post', { method: 'POST', staff: admin, body: { openingCents: 1000 } })
     const refund = await call<{ amountCents: number }>('../../server/api/admin/order-items/[id]/refund.post', {
-      method: 'POST', staff: { staffId: seeded.staffId, role: 'admin' }, params: { id: itemId }, body: { reason: 'verschüttet' },
+      method: 'POST', staff: admin, params: { id: itemId }, body: { reason: 'verschüttet' },
     })
     expect(refund.body.amountCents).toBe(600)
   })

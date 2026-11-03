@@ -3,10 +3,13 @@ import type { TicketSummary } from '~/../server/lib/contracts/staff'
 import type { Assignee, TableAssignment } from '~/../server/lib/contracts/tables'
 
 // Traffic light per table tile:
-// free = nothing open, busy = open order in progress, ready = something to
-// bring, late = open and nothing heard for a while (last order or "nachgefragt").
-export type TileState = 'free' | 'busy' | 'ready' | 'late'
+// free = nothing open, busy = open order in progress, pay = food waits to be
+// cashed (food prepay), ready = something to bring, late = open and nothing heard for a while (last order or "nachgefragt").
+export type TileState = 'free' | 'busy' | 'pay' | 'ready' | 'late'
 export const LATE_AFTER_MINUTES = 20
+
+// The traffic light's colour per state (overview legend and table picker).
+export const STATE_DOT: Record<TileState, string> = { free: 'bg-slate-300', busy: 'bg-amber-400', pay: 'bg-sky-500', ready: 'bg-emerald-500', late: 'bg-red-500' }
 
 export type OwnerFilter = 'mine' | 'all'
 
@@ -19,6 +22,8 @@ export interface Tile {
 
 export function tileState(ticket: TicketSummary | null, nowMs: number): TileState {
   if (!ticket) return 'free'
+  // The kitchen waits for this money: it comes first.
+  if (ticket.foodToPay > 0) return 'pay'
   if (ticket.ready.kitchen + ticket.ready.bar > 0) return 'ready'
   if (ticket.status !== 'open') return 'free'
   const { minutes } = tableActivity(ticket.lastOrderAt, ticket.lastCheckAt, nowMs)

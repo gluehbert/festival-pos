@@ -33,3 +33,10 @@ export type AssignTableResponse = z.infer<typeof AssignTableResponseSchema>
 // Who a shift lead can hand tables to.
 export const TeamSchema = z.object({ team: z.array(AssigneeSchema) })
 export type Team = z.infer<typeof TeamSchema>
+
+// "Shift over" (POST /api/tickets/guest-sessions/end): how many guest phones
+// have to scan the table QR code again.
+export const EndGuestSessionsResponseSchema = z.object({
+  ended: z.number().int().nonnegative(),
+})
+export type EndGuestSessionsResponse = z.infer<typeof EndGuestSessionsResponseSchema>

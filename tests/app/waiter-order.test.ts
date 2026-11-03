@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { useStaffOrderStore } from '~/stores/staffOrder'
-import { buildPayRequest, groupOpenItems, selectionCents } from '~/composables/usePaySelection'
+import { buildPayRequest, countsForOrders, groupOpenItems, openOrders, selectionCents } from '~/composables/usePaySelection'
 import PayGroupRow from '~/components/staff/PayGroupRow.vue'
 import PaymentSummary from '~/components/staff/PaymentSummary.vue'
 import type { TicketDetailItem } from '~/../server/lib/contracts/staff'
@@ -52,6 +52,25 @@ describe('pay selection', () => {
       quantities: { b1: 1, b2: 1, w1: 1 },
     })
     expect(selectionCents(groups, counts)).toBe(2 * 400 + 550)
+  })
+
+  it('pay by order: lists open orders oldest first and pays exactly their lines', () => {
+    const groups = groupOpenItems([
+      line('a1', BEER, 2, '2026-06-01T18:00:00Z', { orderId: 'oa' }),
+      line('b1', BEER, 1, '2026-06-01T18:05:00Z', { orderId: 'ob' }),
+      line('b2', WURST, 1, '2026-06-01T18:05:00Z', { orderId: 'ob' }),
+      line('paid', BEER, 1, '2026-06-01T17:00:00Z', { orderId: 'oc', paymentStatus: 'paid' }),
+    ])
+    expect(openOrders(groups).map((o) => [o.orderId, o.openCents, o.lines.map((l) => l.orderItemId)])).toEqual([
+      ['oa', 800, ['a1']],
+      ['ob', 950, ['b1', 'b2']],
+    ])
+    const chosen = new Set(['ob'])
+    const counts = countsForOrders(groups, chosen)
+    expect(counts).toEqual({ [groups[0]!.key]: 1, [groups[1]!.key]: 1 })
+    // Without the chosen order the oldest beer (order oa) would be taken.
+    expect(buildPayRequest(groups, counts).orderItemIds).toEqual(['a1', 'b2'])
+    expect(buildPayRequest(groups, counts, chosen)).toEqual({ orderItemIds: ['b1', 'b2'], quantities: { b1: 1, b2: 1 } })
   })
 
   it('never pays more than is open', () => {
@@ -131,6 +150,18 @@ describe('staff order store', () => {
     expect((fetchMock.mock.calls[1]![1] as { body: unknown }).body).toEqual({ ticketKey: 'w-o2', orderItemIds: ['i1'] })
   })
 
+  it('table with pay now (food prepay) cashes only the food', async () => {
+    const pad = useStaffOrderStore()
+    pad.add(menuItem(BEER, 400))
+    pad.add({ ...menuItem(WURST, 550), station: 'kitchen' })
+    fetchMock
+      .mockResolvedValueOnce({ orderId: 'o4', tableNo: 9, items: [{ orderItemId: 'i1', menuItemId: BEER }, { orderItemId: 'i2', menuItemId: WURST }], tableBalanceCents: 950 })
+      .mockResolvedValueOnce({ paymentId: 'p', totalCents: 550, ticketStatusAfter: 'open' })
+    const res = await pad.submit('staff_table', 9, true)
+    expect(res?.paid?.totalCents).toBe(550)
+    expect((fetchMock.mock.calls[1]![1] as { body: unknown }).body).toEqual({ ticketKey: 't-9', orderItemIds: ['i2'] })
+  })
+
   it('keeps the order when paying right away fails', async () => {
     const pad = useStaffOrderStore()
     pad.add(menuItem(BEER, 400))
@@ -145,12 +176,13 @@ describe('staff order store', () => {
 
 describe('send block reason', () => {
   it('tells why the pad cannot be sent yet', () => {
-    const ok = { empty: false, tableValid: true, mealValid: true }
+    const ok = { empty: false, picking: false, mealValid: true }
     expect(sendBlock(ok)).toBeNull()
-    expect(sendBlock({ ...ok, tableValid: false })).toBe('table')
     expect(sendBlock({ ...ok, mealValid: false })).toBe('mealReason')
+    // The open table grid asks for the table itself: blocked, but no red hint.
+    expect(sendBlock({ ...ok, picking: true })).toBe('picking')
     // An empty pad is obvious from the summary, no extra hint needed.
-    expect(sendBlock({ ...ok, empty: true, tableValid: false })).toBe('empty')
+    expect(sendBlock({ ...ok, empty: true, picking: true })).toBe('empty')
   })
 })
 

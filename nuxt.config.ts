@@ -64,6 +64,9 @@ export default defineNuxtConfig({
     // Never reload devices on their own mid-event (carts, half-typed orders):
     // the layout offers "Neu laden" when a new version is waiting.
     registerType: 'prompt',
+    // Screens like the kitchen page stay open for hours and the browser only
+    // looks for a new service worker on navigation, so poll for one.
+    client: { periodicSyncForUpdates: 300 },
     manifest: {
       name: 'Festival POS',
       short_name: 'Festival POS',

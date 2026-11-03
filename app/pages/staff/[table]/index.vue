@@ -14,6 +14,7 @@ import TableActivity from '~/components/staff/TableActivity.vue'
 import StaleBanner from '~/components/common/StaleBanner.vue'
 import TableAssignment from '~/components/staff/TableAssignment.vue'
 import { useAttention } from '~/composables/useAttention'
+import { useBranding } from '~/composables/useBranding'
 import { createIncreaseTracker } from '~/utils/arrivals'
 import type { TicketDetailItem } from '~/../server/lib/contracts/staff'
 
@@ -95,6 +96,15 @@ const ready = computed(() => {
   return r
 })
 
+// Food prepay: unpaid food waits here until it is cashed, then the kitchen starts.
+const { branding } = useBranding()
+const foodToPay = computed(() => {
+  if (!branding.value.foodPrepayEnabled) return 0
+  return (ticket.value?.items ?? [])
+    .filter((i) => i.station === 'kitchen' && i.paymentStatus === 'unpaid' && i.productionStatus === 'pending')
+    .reduce((n, i) => n + i.quantity, 0)
+})
+
 // More finished items at this table: tone + vibration.
 const attention = useAttention()
 const readyTracker = createIncreaseTracker()
@@ -128,7 +138,9 @@ async function checked() {
 }
 
 const canVoid = computed(() => auth.hasRole(['waiter', 'lead', 'admin']))
-const canRefund = computed(() => auth.hasRole(['admin']))
+const canRefund = computed(() => auth.hasRole(['lead', 'admin']))
+// Voiding finished items stays with the shift lead and the admin (server rule).
+const canVoidFinished = computed(() => auth.hasRole(['lead', 'admin']))
 const ticket = computed(() => tickets.selected)
 </script>
 
@@ -137,7 +149,7 @@ const ticket = computed(() => tickets.selected)
     <NuxtLink to="/staff" class="inline-flex min-h-[44px] items-center gap-1 text-sm text-slate-500">
       <UIcon name="i-lucide-arrow-left" class="size-4 shrink-0" aria-hidden="true" /> {{ $t('staff.detail.back') }}
     </NuxtLink>
-    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" @retry="polling.refresh()" />
+    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" :error="tickets.syncError" @retry="polling.refresh()" />
     <header v-if="ticket" class="mt-3 flex items-end justify-between">
       <div>
         <p class="text-xs uppercase tracking-wide text-slate-500">
@@ -209,6 +221,16 @@ const ticket = computed(() => tickets.selected)
       </button>
     </div>
 
+    <div v-if="foodToPay > 0" class="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border-2 border-sky-500 bg-sky-50 px-3 py-2 text-sky-900" data-test="food-to-pay">
+      <p class="flex items-center gap-2 text-sm font-semibold">
+        <UIcon name="i-lucide-banknote" class="size-5 shrink-0" aria-hidden="true" />
+        {{ $t('staff.detail.foodToPay', { n: foodToPay }) }}
+      </p>
+      <NuxtLink :to="`/staff/${tableParam}/pay?food=1`" class="inline-flex min-h-[44px] items-center rounded-lg bg-success px-3 text-sm font-semibold text-white" data-test="food-to-pay-go">
+        {{ $t('staff.detail.payFood') }}
+      </NuxtLink>
+    </div>
+
     <ReadyBanner :kitchen="ready.kitchen" :bar="ready.bar" :busy="serving" :walkin="walkin" @served="served" />
 
     <p v-if="ticket && ticket.lockedBy" class="mt-3 flex items-center gap-2 rounded bg-amber-50 px-3 py-2 text-sm text-amber-800">
@@ -223,7 +245,7 @@ const ticket = computed(() => tickets.selected)
         :item="item"
         :can-void="canVoid"
         :can-refund="canRefund"
-        :can-void-finished="canRefund"
+        :can-void-finished="canVoidFinished"
         @void="openDialog(item, false)"
         @refund="openDialog(item, true)"
       />

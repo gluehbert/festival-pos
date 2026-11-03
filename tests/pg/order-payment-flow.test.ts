@@ -18,9 +18,9 @@ async function one<T>(query: ReturnType<typeof sql>): Promise<T> {
   return res.rows[0] as T
 }
 
-function staffEvent(role: 'waiter' | 'kitchen' | 'admin', headers: Record<string, string> = {}) {
+function staffEvent(role: 'waiter' | 'kitchen' | 'lead' | 'admin', headers: Record<string, string> = {}, staffId = waiterId) {
   const e = makeEvent({ method: 'POST', cookies: { csrf: CSRF }, headers: { 'x-csrf-token': CSRF, ...headers } })
-  e.event.context.auth = { staff: { staffId: waiterId, role, username: role } }
+  e.event.context.auth = { staff: { staffId, role, username: role } }
   return e
 }
 
@@ -124,13 +124,18 @@ describe.skipIf(!url)('real Postgres: migrations + order/payment flow', () => {
 
     const refund = (await import('../../server/api/admin/order-items/[id]/refund.post')).default
     const beerId = order.items[0]!.orderItemId
+    // The lead refunds from their own drawer, not the waiter's.
+    const leadId = (await one<{ id: string }>(sql`
+      INSERT INTO staff (username, password_hash, role) VALUES ('lead', 'h', 'lead') RETURNING id`)).id
     const call = (role: 'admin' | 'waiter', id: string) => {
-      const e = staffEvent(role)
+      const e = staffEvent(role, {}, leadId)
       e.event.context.params = { id }
       return refund(e.event)
     }
     ctx.setBody({ reason: 'Bier war warm' })
     await expect(call('waiter', beerId)).rejects.toMatchObject({ statusCode: 403 })
+    await expect(call('admin', beerId)).rejects.toMatchObject({ statusCode: 409, data: { code: 'CASH_SESSION_REQUIRED' } })
+    await real.db.execute(sql`INSERT INTO cash_sessions (event_id, staff_id, opening_cents) VALUES (${eventId}, ${leadId}, 1000)`)
     await expect(call('admin', beerId)).resolves.toMatchObject({ amountCents: 900 })
     await expect(call('admin', beerId)).rejects.toMatchObject({ statusCode: 409 })
 
@@ -141,10 +146,11 @@ describe.skipIf(!url)('real Postgres: migrations + order/payment flow', () => {
     const { loadPaymentsByStaff, loadVoids, loadRevenueByCategory } = await import('../../server/lib/reports')
     const voids = await loadVoids(real.db as never, eventId)
     expect(voids.find((v) => v.orderItemId === beerId)).toMatchObject({ refundedCents: 900, reason: 'Bier war warm' })
-    const [waiter] = await loadPaymentsByStaff(real.db as never, eventId)
-    expect(waiter!.refundedCents).toBe(900)
+    const perStaff = await loadPaymentsByStaff(real.db as never, eventId)
+    expect(perStaff.find((r) => r.staffId === waiterId)).toMatchObject({ refundedCents: 0 })
+    expect(perStaff.find((r) => r.staffId === leadId)).toMatchObject({ refundedCents: 900, totalCents: -900 })
     const gross = (await one<{ n: number }>(sql`SELECT COALESCE(SUM(total_cents),0)::int AS n FROM payments`)).n
-    expect(waiter!.totalCents).toBe(gross - 900)
+    expect(perStaff.reduce((a, r) => a + r.totalCents, 0)).toBe(gross - 900)
     const revenue = await loadRevenueByCategory(real.db as never, eventId)
     // Revenue counts paid items only, the open order 13 not.
     const paid = (await one<{ n: number }>(sql`

@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
+import { LANE_ROUND_MS, productionCards } from '~/../server/lib/contracts/production'
 import type {
+  ProductionLane,
   ProductionOrderDoneResponse,
   ProductionQueue,
   ProductionQueueItem,
@@ -10,9 +12,13 @@ import type {
 
 type Station = 'kitchen' | 'bar'
 
-// All open items of one order at this station: one card on the screen.
+// All open items of one table at this station: one card on the screen.
+// Every send from a table is its own order, so a card can hold several.
+// Counter sales and staff meals have no table and keep one card per order.
+// With buzzer lanes a later round of a table is a card of its own.
 export interface ProductionOrderGroup {
-  orderId: string
+  key: string
+  orderIds: string[]
   tableNo: number
   orderKind: ProductionQueueItem['orderKind']
   orderedAt: string
@@ -22,12 +28,16 @@ export interface ProductionOrderGroup {
 export const useProductionStore = defineStore('production', () => {
   const station = ref<Station | null>(null)
   const queue = ref<ProductionQueueItem[]>([])
+  // Buzzer lanes; empty when the event has no buzzer.
+  const lanes = ref<ProductionLane[]>([])
   const loading = ref(false)
   const error = ref<unknown>(null)
   // Polling health, kept apart from `error` (which failed actions set too):
   // the screen warns when the queue it shows may be outdated.
   const syncFailed = ref(false)
   const lastSyncAt = ref<number | null>(null)
+  // The last failed poll, for the warning's text.
+  const syncError = ref<unknown>(null)
 
   // Local changes the server may not show yet. A poll that was already
   // running when the user tapped would otherwise bring a finished item back
@@ -74,12 +84,14 @@ export const useProductionStore = defineStore('production', () => {
       }
       station.value = res.station
       queue.value = withOverrides(res.items)
+      lanes.value = res.lanes
       syncFailed.value = false
       lastSyncAt.value = Date.now()
     }
     catch (e) {
       error.value = e
       syncFailed.value = true
+      syncError.value = e
       throw e
     }
     finally {
@@ -131,18 +143,15 @@ export const useProductionStore = defineStore('production', () => {
   }
 
   // The queue is sorted oldest first, so the cards are too.
-  const groups = computed<ProductionOrderGroup[]>(() => {
-    const byOrder = new Map<string, ProductionOrderGroup>()
-    for (const item of queue.value) {
-      let g = byOrder.get(item.orderId)
-      if (!g) {
-        g = { orderId: item.orderId, tableNo: item.tableNo, orderKind: item.orderKind, orderedAt: item.orderedAt, items: [] }
-        byOrder.set(item.orderId, g)
-      }
-      g.items.push(item)
-    }
-    return Array.from(byOrder.values())
-  })
+  const groups = computed<ProductionOrderGroup[]>(() =>
+    productionCards(queue.value, lanes.value.length > 0 ? LANE_ROUND_MS : undefined).map(({ key, items }) => ({
+      key,
+      orderIds: [...new Set(items.map((i) => i.orderId))],
+      tableNo: items[0]!.tableNo,
+      orderKind: items[0]!.orderKind,
+      orderedAt: items[0]!.orderedAt,
+      items,
+    })))
 
   // Returns the items that were finished, for "Undo".
   async function finishOrder(orderId: string, stationParam?: Station): Promise<ProductionQueueItem[]> {
@@ -164,5 +173,5 @@ export const useProductionStore = defineStore('production', () => {
     }
   }
 
-  return { station, queue, groups, loading, error, syncFailed, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
+  return { station, queue, lanes, groups, loading, error, syncFailed, syncError, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
 })

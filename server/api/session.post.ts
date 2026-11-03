@@ -4,12 +4,10 @@ import { getDb } from '../db/client'
 import { events, guestSessions } from '../db/schema'
 import { guestScans } from '../db/schema-service'
 import { AppError, sendAppError } from '../lib/errors'
-import { setGuestCookie, signGuestSession } from '../lib/auth'
+import { GUEST_SESSION_MS, setGuestCookie, signGuestSession } from '../lib/auth'
 import { assertGuestPinAllowed, clientIp, recordGuestPinFailure } from '../lib/login-throttle'
 import { isValidTableKey, safeEqual } from '../lib/table-key'
 import { CreateGuestSessionSchema, GuestSessionSchema } from '../lib/contracts/guest'
-
-const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
 
 export default defineEventHandler(async (event) => {
   try {
@@ -47,7 +45,7 @@ export default defineEventHandler(async (event) => {
       throw new AppError('FORBIDDEN', 403, 'Invalid table code or event PIN')
     }
 
-    const expiresAt = new Date(Date.now() + SEVEN_DAYS_MS)
+    const expiresAt = new Date(Date.now() + GUEST_SESSION_MS)
     const inserted = await db
       .insert(guestSessions)
       .values({ eventId: ev.id, tableNo: input.tableNo, expiresAt })

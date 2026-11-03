@@ -24,7 +24,7 @@ import type {
   AppUsageRow,
   OrdersPerHourRow,
   PaymentsByStaffRow,
-  ReportType,
+  ReportsAll,
   RevenueByCategoryRow,
   StaffMealReportRow,
   TipRow,
@@ -32,47 +32,58 @@ import type {
   VoidRow,
 } from '~/../server/lib/contracts/reports'
 
-interface Envelope<R> {
-  eventId: string
-  generatedAt: string
-  type: string
-  rows: R[]
-}
-
 const props = defineProps<{ event: EventDto }>()
 
 const api = useApi()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 // Live numbers only change while the event is running.
-const intervalMs = props.event.isActive ? 5000 : 60_000
+const intervalMs = props.event.isActive ? 15_000 : 60_000
 
-function poll<R>(type: ReportType) {
-  const p = usePolling<Envelope<R>>(
-    () => api.get<Envelope<R>>(`/api/admin/events/${props.event.id}/reports?type=${type}`),
-    { intervalMs },
-  )
-  return computed(() => p.data.value?.rows ?? [])
-}
+// One request for all tables, so they show the same snapshot.
+const polling = usePolling<ReportsAll>(
+  () => api.get<ReportsAll>(`/api/admin/events/${props.event.id}/reports/all`),
+  { intervalMs },
+)
+const reports = computed(() => polling.data.value?.reports)
+const revenue = computed<RevenueByCategoryRow[]>(() => reports.value?.revenue_by_category ?? [])
+const topItems = computed<TopItemRow[]>(() => reports.value?.top_items ?? [])
+const voids = computed<VoidRow[]>(() => reports.value?.voids ?? [])
+const perStaff = computed<PaymentsByStaffRow[]>(() => reports.value?.payments_by_staff ?? [])
+const tips = computed<TipRow[]>(() => reports.value?.tips ?? [])
+const perHour = computed<OrdersPerHourRow[]>(() => reports.value?.orders_per_hour ?? [])
+const cashSessions = computed<CashSessionDto[]>(() => reports.value?.cash_sessions ?? [])
+const deposits = computed<DepositReportRow[]>(() => reports.value?.deposits ?? [])
+const staffMeals = computed<StaffMealReportRow[]>(() => reports.value?.staff_meals ?? [])
+const assignments = computed<TableAssignment[]>(() => reports.value?.table_assignments ?? [])
+const promos = computed<PriceRuleReportRow[]>(() => reports.value?.price_rules ?? [])
+const usage = computed<AppUsageRow[]>(() => reports.value?.app_usage ?? [])
 
-const revenue = poll<RevenueByCategoryRow>('revenue_by_category')
-const topItems = poll<TopItemRow>('top_items')
-const voids = poll<VoidRow>('voids')
-const perStaff = poll<PaymentsByStaffRow>('payments_by_staff')
-const tips = poll<TipRow>('tips')
-const perHour = poll<OrdersPerHourRow>('orders_per_hour')
-const cashSessions = poll<CashSessionDto>('cash_sessions')
-const deposits = poll<DepositReportRow>('deposits')
-const staffMeals = poll<StaffMealReportRow>('staff_meals')
-const assignments = poll<TableAssignment>('table_assignments')
-const promos = poll<PriceRuleReportRow>('price_rules')
-const usage = poll<AppUsageRow>('app_usage')
+const asOf = computed(() => {
+  const at = polling.data.value?.generatedAt
+  return at
+    ? new Date(at).toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+    : null
+})
 </script>
 
 <template>
   <div>
-    <p class="mb-2 text-xs text-slate-500" data-test="reports-internal-note">
-      {{ t('admin.reports.internalNote') }}
-    </p>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <p class="text-xs text-slate-500" data-test="reports-internal-note">
+        {{ t('admin.reports.internalNote') }}
+      </p>
+      <div class="flex items-center gap-2 text-xs text-slate-500">
+        <span v-if="asOf" data-test="reports-as-of">{{ t('admin.reports.asOf', { time: asOf }) }}</span>
+        <button
+          type="button"
+          data-test="reports-refresh"
+          class="min-h-[36px] rounded border border-slate-300 bg-surface px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          @click="polling.refresh()"
+        >
+          {{ t('admin.reports.refreshNow') }}
+        </button>
+      </div>
+    </div>
     <ReportSection
       :title="t('admin.reports.sections.revenue')"
       :hint="t('admin.reports.revenueHint')"

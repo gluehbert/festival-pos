@@ -3,7 +3,9 @@ import { and, asc, eq, inArray } from 'drizzle-orm'
 import { getDb } from '../../db/client'
 import { events, menuItems, orderItems, orders } from '../../db/schema'
 import { AppError, sendAppError } from '../../lib/errors'
+import { kitchenReleased } from '../../lib/food-prepay'
 import { requireRole } from '../../lib/rbac'
+import { activeLanes, fillLanes } from '../../lib/production-lanes'
 import {
   ProductionQueueQuerySchema,
   ProductionQueueSchema,
@@ -55,9 +57,11 @@ export default defineEventHandler(async (event) => {
           eq(orders.eventId, ev.id),
           eq(orderItems.station, station),
           inArray(orderItems.productionStatus, ['pending', 'in_progress']),
+          kitchenReleased(ev, station),
         ),
       )
-      .orderBy(asc(orders.createdAt))
+      // Within an order in menu order, so lines never swap places between polls.
+      .orderBy(asc(orders.createdAt), asc(orders.id), asc(menuItems.sortOrder), asc(orderItems.id))
 
     const items: ProductionQueueItem[] = rows.map((r) => {
       const orderedAt = r.orderedAt instanceof Date
@@ -77,7 +81,8 @@ export default defineEventHandler(async (event) => {
       }
     })
 
-    return ProductionQueueSchema.parse({ station, items })
+    const lanes = await fillLanes(db, ev.id, station, await activeLanes(db, ev.id, station), items)
+    return ProductionQueueSchema.parse({ station, items, lanes })
   }
   catch (err) {
     sendAppError(event, err)

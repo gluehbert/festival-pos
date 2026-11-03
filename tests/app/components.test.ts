@@ -4,27 +4,34 @@ import VoidDialog from '~/components/staff/VoidDialog.vue'
 import PaymentSummary from '~/components/staff/PaymentSummary.vue'
 import PaymentDone from '~/components/staff/PaymentDone.vue'
 import { lockMessageKey, lockSecondsLeft } from '~/composables/usePaySelection'
-import QueueItem from '~/components/production/QueueItem.vue'
 import StaffForm from '~/components/admin/StaffForm.vue'
 import CartSummary from '~/components/guest/CartSummary.vue'
 import MenuItem from '~/components/guest/MenuItem.vue'
 import OrderStatus from '~/components/guest/OrderStatus.vue'
 import { useCartStore } from '~/stores/cart'
-import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 import type { MenuItemDto, SessionOrders } from '~/../server/lib/contracts/guest'
 
 describe('VoidDialog', () => {
   it('needs a reason of at least 3 characters and emits it trimmed', async () => {
     const w = mount(VoidDialog, { props: { open: true, itemName: '1 × Beer' } })
-    const confirm = w.findAll('button')[1]!
+    const confirm = w.findAll('button')[2]!
     await w.find('textarea').setValue('  x ')
     expect(confirm.attributes('disabled')).toBeDefined()
     await w.find('textarea').setValue('  too cold  ')
     expect(confirm.attributes('disabled')).toBeUndefined()
     await confirm.trigger('click')
     expect(w.emitted('confirm')).toEqual([['too cold']])
-    await w.findAll('button')[0]!.trigger('click')
+    await w.findAll('button')[1]!.trigger('click')
     expect(w.emitted('cancel')).toHaveLength(1)
+  })
+
+  it('fills in "not ordered by this table" with one tap, not in refund mode', async () => {
+    const w = mount(VoidDialog, { props: { open: true, itemName: '1 × Beer' } })
+    await w.find('[data-test="void-not-ordered"]').trigger('click')
+    await w.findAll('button')[2]!.trigger('click')
+    expect(w.emitted('confirm')).toEqual([['staff.void.notOrdered']])
+    const refund = mount(VoidDialog, { props: { open: true, itemName: 'x', refund: true } })
+    expect(refund.find('[data-test="void-not-ordered"]').exists()).toBe(false)
   })
 
   it('uses refund wording and shows the cash hint in refund mode', () => {
@@ -141,30 +148,6 @@ describe('lockSecondsLeft', () => {
 
 })
 
-describe('QueueItem', () => {
-  const item: ProductionQueueItem = {
-    orderItemId: '00000000-0000-4000-8000-000000000001',
-    tableNo: 7,
-    nameDe: 'Pommes',
-    nameEn: 'Fries',
-    quantity: 2,
-    productionStatus: 'pending',
-    orderedAt: new Date(Date.now() - 12 * 60_000).toISOString(),
-  } as ProductionQueueItem
-
-  it('advances pending -> in_progress -> done and flags old items', async () => {
-    const w = mount(QueueItem, { props: { item } })
-    expect(w.text()).toContain('2 × Fries')
-    expect(w.find('header p:last-child').classes()).toContain('text-rose-700')
-    await w.find('button').trigger('click')
-    expect(w.emitted('advance')).toEqual([['in_progress']])
-    await w.setProps({ item: { ...item, productionStatus: 'in_progress' } })
-    expect(w.find('button').text()).toBe('production.done')
-    await w.find('button').trigger('click')
-    expect(w.emitted('advance')![1]).toEqual(['done'])
-  })
-})
-
 describe('StaffForm', () => {
   it('asks admins for a password and everyone else for a PIN', async () => {
     const w = mount(StaffForm)
@@ -252,5 +235,16 @@ describe('OrderStatus', () => {
     expect(w.find('summary').text()).toContain('(2)')
     expect(w.find('[data-test="order-status-ready"]').text()).toContain('guest.page.statusReady')
     expect(w.findAll('li')).toHaveLength(2)
+  })
+
+  it('says when food waits for payment (food prepay)', () => {
+    const base = { menuItemId: 'm', nameDe: 'Wurst', nameEn: 'Sausage', quantity: 1, note: null, productionStatus: 'pending' }
+    const orders = { tableNo: 7, ticketStatus: 'open', tableBalanceCents: 0, items: [
+      { ...base, orderItemId: '1', awaitingPayment: true },
+      { ...base, orderItemId: '2', awaitingPayment: false },
+    ] } as unknown as SessionOrders
+    const w = mount(OrderStatus, { props: { orders } })
+    expect(w.findAll('[data-test="awaiting-payment"]')).toHaveLength(1)
+    expect(w.text()).toContain('guest.production.awaitingPayment')
   })
 })

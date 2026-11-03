@@ -21,6 +21,7 @@ const { euro } = useFormat()
 const STYLE = {
   free: { box: 'border-slate-200 bg-slate-100 text-slate-700', icon: null },
   busy: { box: 'border-amber-400 bg-amber-50 text-amber-900', icon: 'i-lucide-hourglass' },
+  pay: { box: 'border-sky-500 bg-sky-50 text-sky-900', icon: 'i-lucide-banknote' },
   ready: { box: 'border-emerald-500 bg-emerald-50 text-emerald-900', icon: 'i-lucide-hand-platter' },
   late: { box: 'border-red-500 bg-red-50 text-red-900', icon: 'i-lucide-bell-ring' },
 } as const
@@ -29,6 +30,7 @@ const style = computed(() => STYLE[props.tile.state])
 
 const status = computed(() => {
   const ticket = props.tile.ticket
+  if (props.tile.state === 'pay' && ticket) return t('staff.grid.state.pay', { n: ticket.foodToPay })
   if (props.tile.state === 'ready' && ticket) return t('staff.grid.state.ready', { n: ticket.ready.kitchen + ticket.ready.bar })
   if (props.tile.state === 'late' && ticket) {
     const { minutes } = tableActivity(ticket.lastOrderAt, ticket.lastCheckAt, props.nowMs)

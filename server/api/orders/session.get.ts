@@ -1,10 +1,11 @@
 import { defineEventHandler } from 'h3'
 import { and, eq, ne, sql } from 'drizzle-orm'
 import { getDb } from '../../db/client'
-import { menuItems, orderItems, orders } from '../../db/schema'
+import { events, menuItems, orderItems, orders } from '../../db/schema'
 import { AppError, sendAppError } from '../../lib/errors'
 import { SessionOrdersSchema } from '../../lib/contracts/guest'
 import { lineTotalSql } from '../../lib/line-total'
+import { isHeldFood } from '../../lib/food-prepay'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -13,6 +14,7 @@ export default defineEventHandler(async (event) => {
       throw new AppError('UNAUTHORIZED', 401, 'Guest session required')
     }
     const db = getDb()
+    const [ev] = await db.select({ foodPrepayEnabled: events.foodPrepayEnabled }).from(events).where(eq(events.id, guest.eventId))
 
     const items = await db
       .select({
@@ -24,6 +26,7 @@ export default defineEventHandler(async (event) => {
         note: orderItems.note,
         productionStatus: orderItems.productionStatus,
         paymentStatus: orderItems.paymentStatus,
+        station: orderItems.station,
       })
       .from(orderItems)
       .innerJoin(orders, eq(orders.id, orderItems.orderId))
@@ -81,6 +84,7 @@ export default defineEventHandler(async (event) => {
         note: i.note,
         productionStatus: i.productionStatus as 'pending' | 'in_progress' | 'done' | 'cancelled',
         paymentStatus: i.paymentStatus as 'unpaid' | 'paid',
+        awaitingPayment: !!ev && isHeldFood(ev, i),
       })),
       tableBalanceCents,
     })

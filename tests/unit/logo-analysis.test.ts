@@ -32,5 +32,7 @@ describe('logo dark-mode check', () => {
     expect(logoFitsDark('image/webp', squarePng(WHITE, CLEAR))).toBe(false)
     expect(logoFitsDark('image/png', Buffer.from('not a png'))).toBe(false)
     expect(logoFitsDark('image/png', squarePng(CLEAR, CLEAR))).toBe(false)
+    // pngjs rejects bytes after the image end that some editors append.
+    expect(logoFitsDark('image/png', Buffer.concat([squarePng(WHITE, CLEAR), Buffer.from('trailing')]))).toBe(false)
   })
 })

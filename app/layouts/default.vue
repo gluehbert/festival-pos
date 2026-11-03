@@ -2,8 +2,10 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBranding } from '~/composables/useBranding'
+import { useUpdateAvailable } from '~/composables/useUpdateAvailable'
 import HeaderMenu from '~/components/common/HeaderMenu.vue'
 import AlertBell from '~/components/common/AlertBell.vue'
+import DisplayMenu from '~/components/production/DisplayMenu.vue'
 import { useAuthStore } from '~/stores/auth'
 import EventLogo from '~/components/common/EventLogo.vue'
 import LegalFooter from '~/components/common/LegalFooter.vue'
@@ -15,23 +17,13 @@ const auth = useAuthStore()
 const isGuestPage = computed(() => !/^\/(staff|admin|production)(\/|$)/.test(route.path))
 // Alerts only sound on the working screens (service, kitchen, bar).
 const showBell = computed(() => auth.isAuthenticated && /^\/(staff|production)(\/|$)/.test(route.path))
+// Zoom, fullscreen and screen-on for the kitchen/bar screen.
+const showDisplay = computed(() => auth.isAuthenticated && /^\/production(\/|$)/.test(route.path))
+// On a phone the kitchen/bar station name needs the room: the logo alone names the event.
+const stationTitle = computed(() => /^\/production(\/|$)/.test(route.path))
 const { branding } = useBranding()
 const isOnline = ref(true)
-// A new version is installed but waits until the user reloads (registerType
-// 'prompt'), so a deploy never reloads devices mid-order.
-const { $pwa } = useNuxtApp()
-const updateAvailable = computed(() => $pwa?.needRefresh === true)
-const updating = ref(false)
-
-async function applyUpdate() {
-  updating.value = true
-  try {
-    await $pwa?.updateServiceWorker(true)
-  }
-  finally {
-    updating.value = false
-  }
-}
+const { updateAvailable, updating, applyUpdate } = useUpdateAvailable()
 
 function syncOnline() {
   if (typeof navigator !== 'undefined') {
@@ -57,14 +49,21 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="min-h-screen bg-app text-slate-900">
-    <header class="flex items-center justify-between bg-surface px-4 py-2">
-      <NuxtLink to="/" class="flex min-w-0 items-center gap-2 text-sm font-semibold text-brand-ink">
-        <EventLogo :branding="branding" alt="" img-class="h-8 w-auto max-w-24 object-contain" />
-        <span class="truncate" :class="branding.eventName ? '' : 'uppercase tracking-widest'">
-          {{ branding.eventName ?? 'Festival POS' }}
-        </span>
-      </NuxtLink>
+    <!-- relative: the kitchen/bar display menu hangs from the header's right edge. -->
+    <header class="relative flex items-center justify-between gap-2 bg-surface px-4 py-2">
+      <div class="flex min-w-0 items-center gap-3">
+        <NuxtLink to="/" class="flex min-w-0 items-center gap-2 text-sm font-semibold text-brand-ink">
+          <EventLogo :branding="branding" alt="" img-class="h-8 w-auto max-w-24 object-contain" />
+          <span class="truncate" :class="[branding.eventName ? '' : 'uppercase tracking-widest', stationTitle ? 'hidden sm:inline' : '']">
+            {{ branding.eventName ?? 'Festival POS' }}
+          </span>
+        </NuxtLink>
+        <!-- Pages that need every pixel (kitchen/bar) put their title here. -->
+        <div id="page-title" class="flex min-w-0 items-center" />
+      </div>
       <div class="flex shrink-0 items-center gap-1">
+        <div id="page-tools" class="flex items-center gap-1" />
+        <DisplayMenu v-if="showDisplay" />
         <AlertBell v-if="showBell" />
         <HeaderMenu />
       </div>

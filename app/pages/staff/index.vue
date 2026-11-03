@@ -16,6 +16,7 @@ import { useDeviceMode } from '~/composables/useDeviceMode'
 import ServiceActions from '~/components/staff/ServiceActions.vue'
 import { useBranding } from '~/composables/useBranding'
 import NeedsSomeone from '~/components/staff/NeedsSomeone.vue'
+import WaiterCalls from '~/components/staff/WaiterCalls.vue'
 import WelcomeCard from '~/components/staff/WelcomeCard.vue'
 import { useWelcome } from '~/composables/useWelcome'
 import { matchesOwner, needsSomeone, ticketAssignee, type OwnerFilter } from '~/utils/table-grid'
@@ -39,11 +40,11 @@ function loadQuietly() {
   return tickets.refresh({ status: status.value }).catch(() => {})
 }
 
-// More finished items at a table: tone + vibration.
+// More finished items, or new food to cash, at a table: tone + vibration.
 const attention = useAttention()
 const ready = createIncreaseTracker()
 watch(() => tickets.lastSyncAt, () => {
-  const counts = new Map(tickets.tickets.map((t) => [t.ticketKey, t.ready.kitchen + t.ready.bar]))
+  const counts = new Map(tickets.tickets.map((t) => [t.ticketKey, t.ready.kitchen + t.ready.bar + t.foodToPay]))
   if (ready.update(counts).length > 0) attention.notify()
 })
 
@@ -115,7 +116,9 @@ const unattended = computed(() => (expert.value && owner.value === 'mine' ? need
       {{ $t('staff.distribute.nav') }}
     </NuxtLink>
 
-    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" @retry="polling.refresh()" />
+    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" :error="tickets.syncError" @retry="polling.refresh()" />
+
+    <WaiterCalls v-if="branding.waiterCallsEnabled" />
 
     <!-- A table paid in full lands here: its receipt can still be printed. -->
     <LastReceipt />

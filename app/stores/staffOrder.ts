@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { useSendState } from '~/composables/useSendState'
 import { newIdempotencyKey } from '~/utils/idempotency'
+import { apiError } from '~/utils/api-error'
 import { usePaymentsStore } from '~/stores/payments'
 import { useMenuStore } from '~/stores/menu'
 import type { MenuItemDto, Order } from '~/../server/lib/contracts/guest'
@@ -78,14 +79,16 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
   const itemCount = computed(() => lines.value.reduce((s, l) => s + l.quantity, 0))
   const isEmpty = computed(() => lines.value.length === 0)
 
-  // payNow (walk-in only): the guest pays cash right away, the order still
-  // goes to kitchen/bar. staffMealReason: required for 'staff_meal'.
+  // payNow: the guest pays cash right away, the order still goes to
+  // kitchen/bar. A walk-in pays everything; a table only its food (food
+  // prepay), drinks when they are brought. staffMealReason: required for 'staff_meal'.
   async function submit(mode: StaffOrderMode, tableNo: number, payNow = false, staffMealReason?: string): Promise<StaffOrderResult | null> {
     if (lines.value.length === 0) return null
     submitting.value = true
     error.value = null
     const api = useApi()
     const sent = snapshotLines(lines.value)
+    const food = new Set(lines.value.filter((l) => l.menuItem.station === 'kitchen').map((l) => l.menuItem.id))
     const send = begin()
     try {
       const order = await api.post<Order>(
@@ -104,11 +107,12 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
       lines.value = remainingLines(lines.value, sent)
       idempotencyKey = newIdempotencyKey()
       let paid: PaymentResponse | null = null
-      if (payNow && mode === 'walkin') {
+      const toPay = order.items.filter((i) => mode === 'walkin' || food.has(i.menuItemId))
+      if (payNow && mode !== 'staff_meal' && toPay.length > 0) {
         try {
           paid = await api.post<PaymentResponse>(
             '/api/payments',
-            { ticketKey, orderItemIds: order.items.map((i) => i.orderItemId) },
+            { ticketKey, orderItemIds: toPay.map((i) => i.orderItemId) },
             { headers: { 'idempotency-key': newIdempotencyKey() }, ...send },
           )
           // Same receipt as after cashing at the table.
@@ -122,15 +126,15 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
       return { order, ticketKey, paid, priceChanges: changes }
     }
     catch (e: unknown) {
-      const data = (e as { data?: { code?: string; message?: string; details?: { menuItemIds?: string[] } } }).data
+      const { code, details } = apiError<{ menuItemIds?: string[] }>(e)
       // Sold out meanwhile: nothing was booked; the articles leave the menu
       // and, through syncWithMenu, the pad.
-      if (data?.code === 'SOLD_OUT') {
+      if (code === 'SOLD_OUT') {
         error.value = 'sold_out'
-        useMenuStore().markSoldOut(data.details?.menuItemIds ?? [])
+        useMenuStore().markSoldOut(details?.menuItemIds ?? [])
         return null
       }
-      error.value = data?.message ?? 'order_failed'
+      error.value = (e as { data?: { message?: string } }).data?.message ?? 'order_failed'
       return null
     }
     finally {

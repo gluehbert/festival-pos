@@ -73,7 +73,7 @@ describe('POST /api/order-items/{id}/void', () => {
     expect(status(itemId)).toBe('cancelled')
   })
 
-  it('waiter cannot void a finished or served item, admin can', async () => {
+  it('waiter cannot void a finished or served item, shift lead and admin can', async () => {
     const done = await placeItem()
     const served = await placeItem()
     ctx.mem.public.none(`UPDATE order_items SET production_status='done' WHERE id IN ('${done}', '${served}')`)
@@ -85,10 +85,9 @@ describe('POST /api/order-items/{id}/void', () => {
       expect(r.error?.code).toBe('VOID_ADMIN_ONLY')
       expect(status(id)).toBe('done')
     }
-    for (const id of [done, served]) {
-      expect((await voidAs('admin', id)).status).toBe(200)
-      expect(status(id)).toBe('cancelled')
-    }
+    expect((await voidAs('lead', done)).status).toBe(200)
+    expect((await voidAs('admin', served)).status).toBe(200)
+    for (const id of [done, served]) expect(status(id)).toBe('cancelled')
   })
 
   it('rejects kitchen role with 403', async () => {

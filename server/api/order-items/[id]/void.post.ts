@@ -4,15 +4,17 @@ import { getDb } from '../../../db/client'
 import { auditLog, orderItems, orders } from '../../../db/schema'
 import { AppError, sendAppError } from '../../../lib/errors'
 import { assertCsrf } from '../../../lib/csrf'
-import { requireRole, SERVICE_ROLES } from '../../../lib/rbac'
+import { requireRole, SERVICE_ROLES, TABLE_LEAD_ROLES } from '../../../lib/rbac'
 import { requireActiveEvent } from '../../../lib/active-event'
 import { OkSchema, VoidItemSchema } from '../../../lib/contracts/staff'
 import { returnStock } from '../../../lib/stock'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 // Waiters may only void what kitchen/bar has not finished yet. Finished or
-// served items need an admin, so "take the cash, then void" leaves a trail
-// with someone else. Paid items go through the refund endpoint.
+// served items need the shift lead or an admin, so "take the cash, then void"
+// leaves a trail with someone else (and an item brought to a table where
+// nobody ordered it can still be voided during the festival). Paid items go
+// through the refund endpoint.
 const WAITER_VOIDABLE = ['pending', 'in_progress']
 
 export default defineEventHandler(async (event) => {
@@ -49,9 +51,9 @@ export default defineEventHandler(async (event) => {
     if (item.productionStatus === 'cancelled') {
       throw new AppError('VOID_CANCELLED', 409, 'Item already cancelled')
     }
-    const isAdmin = staff.role === 'admin'
-    if (!isAdmin && !WAITER_VOIDABLE.includes(item.productionStatus)) {
-      throw new AppError('VOID_ADMIN_ONLY', 403, 'Finished or served items can only be voided by an admin')
+    const isLead = TABLE_LEAD_ROLES.includes(staff.role)
+    if (!isLead && !WAITER_VOIDABLE.includes(item.productionStatus)) {
+      throw new AppError('VOID_ADMIN_ONLY', 403, 'Finished or served items can only be voided by the shift lead or an admin')
     }
 
     await db.transaction(async (tx) => {
@@ -67,7 +69,7 @@ export default defineEventHandler(async (event) => {
         .where(and(
           eq(orderItems.id, id),
           isStaffMeal ? isNotNull(orderItems.listPriceCents) : eq(orderItems.paymentStatus, 'unpaid'),
-          isAdmin ? ne(orderItems.productionStatus, 'cancelled') : inArray(orderItems.productionStatus, WAITER_VOIDABLE),
+          isLead ? ne(orderItems.productionStatus, 'cancelled') : inArray(orderItems.productionStatus, WAITER_VOIDABLE),
         ))
         .returning({ id: orderItems.id, quantity: orderItems.quantity, menuItemId: orderItems.menuItemId })
       if (updated.length === 0) {

@@ -49,6 +49,8 @@ export const VoidRowSchema = z.object({
   orderItemId: z.string().uuid(),
   nameDe: z.string(),
   nameEn: z.string(),
+  // 0 for staff meals; shows which tables someone ordered for and walked on.
+  tableNo: z.number().int(),
   reason: z.string(),
   voidedAt: z.string().datetime(),
   voidedByStaffId: z.string().uuid().nullable(),
@@ -61,7 +63,7 @@ export const PaymentsByStaffRowSchema = z.object({
   staffId: z.string().uuid(),
   username: z.string(),
   paymentCount: z.number().int(),
-  // Net cash: payments minus refunds of those payments.
+  // Net cash: payments collected minus refunds paid out by this person.
   totalCents: z.number().int(),
   refundedCents: z.number().int().nonnegative(),
   tipCents: z.number().int().nonnegative(),
@@ -159,3 +161,24 @@ export const ReportSchema = z.discriminatedUnion('type', [
   AppUsageReportSchema,
 ])
 export type Report = z.infer<typeof ReportSchema>
+
+// All report types in one response, read from one snapshot.
+export const ReportsAllSchema = z.object({
+  eventId: z.string().uuid(),
+  generatedAt: z.string().datetime(),
+  reports: z.object({
+    revenue_by_category: z.array(RevenueByCategoryRowSchema),
+    top_items: z.array(TopItemRowSchema),
+    voids: z.array(VoidRowSchema),
+    payments_by_staff: z.array(PaymentsByStaffRowSchema),
+    tips: z.array(TipRowSchema),
+    orders_per_hour: z.array(OrdersPerHourRowSchema),
+    cash_sessions: z.array(CashSessionSchema),
+    deposits: z.array(DepositReportRowSchema),
+    staff_meals: z.array(StaffMealReportRowSchema),
+    table_assignments: z.array(TableAssignmentSchema),
+    price_rules: z.array(PriceRuleReportRowSchema),
+    app_usage: z.array(AppUsageRowSchema),
+  }),
+})
+export type ReportsAll = z.infer<typeof ReportsAllSchema>

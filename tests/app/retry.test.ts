@@ -2,16 +2,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextDelay, shouldRetry, MAX_RETRIES } from '~/utils/retry'
 import { useApi } from '~/composables/useApi'
 import { useCookie } from './setup/imports'
+import { apiFailure } from './setup/api-error'
 
 describe('shouldRetry', () => {
   it('retries network errors and transient statuses', () => {
     expect(shouldRetry(new TypeError('Failed to fetch'))).toBe(true)
     for (const statusCode of [408, 502, 503, 504]) expect(shouldRetry({ statusCode })).toBe(true)
-    expect(shouldRetry({ status: 429, data: { code: 'TOO_MANY' } })).toBe(true)
+    expect(shouldRetry({ status: 429 })).toBe(true)
   })
 
   it('never retries answers from the application', () => {
-    expect(shouldRetry({ statusCode: 429, data: { code: 'RATE_LIMITED' } })).toBe(false)
+    expect(shouldRetry(apiFailure(429, 'RATE_LIMITED'))).toBe(false)
     for (const statusCode of [400, 401, 403, 404, 409, 500]) expect(shouldRetry({ statusCode })).toBe(false)
   })
 })
@@ -59,7 +60,7 @@ describe('useApi retry', () => {
   })
 
   it('does not retry a business error or a call without key', async () => {
-    fetchMock.mockRejectedValue({ statusCode: 409, data: { code: 'LOCK_CONFLICT' } })
+    fetchMock.mockRejectedValue(apiFailure(409, 'LOCK_CONFLICT'))
     await expect(useApi().post('/api/payments', {}, idem)).rejects.toMatchObject({ statusCode: 409 })
     expect(fetchMock).toHaveBeenCalledTimes(1)
     fetchMock.mockReset().mockRejectedValue(new TypeError('x'))

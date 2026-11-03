@@ -5,6 +5,7 @@ import { useFormat } from '~/composables/useFormat'
 import type { Menu, MenuItemDto } from '~/../server/lib/contracts/guest'
 
 // Kitchen/bar mark their own articles sold out (and back) without the admin.
+// A button in the app bar opens the list, so it takes no room on the screen.
 const props = defineProps<{ station?: 'kitchen' | 'bar' }>()
 const emit = defineEmits<{ (e: 'result', ok: boolean): void }>()
 
@@ -21,8 +22,9 @@ async function load() {
   loaded.value = true
 }
 
-async function onToggle(e: Event) {
-  if ((e.target as HTMLDetailsElement).open) await load().catch(() => emit('result', false))
+// Every opening reloads, so the list shows what other screens changed.
+async function onOpen() {
+  await load().catch(() => emit('result', false))
 }
 
 async function set(item: MenuItemDto, isAvailable: boolean) {
@@ -44,33 +46,48 @@ defineExpose({ load })
 </script>
 
 <template>
-  <details class="mt-4 rounded-xl border border-slate-200 bg-surface" data-test="sold-out-panel" @toggle="onToggle">
-    <summary class="flex min-h-[48px] cursor-pointer items-center px-4 font-semibold text-slate-800">
-      {{ $t('production.soldOut.title') }}
-    </summary>
-    <p v-if="loaded && items.length === 0" class="px-4 pb-3 text-sm text-slate-500">
-      {{ $t('production.soldOut.empty') }}
-    </p>
-    <ul class="grid grid-cols-1 gap-x-6 px-4 pb-3 sm:grid-cols-2">
-      <li v-for="item in items" :key="item.id" class="flex items-center gap-3 border-b border-slate-100 py-2" data-test="sold-out-item">
-        <div class="min-w-0 flex-1">
-          <p class="truncate font-medium" :class="item.isAvailable ? 'text-slate-900' : 'text-slate-400 line-through'">
-            {{ itemName(item) }}
-          </p>
-          <p v-if="item.stock !== null" class="text-xs text-slate-500">
-            {{ $t('production.soldOut.stock', { n: item.stock }) }}
-          </p>
-        </div>
-        <button
-          type="button"
-          class="min-h-[44px] rounded-lg border px-3 text-sm font-semibold disabled:opacity-50"
-          :class="item.isAvailable ? 'border-rose-300 text-rose-700' : 'border-emerald-600 text-emerald-800'"
-          :disabled="busy === item.id || (!item.isAvailable && item.stock === 0)"
-          @click="set(item, !item.isAvailable)"
-        >
-          {{ item.isAvailable ? $t('production.soldOut.markSoldOut') : $t('production.soldOut.markAvailable') }}
-        </button>
-      </li>
-    </ul>
-  </details>
+  <UPopover :content="{ align: 'end' }" :ui="{ content: 'bg-surface ring-slate-200' }">
+    <button
+      type="button"
+      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded px-2 text-slate-600 hover:bg-slate-100"
+      :aria-label="$t('production.soldOut.title')"
+      :title="$t('production.soldOut.title')"
+      data-test="sold-out-panel"
+      @click="onOpen"
+    >
+      <UIcon name="i-lucide-circle-slash" class="size-5" aria-hidden="true" />
+      <span class="hidden text-sm font-semibold lg:inline">{{ $t('production.soldOut.short') }}</span>
+    </button>
+    <template #content>
+      <div class="max-h-[70vh] w-[min(92vw,34rem)] overflow-y-auto p-3">
+        <p class="px-1 pb-1 font-semibold text-slate-800">
+          {{ $t('production.soldOut.title') }}
+        </p>
+        <p v-if="loaded && items.length === 0" class="px-1 pb-2 text-sm text-slate-500">
+          {{ $t('production.soldOut.empty') }}
+        </p>
+        <ul class="grid grid-cols-1 gap-x-6 px-1 sm:grid-cols-2">
+          <li v-for="item in items" :key="item.id" class="flex items-center gap-3 border-b border-slate-100 py-2" data-test="sold-out-item">
+            <div class="min-w-0 flex-1">
+              <p class="truncate font-medium" :class="item.isAvailable ? 'text-slate-900' : 'text-slate-400 line-through'">
+                {{ itemName(item) }}
+              </p>
+              <p v-if="item.stock !== null" class="text-xs text-slate-500">
+                {{ $t('production.soldOut.stock', { n: item.stock }) }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="min-h-[44px] rounded-lg border px-3 text-sm font-semibold disabled:opacity-50"
+              :class="item.isAvailable ? 'border-rose-300 text-rose-700' : 'border-emerald-600 text-emerald-800'"
+              :disabled="busy === item.id || (!item.isAvailable && item.stock === 0)"
+              @click="set(item, !item.isAvailable)"
+            >
+              {{ item.isAvailable ? $t('production.soldOut.markSoldOut') : $t('production.soldOut.markAvailable') }}
+            </button>
+          </li>
+        </ul>
+      </div>
+    </template>
+  </UPopover>
 </template>

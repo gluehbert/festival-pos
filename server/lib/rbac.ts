@@ -23,3 +23,6 @@ export const SERVICE_ROLES: readonly StaffRole[] = ['waiter', 'lead', 'admin']
 export const TABLE_LEAD_ROLES: readonly StaffRole[] = ['lead', 'admin']
 // Who can hold tables: the people serving them (admins only via a shift lead).
 export const SERVING_ROLES: readonly StaffRole[] = ['waiter', 'lead']
+// Who sees and answers guests' calls for the service: the service, and the
+// bar screen that every waiter walks past.
+export const CALL_ROLES: readonly StaffRole[] = ['waiter', 'lead', 'admin', 'bar']

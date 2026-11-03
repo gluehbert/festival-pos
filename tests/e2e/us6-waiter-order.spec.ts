@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { collectPayment, finishPayment, loginStaff, tapMenuItem } from './helpers'
+import { collectPayment, finishPayment, loginStaff, pickTable, tapMenuItem } from './helpers'
 
 async function tap(page: Page, name: RegExp, times: number): Promise<void> {
   for (let i = 0; i < times; i++) await page.getByRole('button', { name }).click()
@@ -11,7 +11,7 @@ test.describe('@smoke US6 — waiter takes the order and splits the bill', () =>
   test('table order -> kitchen -> two guests pay their share', async ({ browser, page }) => {
     await loginStaff(page, 'waiter1', '1111', 'pin')
     await page.getByRole('link', { name: /new order/i }).click()
-    await page.locator('[data-test="order-table"]').fill('8')
+    await pickTable(page, 8)
     await tapMenuItem(page, /^add beer 0\.5$/i, 3)
     await tapMenuItem(page, /^add shandy 0\.5$/i, 8)
     await tapMenuItem(page, /^add sausage$/i, 2)

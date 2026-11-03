@@ -49,7 +49,7 @@ const targetHref = computed(() => {
   <NuxtLink
     :to="targetHref"
     class="block rounded-lg border bg-surface p-4 shadow-sm transition hover:border-brand focus:outline-none focus:ring-2 focus:ring-brand"
-    :class="[ticket.lockedBy ? 'border-amber-400 bg-amber-50' : hasReady ? 'border-rose-500 border-2' : 'border-slate-200']"
+    :class="[ticket.lockedBy ? 'border-amber-400 bg-amber-50' : hasReady || ticket.foodToPay > 0 ? 'border-rose-500 border-2' : 'border-slate-200']"
   >
     <div class="flex items-start justify-between gap-2">
       <div>
@@ -86,6 +86,10 @@ const targetHref = computed(() => {
       <template v-else>
         {{ $t('staff.assign.free') }}
       </template>
+    </p>
+    <p v-if="ticket.foodToPay > 0" class="mt-2 flex items-center gap-1 text-sm font-bold text-sky-800" data-test="ticket-food-to-pay">
+      <UIcon name="i-lucide-banknote" class="size-4 shrink-0" aria-hidden="true" />
+      {{ $t('staff.ticket.foodToPay', { n: ticket.foodToPay }) }}
     </p>
     <ReadyBadges v-if="hasReady" :ready="ticket.ready" class="mt-2 text-rose-700" data-test="ticket-ready" />
     <p v-if="ticket.lockedBy" class="mt-2 flex items-center gap-1 text-xs font-semibold text-amber-700">

@@ -2,14 +2,17 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { navigateTo } from '#imports'
 import { useAuthStore } from '~/stores/auth'
-import { useProductionStore } from '~/stores/production'
+import { useProductionStore, type ProductionOrderGroup } from '~/stores/production'
 import { usePolling } from '~/composables/usePolling'
-import QueueItem from '~/components/production/QueueItem.vue'
 import OrderCard from '~/components/production/OrderCard.vue'
+import LanesView from '~/components/production/LanesView.vue'
 import StationFilter from '~/components/production/StationFilter.vue'
 import SoldOutPanel from '~/components/production/SoldOutPanel.vue'
 import StaleBanner from '~/components/common/StaleBanner.vue'
+import WaiterCalls from '~/components/staff/WaiterCalls.vue'
+import { useBranding } from '~/composables/useBranding'
 import { useAttention } from '~/composables/useAttention'
+import { groupLabel } from '~/utils/production-card'
 import { createSeenTracker } from '~/utils/arrivals'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 
@@ -27,19 +30,9 @@ const UNDO_MS = 6000
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 const isAdmin = computed(() => auth.staff?.role === 'admin')
+// Tables calling for the service show on the bar screen: every waiter passes it.
+const { branding } = useBranding()
 
-// "orders" = one card per order (default), "items" = one tile per item.
-// Remembered per device; storage may be unavailable (private mode).
-type View = 'orders' | 'items'
-const VIEW_KEY = 'production-view'
-const view = ref<View>('orders')
-function setView(v: View) {
-  view.value = v
-  try {
-    localStorage.setItem(VIEW_KEY, v)
-  }
-  catch { /* not remembered, still works */ }
-}
 const finishingIds = ref<Set<string>>(new Set())
 
 const effectiveStation = computed<Station | undefined>(() => {
@@ -47,6 +40,12 @@ const effectiveStation = computed<Station | undefined>(() => {
   if (isAdmin.value) return adminStation.value
   return undefined
 })
+
+// With buzzers the screen shows their lanes instead of the views.
+const lanesActive = computed(() => production.lanes.length > 0)
+
+// A drink is ready in seconds: the bar skips "Start".
+const oneStep = computed(() => effectiveStation.value === 'bar')
 
 async function load() {
   await production.fetchQueue(isAdmin.value ? adminStation.value : undefined)
@@ -76,10 +75,6 @@ onMounted(async () => {
     await navigateTo('/staff')
     return
   }
-  try {
-    if (localStorage.getItem(VIEW_KEY) === 'items') view.value = 'items'
-  }
-  catch { /* default view */ }
   await loadQuietly()
 })
 
@@ -115,76 +110,64 @@ async function onUndo() {
   }
 }
 
-async function onAdvance(orderItemId: string, next: 'in_progress' | 'done') {
-  if (busyIds.value.has(orderItemId)) return
-  const ids = new Set(busyIds.value)
-  ids.add(orderItemId)
-  busyIds.value = ids
-  const item = production.queue.find((i) => i.orderItemId === orderItemId)
-  try {
-    await production.advance(orderItemId, next)
-    if (next === 'done' && item) showToast('success', t('production.toastDone'), [item])
-    else showToast('success', t('production.toastStarted'))
-  }
-  catch {
-    showToast('error', t('production.toastFailed'))
-  }
-  finally {
-    const after = new Set(busyIds.value)
-    after.delete(orderItemId)
-    busyIds.value = after
-  }
+// Several ids when the card shows a merged line: one toast, one undo for all.
+async function onAdvance(orderItemIds: string[], next: 'in_progress' | 'done') {
+  const ids = orderItemIds.filter((id) => !busyIds.value.has(id))
+  if (ids.length === 0) return
+  busyIds.value = new Set([...busyIds.value, ...ids])
+  const items = production.queue.filter((i) => ids.includes(i.orderItemId))
+  const results = await Promise.allSettled(ids.map((id) => production.advance(id, next)))
+  const ok = items.filter((i) => results[ids.indexOf(i.orderItemId)]!.status === 'fulfilled')
+  if (ok.length < ids.length) showToast('error', t('production.toastFailed'))
+  else if (next === 'done') showToast('success', t('production.toastDone'), ok)
+  else showToast('success', t('production.toastStarted'))
+  const after = new Set(busyIds.value)
+  for (const id of ids) after.delete(id)
+  busyIds.value = after
 }
 
-async function onFinish(orderId: string) {
-  if (finishingIds.value.has(orderId)) return
-  finishingIds.value = new Set([...finishingIds.value, orderId])
-  try {
-    const done = await production.finishOrder(orderId, isAdmin.value ? adminStation.value : undefined)
-    showToast('success', t('production.toastDone'), done)
-  }
-  catch {
-    showToast('error', t('production.toastFailed'))
-  }
-  finally {
-    const after = new Set(finishingIds.value)
-    after.delete(orderId)
-    finishingIds.value = after
-  }
+// One card can hold several orders of a table: finish each of them.
+// From a buzzer the toast names the card, as nobody looked at the screen.
+async function onFinish(group: ProductionOrderGroup, named = false) {
+  if (finishingIds.value.has(group.key)) return
+  finishingIds.value = new Set([...finishingIds.value, group.key])
+  const results = await Promise.allSettled(group.orderIds.map((id) =>
+    production.finishOrder(id, isAdmin.value ? adminStation.value : undefined)))
+  const done = results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
+  if (results.some((r) => r.status === 'rejected')) showToast('error', t('production.toastFailed'))
+  else showToast('success', named ? t('production.toastDoneFor', { label: groupLabel(group, t) }) : t('production.toastDone'), done)
+  const after = new Set(finishingIds.value)
+  after.delete(group.key)
+  finishingIds.value = after
+  // The server refills a freed lane on the next poll: ask now, not in 4 s.
+  if (lanesActive.value) await loadQuietly()
 }
 </script>
 
 <template>
-  <main class="mx-auto max-w-5xl px-4 py-6">
-    <header class="flex flex-wrap items-center justify-between gap-3">
-      <h1 class="text-2xl font-bold text-slate-900">
-        <StationFilter v-if="isAdmin" v-model="adminStation" />
-        <template v-else>
-          {{ $t(`common.station.${effectiveStation ?? 'kitchen'}`) }}
-        </template>
-      </h1>
-      <div class="inline-flex gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.viewLabel')">
-        <button
-          v-for="v in (['orders', 'items'] as const)"
-          :key="v"
-          type="button"
-          class="min-h-[44px] rounded-full px-4 text-sm font-semibold"
-          :class="view === v ? 'bg-primary text-white' : 'text-slate-700 hover:bg-slate-200'"
-          :aria-pressed="view === v"
-          @click="setView(v)"
-        >
-          {{ $t(`production.view.${v}`) }}
-        </button>
-      </div>
-    </header>
+  <main class="mx-auto px-4 py-3" :class="lanesActive ? 'max-w-none pb-0' : 'max-w-5xl'">
+    <!-- Title and "sold out" sit in the app bar: the screen is for orders. -->
+    <ClientOnly>
+      <Teleport to="#page-title">
+        <h1 class="truncate text-xl font-extrabold text-slate-900">
+          <StationFilter v-if="isAdmin" v-model="adminStation" />
+          <template v-else>
+            {{ $t(`common.station.${effectiveStation ?? 'kitchen'}`) }}
+          </template>
+        </h1>
+      </Teleport>
+      <Teleport to="#page-tools">
+        <SoldOutPanel
+          :key="effectiveStation"
+          :station="isAdmin ? adminStation : undefined"
+          @result="(ok) => showToast(ok ? 'success' : 'error', ok ? t('production.soldOut.saved') : t('production.toastFailed'))"
+        />
+      </Teleport>
+    </ClientOnly>
 
-    <StaleBanner :failed="production.syncFailed" :since="production.lastSyncAt" @retry="polling.refresh()" />
+    <StaleBanner :failed="production.syncFailed" :since="production.lastSyncAt" :error="production.syncError" @retry="polling.refresh()" />
 
-    <SoldOutPanel
-      :key="effectiveStation"
-      :station="isAdmin ? adminStation : undefined"
-      @result="(ok) => showToast(ok ? 'success' : 'error', ok ? t('production.soldOut.saved') : t('production.toastFailed'))"
-    />
+    <WaiterCalls v-if="branding.waiterCallsEnabled && effectiveStation === 'bar'" bar />
 
     <p v-if="production.loading && production.queue.length === 0" class="mt-8 text-sm text-slate-500">
       {{ $t('production.loading') }}
@@ -193,24 +176,23 @@ async function onFinish(orderId: string) {
       {{ $t('production.empty') }}
     </p>
 
-    <ul v-else-if="view === 'orders'" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <li v-for="group in production.groups" :key="group.orderId">
+    <LanesView
+      v-else-if="lanesActive"
+      :groups="production.groups"
+      :lanes="production.lanes"
+      :finishing="finishingIds"
+      @finish="onFinish"
+    />
+
+    <ul v-else class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <li v-for="group in production.groups" :key="group.key">
         <OrderCard
           :group="group"
           :busy-ids="busyIds"
-          :finishing="finishingIds.has(group.orderId)"
-          @advance="(id, n) => onAdvance(id, n)"
-          @finish="onFinish(group.orderId)"
-        />
-      </li>
-    </ul>
-
-    <ul v-else class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <li v-for="item in production.queue" :key="item.orderItemId">
-        <QueueItem
-          :item="item"
-          :busy="busyIds.has(item.orderItemId)"
-          @advance="(n) => onAdvance(item.orderItemId, n)"
+          :finishing="finishingIds.has(group.key)"
+          :one-step="oneStep"
+          @advance="(ids, n) => onAdvance(ids, n)"
+          @finish="onFinish(group)"
         />
       </li>
     </ul>
@@ -218,8 +200,8 @@ async function onFinish(orderId: string) {
     <transition name="fade">
       <div
         v-if="toast"
-        class="fixed bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow-lg"
-        :class="toast.kind === 'success' ? 'bg-success' : 'bg-danger'"
+        class="fixed left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow-lg"
+        :class="[toast.kind === 'success' ? 'bg-success' : 'bg-danger', lanesActive ? 'top-2' : 'bottom-6']"
         role="status"
       >
         <UIcon :name="toast.kind === 'success' ? 'i-lucide-circle-check' : 'i-lucide-circle-alert'" class="size-4 shrink-0" aria-hidden="true" />

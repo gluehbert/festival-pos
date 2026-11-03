@@ -4,6 +4,7 @@ import TableAssignment from '~/components/staff/TableAssignment.vue'
 import { useAuthStore } from '~/stores/auth'
 import { useTicketsStore } from '~/stores/tickets'
 import { useCookie } from './setup/imports'
+import { apiFailure } from './setup/api-error'
 
 const ANNA = { staffId: '00000000-0000-4000-8000-00000000000a', username: 'anna' }
 const BEN = { staffId: '00000000-0000-4000-8000-00000000000b', username: 'ben' }
@@ -16,10 +17,7 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllGlobals())
 
-const taken = (assignee: typeof BEN, nested = false) => {
-  const payload = { code: 'TABLE_TAKEN', message: 'held', details: { assignee } }
-  return { statusCode: 409, data: nested ? { statusCode: 409, data: payload } : payload }
-}
+const taken = (assignee: typeof BEN) => apiFailure(409, 'TABLE_TAKEN', { message: 'held', details: { assignee } })
 
 describe('tickets store: assignments', () => {
   it('keeps assignments and table range from the poll', async () => {
@@ -44,8 +42,6 @@ describe('tickets store: assignments', () => {
     expect(s.assignments.map((a) => [a.tableNo, a.username])).toEqual([[3, 'anna']])
 
     fetchMock.mockRejectedValueOnce(taken(BEN))
-    expect(await s.assign(4)).toEqual({ ok: false, heldBy: BEN })
-    fetchMock.mockRejectedValueOnce(taken(BEN, true))
     expect(await s.assign(4)).toEqual({ ok: false, heldBy: BEN })
     fetchMock.mockRejectedValueOnce(new Error('offline'))
     expect(await s.assign(4)).toEqual({ ok: false, heldBy: null })

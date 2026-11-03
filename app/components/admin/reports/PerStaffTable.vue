@@ -18,7 +18,7 @@ const { euro: fmtEur } = useFormat()
           {{ $t('admin.reports.col.paymentCount', 'Payments') }}
         </th>
         <th class="py-2 pr-3 text-right">
-          {{ $t('admin.reports.col.refunded') }}
+          {{ $t('admin.reports.col.refundedPaidOut') }}
         </th>
         <th class="py-2 pr-3 text-right">
           {{ $t('admin.reports.col.netCash') }}

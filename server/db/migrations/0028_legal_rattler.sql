@@ -1,0 +1,4 @@
+ALTER TABLE "audit_log" DROP CONSTRAINT "audit_log_action_chk";--> statement-breakpoint
+ALTER TABLE "events" ADD COLUMN "guest_open_limit_bar_cents" integer DEFAULT 5000;--> statement-breakpoint
+ALTER TABLE "events" ADD COLUMN "guest_open_limit_kitchen_cents" integer DEFAULT 8000;--> statement-breakpoint
+ALTER TABLE "audit_log" ADD CONSTRAINT "audit_log_action_chk" CHECK ("audit_log"."action" IN ('payment','void','event_activate','menu_availability','staff_create','staff_update','refund','event_trial','cash_open','cash_close','deposit_return','staff_meal','price_rule_create','price_rule_update','price_rule_delete','event_trial_data_delete','event_create','event_update','menu_item_create','menu_item_update','menu_import','asset_upload','asset_delete','table_takeover','table_release','passkey_add','passkey_remove','event_end','event_delete','guest_sessions_end'));

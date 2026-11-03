@@ -28,7 +28,10 @@ const GUEST_COOKIE = 'pos_guest'
 // Waiting-room token of a helper who joined by link (lib/staff-join.ts).
 const JOIN_COOKIE = 'pos_join'
 const STAFF_MAX_AGE = 60 * 60 * 12
-const GUEST_MAX_AGE = 60 * 60 * 24 * 7
+// A guest phone orders for one festival day; afterwards the QR code on the
+// table has to be scanned again (lib/guest-session.ts).
+const GUEST_MAX_AGE = 60 * 60 * 12
+export const GUEST_SESSION_MS = GUEST_MAX_AGE * 1000
 
 function getSecret(): Uint8Array {
   const secret = serverEnv().jwtSecret

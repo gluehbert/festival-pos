@@ -5,6 +5,8 @@ import EventTrialPanel from '~/components/admin/EventTrialPanel.vue'
 import EventEndPanel from '~/components/admin/EventEndPanel.vue'
 import EventDeletePanel from '~/components/admin/EventDeletePanel.vue'
 import EventFeaturesPanel from '~/components/admin/EventFeaturesPanel.vue'
+import EventTablesPanel from '~/components/admin/EventTablesPanel.vue'
+import GuestLimitsPanel from '~/components/admin/GuestLimitsPanel.vue'
 import { useAdminToast } from '~/composables/useAdminPage'
 import { useAdminStore } from '~/stores/admin'
 import type { EventDto } from '~/../server/lib/contracts/admin'
@@ -64,9 +66,23 @@ onMounted(() => {
 
     <section class="rounded border border-slate-200 bg-surface">
       <h2 class="px-4 pt-4 text-sm font-semibold text-slate-700">
+        {{ $t('admin.tables.title') }}
+      </h2>
+      <EventTablesPanel :event="event" @saved="toast.success" @failed="toast.failure" />
+    </section>
+
+    <section class="rounded border border-slate-200 bg-surface">
+      <h2 class="px-4 pt-4 text-sm font-semibold text-slate-700">
         {{ $t('admin.features.title') }}
       </h2>
       <EventFeaturesPanel :event="event" @saved="toast.success" @failed="toast.failure" />
+    </section>
+
+    <section class="rounded border border-slate-200 bg-surface">
+      <h2 class="px-4 pt-4 text-sm font-semibold text-slate-700">
+        {{ $t('admin.guestLimits.title') }}
+      </h2>
+      <GuestLimitsPanel :event="event" @saved="toast.success" @failed="toast.failure" />
     </section>
 
     <section class="rounded border border-slate-200 bg-surface">

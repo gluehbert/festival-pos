@@ -6,6 +6,7 @@ import { useTicketsStore } from '~/stores/tickets'
 import { useApi } from '~/composables/useApi'
 import { usePolling } from '~/composables/usePolling'
 import StaleBanner from '~/components/common/StaleBanner.vue'
+import ShiftEndPanel from '~/components/staff/ShiftEndPanel.vue'
 import type { Assignee, Team } from '~/../server/lib/contracts/tables'
 
 // "Tische verteilen": at the start of a shift the lead picks a person, then
@@ -80,7 +81,7 @@ function tileClass(tableNo: number): string {
     <h1 class="mt-2 text-2xl font-bold text-slate-900">
       {{ $t('staff.distribute.title') }}
     </h1>
-    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" @retry="polling.refresh()" />
+    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" :error="tickets.syncError" @retry="polling.refresh()" />
 
     <h2 class="mt-4 text-base font-semibold text-slate-900">
       {{ $t('staff.distribute.pickPerson') }}
@@ -132,5 +133,7 @@ function tileClass(tableNo: number): string {
         </button>
       </li>
     </ul>
+
+    <ShiftEndPanel />
   </main>
 </template>

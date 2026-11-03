@@ -26,9 +26,68 @@ export const ProductionQueueItemSchema = z.object({
 })
 export type ProductionQueueItem = z.infer<typeof ProductionQueueItemSchema>
 
+// One card on the screen: all open items of a table at a station; counter
+// sales and helper meals have no table and keep one card per order.
+export function productionGroupKey(item: Pick<ProductionQueueItem, 'orderKind' | 'tableNo' | 'orderId'>): string {
+  const atTable = item.orderKind === 'guest' || item.orderKind === 'staff_table'
+  return atTable ? `table:${item.tableNo}` : `order:${item.orderId}`
+}
+
+// With buzzer lanes a later round of a table becomes a card of its own, so a
+// buzzer never finishes what nobody has seen: only an order placed within
+// this time after the card's first order joins the card.
+export const LANE_ROUND_MS = 60_000
+
+// The cards of the queue (items oldest first). Without `roundMs` all open
+// items of a table form one card; with it, a later order starts a new one.
+export function productionCards(
+  items: readonly ProductionQueueItem[],
+  roundMs?: number,
+): Array<{ key: string; items: ProductionQueueItem[] }> {
+  const cards: Array<{ key: string; start: number; items: ProductionQueueItem[] }> = []
+  const latest = new Map<string, (typeof cards)[number]>()
+  for (const item of items) {
+    const base = productionGroupKey(item)
+    const at = Date.parse(item.orderedAt)
+    let card = latest.get(base)
+    if (card && roundMs !== undefined && !card.items.some((i) => i.orderId === item.orderId) && at - card.start > roundMs) card = undefined
+    if (!card) {
+      card = { key: roundMs === undefined ? base : `${base}:${item.orderId}`, start: at, items: [] }
+      cards.push(card)
+      latest.set(base, card)
+    }
+    card.items.push(item)
+  }
+  return cards.map(({ key, items }) => ({ key, items }))
+}
+
+// Buzzers of a station: one-key keyboards (KeyboardEvent.key), each with its
+// own lane on the station's screen, in list order (lane 1 green, 2 blue,
+// 3 amber, 4 violet). More lanes would not fit next to "Next up".
+export const BUZZERS_PER_STATION = 4
+export const StationBuzzersSchema = z.object({ kitchen: z.array(z.string()), bar: z.array(z.string()) })
+export type StationBuzzers = z.infer<typeof StationBuzzersSchema>
+export const SetStationBuzzersSchema = z.object({
+  station: StationEnum,
+  keys: z.array(z.string().min(1).max(32)).max(BUZZERS_PER_STATION)
+    .refine((keys) => new Set(keys).size === keys.length, 'Each buzzer needs its own key'),
+})
+export type SetStationBuzzers = z.infer<typeof SetStationBuzzersSchema>
+
+// Buzzer lanes of the station: the buzzer's key, the card the lane holds and
+// since when (items ordered later are new to it).
+export const ProductionLaneSchema = z.object({
+  lane: z.number().int().min(1).max(BUZZERS_PER_STATION),
+  key: z.string(),
+  groupKey: z.string().nullable(),
+  assignedAt: z.string().datetime().nullable(),
+})
+export type ProductionLane = z.infer<typeof ProductionLaneSchema>
+
 export const ProductionQueueSchema = z.object({
   station: StationEnum,
   items: z.array(ProductionQueueItemSchema),
+  lanes: z.array(ProductionLaneSchema),
 })
 export type ProductionQueue = z.infer<typeof ProductionQueueSchema>
 

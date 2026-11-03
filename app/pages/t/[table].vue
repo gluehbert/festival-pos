@@ -12,9 +12,12 @@ import CartSummary from '~/components/guest/CartSummary.vue'
 import OrderConfirmation from '~/components/guest/OrderConfirmation.vue'
 import EventInfo from '~/components/guest/EventInfo.vue'
 import OrderStatus from '~/components/guest/OrderStatus.vue'
+import CallWaiter from '~/components/guest/CallWaiter.vue'
 import { useBranding } from '~/composables/useBranding'
 import { useFormat } from '~/composables/useFormat'
 import { newIdempotencyKey } from '~/utils/idempotency'
+import { apiError } from '~/utils/api-error'
+import { orderError } from '~/utils/order-error'
 import { snapshotLines, toOrderItems } from '~/utils/order-lines'
 import { priceChanges, type PriceChange } from '~/utils/price-changes'
 import { GUEST_MAX_ITEMS_PER_ORDER, type Order, type SessionOrders } from '~/../server/lib/contracts/guest'
@@ -22,7 +25,7 @@ import { GUEST_MAX_ITEMS_PER_ORDER, type Order, type SessionOrders } from '~/../
 const route = useRoute()
 const { t } = useI18n()
 const { branding, dates } = useBranding()
-const { itemName } = useFormat()
+const { euro, itemName } = useFormat()
 const tableNo = computed(() => Number.parseInt(String(route.params.table ?? '0'), 10))
 
 const menu = useMenuStore()
@@ -31,6 +34,8 @@ const guest = useGuestSession()
 const api = useApi()
 
 const lastOrder = ref<Order | null>(null)
+// Food prepay: the order holds food that waits for the waiter to cash it.
+const lastOrderFoodWaits = ref(false)
 // Booked prices that differ from the cart (a promotion started or ended).
 const changedPrices = ref<PriceChange[]>([])
 const submitting = ref(false)
@@ -59,6 +64,11 @@ async function ensureSession(): Promise<boolean> {
     await navigateTo({ path: '/', query: { table: tableNo.value } })
     return false
   }
+  // The key leaves the address bar: once the session has ended (after 12 h
+  // or at the end of a shift), reloading this page does not open a new one;
+  // the guest scans the QR code on the table again.
+  const { k: _key, ...query } = route.query
+  await navigateTo({ path: route.path, query }, { replace: true })
   await guest.load()
   return true
 }
@@ -69,19 +79,6 @@ async function ensureSession(): Promise<boolean> {
 let orderKey = ''
 let orderKeyBody = ''
 
-type OrderError = 'network' | 'tooMany' | 'tooLarge' | 'sessionExpired' | 'unavailable' | 'generic'
-
-function orderError(e: unknown): OrderError {
-  const err = e as { statusCode?: number; status?: number; data?: { code?: string; message?: string } }
-  const status = err.statusCode ?? err.status
-  if (status === undefined) return 'network'
-  if (err.data?.code === 'RATE_LIMITED') return 'tooMany'
-  if (err.data?.code === 'ORDER_TOO_LARGE') return 'tooLarge'
-  if (status === 401) return 'sessionExpired'
-  if (/not available/i.test(err.data?.message ?? '')) return 'unavailable'
-  return 'generic'
-}
-
 async function submitOrder() {
   if (cart.isEmpty) return
   submitting.value = true
@@ -91,6 +88,7 @@ async function submitOrder() {
     items: toOrderItems(cart.lines),
   }
   const sent = snapshotLines(cart.lines)
+  const hasFood = cart.lines.some((l) => l.menuItem.station === 'kitchen')
   const bodyJson = JSON.stringify(body)
   if (bodyJson !== orderKeyBody) {
     orderKey = newIdempotencyKey()
@@ -100,6 +98,7 @@ async function submitOrder() {
     const order = await api.post<Order>('/api/orders', body, { headers: { 'idempotency-key': orderKey }, ...begin() })
     changedPrices.value = priceChanges(cart.lines, order.items)
     lastOrder.value = order
+    lastOrderFoodWaits.value = branding.value.foodPrepayEnabled && hasFood
     orderKeyBody = ''
     // Cart changes made while sending stay for the next order.
     cart.clearSent(sent)
@@ -109,11 +108,15 @@ async function submitOrder() {
   }
   catch (e: unknown) {
     const kind = orderError(e)
-    submitError.value = t(`guest.errors.${kind}`, { max: GUEST_MAX_ITEMS_PER_ORDER })
+    const { details } = apiError<{ station?: string; limitCents?: number; menuItemIds?: string[] }>(e)
+    if (kind === 'openLimit') {
+      submitError.value = t(`guest.errors.openLimit.${details?.station === 'kitchen' ? 'kitchen' : 'bar'}`, { amount: euro(details?.limitCents ?? 0) })
+    }
+    else submitError.value = t(`guest.errors.${kind}`, { max: GUEST_MAX_ITEMS_PER_ORDER })
     // Sold out meanwhile: take the articles off the menu (and so the cart),
     // else load the current menu.
     if (kind === 'unavailable') {
-      const ids = (e as { data?: { details?: { menuItemIds?: string[] } } }).data?.details?.menuItemIds ?? []
+      const ids = details?.menuItemIds ?? []
       if (ids.length > 0) menu.markSoldOut(ids)
       else void menu.refresh()
     }
@@ -177,6 +180,8 @@ watch(() => menu.items, (items) => {
 
     <EventInfo :branding="branding" />
 
+    <CallWaiter v-if="branding.waiterCallsEnabled && guest.session.value" />
+
     <OrderStatus v-if="polling.data.value?.items.length" :orders="polling.data.value" />
 
     <section v-if="lastOrder" aria-live="polite">
@@ -184,6 +189,7 @@ watch(() => menu.items, (items) => {
         ref="confirmationHeading"
         :order="lastOrder"
         :changes="changedPrices"
+        :food-waits="lastOrderFoodWaits"
         @new-order="lastOrder = null"
       />
     </section>

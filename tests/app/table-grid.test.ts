@@ -20,7 +20,7 @@ const stubs = { NuxtLink: RouterLinkStub }
 function ticket(over: Partial<TicketSummary> = {}): TicketSummary {
   return {
     ticketKey: 't-4', tableNo: 4, status: 'open', totalCents: 800, unpaidCents: 800, lockedBy: null,
-    ready: { kitchen: 0, bar: 0 }, oldestItemAt: ago(5), lastOrderAt: ago(5), lastCheckAt: null, assignee: null, ...over,
+    ready: { kitchen: 0, bar: 0 }, foodToPay: 0, oldestItemAt: ago(5), lastOrderAt: ago(5), lastCheckAt: null, assignee: null, ...over,
   }
 }
 const held = (tableNo: number, who = ANNA): TableAssignment => ({ tableNo, ...who, assignedAt: ago(1) })
@@ -34,6 +34,8 @@ describe('table grid helpers', () => {
     expect(tileState(ticket({ lastOrderAt: ago(40), lastCheckAt: ago(3) }), NOW)).toBe('busy')
     expect(tileState(ticket({ lastOrderAt: ago(40), ready: { kitchen: 1, bar: 0 } }), NOW)).toBe('ready')
     expect(tileState(ticket({ status: 'paid', unpaidCents: 0 }), NOW)).toBe('free')
+    // Food prepay: the kitchen waits for the money, so cashing comes first.
+    expect(tileState(ticket({ foodToPay: 2, ready: { kitchen: 0, bar: 1 } }), NOW)).toBe('pay')
   })
 
   it('lists the whole range plus served tables outside it, without walk-ins', () => {
@@ -145,6 +147,12 @@ describe('TableTile and TableGrid', () => {
     expect(ready.find('[data-test="tile-mine"]').exists()).toBe(true)
     expect(ready.text()).toContain('staff.grid.state.ready:{"n":3}')
     expect(ready.text()).not.toContain('anna')
+
+    const pay = mount(TableTile, {
+      props: { tile: { tableNo: 7, state: 'pay', ticket: ticket({ foodToPay: 2 }), assignee: ANNA }, mine: true, nowMs: NOW },
+      global: { stubs },
+    })
+    expect(pay.text()).toContain('staff.grid.state.pay:{"n":2}')
 
     const free = mount(TableTile, { props: { tile: { tableNo: 6, state: 'free', ticket: null, assignee: null }, mine: false, nowMs: NOW }, global: { stubs } })
     expect(free.text()).toContain('staff.grid.state.free')

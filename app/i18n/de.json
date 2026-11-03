@@ -34,7 +34,11 @@
     "retry": "Erneut versuchen",
     "stale": {
       "since": "Keine Verbindung – Stand von {time}",
-      "never": "Keine Verbindung – noch keine Daten geladen"
+      "never": "Keine Verbindung – noch keine Daten geladen",
+      "noEvent": "Kein aktives Fest – nichts zu laden",
+      "server": "Serverfehler – Daten konnten nicht geladen werden",
+      "schema": "App-Version und Datenbank passen nicht zusammen – bitte Admin informieren",
+      "lastSync": "Stand von {time}"
     },
     "note": {
       "label": "Notiz",
@@ -115,7 +119,7 @@
       "title": "Speisekarte",
       "menuHeading": "Speisekarte",
       "statusHeading": "Status deiner Bestellungen",
-      "statusReady": "{count} fertig"
+      "statusReady": "{count} auf dem Weg"
     },
     "menu": {
       "loading": "Lade Speisekarte …",
@@ -154,13 +158,15 @@
       "title": "Bestellung eingegangen!",
       "orderId": "Bestell-Nr",
       "tableBalance": "Tischsumme",
-      "newOrder": "Weitere Bestellung"
+      "newOrder": "Weitere Bestellung",
+      "foodWaits": "Dein Essen geht an die Küche, sobald du es bezahlt hast. Die Bedienung kommt zu dir. Getränke bezahlst du beim Bringen."
     },
     "production": {
       "pending": "Eingegangen",
       "in_progress": "In Zubereitung",
-      "done": "Fertig",
-      "cancelled": "Storniert"
+      "done": "Wird gebracht",
+      "cancelled": "Storniert",
+      "awaitingPayment": "wartet auf Zahlung"
     },
     "errors": {
       "generic": "Etwas ist schiefgelaufen.",
@@ -168,7 +174,11 @@
       "unavailable": "Nicht bestellt: Etwas ist inzwischen ausverkauft. Bitte Warenkorb prüfen und erneut bestellen.",
       "tooMany": "Von diesem Tisch kamen gerade sehr viele Bestellungen. Bitte kurz warten oder die Bedienung ansprechen.",
       "tooLarge": "So viele Artikel auf einmal gehen nicht online (höchstens {max}). Bitte aufteilen oder die Bedienung ansprechen.",
-      "sessionExpired": "Deine Sitzung ist abgelaufen. Bitte den QR-Code auf dem Tisch neu scannen."
+      "sessionExpired": "Deine Sitzung ist abgelaufen. Bitte den QR-Code auf dem Tisch neu scannen.",
+      "openLimit": {
+        "bar": "Pro Handy können Getränke für höchstens {amount} bestellt und noch nicht bezahlt sein. Bitte erst bei der Bedienung bezahlen oder weniger bestellen.",
+        "kitchen": "Pro Handy kann Essen für höchstens {amount} bestellt und noch nicht bezahlt sein. Bitte erst bei der Bedienung bezahlen oder weniger bestellen."
+      }
     },
     "languageSwitcher": {
       "label": "Sprache wählen"
@@ -179,6 +189,21 @@
       "flyerAlt": "Flyer: {name}",
       "logoAlt": "Logo: {name}",
       "dates": "Veranstaltungsdatum"
+    },
+    "call": {
+      "button": "Bedienung rufen",
+      "ask": "Worum geht es?",
+      "reasons": {
+        "pay": "Bezahlen",
+        "order": "Bestellen",
+        "question": "Frage"
+      },
+      "cancel": "Abbrechen",
+      "waiting": "Die Bedienung weiß Bescheid ({reason}).",
+      "coming": "Die Bedienung ist auf dem Weg zu euch.",
+      "paused": "Die Bedienung war gerade bei euch. In ein paar Minuten könnt ihr wieder rufen.",
+      "tooSoon": "Euer Tisch hat gerade erst gerufen. Bitte einen Moment warten.",
+      "failed": "Das hat nicht geklappt. Bitte noch einmal versuchen."
     }
   },
   "staff": {
@@ -229,11 +254,14 @@
       "served_kitchen": "Essen gebracht",
       "served_bar": "Getränke gebracht",
       "servedHint": "Verschwindet beim Kassieren von selbst.",
-      "empty": "Noch nichts bestellt"
+      "empty": "Noch nichts bestellt",
+      "foodToPay": "{n} Essen warten auf Zahlung: Die Küche beginnt, sobald es kassiert ist.",
+      "payFood": "Essen kassieren"
     },
     "pay": {
       "back": "Zurück",
       "title": "Kassieren",
+      "byOrder": "Nach Bestellung bezahlen",
       "selectAll": "Alles auswählen",
       "locked": "Gesperrt durch {user}. Bitte warten oder Auto-Release abwarten.",
       "lockedSelf": "Dieser Tisch wird gerade kassiert, bitte kurz warten",
@@ -281,12 +309,13 @@
       "confirm": "Stornieren",
       "cancel": "Abbrechen",
       "errorTooShort": "Grund muss mind. 3 Zeichen lang sein.",
-      "errorPaid": "Bereits bezahlte Positionen können nicht storniert werden – bitte über „Erstatten“ (Admin).",
+      "errorPaid": "Bereits bezahlte Positionen können nicht storniert werden – bitte über „Erstatten“ (Schichtleitung oder Admin).",
       "button": "Storno",
-      "errorAdminOnly": "Diese Position ist schon fertig oder serviert. Stornieren darf sie nur ein Admin.",
+      "errorAdminOnly": "Diese Position ist schon fertig oder serviert. Stornieren darf sie nur die Schichtleitung oder ein Admin.",
       "errorCancelled": "Diese Position ist bereits storniert.",
       "errorConflict": "Die Position hat sich gerade geändert. Bitte neu laden und erneut versuchen.",
-      "errorNotFound": "Position nicht gefunden – gehört sie zu einem anderen Fest?"
+      "errorNotFound": "Position nicht gefunden – gehört sie zu einem anderen Fest?",
+      "notOrdered": "Nicht vom Tisch bestellt"
     },
     "errors": {
       "generic": "Etwas ist schiefgelaufen.",
@@ -307,13 +336,17 @@
       "hoursAgo": "vor {h} Std. {m} Min.",
       "openJustNow": "offen seit eben",
       "openSince": "offen seit {n} Min.",
-      "openSinceHours": "offen seit {h} Std. {m} Min."
+      "openSinceHours": "offen seit {h} Std. {m} Min.",
+      "device": "Handy {n}",
+      "foodToPay": "Essen kassieren ({n})"
     },
     "refund": {
       "button": "Erstatten",
       "title": "Bezahlte Position erstatten",
       "confirm": "Erstatten",
-      "hint": "Der Betrag wird bar zurückgegeben und aus Umsatz und Kassenstand der Servicekraft herausgerechnet."
+      "hint": "Der Betrag wird aus deiner Kasse genommen.",
+      "needsDrawer": "Öffne zuerst deine Kasse, dann erstatte.",
+      "toCash": "Zur Kasse"
     },
     "order": {
       "title": "Bestellung aufnehmen",
@@ -330,8 +363,20 @@
       "soldOutRemoved": "Ausverkauft, vom Block genommen: {items}",
       "linesTitle": "Positionen & Notizen",
       "linesEmpty": "Noch nichts ausgewählt.",
-      "blockTable": "Bitte zuerst die Tischnummer eingeben.",
-      "blockMealReason": "Bitte einen Grund eingeben (mind. 3 Zeichen)."
+      "blockMealReason": "Bitte einen Grund eingeben (mind. 3 Zeichen).",
+      "sendAndPayFood": "Senden & Essen bar kassiert",
+      "picker": {
+        "title": "Für welchen Tisch?",
+        "mine": "Meine ({n})",
+        "all": "Alle",
+        "other": "Andere Nr.",
+        "ok": "OK",
+        "keep": "Bei Tisch {n} bleiben",
+        "change": "ändern",
+        "changeAria": "Tisch {n} – Tisch ändern",
+        "tileAria": "Tisch {n}, {state}",
+        "tileMineAria": "Tisch {n}, mein Tisch, {state}"
+      }
     },
     "activity": {
       "order": "Letzte Bestellung {age}",
@@ -347,7 +392,7 @@
       "refresh": "Aktualisieren",
       "opening": "Anfangsbestand",
       "collected": "Kassiert",
-      "refunded": "Erstattungen",
+      "refunded": "Erstattet (ausgezahlt)",
       "expected": "Soll",
       "counted": "Gezählt",
       "difference": "Differenz",
@@ -449,13 +494,15 @@
         "free": "leer",
         "busy": "in Arbeit",
         "ready": "bringen",
-        "late": "lange nichts gehört"
+        "late": "lange nichts gehört",
+        "pay": "Essen kassieren"
       },
       "state": {
         "free": "leer",
         "busy": "in Arbeit",
         "ready": "{n} zum Bringen",
-        "late": "seit {n} Min. nichts"
+        "late": "seit {n} Min. nichts",
+        "pay": "Essen kassieren ({n})"
       },
       "none": "Keine Tische.",
       "noneMine": "Du hast noch keine Tische. Die Schichtleitung teilt sie dir zu. Bis dahin findest du unter „Alle“ jeden Tisch.",
@@ -518,7 +565,7 @@
       "title": "So geht’s",
       "order": {
         "title": "Bestellen",
-        "text": "„Neue Bestellung“ tippen, Tischnummer eingeben, Sachen antippen, „An Küche/Bar senden“."
+        "text": "„Neue Bestellung“ tippen, Tisch antippen, Sachen antippen, „An Küche/Bar senden“."
       },
       "bring": {
         "title": "Bringen",
@@ -542,6 +589,24 @@
         "guest": "Kunde"
       },
       "failed": "Anmelden hat nicht geklappt: {reason}"
+    },
+    "calls": {
+      "heading": "Tische rufen",
+      "table": "Tisch {table}",
+      "justNow": "gerade eben",
+      "waiting": "wartet seit {min} Min.",
+      "nobody": "keine Bedienung",
+      "onMyWay": "Bin unterwegs",
+      "passedOn": "Weitergegeben"
+    },
+    "shiftEnd": {
+      "title": "Schichtende",
+      "hint": "Meldet alle Gast-Handys ab. Wer danach bestellen will, scannt den QR-Code am Tisch neu. Bestellungen und Rechnungen bleiben, wie sie sind.",
+      "button": "Gast-Handys abmelden",
+      "confirmTitle": "Alle Gast-Handys abmelden?",
+      "confirmBody": "Gäste am Tisch scannen einfach den QR-Code neu. Handys, die nicht mehr auf dem Fest sind, können nicht mehr bestellen.",
+      "done": "Es war kein Gast-Handy angemeldet. | 1 Gast-Handy abgemeldet. | {n} Gast-Handys abgemeldet.",
+      "failed": "Das hat nicht geklappt. Bitte noch einmal versuchen."
     }
   },
   "admin": {
@@ -674,6 +739,8 @@
     },
     "reports": {
       "internalNote": "Interne Kontrolle, kein steuerlicher Kassenabschluss",
+      "asOf": "Stand {time}",
+      "refreshNow": "Jetzt aktualisieren",
       "exportCsv": "CSV exportieren",
       "empty": "Keine Daten im aktuellen Zeitraum.",
       "sections": {
@@ -704,12 +771,14 @@
         "hour": "Stunde",
         "orderCount": "Bestellungen",
         "refunded": "Erstattet",
+        "refundedPaidOut": "Erstattet (ausgezahlt)",
         "netCash": "Kasse netto",
         "tableCount": "Tische",
         "tables": "Tischnummern",
         "guestOrderCount": "davon per App",
         "tip": "Trinkgeld",
-        "tipCount": "Zahlungen mit Trinkgeld"
+        "tipCount": "Zahlungen mit Trinkgeld",
+        "table": "Tisch"
       },
       "cash": {
         "openedAt": "Geöffnet",
@@ -717,7 +786,7 @@
         "stillOpen": "noch offen",
         "opening": "Anfang",
         "collected": "Kassiert",
-        "refunded": "Erstattet",
+        "refunded": "Erstattet (ausgezahlt)",
         "expected": "Soll",
         "counted": "Gezählt",
         "difference": "Differenz",
@@ -969,6 +1038,13 @@
         "dates": "Das Enddatum liegt vor dem Startdatum."
       }
     },
+    "tables": {
+      "title": "Tische",
+      "hint": "Tische jederzeit hinzufügen oder entfernen, auch während der Veranstaltung. Ein Tisch mit offener Rechnung kann nicht entfernt werden.",
+      "save": "Tische speichern",
+      "saved": "Jetzt Tische {from}–{to}.",
+      "open": "Tische {tables} haben noch offene Rechnungen. Erst abrechnen."
+    },
     "features": {
       "title": "Funktionen",
       "saved": "Gespeichert.",
@@ -979,6 +1055,31 @@
       "staffMealsEnabled": {
         "label": "Helfer- / Personalessen",
         "hint": "Service kann kostenlose Bestellungen für Helfer buchen (mit Begründung)."
+      },
+      "waiterCallsEnabled": {
+        "label": "Bedienung rufen",
+        "hint": "Gäste können die Bedienung mit einem Grund an den Tisch rufen (bezahlen, bestellen, Frage). Zuerst sieht es die Bedienung des Tisches, nach 2 Minuten der ganze Service; der Bar-Bildschirm zeigt jeden Ruf. Aus: Der Button verschwindet."
+      },
+      "buzzer": {
+        "label": "Buzzer an Küche und Bar",
+        "hint": "Ein Buzzer ist ein großer Taster an der Ausgabe, der wie eine Tastatur mit einer Taste funktioniert (USB oder Bluetooth). Mit Buzzern zeigt der Bildschirm der Station eine Spur pro Buzzer: die älteste Bestellung, groß, für die Person an diesem Buzzer. Ein Druck schließt sie ab, und die Spur holt sich die nächste. Ein zweiter Druck innerhalb einer Sekunde wird ignoriert. Bis zu vier Buzzer pro Station.",
+        "lane": "Buzzer {n} – {color}",
+        "color": {
+          "green": "grün",
+          "blue": "blau",
+          "amber": "gelb",
+          "violet": "lila"
+        },
+        "add": "Buzzer hinzufügen",
+        "change": "Ändern",
+        "clear": "Entfernen",
+        "listening": "Jetzt den Buzzer drücken …",
+        "space": "Leertaste",
+        "sameKey": "Diese Taste nutzt schon ein anderer Buzzer dieser Station."
+      },
+      "foodPrepayEnabled": {
+        "label": "Essen bei Bestellung bezahlen",
+        "hint": "Die Küche bekommt Essen erst, wenn es bezahlt ist, so kann die Essensausgabe verteilen, ohne zu kassieren. Essen der Gäste (QR-Code) wartet, bis eine Bedienung es kassiert hat; der Tisch zeigt „Essen kassieren“. Getränke werden weiter beim Bringen bezahlt."
       }
     },
     "join": {
@@ -1036,6 +1137,16 @@
       "typeName": "Zur Bestätigung den Eventnamen eintippen: {name}",
       "confirm": "Endgültig löschen",
       "done": "Event gelöscht."
+    },
+    "guestLimits": {
+      "title": "Grenzen für Gastbestellungen",
+      "hint": "So viel darf ein Gast-Handy höchstens bestellt und noch nicht bezahlt haben, damit niemand im Vorbeigehen einen Tisch mit Bestellungen belädt. Bezahlte Bestellungen zählen nicht mehr. Leer = keine Grenze.",
+      "bar": "Getränke (Bar), €",
+      "kitchen": "Essen (Küche), €",
+      "none": "keine Grenze",
+      "save": "Grenzen speichern",
+      "saved": "Grenzen gespeichert.",
+      "invalid": "Bitte einen Betrag ab 1 € eingeben oder das Feld leer lassen."
     }
   },
   "errors": {},
@@ -1063,7 +1174,8 @@
     "myAccount": "Mein Konto"
   },
   "production": {
-    "start": "In Zubereitung",
+    "start": "Starten",
+    "preparing": "In Zubereitung",
     "done": "Fertig",
     "waiting": "seit {n} Min.",
     "toastDone": "Erledigt",
@@ -1072,25 +1184,46 @@
     "loading": "Lade Warteschlange …",
     "empty": "Keine offenen Positionen.",
     "counter": "Theke",
+    "orderNos": "Bestellungen {nos}",
     "finishOrder": "{label} komplett fertig",
-    "viewLabel": "Ansicht",
-    "view": {
-      "orders": "Nach Bestellung",
-      "items": "Einzeln"
-    },
     "soldOut": {
       "title": "Ausverkauft verwalten",
       "empty": "Keine Artikel für diese Station.",
       "stock": "Bestand: {n}",
       "markSoldOut": "Ausverkauft",
       "markAvailable": "Wieder da",
-      "saved": "Gespeichert"
+      "saved": "Gespeichert",
+      "short": "Ausverkauft"
     },
     "staffMeal": "Helfer",
     "undo": "Rückgängig",
     "toastUndone": "Wieder in Arbeit",
     "toastUndoFailed": "Rückgängig nicht möglich – schon serviert?",
-    "stationLabel": "Station wählen"
+    "stationLabel": "Station wählen",
+    "display": {
+      "label": "Anzeige",
+      "zoomLabel": "Zoom",
+      "zoomOut": "Verkleinern",
+      "zoomIn": "Vergrößern",
+      "fullscreen": "Vollbild",
+      "exitFullscreen": "Vollbild beenden",
+      "keepAwakeOn": "Bildschirm bleibt an",
+      "keepAwakeOff": "Bildschirm darf ausgehen"
+    },
+    "toastDoneFor": "{label} fertig",
+    "lanes": {
+      "buzzer1": "Grüner Buzzer",
+      "buzzer2": "Blauer Buzzer",
+      "buzzer3": "Gelber Buzzer",
+      "buzzer4": "Lila Buzzer",
+      "free": "Frei – die nächste Bestellung landet hier.",
+      "next": "Als Nächstes ({n})",
+      "followUp": "Nachbestellung",
+      "new": "Neu",
+      "more": "+{n} weitere",
+      "cut": "Nicht alles sichtbar – im Bildschirm-Menü (Monitor-Symbol oben) verkleinern.",
+      "minutes": "{n} Min."
+    }
   },
   "alerts": {
     "soundLabel": "Ton bei neuen Meldungen",

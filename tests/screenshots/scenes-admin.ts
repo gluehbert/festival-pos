@@ -33,3 +33,11 @@ export const adminReports: Scene = async (ctx) => {
   await page.getByRole('heading', { name: 'Revenue by category' }).waitFor()
   await ctx.shoot(page, 'admin-reports')
 }
+
+export const adminReportsAsOf: Scene = async (ctx) => {
+  await ensureService(ctx)
+  const page = await adminOnEvent(ctx, 'Reports')
+  await page.getByRole('button', { name: 'Refresh now' }).waitFor()
+  await page.getByText(/^As of \d{2}:\d{2}:\d{2}$/).waitFor()
+  await ctx.shoot(page, 'admin-reports-asof')
+}

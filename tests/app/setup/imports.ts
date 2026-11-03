@@ -1,5 +1,5 @@
 // Stand-ins for the Nuxt auto-imports used by app/ code under unit test.
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { vi } from 'vitest'
 
 export const locale = ref<'de' | 'en'>('en')
@@ -21,7 +21,11 @@ export function resetCookies() {
   cookies.clear()
 }
 
-export const useRuntimeConfig = () => ({ public: { version: 'abc1234' } })
+export const useRuntimeConfig = () => ({ app: { buildId: 'build-b' }, public: { version: 'abc1234' } })
+
+// $pwa stand-in from @vite-pwa/nuxt; tests flip needRefresh.
+export const pwa = reactive({ needRefresh: false, updateServiceWorker: vi.fn(async () => {}) })
+export const useNuxtApp = () => ({ $pwa: pwa })
 
 export const navigateTo = vi.fn(async () => {})
 
