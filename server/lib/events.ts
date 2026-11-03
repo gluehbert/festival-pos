@@ -48,6 +48,7 @@ export function toEventDto(row: Event, trialOrders: number): EventDto {
     staffMealsEnabled: row.staffMealsEnabled,
     waiterCallsEnabled: row.waiterCallsEnabled,
     foodPrepayEnabled: row.foodPrepayEnabled,
+    cafeClosed: row.cafeClosed,
     guestOpenLimitBarCents: row.guestOpenLimitBarCents,
     guestOpenLimitKitchenCents: row.guestOpenLimitKitchenCents,
   })

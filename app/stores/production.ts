@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { LANE_ROUND_MS, productionCards } from '~/../server/lib/contracts/production'
 import type {
+  CafeClosed,
   ProductionLane,
   ProductionOrderDoneResponse,
   ProductionQueue,
@@ -30,6 +31,8 @@ export const useProductionStore = defineStore('production', () => {
   const queue = ref<ProductionQueueItem[]>([])
   // Buzzer lanes; empty when the event has no buzzer.
   const lanes = ref<ProductionLane[]>([])
+  // Cafe counter closed: its coffee and cake now go to the kitchen.
+  const cafeClosed = ref(false)
   const loading = ref(false)
   const error = ref<unknown>(null)
   // Polling health, kept apart from `error` (which failed actions set too):
@@ -83,6 +86,7 @@ export const useProductionStore = defineStore('production', () => {
       station.value = res.station
       queue.value = withOverrides(res.items)
       lanes.value = res.lanes
+      cafeClosed.value = res.cafeClosed
       syncFailed.value = false
       lastSyncAt.value = Date.now()
     }
@@ -94,6 +98,12 @@ export const useProductionStore = defineStore('production', () => {
     finally {
       loading.value = false
     }
+  }
+
+  // The cafe counter closes after the Kaffeeklatsch or opens again.
+  async function setCafeClosed(closed: boolean): Promise<void> {
+    const res = await useApi().patch<CafeClosed>('/api/production/cafe', { closed })
+    cafeClosed.value = res.closed
   }
 
   async function advance(
@@ -170,5 +180,5 @@ export const useProductionStore = defineStore('production', () => {
     }
   }
 
-  return { station, queue, lanes, groups, loading, error, syncFailed, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
+  return { station, queue, lanes, cafeClosed, setCafeClosed, groups, loading, error, syncFailed, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
 })

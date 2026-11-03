@@ -8,6 +8,7 @@ import OrderCard from '~/components/production/OrderCard.vue'
 import LanesView from '~/components/production/LanesView.vue'
 import StationFilter from '~/components/production/StationFilter.vue'
 import SoldOutPanel from '~/components/production/SoldOutPanel.vue'
+import CafeCounterSwitch from '~/components/production/CafeCounterSwitch.vue'
 import StaleBanner from '~/components/common/StaleBanner.vue'
 import WaiterCalls from '~/components/staff/WaiterCalls.vue'
 import { useBranding } from '~/composables/useBranding'
@@ -157,6 +158,10 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
         </h1>
       </Teleport>
       <Teleport to="#page-tools">
+        <CafeCounterSwitch
+          v-if="effectiveStation === 'cafe'"
+          @result="(ok, closed) => showToast(ok ? 'success' : 'error', ok ? t(closed ? 'production.cafe.toastClosed' : 'production.cafe.toastOpened') : t('production.toastFailed'))"
+        />
         <SoldOutPanel
           :key="effectiveStation"
           :station="isAdmin ? adminStation : undefined"
@@ -168,6 +173,14 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
     <StaleBanner :failed="production.syncFailed" :since="production.lastSyncAt" @retry="polling.refresh()" />
 
     <WaiterCalls v-if="branding.waiterCallsEnabled && effectiveStation === 'bar'" bar />
+
+    <p
+      v-if="production.cafeClosed && (effectiveStation === 'cafe' || effectiveStation === 'kitchen')"
+      class="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900"
+      data-test="cafe-closed-banner"
+    >
+      {{ effectiveStation === 'cafe' ? $t('production.cafe.closedBanner') : $t('production.cafe.kitchenBanner') }}
+    </p>
 
     <p v-if="production.loading && production.queue.length === 0" class="mt-8 text-sm text-slate-500">
       {{ $t('production.loading') }}

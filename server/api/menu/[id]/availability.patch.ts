@@ -4,15 +4,16 @@ import { getDb } from '../../../db/client'
 import { auditLog, menuItems } from '../../../db/schema'
 import { AppError, sendAppError } from '../../../lib/errors'
 import { assertCsrf } from '../../../lib/csrf'
-import { requireRole, STATION_ROLES } from '../../../lib/rbac'
+import { isStationRole, requireRole, STATION_ROLES } from '../../../lib/rbac'
 import { requireActiveEvent } from '../../../lib/active-event'
 import { AdminMenuItemSchema, AvailabilityPatchSchema } from '../../../lib/contracts/admin'
 import { toAdminMenuItem } from '../../../lib/menu-dto'
+import { servedStations } from '../../../lib/cafe-routing'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 // "Ausverkauft" on/off. Kitchen and bar may switch the items of their own
-// station; admins any item.
+// station (the kitchen the cafe's too while the counter is closed); admins any item.
 export default defineEventHandler(async (event) => {
   try {
     assertCsrf(event)
@@ -30,7 +31,7 @@ export default defineEventHandler(async (event) => {
     if (!existing) {
       throw new AppError('NOT_FOUND', 404, 'Menu item not found')
     }
-    if (staff.role !== 'admin' && existing.station !== staff.role) {
+    if (staff.role !== 'admin' && !(isStationRole(staff.role) && (servedStations(staff.role, ev) as string[]).includes(existing.station))) {
       throw new AppError('FORBIDDEN', 403, 'Item belongs to another station')
     }
     if (input.isAvailable && existing.stock === 0) {

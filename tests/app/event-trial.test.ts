@@ -122,7 +122,7 @@ describe('EventFeaturesPanel', () => {
   afterEach(() => vi.unstubAllGlobals())
   // The buzzer list loads on mount; the tests look at the calls after it.
   async function mountPanel() {
-    fetchMock.mockResolvedValueOnce({ kitchen: [], bar: [] })
+    fetchMock.mockResolvedValueOnce({ kitchen: [], bar: [], cafe: [] })
     const w = mount(EventFeaturesPanel, { props: { event: ev() } })
     await flushPromises()
     fetchMock.mockClear()

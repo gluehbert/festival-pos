@@ -1082,6 +1082,10 @@
       "foodPrepayEnabled": {
         "label": "Pay for food when ordering",
         "hint": "The kitchen only gets food once it is paid, so food runners can hand it out without cashing. Guests' food (QR code) waits until a waiter has cashed it; the table shows \"Food to cash\". Drinks are still paid when they are brought."
+      },
+      "cafeClosed": {
+        "label": "Cake counter closed",
+        "hint": "After the coffee hour: new orders of coffee and cake go to the kitchen. What is already at the counter is still finished there. The counter can also close and reopen itself."
       }
     },
     "join": {
@@ -1225,6 +1229,17 @@
       "more": "+{n} more",
       "cut": "Not everything fits – zoom out in the display menu (screen icon at the top).",
       "minutes": "{n} min"
+    },
+    "cafe": {
+      "close": "Close counter",
+      "open": "Open counter",
+      "closeConfirm": "Close the counter? New orders of coffee and cake then go to the kitchen.",
+      "closeYes": "Yes, close",
+      "cancel": "Cancel",
+      "closedBanner": "Counter closed: new orders go to the kitchen.",
+      "kitchenBanner": "Cake counter closed: coffee and cake now come here.",
+      "toastClosed": "Counter closed, the kitchen takes over.",
+      "toastOpened": "Counter open again."
     }
   },
   "alerts": {

@@ -1082,6 +1082,10 @@
       "foodPrepayEnabled": {
         "label": "Essen bei Bestellung bezahlen",
         "hint": "Die Küche bekommt Essen erst, wenn es bezahlt ist, so kann die Essensausgabe verteilen, ohne zu kassieren. Essen der Gäste (QR-Code) wartet, bis eine Bedienung es kassiert hat; der Tisch zeigt „Essen kassieren“. Getränke werden weiter beim Bringen bezahlt."
+      },
+      "cafeClosed": {
+        "label": "Kuchentheke geschlossen",
+        "hint": "Nach dem Kaffeeklatsch: Neue Bestellungen von Kaffee und Kuchen gehen an die Küche. Was schon an der Theke liegt, macht die Theke noch fertig. Die Theke kann sich auch selbst schließen und wieder öffnen."
       }
     },
     "join": {
@@ -1225,6 +1229,17 @@
       "more": "+{n} weitere",
       "cut": "Nicht alles sichtbar – im Bildschirm-Menü (Monitor-Symbol oben) verkleinern.",
       "minutes": "{n} Min."
+    },
+    "cafe": {
+      "close": "Theke schließen",
+      "open": "Theke öffnen",
+      "closeConfirm": "Theke schließen? Neue Bestellungen von Kaffee und Kuchen gehen dann an die Küche.",
+      "closeYes": "Ja, schließen",
+      "cancel": "Abbrechen",
+      "closedBanner": "Theke geschlossen: Neue Bestellungen gehen an die Küche.",
+      "kitchenBanner": "Kuchentheke geschlossen: Kaffee und Kuchen kommen jetzt hier an.",
+      "toastClosed": "Theke geschlossen, die Küche übernimmt.",
+      "toastOpened": "Theke wieder offen."
     }
   },
   "alerts": {
