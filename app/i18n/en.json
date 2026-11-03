@@ -1057,16 +1057,21 @@
         "hint": "Guests can call the service to their table with a reason (pay, order, question). The table's waiter sees it first, after 2 minutes everyone in service; the bar screen shows every call. Off: the button is gone."
       },
       "buzzer": {
-        "label1": "Buzzer 1 – green (kitchen / bar)",
-        "hint1": "A big button at the counter that works like a one-key keyboard (USB or Bluetooth). With a buzzer the kitchen and bar screen shows its lane: the oldest order, large, for the person at that buzzer. A press finishes it and the lane takes the next one. A second press within a second is ignored.",
-        "label2": "Buzzer 2 – blue (optional)",
-        "hint2": "For a second person behind the counter: a second lane next to the first. Each lane keeps its order until it is finished.",
-        "set": "Set key",
+        "label": "Buzzers at the kitchen and bar",
+        "hint": "A buzzer is a big button at the counter that works like a one-key keyboard (USB or Bluetooth). With buzzers, the station's screen shows one lane per buzzer: the oldest order, large, for the person at that buzzer. A press finishes it and the lane takes the next one. A second press within a second is ignored. Up to four buzzers per station.",
+        "lane": "Buzzer {n} – {color}",
+        "color": {
+          "green": "green",
+          "blue": "blue",
+          "amber": "amber",
+          "violet": "violet"
+        },
+        "add": "Add buzzer",
         "change": "Change",
         "clear": "Remove",
         "listening": "Press the buzzer now …",
         "space": "Space",
-        "sameKey": "The other buzzer already uses this key."
+        "sameKey": "Another buzzer at this station already uses this key."
       },
       "foodPrepayEnabled": {
         "label": "Pay for food when ordering",
@@ -1205,6 +1210,8 @@
     "lanes": {
       "buzzer1": "Green buzzer",
       "buzzer2": "Blue buzzer",
+      "buzzer3": "Amber buzzer",
+      "buzzer4": "Violet buzzer",
       "free": "Free – the next order lands here.",
       "next": "Next up ({n})",
       "followUp": "Later order",

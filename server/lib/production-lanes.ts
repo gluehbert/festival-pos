@@ -1,13 +1,21 @@
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, asc, eq, inArray } from 'drizzle-orm'
 import type { Db } from '../db/client'
 import { orderItems } from '../db/schema'
-import { productionLanes } from '../db/schema-service'
-import { LANE_ROUND_MS, productionCards, type ProductionLane, type ProductionQueueItem, type Station } from './contracts/production'
+import { productionLanes, stationBuzzers } from '../db/schema-service'
+import { LANE_ROUND_MS, productionCards, type ProductionLane, type ProductionQueueItem, type Station, type StationBuzzers } from './contracts/production'
 
-// One lane per buzzer key the admin set: lane 1 (green), lane 2 (blue).
-export function activeLanes(ev: { buzzerKey: string | null; buzzerKey2: string | null }): Array<{ lane: number; key: string }> {
-  return [{ lane: 1, key: ev.buzzerKey }, { lane: 2, key: ev.buzzerKey2 }]
-    .filter((l): l is { lane: number; key: string } => l.key !== null)
+// One lane per buzzer the admin set for the station, in lane order.
+export async function activeLanes(db: Db, eventId: string, station: Station): Promise<Array<{ lane: number; key: string }>> {
+  return await db.select({ lane: stationBuzzers.lane, key: stationBuzzers.key }).from(stationBuzzers)
+    .where(and(eq(stationBuzzers.eventId, eventId), eq(stationBuzzers.station, station)))
+    .orderBy(asc(stationBuzzers.lane))
+}
+
+// The buzzer keys of each station, in lane order (admin settings).
+export async function loadStationBuzzers(db: Db, eventId: string): Promise<StationBuzzers> {
+  const rows = await db.select().from(stationBuzzers).where(eq(stationBuzzers.eventId, eventId)).orderBy(asc(stationBuzzers.lane))
+  const of = (station: Station) => rows.filter((r) => r.station === station).map((r) => r.key)
+  return { kitchen: of('kitchen'), bar: of('bar') }
 }
 
 // Keeps each lane on its card while the card has open items and gives free
