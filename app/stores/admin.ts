@@ -196,10 +196,12 @@ export const useAdminStore = defineStore('admin', () => {
     return await useApi().get<Blob>(`/api/admin/events/${eventId}/menu-items/template`, { responseType: 'blob' })
   }
 
-  async function importMenu(eventId: string, file: File, dryRun: boolean): Promise<MenuImportResult> {
+  // `replace` archives the items that are not in the file.
+  async function importMenu(eventId: string, file: File, dryRun: boolean, replace = false): Promise<MenuImportResult> {
     const form = new FormData()
     form.append('file', file)
-    const result = await useApi().post<MenuImportResult>(`/api/admin/events/${eventId}/menu-items/import${dryRun ? '?dryRun=1' : ''}`, form)
+    const query = [dryRun ? 'dryRun=1' : '', replace ? 'mode=replace' : ''].filter(Boolean).join('&')
+    const result = await useApi().post<MenuImportResult>(`/api/admin/events/${eventId}/menu-items/import${query ? `?${query}` : ''}`, form)
     if (result.applied) await fetchMenuItems(eventId)
     return result
   }

@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray } from 'drizzle-orm'
+import { and, asc, eq, inArray, isNull } from 'drizzle-orm'
 import type { Db } from '../db/client'
 import { priceRules, type PriceRule } from '../db/schema-pricing'
 import { menuItems, type MenuItem } from '../db/schema'
@@ -122,7 +122,7 @@ export async function assertRuleTargets(db: Db, eventId: string, ids: readonly s
 
 export async function loadPriceRulesList(db: Db, eventId: string, now = new Date()): Promise<PriceRulesList> {
   const rows = await loadPriceRuleRows(db, eventId)
-  const items = await db.select().from(menuItems).where(eq(menuItems.eventId, eventId)).orderBy(asc(menuItems.sortOrder))
+  const items = await db.select().from(menuItems).where(and(eq(menuItems.eventId, eventId), isNull(menuItems.archivedAt))).orderBy(asc(menuItems.sortOrder))
   const rules = rows.filter((r) => r.isActive).map(toPricingRule)
   return {
     eventId,

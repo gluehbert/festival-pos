@@ -108,3 +108,6 @@ export const productionLanes = pgTable(
     check('production_lanes_station_chk', sql`${t.station} IN ('kitchen','bar','cafe')`),
   ],
 )
+
+// Last run per background job; lib/sweep.ts claims its slot here, so all instances together sweep at most hourly.
+export const maintenanceRuns = pgTable('maintenance_runs', { job: text('job').primaryKey(), lastRunAt: timestamp('last_run_at', { withTimezone: true }).notNull() })

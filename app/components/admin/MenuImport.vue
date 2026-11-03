@@ -3,6 +3,13 @@ import { ref } from 'vue'
 import { useAdminStore } from '~/stores/admin'
 import type { MenuImportResult } from '~/../server/lib/contracts/admin'
 
+const ACTION_CLASS: Record<MenuImportResult['rows'][number]['action'], string> = {
+  create: 'bg-emerald-100 text-emerald-800',
+  update: 'bg-amber-100 text-amber-800',
+  unchanged: 'bg-slate-100 text-slate-600',
+  archive: 'bg-rose-100 text-rose-800',
+}
+
 const props = defineProps<{ eventId: string }>()
 const emit = defineEmits<{ (e: 'imported', result: MenuImportResult): void }>()
 
@@ -12,6 +19,7 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const file = ref<File | null>(null)
 const preview = ref<MenuImportResult | null>(null)
 const busy = ref(false)
+const replace = ref(false)
 const error = ref<string | null>(null)
 
 function message(e: unknown): string {
@@ -41,14 +49,17 @@ async function downloadTemplate() {
 }
 
 async function onFileChange(ev: Event) {
-  const selected = (ev.target as HTMLInputElement).files?.[0] ?? null
-  file.value = selected
+  file.value = (ev.target as HTMLInputElement).files?.[0] ?? null
+  await loadPreview()
+}
+
+async function loadPreview() {
   preview.value = null
   error.value = null
-  if (!selected) return
+  if (!file.value) return
   busy.value = true
   try {
-    preview.value = await admin.importMenu(props.eventId, selected, true)
+    preview.value = await admin.importMenu(props.eventId, file.value, true, replace.value)
   }
   catch (e) {
     error.value = message(e)
@@ -69,7 +80,7 @@ async function apply() {
   busy.value = true
   error.value = null
   try {
-    const result = await admin.importMenu(props.eventId, file.value, false)
+    const result = await admin.importMenu(props.eventId, file.value, false, replace.value)
     if (result.applied) {
       emit('imported', result)
       reset()
@@ -120,6 +131,20 @@ async function apply() {
       <span v-if="busy" class="text-sm text-slate-500" role="status">{{ $t('admin.loading') }}</span>
     </div>
 
+    <fieldset class="mt-3 text-sm text-slate-800" :disabled="busy">
+      <legend class="sr-only">
+        {{ $t('admin.menuImport.modeLabel') }}
+      </legend>
+      <label class="flex min-h-[44px] items-center gap-2">
+        <input v-model="replace" type="radio" :value="false" data-test="menu-import-merge" @change="loadPreview">
+        {{ $t('admin.menuImport.modeMerge') }}
+      </label>
+      <label class="flex min-h-[44px] items-center gap-2">
+        <input v-model="replace" type="radio" :value="true" data-test="menu-import-replace" @change="loadPreview">
+        {{ $t('admin.menuImport.modeReplace') }}
+      </label>
+    </fieldset>
+
     <p v-if="error" class="mt-3 text-sm text-rose-700" role="alert">
       {{ error }}
     </p>
@@ -127,6 +152,9 @@ async function apply() {
     <div v-if="preview" class="mt-4 space-y-3" data-test="menu-import-preview">
       <p class="text-sm text-slate-800">
         {{ $t('admin.menuImport.summary', { created: preview.created, updated: preview.updated, unchanged: preview.unchanged }) }}
+        <template v-if="preview.archived > 0">
+          {{ $t('admin.menuImport.summaryArchived', { archived: preview.archived }) }}
+        </template>
       </p>
 
       <div v-if="preview.errors.length > 0" class="rounded bg-rose-50 p-3 text-sm text-rose-800" role="alert">
@@ -141,11 +169,11 @@ async function apply() {
       </div>
 
       <ul v-if="preview.rows.length > 0" class="max-h-64 divide-y divide-slate-100 overflow-auto rounded border border-slate-200 text-sm">
-        <li v-for="r in preview.rows" :key="r.row" class="flex justify-between px-3 py-1.5">
+        <li v-for="r in preview.rows" :key="`${r.action}-${r.row}-${r.nameDe}`" class="flex justify-between px-3 py-1.5">
           <span>{{ r.nameDe }}</span>
           <span
             class="rounded-full px-2 text-xs font-semibold"
-            :class="r.action === 'create' ? 'bg-emerald-100 text-emerald-800' : r.action === 'update' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600'"
+            :class="ACTION_CLASS[r.action]"
           >{{ $t(`admin.menuImport.action.${r.action}`) }}</span>
         </li>
       </ul>
@@ -154,7 +182,7 @@ async function apply() {
         <button
           type="button"
           class="min-h-[44px] rounded bg-success px-4 text-sm font-semibold text-white disabled:bg-slate-300"
-          :disabled="busy || preview.errors.length > 0 || preview.created + preview.updated === 0"
+          :disabled="busy || preview.errors.length > 0 || preview.created + preview.updated + preview.archived === 0"
           @click="apply"
         >
           {{ $t('admin.menuImport.apply') }}

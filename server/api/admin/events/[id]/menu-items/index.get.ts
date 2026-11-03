@@ -1,5 +1,5 @@
 import { defineEventHandler } from 'h3'
-import { asc, eq } from 'drizzle-orm'
+import { and, asc, eq, isNull } from 'drizzle-orm'
 import { getDb } from '../../../../../db/client'
 import { menuItems } from '../../../../../db/schema'
 import { sendAppError } from '../../../../../lib/errors'
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     const rows = await db
       .select()
       .from(menuItems)
-      .where(eq(menuItems.eventId, ev.id))
+      .where(and(eq(menuItems.eventId, ev.id), isNull(menuItems.archivedAt)))
       .orderBy(asc(menuItems.sortOrder))
     return AdminMenuListSchema.parse({
       eventId: ev.id,

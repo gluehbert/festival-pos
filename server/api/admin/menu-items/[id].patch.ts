@@ -1,5 +1,5 @@
 import { defineEventHandler, getRouterParam, readBody } from 'h3'
-import { eq } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { getDb } from '../../../db/client'
 import { menuItems } from '../../../db/schema'
 import { AppError, sendAppError } from '../../../lib/errors'
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     const patch = UpdateMenuItemSchema.parse(body)
 
     const db = getDb()
-    const existing = (await db.select().from(menuItems).where(eq(menuItems.id, id)).limit(1))[0]
+    const existing = (await db.select().from(menuItems).where(and(eq(menuItems.id, id), isNull(menuItems.archivedAt))).limit(1))[0]
     if (!existing) {
       throw new AppError('NOT_FOUND', 404, 'Menu item not found')
     }

@@ -930,16 +930,21 @@
       "hint": "Download the template (contains the current menu), edit it in Excel, LibreOffice or Google Sheets and upload it again. Accepted: .xlsx (Office Open XML) and .csv. Items are matched by their German name.",
       "download": "Download template / current menu (.xlsx)",
       "choose": "Upload file …",
+      "modeLabel": "Import mode",
+      "modeMerge": "Add to the menu: items not in the file stay as they are",
+      "modeReplace": "Replace the menu: items not in the file are removed (past orders and reports keep them)",
       "summary": "Preview: {created} new, {updated} changed, {unchanged} unchanged.",
+      "summaryArchived": "{archived} removed.",
       "errorsTitle": "{n} row(s) with errors – please fix them in the file and upload again:",
       "row": "Row {row}",
       "apply": "Apply import",
       "cancel": "Cancel",
-      "done": "Import applied: {created} new, {updated} changed.",
+      "done": "Import applied: {created} new, {updated} changed, {archived} removed.",
       "action": {
         "create": "new",
         "update": "changed",
-        "unchanged": "unchanged"
+        "unchanged": "unchanged",
+        "archive": "removed"
       }
     },
     "trial": {

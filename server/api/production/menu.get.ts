@@ -1,5 +1,5 @@
 import { defineEventHandler, getQuery } from 'h3'
-import { and, asc, eq, inArray } from 'drizzle-orm'
+import { and, asc, eq, inArray, isNull } from 'drizzle-orm'
 import { getDb } from '../../db/client'
 import { menuItems } from '../../db/schema'
 import { AppError, sendAppError } from '../../lib/errors'
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     const rows = await db
       .select()
       .from(menuItems)
-      .where(and(eq(menuItems.eventId, ev.id), inArray(menuItems.station, servedStations(station, ev))))
+      .where(and(eq(menuItems.eventId, ev.id), isNull(menuItems.archivedAt), inArray(menuItems.station, servedStations(station, ev))))
       .orderBy(asc(menuItems.sortOrder))
     return MenuSchema.parse({ eventId: ev.id, items: rows.map((r) => toMenuItemDto(r)) })
   }
