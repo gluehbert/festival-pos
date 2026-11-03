@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { useApi } from '~/composables/useApi'
 import type { JoinOverview, JoinStatus } from '~/../server/lib/contracts/join'
 
-export type JoinRole = 'waiter' | 'lead' | 'kitchen' | 'bar'
+export type JoinRole = 'waiter' | 'lead' | 'kitchen' | 'bar' | 'cafe'
 // Why joining failed, for the message on the join page.
 export type JoinError = 'closed' | 'nameWaiting' | 'full' | 'invalidName' | 'failed'
 

@@ -5,7 +5,8 @@
     "updateAvailable": "New version available",
     "station": {
       "kitchen": "Kitchen",
-      "bar": "Bar"
+      "bar": "Bar",
+      "cafe": "Cake & coffee"
     },
     "trialBanner": "REHEARSAL – orders are tests only",
     "theme": {
@@ -148,7 +149,8 @@
       "items": "no items | 1 item | {n} items",
       "group": {
         "kitchen": "Food",
-        "bar": "Drinks"
+        "bar": "Drinks",
+        "cafe": "Cake & coffee"
       },
       "depositEach": "{amount} deposit each",
       "grow": "Enlarge cart",
@@ -253,6 +255,7 @@
       "checked": "Asked – nothing wanted",
       "served_kitchen": "Food served",
       "served_bar": "Drinks served",
+      "served_cafe": "Cake & coffee served",
       "servedHint": "Clears by itself when you cash out.",
       "empty": "Nothing ordered yet",
       "foodToPay": "{n} food waiting for payment: the kitchen starts once it is cashed.",
@@ -332,6 +335,7 @@
       "voided": "voided",
       "foodReady": "Food ready ({n})",
       "drinksReady": "Drinks ready ({n})",
+      "cafeReady": "Cake & coffee ready ({n})",
       "readyToServe": "serve",
       "hoursAgo": "{h} h {m} min ago",
       "openJustNow": "open since just now",
@@ -585,6 +589,7 @@
         "lead": "Shift lead",
         "kitchen": "Kitchen",
         "bar": "Bar",
+        "cafe": "Cake & coffee",
         "admin": "Admin",
         "guest": "Guest"
       },
@@ -863,7 +868,8 @@
         "waiter": "Service",
         "lead": "Shift lead",
         "kitchen": "Kitchen",
-        "bar": "Bar"
+        "bar": "Bar",
+        "cafe": "Cake & coffee"
       },
       "passkeys": {
         "toggle": "Passkeys",
@@ -1080,6 +1086,10 @@
       "foodPrepayEnabled": {
         "label": "Pay for food when ordering",
         "hint": "The kitchen only gets food once it is paid, so food runners can hand it out without cashing. Guests' food (QR code) waits until a waiter has cashed it; the table shows \"Food to cash\". Drinks are still paid when they are brought."
+      },
+      "cafeClosed": {
+        "label": "Cake counter closed",
+        "hint": "After the coffee hour: new orders of coffee and cake go to the kitchen. What is already at the counter is still finished there. The counter can also close and reopen itself."
       }
     },
     "join": {
@@ -1141,7 +1151,7 @@
     "guestLimits": {
       "title": "Guest order limits",
       "hint": "Most one guest phone may have ordered and not yet paid, so nobody can walk past a table and load it with orders. Paid orders no longer count. Empty = no limit.",
-      "bar": "Drinks (bar), €",
+      "bar": "Drinks and cake & coffee, €",
       "kitchen": "Food (kitchen), €",
       "none": "no limit",
       "save": "Save limits",
@@ -1223,6 +1233,17 @@
       "more": "+{n} more",
       "cut": "Not everything fits – zoom out in the display menu (screen icon at the top).",
       "minutes": "{n} min"
+    },
+    "cafe": {
+      "close": "Close counter",
+      "open": "Open counter",
+      "closeConfirm": "Close the counter? New orders of coffee and cake then go to the kitchen.",
+      "closeYes": "Yes, close",
+      "cancel": "Cancel",
+      "closedBanner": "Counter closed: new orders go to the kitchen.",
+      "kitchenBanner": "Cake counter closed: coffee and cake now come here.",
+      "toastClosed": "Counter closed, the kitchen takes over.",
+      "toastOpened": "Counter open again."
     }
   },
   "alerts": {

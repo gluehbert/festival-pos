@@ -20,7 +20,7 @@ export const JoinStatusSchema = z.object({
 export type JoinStatus = z.infer<typeof JoinStatusSchema>
 
 // Admins never join by link.
-export const JoinRoleEnum = z.enum(['waiter', 'lead', 'kitchen', 'bar'])
+export const JoinRoleEnum = z.enum(['waiter', 'lead', 'kitchen', 'bar', 'cafe'])
 
 export const JoinDecisionSchema = z.object({
   decision: z.enum(['approve', 'reject']),

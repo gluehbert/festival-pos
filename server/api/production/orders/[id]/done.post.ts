@@ -5,7 +5,7 @@ import { events, orderItems, orders } from '../../../../db/schema'
 import { AppError, sendAppError } from '../../../../lib/errors'
 import { kitchenReleased } from '../../../../lib/food-prepay'
 import { assertCsrf } from '../../../../lib/csrf'
-import { requireRole } from '../../../../lib/rbac'
+import { isStationRole, requireRole, STATION_ROLES } from '../../../../lib/rbac'
 import {
   ProductionOrderDoneResponseSchema,
   ProductionOrderDoneSchema,
@@ -14,12 +14,12 @@ import {
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-// Kitchen or bar finishes a whole order in one tap. Only items of the
+// Kitchen, bar or cafe counter finishes a whole order in one tap. Only items of the
 // caller's station are touched; the other station finishes its own part.
 export default defineEventHandler(async (event) => {
   try {
     assertCsrf(event)
-    const staff = requireRole(event, ['kitchen', 'bar', 'admin'])
+    const staff = requireRole(event, [...STATION_ROLES, 'admin'])
     const orderId = getRouterParam(event, 'id') ?? ''
     if (!UUID_RE.test(orderId)) {
       throw new AppError('VALIDATION', 400, 'Invalid order id')
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
     const input = ProductionOrderDoneSchema.parse((await readBody(event)) ?? {})
 
     let station: Station
-    if (staff.role === 'kitchen' || staff.role === 'bar') {
+    if (isStationRole(staff.role)) {
       if (input.station && input.station !== staff.role) {
         throw new AppError('FORBIDDEN', 403, `Role '${staff.role}' cannot finish items for station '${input.station}'`)
       }

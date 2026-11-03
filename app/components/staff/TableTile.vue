@@ -31,7 +31,7 @@ const style = computed(() => STYLE[props.tile.state])
 const status = computed(() => {
   const ticket = props.tile.ticket
   if (props.tile.state === 'pay' && ticket) return t('staff.grid.state.pay', { n: ticket.foodToPay })
-  if (props.tile.state === 'ready' && ticket) return t('staff.grid.state.ready', { n: ticket.ready.kitchen + ticket.ready.bar })
+  if (props.tile.state === 'ready' && ticket) return t('staff.grid.state.ready', { n: ticket.ready.kitchen + ticket.ready.bar + ticket.ready.cafe })
   if (props.tile.state === 'late' && ticket) {
     const { minutes } = tableActivity(ticket.lastOrderAt, ticket.lastCheckAt, props.nowMs)
     return t('staff.grid.state.late', { n: minutes })

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { AllergenEnum, AllergenListSchema, DietEnum } from '../allergens'
 
-export const StationEnum = z.enum(['kitchen', 'bar'])
+export const StationEnum = z.enum(['kitchen', 'bar', 'cafe'])
 export type Station = z.infer<typeof StationEnum>
 
 // Calendar day (YYYY-MM-DD) without time zone, e.g. from <input type="date">.
@@ -61,6 +61,8 @@ export const EventSchema = z.object({
   staffMealsEnabled: z.boolean(),
   waiterCallsEnabled: z.boolean(),
   foodPrepayEnabled: z.boolean(),
+  // Cafe counter closed: coffee and cake go to the kitchen.
+  cafeClosed: z.boolean(),
   guestOpenLimitBarCents: z.number().int().nullable(),
   guestOpenLimitKitchenCents: z.number().int().nullable(),
 })

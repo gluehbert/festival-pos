@@ -6,6 +6,7 @@ import { AppError, sendAppError } from '../../lib/errors'
 import { MenuSchema } from '../../lib/contracts/guest'
 import { toMenuItemDto } from '../../lib/menu-dto'
 import { loadPricingRules, priceItems } from '../../lib/price-rules'
+import { routeStation } from '../../lib/cafe-routing'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -30,8 +31,12 @@ export default defineEventHandler(async (event) => {
 
     return MenuSchema.parse({
       eventId: ev.id,
-      // Without Pfand for the event no deposit is shown (nor charged).
-      items: items.map((m) => ({ ...toMenuItemDto(m, prices.get(m.id)), ...(ev.depositEnabled ? {} : { depositCents: 0 }) })),
+      // Without Pfand for the event no deposit is shown (nor charged). The
+      // station is where the item goes now, so the cart groups it right.
+      items: items.map((m) => {
+        const dto = toMenuItemDto(m, prices.get(m.id))
+        return { ...dto, station: routeStation(dto.station, ev), ...(ev.depositEnabled ? {} : { depositCents: 0 }) }
+      }),
     })
   }
   catch (err) {

@@ -7,7 +7,7 @@ import type { PreviewAs } from '~/../server/lib/contracts/preview'
 
 // Preview deployments only: one tap signs in as each role or as a guest.
 // Vercel's own login guards these URLs; the server refuses it elsewhere.
-const AS: readonly PreviewAs[] = ['waiter', 'lead', 'kitchen', 'bar', 'admin', 'guest']
+const AS: readonly PreviewAs[] = ['waiter', 'lead', 'kitchen', 'bar', 'cafe', 'admin', 'guest']
 
 const auth = useAuthStore()
 const busy = ref(false)

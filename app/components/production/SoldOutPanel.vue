@@ -6,7 +6,7 @@ import type { Menu, MenuItemDto } from '~/../server/lib/contracts/guest'
 
 // Kitchen/bar mark their own articles sold out (and back) without the admin.
 // A button in the app bar opens the list, so it takes no room on the screen.
-const props = defineProps<{ station?: 'kitchen' | 'bar' }>()
+const props = defineProps<{ station?: 'kitchen' | 'bar' | 'cafe' }>()
 const emit = defineEmits<{ (e: 'result', ok: boolean): void }>()
 
 const { itemName } = useFormat()

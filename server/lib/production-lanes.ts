@@ -15,7 +15,7 @@ export async function activeLanes(db: Db, eventId: string, station: Station): Pr
 export async function loadStationBuzzers(db: Db, eventId: string): Promise<StationBuzzers> {
   const rows = await db.select().from(stationBuzzers).where(eq(stationBuzzers.eventId, eventId)).orderBy(asc(stationBuzzers.lane))
   const of = (station: Station) => rows.filter((r) => r.station === station).map((r) => r.key)
-  return { kitchen: of('kitchen'), bar: of('bar') }
+  return { kitchen: of('kitchen'), bar: of('bar'), cafe: of('cafe') }
 }
 
 // Keeps each lane on its card while the card has open items and gives free

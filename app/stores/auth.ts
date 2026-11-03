@@ -5,7 +5,7 @@ import { useApi } from '~/composables/useApi'
 import { apiError } from '~/utils/api-error'
 import { useTheme, type Theme } from '~/composables/useTheme'
 
-export type StaffRole = 'admin' | 'lead' | 'waiter' | 'kitchen' | 'bar'
+export type StaffRole = 'admin' | 'lead' | 'waiter' | 'kitchen' | 'bar' | 'cafe'
 
 export interface StaffSession {
   staffId: string
@@ -23,7 +23,7 @@ export interface LoginCredentials {
 // Start page after login: everyone lands where their work is.
 export function homeForRole(role: StaffRole | undefined): string {
   if (role === 'admin') return '/admin/events'
-  if (role === 'kitchen' || role === 'bar') return '/production'
+  if (role === 'kitchen' || role === 'bar' || role === 'cafe') return '/production'
   return '/staff'
 }
 

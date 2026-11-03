@@ -107,8 +107,8 @@ describe('BuzzerKeys (admin)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     fetchMock.mockReset()
-    stored = { kitchen: [], bar: [] }
-    fetchMock.mockImplementation(async (_url: string, o?: { method?: string; body?: { station: 'kitchen' | 'bar'; keys: string[] } }) => {
+    stored = { kitchen: [], bar: [], cafe: [] }
+    fetchMock.mockImplementation(async (_url: string, o?: { method?: string; body?: { station: 'kitchen' | 'bar' | 'cafe'; keys: string[] } }) => {
       if (o?.method === 'PUT') stored = { ...stored, [o.body!.station]: o.body!.keys }
       return stored
     })
@@ -155,7 +155,7 @@ describe('BuzzerKeys (admin)', () => {
   })
 
   it('refuses a key another buzzer of the station uses, but not one of the other station', async () => {
-    stored = { kitchen: ['F9'], bar: [] }
+    stored = { kitchen: ['F9'], bar: [], cafe: [] }
     const w = await mountKeys()
     await w.find('[data-test="buzzers-kitchen"] [data-test="buzzer-add"]').trigger('click')
     press('F9')
@@ -171,7 +171,7 @@ describe('BuzzerKeys (admin)', () => {
   })
 
   it('shows the current keys, changes one, can cancel and removes one', async () => {
-    stored = { kitchen: [' ', 'F10'], bar: [] }
+    stored = { kitchen: [' ', 'F10'], bar: [], cafe: [] }
     const w = await mountKeys()
     const one = () => w.find('[data-test="buzzer-kitchen-1"]')
     expect(one().find('[data-test="buzzer-current"]').text()).toBe('admin.features.buzzer.space')

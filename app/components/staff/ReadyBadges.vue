@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // "Ready to serve" counts per station, shown on the ticket card and the table detail.
-defineProps<{ ready: { kitchen: number; bar: number } }>()
+defineProps<{ ready: { kitchen: number; bar: number; cafe: number } }>()
 </script>
 
 <template>
@@ -12,6 +12,10 @@ defineProps<{ ready: { kitchen: number; bar: number } }>()
     <span v-if="ready.bar > 0" class="inline-flex items-center gap-1">
       <UIcon name="i-lucide-beer" class="size-4 shrink-0" aria-hidden="true" />
       {{ $t('staff.ticket.drinksReady', { n: ready.bar }) }}
+    </span>
+    <span v-if="ready.cafe > 0" class="inline-flex items-center gap-1">
+      <UIcon name="i-lucide-coffee" class="size-4 shrink-0" aria-hidden="true" />
+      {{ $t('staff.ticket.cafeReady', { n: ready.cafe }) }}
     </span>
   </p>
 </template>
