@@ -24,6 +24,10 @@ export function endpointLabel(method: string, path: string): string {
 // 409s that come from several people working on the same thing: counted on
 // their own and not an error of the app.
 const CONTENTION_CODES = new Set(['LOCK_CONFLICT', 'CONFLICT'])
+// The app refusing a guest on purpose (server/lib/guest-order-limit.ts): too
+// much unpaid on one phone, or too many orders from one table. A real guest
+// gets the same answer and waits for the waiter, so it is not an error either.
+const GUEST_LIMIT_CODES = new Set(['OPEN_LIMIT', 'RATE_LIMITED'])
 
 export interface Sample {
   endpoint: string
@@ -66,7 +70,8 @@ export interface Summary {
   statusCodes: Record<string, number>
   lockConflicts: number
   conflicts: number
-  // Failed requests without the contention 409s above.
+  guestLimits: number
+  // Failed requests without the contention 409s and guest limits above.
   errors: number
   errorRate: number
   worstP95Ms: number
@@ -74,19 +79,22 @@ export interface Summary {
 }
 
 const isContention = (s: Sample) => s.status === 409 && !!s.code && CONTENTION_CODES.has(s.code)
-const isError = (s: Sample) => (s.status === 0 || s.status >= 400) && !isContention(s)
+const isGuestLimit = (s: Sample) => (s.status === 409 || s.status === 429) && !!s.code && GUEST_LIMIT_CODES.has(s.code)
+const isError = (s: Sample) => (s.status === 0 || s.status >= 400) && !isContention(s) && !isGuestLimit(s)
 
 export function summarize(rec: Recorder): Summary {
   const byEndpoint = new Map<string, Sample[]>()
   const statusCodes: Record<string, number> = {}
   let lockConflicts = 0
   let conflicts = 0
+  let guestLimits = 0
   for (const s of rec.samples) {
     byEndpoint.set(s.endpoint, [...(byEndpoint.get(s.endpoint) ?? []), s])
     const status = s.status === 0 ? 'network' : String(s.status)
     statusCodes[status] = (statusCodes[status] ?? 0) + 1
     if (s.status === 409 && s.code === 'LOCK_CONFLICT') lockConflicts++
     if (s.status === 409 && s.code === 'CONFLICT') conflicts++
+    if (isGuestLimit(s)) guestLimits++
   }
   const endpoints = [...byEndpoint.entries()]
     .map(([endpoint, list]) => {
@@ -115,6 +123,7 @@ export function summarize(rec: Recorder): Summary {
     statusCodes,
     lockConflicts,
     conflicts,
+    guestLimits,
     errors,
     errorRate: rec.samples.length === 0 ? 0 : errors / rec.samples.length,
     worstP95Ms: Math.max(0, ...endpoints.map((e) => e.p95)),
@@ -187,9 +196,9 @@ export function renderMarkdown(s: Summary, consistency: ConsistencyResult, fails
     '| --- | ---: | ---: | ---: | ---: | ---: |',
     ...s.endpoints.map((e) => `| ${e.endpoint} | ${e.count} | ${e.p50} | ${e.p95} | ${e.p99} | ${e.errors} |`),
     '',
-    `Requests: ${s.requests}, errors: ${s.errors} (${(s.errorRate * 100).toFixed(2)} %, 409 LOCK_CONFLICT/CONFLICT not counted)`,
+    `Requests: ${s.requests}, errors: ${s.errors} (${(s.errorRate * 100).toFixed(2)} %, 409 LOCK_CONFLICT/CONFLICT and guest limits not counted)`,
     `Status codes: ${Object.entries(s.statusCodes).sort().map(([k, v]) => `${k}×${v}`).join(', ')}`,
-    `409 LOCK_CONFLICT: ${s.lockConflicts}, 409 CONFLICT: ${s.conflicts}`,
+    `409 LOCK_CONFLICT: ${s.lockConflicts}, 409 CONFLICT: ${s.conflicts}, guest limits (OPEN_LIMIT/RATE_LIMITED): ${s.guestLimits}`,
     '',
     '| Visibility | samples | missed | p50 ms | p95 ms | max ms |',
     '| --- | ---: | ---: | ---: | ---: | ---: |',

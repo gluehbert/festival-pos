@@ -44,6 +44,16 @@ describe('summarize and verdict', () => {
     expect(s.statusCodes).toEqual({ 200: 97, 409: 2, 500: 1 })
   })
 
+  it('counts guest limits apart from errors', () => {
+    const rec = new Recorder()
+    rec.add({ endpoint: 'POST /api/orders', status: 409, ms: 20, code: 'OPEN_LIMIT' })
+    rec.add({ endpoint: 'POST /api/orders', status: 429, ms: 20, code: 'RATE_LIMITED' })
+    rec.add({ endpoint: 'POST /api/orders', status: 409, ms: 20, code: 'SOLD_OUT' })
+    const s = summarize(rec)
+    expect(s.guestLimits).toBe(2)
+    expect(s.errors).toBe(1)
+  })
+
   it('fails on p95, error rate, slow or missing visibility and duplicates', () => {
     const rec = new Recorder()
     for (let i = 0; i < 10; i++) rec.add({ endpoint: 'GET /slow', status: 200, ms: 600 })
