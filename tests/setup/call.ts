@@ -2,7 +2,7 @@ import { getCtx } from './route-mocks'
 
 const CSRF = 'a'.repeat(64)
 
-export type Role = 'admin' | 'lead' | 'waiter' | 'kitchen' | 'bar'
+export type Role = 'admin' | 'lead' | 'waiter' | 'kitchen' | 'bar' | 'cafe'
 
 export interface CallOptions {
   method?: string

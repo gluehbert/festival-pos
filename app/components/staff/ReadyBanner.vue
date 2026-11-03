@@ -1,27 +1,27 @@
 <script setup lang="ts">
 import ReadyBadges from '~/components/staff/ReadyBadges.vue'
 
-type Station = 'kitchen' | 'bar'
+type Station = 'kitchen' | 'bar' | 'cafe'
 
 // Finished, not yet paid and not yet brought. Cashing clears it by itself,
 // so "Gebracht" is only a small extra for a guest who pays later. With food
 // and drinks both ready the waiter often brings one first: one button each.
 // A walk-in is paid already: there the button is the only way to clear it.
-const props = defineProps<{ kitchen: number; bar: number; busy?: boolean; walkin?: boolean }>()
+const props = defineProps<{ kitchen: number; bar: number; cafe: number; busy?: boolean; walkin?: boolean }>()
 const emit = defineEmits<{ (e: 'served', station: Station): void }>()
 
-const stations = (): Station[] => (['kitchen', 'bar'] as const).filter((s) => props[s] > 0)
+const stations = (): Station[] => (['kitchen', 'bar', 'cafe'] as const).filter((s) => props[s] > 0)
 </script>
 
 <template>
   <div
-    v-if="kitchen + bar > 0"
+    v-if="kitchen + bar + cafe > 0"
     class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-rose-400 bg-rose-50 px-3 py-2"
     role="status"
     data-test="ready-banner"
   >
     <div>
-      <ReadyBadges :ready="{ kitchen, bar }" class="text-rose-800" />
+      <ReadyBadges :ready="{ kitchen, bar, cafe }" class="text-rose-800" />
       <p v-if="!walkin" class="mt-1 text-xs text-rose-900" data-test="ready-hint">
         {{ $t('staff.detail.servedHint') }}
       </p>

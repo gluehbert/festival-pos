@@ -46,7 +46,7 @@ export interface OpenLimits {
 }
 
 // Paying happens when the order is brought, so a phone has little open at a
-// time. A cap per station (drinks, food) stops someone walking past a table
+// time. A cap per kind (drinks incl. the cafe counter, food) stops someone walking past a table
 // from loading it with orders. Runs inside the order transaction, with the
 // booked prices of the new lines.
 export async function assertGuestOpenLimit(
@@ -56,7 +56,8 @@ export async function assertGuestOpenLimit(
   lines: Array<{ station: string; unitPriceCents: number; depositCents: number; quantity: number }>,
 ): Promise<void> {
   const caps: Record<Station, number | null> = { bar: limits.guestOpenLimitBarCents, kitchen: limits.guestOpenLimitKitchenCents }
-  const stations = (['bar', 'kitchen'] as const).filter((st) => caps[st] !== null && lines.some((l) => l.station === st))
+  const lineBucket = (l: { station: string }): Station => (l.station === 'kitchen' ? 'kitchen' : 'bar')
+  const stations = (['bar', 'kitchen'] as const).filter((st) => caps[st] !== null && lines.some((l) => lineBucket(l) === st))
   if (stations.length === 0) return
   const rows = await tx
     .select({ station: orderItems.station, sum: sql<string | number | null>`COALESCE(SUM(${lineTotalSql}), 0)` })
@@ -69,8 +70,8 @@ export async function assertGuestOpenLimit(
     ))
     .groupBy(orderItems.station)
   for (const station of stations) {
-    const open = Number(rows.find((r) => r.station === station)?.sum ?? 0)
-    const added = lines.filter((l) => l.station === station).reduce((s, l) => s + lineTotalCents(l), 0)
+    const open = rows.filter((r) => lineBucket(r) === station).reduce((s, r) => s + Number(r.sum ?? 0), 0)
+    const added = lines.filter((l) => lineBucket(l) === station).reduce((s, l) => s + lineTotalCents(l), 0)
     if (open + added > caps[station]!) {
       throw new AppError('OPEN_LIMIT', 409, `At most ${caps[station]} cents of ${station} items may be unpaid per phone`, {
         station,

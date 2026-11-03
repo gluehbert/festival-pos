@@ -12,7 +12,7 @@ const props = defineProps<{ event: EventDto }>()
 const emit = defineEmits<{ (e: 'saved' | 'failed', text: string): void }>()
 
 const { t } = useI18n()
-const STATIONS: Station[] = ['kitchen', 'bar']
+const STATIONS: Station[] = ['kitchen', 'bar', 'cafe']
 const MODIFIERS = ['Shift', 'Control', 'Alt', 'Meta', 'AltGraph', 'CapsLock']
 const buzzers = ref<StationBuzzers | null>(null)
 const busy = ref(false)

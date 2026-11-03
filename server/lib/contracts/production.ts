@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const StationEnum = z.enum(['kitchen', 'bar'])
+export const StationEnum = z.enum(['kitchen', 'bar', 'cafe'])
 export type Station = z.infer<typeof StationEnum>
 
 export const ProductionStatusEnum = z.enum(['pending', 'in_progress', 'done', 'cancelled'])
@@ -65,7 +65,7 @@ export function productionCards(
 // own lane on the station's screen, in list order (lane 1 green, 2 blue,
 // 3 amber, 4 violet). More lanes would not fit next to "Next up".
 export const BUZZERS_PER_STATION = 4
-export const StationBuzzersSchema = z.object({ kitchen: z.array(z.string()), bar: z.array(z.string()) })
+export const StationBuzzersSchema = z.object({ kitchen: z.array(z.string()), bar: z.array(z.string()), cafe: z.array(z.string()) })
 export type StationBuzzers = z.infer<typeof StationBuzzersSchema>
 export const SetStationBuzzersSchema = z.object({
   station: StationEnum,
@@ -88,6 +88,8 @@ export const ProductionQueueSchema = z.object({
   station: StationEnum,
   items: z.array(ProductionQueueItemSchema),
   lanes: z.array(ProductionLaneSchema),
+  // Cafe counter closed: coffee and cake go to the kitchen (lib/cafe-routing.ts).
+  cafeClosed: z.boolean(),
 })
 export type ProductionQueue = z.infer<typeof ProductionQueueSchema>
 
@@ -101,6 +103,10 @@ export const ProductionOrderDoneSchema = z.object({
   station: StationEnum.optional(),
 })
 export type ProductionOrderDone = z.infer<typeof ProductionOrderDoneSchema>
+
+// The cafe counter (or an admin) closes and reopens it.
+export const CafeClosedSchema = z.object({ closed: z.boolean() })
+export type CafeClosed = z.infer<typeof CafeClosedSchema>
 
 export const ProductionOrderDoneResponseSchema = z.object({
   orderId: z.string().uuid(),

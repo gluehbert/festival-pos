@@ -17,6 +17,10 @@ export function requireStaff(event: H3Event): StaffJwtPayload {
   return requireRole(event, [])
 }
 
+// Staff who work one production station (their role is the station).
+export const STATION_ROLES = ['kitchen', 'bar', 'cafe'] as const
+export const isStationRole = (role: StaffRole): role is (typeof STATION_ROLES)[number] => (STATION_ROLES as readonly StaffRole[]).includes(role)
+
 // Everyone who takes orders and cashes up in the service area.
 export const SERVICE_ROLES: readonly StaffRole[] = ['waiter', 'lead', 'admin']
 // Who hands out tables to others at the start of a shift.

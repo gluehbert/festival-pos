@@ -20,7 +20,7 @@ export function toMenuItemDto(r: MenuItem, price?: EffectivePrice): MenuItemDto 
     stock: r.stock,
     category: r.category,
     subcategory: r.subcategory ?? null,
-    station: r.station as 'kitchen' | 'bar',
+    station: r.station as 'kitchen' | 'bar' | 'cafe',
     isAvailable: r.isAvailable,
     sortOrder: r.sortOrder,
     allergens: (r.allergens ?? null) as Allergen[] | null,

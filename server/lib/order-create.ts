@@ -4,6 +4,7 @@ import { auditLog, menuItems, orderItems, orders } from '../db/schema'
 import { AppError, isForeignKeyViolation, isUniqueViolation } from './errors'
 import { lineTotalSql } from './line-total'
 import { takeStock } from './stock'
+import { routeStation } from './cafe-routing'
 import { assertGuestOpenLimit, type OpenLimits } from './guest-order-limit'
 import { loadPricingRules, priceItems } from './price-rules'
 import type { EffectivePrice } from './pricing'
@@ -117,7 +118,7 @@ export async function reuseExisting(
   return rows[0]?.id ?? null
 }
 
-type OrderEvent = { id: string; trialMode: boolean; depositEnabled: boolean } & OpenLimits
+type OrderEvent = { id: string; trialMode: boolean; depositEnabled: boolean; cafeClosed: boolean } & OpenLimits
 
 export async function createOrderRow(
   db: Db,
@@ -200,7 +201,7 @@ async function insertOrder(
         priceRuleName: rule?.name ?? null,
         regularPriceCents: rule ? m.priceCents : null,
         paymentStatus: meal ? 'paid' : 'unpaid',
-        station: m.station,
+        station: routeStation(m.station as 'kitchen' | 'bar' | 'cafe', ev),
         note: it.note,
         nameDe: m.nameDe,
         nameEn: m.nameEn,

@@ -20,7 +20,7 @@ const stubs = { NuxtLink: RouterLinkStub }
 function ticket(over: Partial<TicketSummary> = {}): TicketSummary {
   return {
     ticketKey: 't-4', tableNo: 4, status: 'open', totalCents: 800, unpaidCents: 800, lockedBy: null,
-    ready: { kitchen: 0, bar: 0 }, foodToPay: 0, oldestItemAt: ago(5), lastOrderAt: ago(5), lastCheckAt: null, assignee: null, ...over,
+    ready: { kitchen: 0, bar: 0, cafe: 0 }, foodToPay: 0, oldestItemAt: ago(5), lastOrderAt: ago(5), lastCheckAt: null, assignee: null, ...over,
   }
 }
 const held = (tableNo: number, who = ANNA): TableAssignment => ({ tableNo, ...who, assignedAt: ago(1) })
@@ -32,10 +32,10 @@ describe('table grid helpers', () => {
     expect(tileState(ticket({ lastOrderAt: ago(LATE_AFTER_MINUTES) }), NOW)).toBe('late')
     // Asking at the table ("nachgefragt") resets the clock.
     expect(tileState(ticket({ lastOrderAt: ago(40), lastCheckAt: ago(3) }), NOW)).toBe('busy')
-    expect(tileState(ticket({ lastOrderAt: ago(40), ready: { kitchen: 1, bar: 0 } }), NOW)).toBe('ready')
+    expect(tileState(ticket({ lastOrderAt: ago(40), ready: { kitchen: 1, bar: 0, cafe: 0 } }), NOW)).toBe('ready')
     expect(tileState(ticket({ status: 'paid', unpaidCents: 0 }), NOW)).toBe('free')
     // Food prepay: the kitchen waits for the money, so cashing comes first.
-    expect(tileState(ticket({ foodToPay: 2, ready: { kitchen: 0, bar: 1 } }), NOW)).toBe('pay')
+    expect(tileState(ticket({ foodToPay: 2, ready: { kitchen: 0, bar: 1, cafe: 0 } }), NOW)).toBe('pay')
   })
 
   it('lists the whole range plus served tables outside it, without walk-ins', () => {
@@ -138,7 +138,7 @@ describe('TableTile and TableGrid', () => {
     expect(late.findComponent(RouterLinkStub).props('to')).toBe('/staff/4')
 
     const ready = mount(TableTile, {
-      props: { tile: { tableNo: 5, state: 'ready', ticket: ticket({ ready: { kitchen: 2, bar: 1 } }), assignee: ANNA }, mine: true, nowMs: NOW },
+      props: { tile: { tableNo: 5, state: 'ready', ticket: ticket({ ready: { kitchen: 2, bar: 1, cafe: 0 } }), assignee: ANNA }, mine: true, nowMs: NOW },
       global: { stubs },
     })
     expect(ready.attributes('data-mine')).toBe('true')

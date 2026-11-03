@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 // One-tap login on Vercel preview deployments (behind Vercel's own login).
-export const PreviewAsEnum = z.enum(['waiter', 'lead', 'kitchen', 'bar', 'admin', 'guest'])
+export const PreviewAsEnum = z.enum(['waiter', 'lead', 'kitchen', 'bar', 'cafe', 'admin', 'guest'])
 export type PreviewAs = z.infer<typeof PreviewAsEnum>
 
 export const PreviewLoginSchema = z.object({ as: PreviewAsEnum })

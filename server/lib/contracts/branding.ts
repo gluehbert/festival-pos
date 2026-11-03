@@ -25,6 +25,8 @@ export const UpdateBrandingSchema = z.object({
   staffMealsEnabled: z.boolean().optional(),
   waiterCallsEnabled: z.boolean().optional(),
   foodPrepayEnabled: z.boolean().optional(),
+  // After the Kaffeeklatsch: coffee and cake go to the kitchen (also from the cafe screen).
+  cafeClosed: z.boolean().optional(),
   // Unpaid cents one guest phone may have per station; null = no limit.
   guestOpenLimitBarCents: GuestOpenLimitSchema.optional(),
   guestOpenLimitKitchenCents: GuestOpenLimitSchema.optional(),

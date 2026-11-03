@@ -29,7 +29,7 @@ function onSubmit() {
     <label class="text-sm">
       <span class="block text-xs uppercase tracking-wide text-slate-500">{{ $t('admin.staff.role') }}</span>
       <select v-model="role" class="mt-1 w-full rounded border border-slate-300 px-2 py-1">
-        <option v-for="r in ['waiter', 'lead', 'kitchen', 'bar', 'admin']" :key="r" :value="r">{{ $t(`admin.staff.roles.${r}`) }}</option>
+        <option v-for="r in ['waiter', 'lead', 'kitchen', 'bar', 'cafe', 'admin']" :key="r" :value="r">{{ $t(`admin.staff.roles.${r}`) }}</option>
       </select>
     </label>
     <label class="text-sm">
