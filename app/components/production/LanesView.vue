@@ -7,8 +7,9 @@ import type { ProductionLane } from '~/../server/lib/contracts/production'
 import NoteBadge from '~/components/common/NoteBadge.vue'
 import { ageClass, cardLines, groupLabel, isFollowUp, minutesWaiting } from '~/utils/production-card'
 import { fitText } from '~/utils/fit-text'
+import { laneColor } from '~/utils/buzzer-lanes'
 
-// Kitchen/bar screen with buzzers: each buzzer has a lane (1 green, 2 blue)
+// Kitchen/bar screen with buzzers: each buzzer has a lane (1 green, 2 blue, 3 amber, 4 violet)
 // holding the card its person works on, big enough to read from afar. The
 // rest waits on the right under "Next up"; a tap finishes any card, the
 // lanes stay put.
@@ -19,10 +20,6 @@ const emit = defineEmits<{ (e: 'finish', group: ProductionOrderGroup, named: boo
 const { t } = useI18n()
 const { itemName } = useFormat()
 
-const COLORS: Record<number, { border: string; bg: string; text: string }> = {
-  1: { border: 'border-emerald-600', bg: 'bg-emerald-600', text: 'text-emerald-700' },
-  2: { border: 'border-blue-600', bg: 'bg-blue-600', text: 'text-blue-700' },
-}
 // Lines a waiting card shows before "+n more".
 const PREVIEW_LINES = 3
 
@@ -37,8 +34,7 @@ function press(lane: number) {
   const group = laneCards.value.find((l) => l.lane === lane)?.group
   if (group && !props.finishing.has(group.key)) emit('finish', group, true)
 }
-useBuzzer(computed(() => props.lanes.find((l) => l.lane === 1)?.key ?? null), () => press(1))
-useBuzzer(computed(() => props.lanes.find((l) => l.lane === 2)?.key ?? null), () => press(2))
+useBuzzer(computed(() => props.lanes), press)
 
 // From tablet width on, the view takes the height left below its top edge,
 // and each lane's type shrinks until its whole order fits.
@@ -79,17 +75,17 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
     class="mt-2 flex flex-col gap-3 md:flex-row"
     :style="height ? { height: `${height}px` } : undefined"
   >
-    <div class="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3" :class="single ? '' : 'md:grid-cols-2'">
+    <div class="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 md:auto-rows-fr" :class="single ? '' : 'md:grid-cols-2'">
       <section
         v-for="l in laneCards"
         :key="l.lane"
         :data-test="`lane-${l.lane}`"
         class="flex min-h-[280px] flex-col overflow-hidden rounded-2xl border-[6px] bg-surface md:min-h-0"
-        :class="COLORS[l.lane]!.border"
+        :class="laneColor(l.lane).border"
       >
-        <header class="flex shrink-0 items-center justify-between gap-2 px-4 py-1.5 text-white" :class="COLORS[l.lane]!.bg">
+        <header class="flex shrink-0 items-center justify-between gap-2 px-4 py-1.5 text-white" :class="laneColor(l.lane).bg">
           <span class="flex min-w-0 items-center gap-2 truncate text-lg font-extrabold uppercase tracking-wide">
-            <span class="flex size-8 items-center justify-center rounded-full bg-white text-lg font-black" :class="COLORS[l.lane]!.text">{{ l.lane }}</span>
+            <span class="flex size-8 items-center justify-center rounded-full bg-white text-lg font-black" :class="laneColor(l.lane).text">{{ l.lane }}</span>
             {{ $t(`production.lanes.buzzer${l.lane}`) }}
           </span>
           <span v-if="l.group" class="shrink-0 whitespace-nowrap rounded-full px-3 py-0.5 text-base font-semibold" :class="ageClass(minutesWaiting(l.group))">
