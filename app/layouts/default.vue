@@ -49,7 +49,8 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="min-h-screen bg-app text-slate-900">
-    <header class="flex items-center justify-between gap-2 bg-surface px-4 py-2">
+    <!-- relative: the kitchen/bar display menu hangs from the header's right edge. -->
+    <header class="relative flex items-center justify-between gap-2 bg-surface px-4 py-2">
       <div class="flex min-w-0 items-center gap-3">
         <NuxtLink to="/" class="flex min-w-0 items-center gap-2 text-sm font-semibold text-brand-ink">
           <EventLogo :branding="branding" alt="" img-class="h-8 w-auto max-w-24 object-contain" />

@@ -9,6 +9,9 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 // mounts lazily, so everything that must work while it is closed lives here.
 // The menu is a plain dropdown in the header, not a floating popover: a popover
 // is placed in screen pixels, which a zoomed page pushes out of the screen.
+// It hangs from the header's right edge, not from its icon: the bell and the
+// account menu sit right of the icon, so at a high zoom on a phone a panel
+// under the icon reached past the left edge.
 const STEP = 0.1
 const MIN = 0.7
 const MAX = 1.6
@@ -118,13 +121,13 @@ onBeforeUnmount(() => {
   releaseLock()
 })
 
-const pill = 'inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-sm font-semibold'
+const pill = 'inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap'
 const offClass = 'bg-slate-100 text-slate-700 hover:bg-slate-200'
 const roundButton = 'inline-flex size-11 items-center justify-center rounded-full text-slate-700 hover:bg-slate-200 disabled:opacity-40'
 </script>
 
 <template>
-  <div ref="root" class="relative">
+  <div ref="root">
     <button
       type="button"
       class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-slate-600 hover:bg-slate-100"
@@ -138,7 +141,7 @@ const roundButton = 'inline-flex size-11 items-center justify-center rounded-ful
     </button>
     <div
       v-if="open"
-      class="absolute right-0 top-full z-50 mt-1 flex flex-col items-start gap-2 rounded-lg bg-surface p-3 shadow-lg ring-1 ring-slate-200"
+      class="absolute right-2 top-full z-50 mt-1 flex flex-col items-start gap-2 rounded-lg bg-surface p-3 shadow-lg ring-1 ring-slate-200"
       data-test="display-panel"
     >
       <div class="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.display.zoomLabel')">
