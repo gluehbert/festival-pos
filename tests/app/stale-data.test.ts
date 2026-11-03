@@ -5,6 +5,8 @@ import { useTicketsStore } from '~/stores/tickets'
 import { usePolling } from '~/composables/usePolling'
 import { createIncreaseTracker, createSeenTracker } from '~/utils/arrivals'
 import StaleBanner from '~/components/common/StaleBanner.vue'
+import { syncErrorKind } from '~/utils/sync-error'
+import { apiFailure } from './setup/api-error'
 
 const fetchMock = vi.fn()
 
@@ -113,6 +115,33 @@ describe('StaleBanner', () => {
   it('says so when nothing was loaded yet', () => {
     const w = mount(StaleBanner, { props: { failed: true, since: null } })
     expect(w.text()).toContain('common.stale.never')
+  })
+
+  it('names a server-side failure instead of "no connection"', () => {
+    const since = new Date(2026, 5, 13, 18, 42, 7).getTime()
+    const w = mount(StaleBanner, { props: { failed: true, since, error: apiFailure(500, 'SCHEMA_MISMATCH') } })
+    expect(w.text()).toContain('common.stale.schema')
+    expect(w.text()).toContain('common.stale.lastSync')
+    expect(w.text()).not.toContain('common.stale.since')
+  })
+})
+
+describe('syncErrorKind', () => {
+  it('tells network, missing event, schema and server failures apart', () => {
+    expect(syncErrorKind(new TypeError('Failed to fetch'))).toBe('offline')
+    expect(syncErrorKind(null)).toBe('offline')
+    expect(syncErrorKind(apiFailure(404, 'NOT_FOUND'))).toBe('noEvent')
+    expect(syncErrorKind(apiFailure(500, 'SCHEMA_MISMATCH'))).toBe('schema')
+    expect(syncErrorKind(apiFailure(500, 'INTERNAL'))).toBe('server')
+    expect(syncErrorKind({ statusCode: 502, data: '<html>Bad Gateway</html>' })).toBe('server')
+  })
+
+  it('stores keep the failure of the last poll', async () => {
+    const s = useTicketsStore()
+    const failure = apiFailure(500, 'SCHEMA_MISMATCH')
+    fetchMock.mockRejectedValueOnce(failure)
+    await expect(s.refresh()).rejects.toBe(failure)
+    expect(s.syncError).toBe(failure)
   })
 })
 

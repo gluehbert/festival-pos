@@ -81,7 +81,7 @@ function tileClass(tableNo: number): string {
     <h1 class="mt-2 text-2xl font-bold text-slate-900">
       {{ $t('staff.distribute.title') }}
     </h1>
-    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" @retry="polling.refresh()" />
+    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" :error="tickets.syncError" @retry="polling.refresh()" />
 
     <h2 class="mt-4 text-base font-semibold text-slate-900">
       {{ $t('staff.distribute.pickPerson') }}

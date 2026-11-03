@@ -32,6 +32,13 @@ export function isForeignKeyViolation(err: unknown): boolean {
   return hasPgCode(err, '23503')
 }
 
+// The code asks for a column or table the database does not have (or no
+// longer has): app version and migrations are out of step, for example
+// old code against a database a newer deploy already migrated.
+export function isSchemaMismatch(err: unknown): boolean {
+  return hasPgCode(err, '42703') || hasPgCode(err, '42P01')
+}
+
 function isDbConnectionLimit(err: unknown): boolean {
   const message = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase()
   return (
@@ -53,6 +60,17 @@ export function sendAppError(event: H3Event, err: unknown): never {
         code: 'DB_BUSY',
         message: 'Database temporarily unavailable, please retry.',
         retryAfterSeconds: 1,
+      },
+    })
+  }
+
+  if (isSchemaMismatch(err)) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal Server Error',
+      data: {
+        code: 'SCHEMA_MISMATCH',
+        message: 'Database schema does not match this app version',
       },
     })
   }
