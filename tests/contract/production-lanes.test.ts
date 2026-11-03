@@ -25,9 +25,12 @@ function order(tableNo: number, offset: number): string {
   ) as { id: string }).id
 }
 
-function buzzers(one: string | null, two: string | null) {
-  const q = (v: string | null) => (v === null ? 'NULL' : `'${v}'`)
-  ctx.mem.public.none(`UPDATE events SET buzzer_key = ${q(one)}, buzzer_key_2 = ${q(two)} WHERE id = '${seeded.eventId}'`)
+// The station's buzzers, lane 1 first.
+function buzzers(...keys: string[]) {
+  ctx.mem.public.none(`DELETE FROM station_buzzers WHERE event_id = '${seeded.eventId}' AND station = 'kitchen'`)
+  keys.forEach((key, i) => ctx.mem.public.none(
+    `INSERT INTO station_buzzers (event_id, station, lane, key) VALUES ('${seeded.eventId}', 'kitchen', ${i + 1}, '${key}')`,
+  ))
 }
 
 function finish(itemId: string) {
@@ -39,11 +42,11 @@ interface Polled { lanes: Array<{ lane: number; key: string; groupKey: string | 
 // Lane -> table it holds ("table:12:<order id>" -> 12).
 const tables = (r: Polled) => r.lanes.map((l) => [l.lane, l.groupKey === null ? null : Number(l.groupKey.split(':')[1])])
 
-async function poll(): Promise<Polled> {
+async function poll(role: 'kitchen' | 'bar' = 'kitchen'): Promise<Polled> {
   const { makeEvent } = await import('../setup/h3-event')
   const handler = (await import('../../server/api/production/queue.get')).default
   const { event } = makeEvent({ method: 'GET', url: '/api/production/queue' })
-  event.context.auth = { staff: { staffId: seeded.staffId, role: 'kitchen', username: 'k' } }
+  event.context.auth = { staff: { staffId: seeded.staffId, role, username: 'k' } }
   return await handler(event) as never
 }
 
@@ -100,9 +103,13 @@ describe('production lanes (buzzers)', () => {
     order(7, 10)
     expect(tables(await poll())).toEqual([[1, 12], [2, 7]])
 
-    buzzers(null, 'F10')
-    expect(tables(await poll())).toEqual([[2, 7]])
-    buzzers(null, null)
+    // The buzzers after a removed one move up: lane 1 keeps its card, lane 2's goes back.
+    buzzers('F10')
+    const after = await poll()
+    expect(tables(after)).toEqual([[1, 12]])
+    expect(after.lanes[0]!.key).toBe('F10')
+    expect(after.items.map((i) => [i.tableNo, i.productionStatus])).toEqual([[12, 'in_progress'], [7, 'in_progress']])
+    buzzers()
     expect((await poll()).lanes).toEqual([])
     expect(ctx.mem.public.many('SELECT * FROM production_lanes')).toEqual([])
   })
@@ -125,22 +132,15 @@ describe('production lanes (buzzers)', () => {
     expect(r.items.filter((i) => i.tableNo === 12)).toHaveLength(3)
   })
 
-  it('the admin cannot give both buzzers the same key', async () => {
-    const { makeEvent } = await import('../setup/h3-event')
-    const patch = (await import('../../server/api/admin/events/[id]/branding.patch')).default
-    const req = (body: unknown) => {
-      ctx.setBody(body)
-      const csrf = 'a'.repeat(64)
-      const { event } = makeEvent({ method: 'PATCH', cookies: { csrf }, headers: { 'x-csrf-token': csrf } })
-      event.context.auth = { staff: { staffId: seeded.staffId, role: 'admin', username: 'a' } }
-      event.context.params = { id: seeded.eventId }
-      return patch(event)
-    }
-    const stored = () => ctx.mem.public.one(`SELECT buzzer_key, buzzer_key_2 FROM events WHERE id = '${seeded.eventId}'`)
-    await req({ buzzerKey: 'F9' })
-    await expect(req({ buzzerKey2: 'F9' })).rejects.toMatchObject({ statusCode: 400 })
-    await expect(req({ buzzerKey: 'F10', buzzerKey2: 'F10' })).rejects.toMatchObject({ statusCode: 400 })
-    await req({ buzzerKey2: 'F10' })
-    expect(stored()).toEqual({ buzzer_key: 'F9', buzzer_key_2: 'F10' })
+  it('fills up to four lanes, and the bar screen only has the bar\'s buzzers', async () => {
+    for (const [n, table] of [10, 11, 12, 13, 14].entries()) order(table, n * 10)
+    buzzers('1', '2', '3', '4')
+    expect(tables(await poll())).toEqual([[1, 10], [2, 11], [3, 12], [4, 13]])
+    expect((await poll('bar')).lanes).toEqual([])
+    ctx.mem.public.none(`INSERT INTO station_buzzers (event_id, station, lane, key) VALUES ('${seeded.eventId}', 'bar', 1, '1')`)
+    expect((await poll('bar')).lanes).toEqual([{ lane: 1, key: '1', groupKey: null, assignedAt: null }])
+    expect(() => ctx.mem.public.none(
+      `INSERT INTO station_buzzers (event_id, station, lane, key) VALUES ('${seeded.eventId}', 'kitchen', 5, '5')`,
+    )).toThrow()
   })
 })

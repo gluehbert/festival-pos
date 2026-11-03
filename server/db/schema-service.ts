@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm'
-import { check, index, integer, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
+import { check, index, integer, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid, varchar } from 'drizzle-orm/pg-core'
 import { events, staff } from './schema'
 
 // "Asked at the table, nothing wanted": one row per table, overwritten on each
@@ -69,7 +69,26 @@ export const waiterCalls = pgTable(
   ],
 )
 
-// Buzzer lanes at the kitchen/bar, one per buzzer key of the event: the card
+// Buzzers at the kitchen/bar, each a one-key keyboard (KeyboardEvent.key)
+// with its own lane on that station's screen. Up to four per station; the
+// two stations have their own screens, so they may use the same key.
+export const stationBuzzers = pgTable(
+  'station_buzzers',
+  {
+    eventId: uuid('event_id').notNull().references(() => events.id, { onDelete: 'cascade' }),
+    station: text('station').notNull(),
+    lane: integer('lane').notNull(),
+    key: varchar('key', { length: 32 }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.eventId, t.station, t.lane] }),
+    uniqueIndex('station_buzzers_key_uq').on(t.eventId, t.station, t.key),
+    check('station_buzzers_lane_chk', sql`${t.lane} BETWEEN 1 AND 4`),
+    check('station_buzzers_station_chk', sql`${t.station} IN ('kitchen','bar')`),
+  ],
+)
+
+// Buzzer lanes at the kitchen/bar, one per buzzer of the station: the card
 // (key from productionCards) a person behind the counter works on. A card
 // stays in its lane until it is finished; then the lane takes the oldest
 // card no other lane holds.
@@ -85,7 +104,7 @@ export const productionLanes = pgTable(
   (t) => [
     primaryKey({ columns: [t.eventId, t.station, t.lane] }),
     uniqueIndex('production_lanes_group_uq').on(t.eventId, t.station, t.groupKey),
-    check('production_lanes_lane_chk', sql`${t.lane} IN (1, 2)`),
+    check('production_lanes_lane_chk', sql`${t.lane} BETWEEN 1 AND 4`),
     check('production_lanes_station_chk', sql`${t.station} IN ('kitchen','bar')`),
   ],
 )

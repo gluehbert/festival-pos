@@ -120,11 +120,19 @@ describe('EventFeaturesPanel', () => {
     useCookie<string>('csrf').value = 'c'.repeat(64)
   })
   afterEach(() => vi.unstubAllGlobals())
+  // The buzzer list loads on mount; the tests look at the calls after it.
+  async function mountPanel() {
+    fetchMock.mockResolvedValueOnce({ kitchen: [], bar: [] })
+    const w = mount(EventFeaturesPanel, { props: { event: ev() } })
+    await flushPromises()
+    fetchMock.mockClear()
+    return w
+  }
 
   it('switches deposit on, updates the event and the public branding', async () => {
     const admin = useAdminStore()
     admin.events = [ev()]
-    const w = mount(EventFeaturesPanel, { props: { event: ev() } })
+    const w = await mountPanel()
     expect(w.get('[data-feature="depositEnabled"]').attributes('aria-checked')).toBe('false')
     fetchMock.mockResolvedValueOnce({})
     await w.get('[data-feature="depositEnabled"]').trigger('click')
@@ -136,7 +144,7 @@ describe('EventFeaturesPanel', () => {
   })
 
   it('reports a failed save', async () => {
-    const w = mount(EventFeaturesPanel, { props: { event: ev() } })
+    const w = await mountPanel()
     fetchMock.mockRejectedValueOnce(new Error('down'))
     await w.get('[data-feature="staffMealsEnabled"]').trigger('click')
     await flushPromises()

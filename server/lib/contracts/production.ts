@@ -61,10 +61,23 @@ export function productionCards(
   return cards.map(({ key, items }) => ({ key, items }))
 }
 
-// Buzzer lanes (1 = green, 2 = blue) of the event: the buzzer's key, the
-// card the lane holds and since when (items ordered later are new to it).
+// Buzzers of a station: one-key keyboards (KeyboardEvent.key), each with its
+// own lane on the station's screen, in list order (lane 1 green, 2 blue,
+// 3 amber, 4 violet). More lanes would not fit next to "Next up".
+export const BUZZERS_PER_STATION = 4
+export const StationBuzzersSchema = z.object({ kitchen: z.array(z.string()), bar: z.array(z.string()) })
+export type StationBuzzers = z.infer<typeof StationBuzzersSchema>
+export const SetStationBuzzersSchema = z.object({
+  station: StationEnum,
+  keys: z.array(z.string().min(1).max(32)).max(BUZZERS_PER_STATION)
+    .refine((keys) => new Set(keys).size === keys.length, 'Each buzzer needs its own key'),
+})
+export type SetStationBuzzers = z.infer<typeof SetStationBuzzersSchema>
+
+// Buzzer lanes of the station: the buzzer's key, the card the lane holds and
+// since when (items ordered later are new to it).
 export const ProductionLaneSchema = z.object({
-  lane: z.number().int().min(1).max(2),
+  lane: z.number().int().min(1).max(BUZZERS_PER_STATION),
   key: z.string(),
   groupKey: z.string().nullable(),
   assignedAt: z.string().datetime().nullable(),
