@@ -2,8 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import DisplayMenu from '~/components/production/DisplayMenu.vue'
 
-const stubs = { UPopover: { template: '<div><slot /><slot name="content" /></div>' } }
-const mountMenu = () => mount(DisplayMenu, { global: { stubs } })
+const mountMenu = () => mount(DisplayMenu, { attachTo: document.body })
+async function openMenu(w: ReturnType<typeof mountMenu>) {
+  await w.find('[data-test="display-menu"]').trigger('click')
+}
 
 afterEach(() => {
   localStorage.clear()
@@ -23,6 +25,7 @@ function fakeWakeLock() {
 describe('DisplayMenu (kitchen/bar header)', () => {
   it('plus and minus zoom the whole page within bounds and remember it', async () => {
     const w = mountMenu()
+    await openMenu(w)
     await w.find('[data-test="zoom-in"]').trigger('click')
     expect(pageZoom()).toBe('1.1')
     expect(w.find('[data-test="zoom-value"]').text()).toBe('110 %')
@@ -44,18 +47,35 @@ describe('DisplayMenu (kitchen/bar header)', () => {
     w.unmount()
   })
 
+  it('opens as a dropdown in the header and closes on an outside tap or Escape', async () => {
+    const w = mountMenu()
+    expect(w.find('[data-test="display-panel"]').exists()).toBe(false)
+    await openMenu(w)
+    expect(w.find('[data-test="display-panel"]').exists()).toBe(true)
+
+    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    await w.vm.$nextTick()
+    expect(w.find('[data-test="display-panel"]').exists()).toBe(false)
+
+    await openMenu(w)
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await w.vm.$nextTick()
+    expect(w.find('[data-test="display-panel"]').exists()).toBe(false)
+    w.unmount()
+  })
+
   it('toggles fullscreen when the browser supports it', async () => {
     Object.defineProperty(document, 'fullscreenEnabled', { configurable: true, value: true })
     const request = vi.fn().mockResolvedValue(undefined)
     document.documentElement.requestFullscreen = request
     const w = mountMenu()
-    await w.vm.$nextTick()
+    await openMenu(w)
     await w.find('[data-test="fullscreen"]').trigger('click')
     expect(request).toHaveBeenCalled()
 
     Object.defineProperty(document, 'fullscreenEnabled', { configurable: true, value: false })
     const hidden = mountMenu()
-    await hidden.vm.$nextTick()
+    await openMenu(hidden)
     expect(hidden.find('[data-test="fullscreen"]').exists()).toBe(false)
   })
 
@@ -65,6 +85,7 @@ describe('DisplayMenu (kitchen/bar header)', () => {
     await flushPromises()
     expect(request).toHaveBeenCalledWith('screen')
 
+    await openMenu(w)
     await w.find('[data-test="keep-awake"]').trigger('click')
     expect(release).toHaveBeenCalled()
     expect(localStorage.getItem('production-keep-awake')).toBe('off')
@@ -85,7 +106,7 @@ describe('DisplayMenu (kitchen/bar header)', () => {
 
     Reflect.deleteProperty(navigator, 'wakeLock')
     const unsupported = mountMenu()
-    await unsupported.vm.$nextTick()
+    await openMenu(unsupported)
     expect(unsupported.find('[data-test="keep-awake"]').exists()).toBe(false)
   })
 })
