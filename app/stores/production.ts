@@ -39,6 +39,8 @@ export const useProductionStore = defineStore('production', () => {
   // the screen warns when the queue it shows may be outdated.
   const syncFailed = ref(false)
   const lastSyncAt = ref<number | null>(null)
+  // The last failed poll, for the warning's text.
+  const syncError = ref<unknown>(null)
 
   // Local changes the server may not show yet. A poll that was already
   // running when the user tapped would otherwise bring a finished item back
@@ -93,6 +95,7 @@ export const useProductionStore = defineStore('production', () => {
     catch (e) {
       error.value = e
       syncFailed.value = true
+      syncError.value = e
       throw e
     }
     finally {
@@ -180,5 +183,5 @@ export const useProductionStore = defineStore('production', () => {
     }
   }
 
-  return { station, queue, lanes, cafeClosed, setCafeClosed, groups, loading, error, syncFailed, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
+  return { station, queue, lanes, cafeClosed, setCafeClosed, groups, loading, error, syncFailed, syncError, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
 })

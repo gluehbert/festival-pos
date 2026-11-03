@@ -89,6 +89,13 @@ describe('sendAppError', () => {
     expect(() => sendAppError(event, new Error('boom'))).toThrow(expect.objectContaining({ statusCode: 500 }))
   })
 
+  it('maps a missing column or table to SCHEMA_MISMATCH', () => {
+    for (const code of ['42703', '42P01']) {
+      expect(() => sendAppError(event, { message: 'Failed query', cause: { code } }))
+        .toThrow(expect.objectContaining({ statusCode: 500, data: expect.objectContaining({ code: 'SCHEMA_MISMATCH' }) }))
+    }
+  })
+
   it('detects Postgres error codes through drizzle cause chains', () => {
     const wrapped = { message: 'Failed query', cause: { code: '23505' } }
     expect(isUniqueViolation(wrapped)).toBe(true)

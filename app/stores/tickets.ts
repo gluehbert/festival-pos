@@ -25,6 +25,8 @@ export const useTicketsStore = defineStore('tickets', () => {
   // may be outdated.
   const syncFailed = ref(false)
   const lastSyncAt = ref<number | null>(null)
+  // The last failed poll, for the warning's text.
+  const syncError = ref<unknown>(null)
   // Server clock minus device clock, from the last response ("vor X Min.").
   const clockOffsetMs = ref(0)
 
@@ -54,6 +56,7 @@ export const useTicketsStore = defineStore('tickets', () => {
     catch (e) {
       error.value = e
       syncFailed.value = true
+      syncError.value = e
       throw e
     }
     finally {
@@ -85,6 +88,7 @@ export const useTicketsStore = defineStore('tickets', () => {
         return null
       }
       syncFailed.value = true
+      syncError.value = e
       if (selected.value?.ticketKey !== ticketKey) selected.value = null
       return null
     }
@@ -159,5 +163,5 @@ export const useTicketsStore = defineStore('tickets', () => {
     selected.value = null
   }
 
-  return { tickets, assignments, tableRange, assign, release, missing, selected, loading, error, syncFailed, lastSyncAt, clockOffsetMs, refresh, load, markServed, markChecked, clearSelection }
+  return { tickets, assignments, tableRange, assign, release, missing, selected, loading, error, syncFailed, syncError, lastSyncAt, clockOffsetMs, refresh, load, markServed, markChecked, clearSelection }
 })

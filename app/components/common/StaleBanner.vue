@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useFormat } from '~/composables/useFormat'
+import { syncErrorKind } from '~/utils/sync-error'
 
 // Polls fail: what the screen shows may be outdated. Shown until a poll
-// succeeds again; `since` is the time of the last successful one.
-const props = defineProps<{ failed: boolean; since: number | null }>()
+// succeeds again; `since` is the time of the last successful one, `error`
+// the last failure, which picks the text.
+const props = defineProps<{ failed: boolean; since: number | null; error?: unknown }>()
 defineEmits<{ retry: [] }>()
 
 const { time } = useFormat()
-const text = computed(() => (props.since === null ? 'common.stale.never' : 'common.stale.since'))
+const kind = computed(() => syncErrorKind(props.error))
+const text = computed(() => {
+  if (kind.value !== 'offline') return `common.stale.${kind.value}`
+  return props.since === null ? 'common.stale.never' : 'common.stale.since'
+})
 </script>
 
 <template>
@@ -20,7 +26,12 @@ const text = computed(() => (props.since === null ? 'common.stale.never' : 'comm
   >
     <p class="flex items-center gap-2 text-base font-bold">
       <UIcon name="i-lucide-triangle-alert" class="size-5 shrink-0" aria-hidden="true" />
-      {{ $t(text, { time: since === null ? '' : time(since) }) }}
+      <span>
+        {{ $t(text, { time: since === null ? '' : time(since) }) }}
+        <span v-if="kind !== 'offline' && since !== null" class="block text-sm font-normal">
+          {{ $t('common.stale.lastSync', { time: time(since) }) }}
+        </span>
+      </span>
     </p>
     <button
       type="button"

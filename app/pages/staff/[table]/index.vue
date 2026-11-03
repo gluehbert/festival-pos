@@ -149,7 +149,7 @@ const ticket = computed(() => tickets.selected)
     <NuxtLink to="/staff" class="inline-flex min-h-[44px] items-center gap-1 text-sm text-slate-500">
       <UIcon name="i-lucide-arrow-left" class="size-4 shrink-0" aria-hidden="true" /> {{ $t('staff.detail.back') }}
     </NuxtLink>
-    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" @retry="polling.refresh()" />
+    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" :error="tickets.syncError" @retry="polling.refresh()" />
     <header v-if="ticket" class="mt-3 flex items-end justify-between">
       <div>
         <p class="text-xs uppercase tracking-wide text-slate-500">

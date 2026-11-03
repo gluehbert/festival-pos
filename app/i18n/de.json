@@ -35,7 +35,11 @@
     "retry": "Erneut versuchen",
     "stale": {
       "since": "Keine Verbindung – Stand von {time}",
-      "never": "Keine Verbindung – noch keine Daten geladen"
+      "never": "Keine Verbindung – noch keine Daten geladen",
+      "noEvent": "Kein aktives Fest – nichts zu laden",
+      "server": "Serverfehler – Daten konnten nicht geladen werden",
+      "schema": "App-Version und Datenbank passen nicht zusammen – bitte Admin informieren",
+      "lastSync": "Stand von {time}"
     },
     "note": {
       "label": "Notiz",

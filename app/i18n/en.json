@@ -35,7 +35,11 @@
     "retry": "Retry",
     "stale": {
       "since": "No connection – data as of {time}",
-      "never": "No connection – nothing loaded yet"
+      "never": "No connection – nothing loaded yet",
+      "noEvent": "No active event – nothing to load",
+      "server": "Server error – data could not be loaded",
+      "schema": "App version and database do not match – please tell the admin",
+      "lastSync": "Data as of {time}"
     },
     "note": {
       "label": "Note",
