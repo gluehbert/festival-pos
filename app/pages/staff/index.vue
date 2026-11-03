@@ -116,7 +116,7 @@ const unattended = computed(() => (expert.value && owner.value === 'mine' ? need
       {{ $t('staff.distribute.nav') }}
     </NuxtLink>
 
-    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" @retry="polling.refresh()" />
+    <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" :error="tickets.syncError" @retry="polling.refresh()" />
 
     <WaiterCalls v-if="branding.waiterCallsEnabled" />
 

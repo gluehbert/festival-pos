@@ -165,7 +165,7 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
       </Teleport>
     </ClientOnly>
 
-    <StaleBanner :failed="production.syncFailed" :since="production.lastSyncAt" @retry="polling.refresh()" />
+    <StaleBanner :failed="production.syncFailed" :since="production.lastSyncAt" :error="production.syncError" @retry="polling.refresh()" />
 
     <WaiterCalls v-if="branding.waiterCallsEnabled && effectiveStation === 'bar'" bar />
 

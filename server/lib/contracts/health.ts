@@ -3,6 +3,8 @@ import { z } from 'zod'
 export const HealthSchema = z.object({
   status: z.literal('ok'),
   dbLatencyMs: z.number().int().nonnegative(),
+  // Latest migration this build expects; the database is on it.
+  schema: z.string(),
 })
 
 export type Health = z.infer<typeof HealthSchema>
