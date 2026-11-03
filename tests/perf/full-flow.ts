@@ -5,14 +5,14 @@
 // (NFR-001), the error rate > 1 %, a status change takes > 5 s to show up
 // (SC-005) or the reports do not add up.
 //
-// Run it against a seeded app (admin / admin123, kitchen1 and bar1 with PIN
-// 1111, event PIN DEMO1234). Orders and payments are real unless the event is
+// Run it against a seeded app (admin / admin123, kitchen1, bar1 and cafe1 with
+// PIN 1111, event PIN DEMO1234). Orders and payments are real unless the event is
 // in rehearsal mode, so use a rehearsal event or a throwaway database.
 import { writeFileSync } from 'node:fs'
 import process from 'node:process'
 import {
   admin, Client, guest, readTotals, station, waiter,
-  type MenuItem, type World,
+  type MenuItem, type Station, type World,
 } from './actors.ts'
 import { checkConsistency, Recorder, renderMarkdown, summarize, verdict } from './metrics.ts'
 
@@ -71,6 +71,7 @@ async function main(): Promise<number> {
   const orderable = (menu.data?.items ?? []).filter((m) => m.isAvailable && (m.stock === null || m.stock >= 100))
   if (orderable.length === 0) fail('No orderable menu items without a low stock')
 
+  const stations: Station[] = (['kitchen', 'bar', 'cafe'] as const).filter((s) => s === 'kitchen' || orderable.some((m) => m.station === s))
   const waiterNames = await ensureWaiters(setup)
   const tableCount = Math.min(TABLES, ev.tableRangeTo - ev.tableRangeFrom + 1)
   const tables = Array.from({ length: tableCount }, (_, i) => ev.tableRangeFrom + i)
@@ -96,8 +97,9 @@ async function main(): Promise<number> {
   await Promise.all([
     ...Array.from({ length: GUESTS }, (_, i) => later((i / GUESTS) * RAMP_MS, () => guest(w, i))),
     ...waiterNames.map((name, i) => later(i * 500, () => waiter(w, i, name, WAITER_PIN))),
-    later(0, () => station(w, 'kitchen1', 'kitchen')),
-    later(250, () => station(w, 'bar1', 'bar')),
+    // One screen per station on the menu; the kitchen also takes the cafe's
+    // items while the counter is closed, so it always runs.
+    ...stations.map((s, i) => later(i * 250, () => station(w, `${s}1`, s))),
     admin(w, adminClient),
   ])
 

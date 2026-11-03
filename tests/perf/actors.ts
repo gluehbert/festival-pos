@@ -12,7 +12,8 @@ const GUEST_ORDERS_PER_TABLE = 15
 const GUEST_WINDOW_MS = 10 * 60 * 1000
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
 
-export interface MenuItem { id: string, station: 'kitchen' | 'bar', stock: number | null }
+export type Station = 'kitchen' | 'bar' | 'cafe'
+export interface MenuItem { id: string, station: Station, stock: number | null }
 
 export interface World {
   base: string
@@ -230,20 +231,24 @@ async function serveTable(w: World, c: Client, ticket: TicketDetail): Promise<vo
   }
 }
 
-export async function station(w: World, username: string, kind: 'kitchen' | 'bar'): Promise<void> {
+export async function station(w: World, username: string, kind: Station): Promise<void> {
   const c = new Client(w)
   const login = await c.call('POST', '/api/auth/login', { body: { username, secret: '1111', kind: 'pin' } })
   if (login.status !== 200) return
   const readyAt = new Map<string, number>() // order item id → when it is cooked
 
   await every(w.drainUntil, STAFF_POLL_MS, async () => {
-    const q = await c.call<{ items: Array<{ orderItemId: string, orderId: string, tableNo: number, productionStatus: string }> }>('GET', '/api/production/queue')
+    const q = await c.call<{ items: Array<{ orderItemId: string, orderId: string, tableNo: number, productionStatus: string }>, cafeClosed?: boolean }>('GET', '/api/production/queue')
     if (q.status !== 200) return
     const now = performance.now()
+    // Cafe counter closed: the kitchen gets coffee and cake (server/lib/cafe-routing.ts).
+    const covers: Station[] = kind === 'kitchen' && q.data.cafeClosed ? ['kitchen', 'cafe'] : [kind]
     for (const it of q.data.items) {
-      const key = `${it.orderId}:${kind}`
-      const p = w.orderPending.get(key)
-      if (p) { w.rec.seen('orderToQueue', now - p.at); w.orderPending.delete(key) }
+      for (const s of covers) {
+        const key = `${it.orderId}:${s}`
+        const p = w.orderPending.get(key)
+        if (p) { w.rec.seen('orderToQueue', now - p.at); w.orderPending.delete(key) }
+      }
     }
 
     // A busy cook takes a few items per round, not the whole backlog.
@@ -263,26 +268,25 @@ export async function station(w: World, username: string, kind: 'kitchen' | 'bar
   })
 }
 
-// The columns of the five reports that the check reads.
+// The columns of the reports that the check reads.
 interface ReportRow { totalCents: number, tipCents: number, issuedCents: number, orderCount: number, staffId: string | null }
-
-export const REPORT_TYPES = ['revenue_by_category', 'payments_by_staff', 'deposits', 'tips', 'orders_per_hour'] as const
+type ReportName = 'revenue_by_category' | 'payments_by_staff' | 'deposits' | 'tips' | 'orders_per_hour'
 
 const sum = <T>(rows: T[], f: (r: T) => number) => rows.reduce((t, r) => t + f(r), 0)
 
-// Reads the reports the consistency check needs; null when one of them failed.
+// Reads all reports in one request, like the admin page does every 15 s, from
+// one snapshot so the tables agree; null when the request failed.
 export async function readTotals(c: Client, eventId: string): Promise<ReportTotals | null> {
-  const got = await Promise.all(REPORT_TYPES.map((type) =>
-    c.call<{ rows: ReportRow[] }>('GET', `/api/admin/events/${eventId}/reports?type=${type}`)))
-  if (got.some((g) => g.status !== 200)) return null
-  const [revenue, payments, deposits, tips, perHour] = got.map((g) => g.data.rows)
+  const got = await c.call<{ reports: Record<ReportName, ReportRow[]> }>('GET', `/api/admin/events/${eventId}/reports/all`)
+  if (got.status !== 200) return null
+  const r = got.data.reports
   return {
-    paymentsNetCents: sum(payments!, (r) => r.totalCents),
-    paymentsTipCents: sum(payments!, (r) => r.tipCents),
-    revenueCents: sum(revenue!, (r) => r.totalCents),
-    depositIssuedCents: sum(deposits!, (r) => r.issuedCents),
-    tipsReportCents: tips!.find((r) => r.staffId === null)?.tipCents ?? 0,
-    orderCount: sum(perHour!, (r) => r.orderCount),
+    paymentsNetCents: sum(r.payments_by_staff, (x) => x.totalCents),
+    paymentsTipCents: sum(r.payments_by_staff, (x) => x.tipCents),
+    revenueCents: sum(r.revenue_by_category, (x) => x.totalCents),
+    depositIssuedCents: sum(r.deposits, (x) => x.issuedCents),
+    tipsReportCents: r.tips.find((x) => x.staffId === null)?.tipCents ?? 0,
+    orderCount: sum(r.orders_per_hour, (x) => x.orderCount),
   }
 }
 

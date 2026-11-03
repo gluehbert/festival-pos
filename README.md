@@ -31,7 +31,7 @@ Demo logins from `db:seed`: `admin` / `admin123` (password), `lead1` (shift lead
 
 ## At the festival
 
-- **Rehearsal**: [one-page checklist](docs/rehearsal-checklist.md) for a dress rehearsal with real phones at the venue; `pnpm perf:flow` drives the whole flow (guests, waiters, kitchen, bar, admin) as a load test.
+- **Rehearsal**: [one-page checklist](docs/rehearsal-checklist.md) for a dress rehearsal with real phones at the venue; `pnpm perf:flow` drives the whole flow (guests, waiters, kitchen, bar, cafe, admin) as a load test.
 - **Notes per item** ("no onions", max. 80 characters) from guests and waiters; kitchen and bar see them highlighted, and items with different notes are never merged.
 - **Cash register and closing** per waiter (`/staff/cash`): opening float, expected = opening + collected − refunds paid out from this drawer − deposit returns (excluding rehearsal mode), counted amount and difference; all closings appear in the reports.
 - **Deposit** per item, included when ordering; returns are handled at `/staff/deposit`; reported separately from revenue.

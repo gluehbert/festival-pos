@@ -26,7 +26,7 @@ jobs:
         env:
           PERF_BASE_URL: ${{ inputs.base_url }}
 
-  # Whole festival flow (guests, waiters, kitchen, bar, admin) against the
+  # Whole festival flow (guests, waiters, kitchen, bar, cafe, admin) against the
   # same deployment. Use a rehearsal event or a throwaway database: it books
   # real orders and payments.
   flow:
