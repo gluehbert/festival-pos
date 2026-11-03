@@ -46,12 +46,12 @@ Passkeys are bound to a domain. Without `WEBAUTHN_RP_ID`/`WEBAUTHN_ORIGIN`, that
 
 ```bash
 curl https://<your-app>.vercel.app/api/healthz
-# {"status":"ok","dbLatencyMs":12,"schema":"0032_faithful_supernaut"}
+# {"status":"ok","dbLatencyMs":12,"schema":"0033_mushy_maddog"}
 ```
 
 A 503 response names the missing variable, for example `JWT_SECRET is missing or shorter than 32 characters`. Add the variable in Vercel and **Redeploy**. Values are read at runtime, but a redeploy applies them to all running instances.
 
-A 503 with the code `SCHEMA_MISMATCH` means app and database are out of step, for example `App expects migration 0032_…, database is at newer than 0032_…`. Typical causes: a preview running older code against a shared preview database that a newer branch already migrated, a production build that failed after its migration ran, or an Instant Rollback (the database is not rolled back). Staff screens then say "App version and database do not match" instead of "No connection". Fix: deploy the newest code, or give each preview its own Neon branch with `MIGRATE=1`. To avoid it in production, never drop or rename a column in the same release that stops using it (see AGENTS.md).
+A 503 with the code `SCHEMA_MISMATCH` means app and database are out of step, for example `App expects migration 0033_…, database is at newer than 0033_…`. Typical causes: a preview running older code against a shared preview database that a newer branch already migrated, a production build that failed after its migration ran, or an Instant Rollback (the database is not rolled back). Staff screens then say "App version and database do not match" instead of "No connection". Fix: deploy the newest code, or give each preview its own Neon branch with `MIGRATE=1`. To avoid it in production, never drop or rename a column in the same release that stops using it (see AGENTS.md).
 
 ## 4. Create the first admin
 
