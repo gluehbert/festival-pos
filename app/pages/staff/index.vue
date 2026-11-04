@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { navigateTo } from '#imports'
 import { useAuthStore } from '~/stores/auth'
 import { useTicketsStore } from '~/stores/tickets'
+import { useStaffOrderStore } from '~/stores/staffOrder'
 import { usePolling } from '~/composables/usePolling'
 import TicketCard from '~/components/staff/TicketCard.vue'
 import LastReceipt from '~/components/staff/LastReceipt.vue'
@@ -23,6 +24,11 @@ import { matchesOwner, needsSomeone, ticketAssignee, type OwnerFilter } from '~/
 
 const auth = useAuthStore()
 const tickets = useTicketsStore()
+// "Table 12: order sent" after a table order; gone once the waiter moves on.
+const pad = useStaffOrderStore()
+onBeforeUnmount(() => {
+  pad.sentNotice = null
+})
 // Open tables are the normal case; paid ones are one tap away for reprints.
 const filter = ref<'open' | 'paid'>('open')
 const staffView = useStaffView()
@@ -103,6 +109,10 @@ const unattended = computed(() => (expert.value && owner.value === 'mine' ? need
 <template>
   <main class="mx-auto max-w-3xl px-4 py-6">
     <WelcomeCard v-if="welcome.open.value" @close="closeWelcome" />
+
+    <p v-if="pad.sentNotice" class="mt-4 flex items-center gap-2 rounded bg-emerald-50 px-3 py-2 text-sm text-emerald-800" role="status" data-test="order-sent-notice">
+      <UIcon name="i-lucide-circle-check" class="size-4 shrink-0" aria-hidden="true" /> {{ pad.sentNotice }}
+    </p>
 
     <ServiceActions :mode="deviceMode" :deposit="branding.depositEnabled" :staff-meals="branding.staffMealsEnabled" />
 

@@ -370,7 +370,7 @@
       "blockMealReason": "Bitte einen Grund eingeben (mind. 3 Zeichen).",
       "sendAndPayFood": "Senden & Essen bar kassiert",
       "picker": {
-        "title": "Für welchen Tisch?",
+        "title": "Für welchen Tisch bestellen?",
         "mine": "Meine ({n})",
         "all": "Alle",
         "other": "Andere Nr.",
@@ -569,7 +569,7 @@
       "title": "So geht’s",
       "order": {
         "title": "Bestellen",
-        "text": "„Neue Bestellung“ tippen, Tisch antippen, Sachen antippen, „An Küche/Bar senden“."
+        "text": "Freien Tisch antippen (oder „Neue Bestellung“), Sachen antippen, „An Küche/Bar senden“. Danach bist du wieder hier."
       },
       "bring": {
         "title": "Bringen",

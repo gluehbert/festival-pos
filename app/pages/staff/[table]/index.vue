@@ -150,33 +150,39 @@ const ticket = computed(() => tickets.selected)
       <UIcon name="i-lucide-arrow-left" class="size-4 shrink-0" aria-hidden="true" /> {{ $t('staff.detail.back') }}
     </NuxtLink>
     <StaleBanner :failed="tickets.syncFailed" :since="tickets.lastSyncAt" :error="tickets.syncError" @retry="polling.refresh()" />
-    <header v-if="ticket" class="mt-3 flex items-end justify-between">
-      <div>
+    <template v-if="ticket">
+      <header class="mt-3">
         <p class="text-xs uppercase tracking-wide text-slate-500">
           {{ ticketKey.startsWith('w-') ? $t('staff.detail.walkin') : $t('staff.detail.table', { n: ticket.tableNo }) }}
         </p>
         <h1 class="text-2xl font-bold text-slate-900">
           {{ euro(ticket.unpaidCents) }} <span class="text-base text-slate-500">{{ $t('staff.detail.open') }}</span>
         </h1>
-      </div>
-      <div class="flex gap-2">
+      </header>
+      <!-- The two jobs at a table, big and first: more orders go from here, not
+           through the table picker. Green means money, as on the pay page. -->
+      <div class="mt-3 grid grid-cols-2 gap-2">
         <NuxtLink
           v-if="!ticketKey.startsWith('w-')"
           :to="`/staff/order?table=${ticket.tableNo}`"
-          class="rounded border-2 border-slate-300 bg-surface px-4 py-3 font-semibold text-slate-900"
+          class="flex min-h-[56px] items-center justify-center gap-2 rounded-lg bg-brand-gradient px-3 text-lg font-semibold text-brand-contrast"
+          data-test="table-add-order"
         >
+          <UIcon name="i-lucide-plus" class="size-5 shrink-0" aria-hidden="true" />
           {{ $t('staff.detail.addOrder') }}
         </NuxtLink>
         <button
           type="button"
-          class="rounded bg-brand-gradient px-4 py-3 font-semibold text-brand-contrast disabled:bg-slate-300 disabled:bg-none"
+          class="flex min-h-[56px] items-center justify-center gap-2 rounded-lg bg-success px-3 text-lg font-semibold text-white disabled:bg-slate-300"
+          :class="ticketKey.startsWith('w-') ? 'col-span-2' : ''"
           :disabled="ticket.status === 'paid' || ticket.unpaidCents === 0"
           @click="goPay"
         >
+          <UIcon name="i-lucide-banknote" class="size-5 shrink-0" aria-hidden="true" />
           {{ $t('staff.detail.cashier') }}
         </button>
       </div>
-    </header>
+    </template>
 
     <template v-if="!ticket && tickets.missing && tableNo !== null && tableNo > 0">
       <header class="mt-3 flex items-end justify-between gap-3">

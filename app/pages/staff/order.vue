@@ -56,7 +56,8 @@ function pickTable(n: number) {
   notice.value = null
 }
 
-// The next order is usually for another table: back to the grid.
+// The waiter has to look at something here first (prices changed, or items
+// tapped while sending): stay, with the grid for the next table.
 function nextTable() {
   if (route.query.table) return
   tableNo.value = null
@@ -128,24 +129,36 @@ async function send(payNow = false) {
     notice.value = t('staff.meal.bookedNotice', { amount: value })
     return
   }
+  let text: string
   if (res.paid) {
-    notice.value = t('staff.order.paidNotice', { amount: euro(res.paid.totalCents) })
+    text = t('staff.order.paidNotice', { amount: euro(res.paid.totalCents) })
+  }
+  else {
+    if (isWalkin.value && !payNow) {
+      await navigateTo(`/staff/${res.ticketKey}`)
+      return
+    }
+    if (pad.error) return
+    // Booked prices, not the pad's: a promotion may have started or ended.
+    const booked = res.order.items.reduce((s, i) => s + (i.unitPriceCents + i.depositCents) * i.quantity, 0)
+    text = t('staff.order.sentNotice', { table, amount: euro(booked) })
+  }
+  // The counter takes the next walk-in right here.
+  if (isWalkin.value || changedPrices.value.length > 0 || !pad.isEmpty) {
+    notice.value = text
+    void menu.refreshPopular(popularTable.value)
     if (!isWalkin.value) nextTable()
     return
   }
-  if (isWalkin.value && !payNow) {
-    await navigateTo(`/staff/${res.ticketKey}`)
-    return
-  }
-  if (pad.error) return
-  void menu.refreshPopular(popularTable.value)
-  // Booked prices, not the pad's: a promotion may have started or ended.
-  const booked = res.order.items.reduce((s, i) => s + (i.unitPriceCents + i.depositCents) * i.quantity, 0)
-  notice.value = t('staff.order.sentNotice', { table, amount: euro(booked) })
-  nextTable()
+  // A table order is done: back to the overview, where serving and cashing
+  // happen and a free table starts the next order with one tap.
+  pad.sentNotice = text
+  await navigateTo('/staff')
 }
 
-const backTo = computed(() => (!isWalkin.value && route.query.table ? `/staff/${route.query.table}` : '/staff'))
+// A free table came straight from the overview: its own page has nothing to show.
+const hasTicket = computed(() => tickets.tickets.some((x) => x.tableNo === queryTable && !x.ticketKey.startsWith('w-')))
+const backTo = computed(() => (!isWalkin.value && route.query.table && hasTicket.value ? `/staff/${route.query.table}` : '/staff'))
 </script>
 
 <template>
