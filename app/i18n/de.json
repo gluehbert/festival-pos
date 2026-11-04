@@ -1252,18 +1252,22 @@
     }
   },
   "alerts": {
-    "soundLabel": "Ton bei neuen Meldungen",
-    "sound": {
-      "on": "Ton an",
-      "off": "Ton aus",
-      "locked": "Ton aktivieren"
+    "label": "Benachrichtigungen",
+    "modeLabel": "Meldungen auf diesem Gerät",
+    "mode": {
+      "loud": "Laut: Ton und Vibration",
+      "vibrate": "Nur Vibration",
+      "silent": "Stumm"
     },
-    "vibrationLabel": "Vibration bei neuen Meldungen",
-    "vibration": {
-      "on": "Vibration an",
-      "off": "Vibration aus"
+    "state": {
+      "loud": "Laut",
+      "locked": "Ton noch aus – einmal tippen",
+      "vibrate": "Nur Vibration",
+      "silent": "Stumm"
     },
-    "label": "Benachrichtigungen"
+    "flashHint": "Bei jeder neuen Meldung leuchtet der Bildschirmrand auf, auch wenn stumm.",
+    "noVibration": "Dieses Gerät kann nicht vibrieren: Es leuchtet nur der Bildschirm.",
+    "lockedBanner": "Der Ton ist noch aus. Einmal hier tippen, damit neue Meldungen piepen."
   },
   "legal": {
     "imprint": "Impressum",

@@ -5,6 +5,8 @@ import { useBranding } from '~/composables/useBranding'
 import { useUpdateAvailable } from '~/composables/useUpdateAvailable'
 import HeaderMenu from '~/components/common/HeaderMenu.vue'
 import AlertBell from '~/components/common/AlertBell.vue'
+import AlertFlash from '~/components/common/AlertFlash.vue'
+import SoundLockedBanner from '~/components/common/SoundLockedBanner.vue'
 import DisplayMenu from '~/components/production/DisplayMenu.vue'
 import { useAuthStore } from '~/stores/auth'
 import EventLogo from '~/components/common/EventLogo.vue'
@@ -77,6 +79,7 @@ onBeforeUnmount(() => {
     >
       {{ $t('common.trialBanner') }}
     </div>
+    <SoundLockedBanner v-if="showBell" />
     <div v-if="!isOnline" class="bg-amber-500 px-4 py-1 text-center text-sm font-semibold text-white">
       {{ $t('common.offline') }}
     </div>
@@ -101,5 +104,6 @@ onBeforeUnmount(() => {
       <slot />
     </main>
     <LegalFooter v-if="isGuestPage" />
+    <AlertFlash v-if="showBell" />
   </div>
 </template>

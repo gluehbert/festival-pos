@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { resetAttention, useAttention } from '~/composables/useAttention'
 import AlertToggles from '~/components/common/AlertToggles.vue'
+import SoundLockedBanner from '~/components/common/SoundLockedBanner.vue'
+import AlertFlash from '~/components/common/AlertFlash.vue'
 import { useCartStore } from '~/stores/cart'
 import { createPinia, setActivePinia } from 'pinia'
 import type { MenuItemDto } from '~/../server/lib/contracts/guest'
@@ -44,12 +46,13 @@ afterEach(() => {
 })
 
 describe('useAttention', () => {
-  it('stays silent until the first tap, but vibrates', async () => {
+  it('stays silent until the first tap, but vibrates and flashes', async () => {
     const a = useAttention()
     a.init()
     a.notify()
     expect(oscillators).toHaveLength(0)
     expect(vibrate).toHaveBeenCalledTimes(1)
+    expect(a.flashing.value).toBe(true)
 
     window.dispatchEvent(new Event('click'))
     await vi.waitFor(() => expect(a.unlocked.value).toBe(true))
@@ -58,43 +61,62 @@ describe('useAttention', () => {
     expect(vibrate).toHaveBeenCalledTimes(2)
   })
 
-  it('remembers "off" per device and keeps quiet then', async () => {
+  it('vibrate mode: no tone, still buzzes and flashes; remembered per device', async () => {
     const a = useAttention()
     a.init()
-    await a.toggle() // locked -> unlock + test tone
-    expect(a.unlocked.value).toBe(true)
-    expect(oscillators).toHaveLength(2)
-    await a.toggle()
-    expect(a.enabled.value).toBe(false)
-    expect(localStorage.getItem('alert-sound')).toBe('off')
+    await a.setMode('vibrate')
+    expect(localStorage.getItem('alert-mode')).toBe('vibrate')
+    window.dispatchEvent(new Event('click'))
+    await new Promise((r) => setTimeout(r, 0))
+    const flashes = a.flashKey.value
     a.notify()
-    expect(oscillators).toHaveLength(2)
+    expect(oscillators).toHaveLength(0)
+    expect(vibrate).toHaveBeenCalledTimes(2) // test buzz + alert
+    expect(a.flashKey.value).toBe(flashes + 1)
 
     resetAttention()
     useAttention().init()
-    expect(useAttention().enabled.value).toBe(false)
+    expect(useAttention().mode.value).toBe('vibrate')
   })
 
-  it('switches vibration separately and remembers it', () => {
+  it('silent mode: only the screen flash', async () => {
     const a = useAttention()
     a.init()
-    expect(a.vibrationSupported.value).toBe(true)
-    a.toggleVibration()
-    expect(a.vibrationEnabled.value).toBe(false)
-    expect(localStorage.getItem('alert-vibration')).toBe('off')
+    await a.setMode('silent')
     a.notify()
+    expect(oscillators).toHaveLength(0)
     expect(vibrate).not.toHaveBeenCalled()
+    expect(a.flashing.value).toBe(true)
+  })
 
-    // Switching it back on buzzes once as a test.
-    a.toggleVibration()
-    expect(vibrate).toHaveBeenCalledTimes(1)
+  it('loud mode: picking it unlocks the tone and plays it as a test', async () => {
+    const a = useAttention()
+    a.init()
+    await a.setMode('loud')
+    expect(a.unlocked.value).toBe(true)
+    expect(oscillators).toHaveLength(2)
+  })
+
+  it('takes over the old sound / vibration switches', () => {
+    localStorage.setItem('alert-sound', 'off')
+    useAttention().init()
+    expect(useAttention().mode.value).toBe('vibrate')
 
     localStorage.setItem('alert-vibration', 'off')
     resetAttention()
     useAttention().init()
-    expect(useAttention().vibrationEnabled.value).toBe(false)
-    // Sound is unaffected.
-    expect(useAttention().enabled.value).toBe(true)
+    expect(useAttention().mode.value).toBe('silent')
+  })
+
+  it('the flash ends by itself', () => {
+    vi.useFakeTimers()
+    const a = useAttention()
+    a.init()
+    a.notify()
+    expect(a.flashing.value).toBe(true)
+    vi.advanceTimersByTime(2000)
+    expect(a.flashing.value).toBe(false)
+    vi.useRealTimers()
   })
 
   it('works without storage or audio support', async () => {
@@ -103,42 +125,58 @@ describe('useAttention', () => {
     vi.stubGlobal('AudioContext', undefined)
     const a = useAttention()
     a.init()
-    expect(a.enabled.value).toBe(true)
-    await a.toggle()
+    expect(a.mode.value).toBe('loud')
+    await a.setMode('loud')
     expect(a.unlocked.value).toBe(false)
     expect(() => a.notify()).not.toThrow()
   })
 })
 
 describe('AlertToggles', () => {
-  it('sound: shows "enable", then "on", then "off"', async () => {
-    const w = mount(AlertToggles)
-    const btn = w.find('[data-test="sound-toggle"]')
-    expect(btn.text()).toContain('alerts.sound.locked')
-    await btn.trigger('click')
-    await vi.waitFor(() => expect(btn.text()).toContain('alerts.sound.on'))
-    expect(btn.attributes('aria-pressed')).toBe('true')
-    await btn.trigger('click')
-    expect(btn.text()).toContain('alerts.sound.off')
-    expect(btn.attributes('aria-pressed')).toBe('false')
-  })
-
-  it('vibration: toggles on and off', async () => {
+  it('offers the three modes and marks the current one', async () => {
     const w = mount(AlertToggles)
     await w.vm.$nextTick()
-    const btn = w.find('[data-test="vibration-toggle"]')
-    expect(btn.text()).toContain('alerts.vibration.on')
-    await btn.trigger('click')
-    expect(btn.text()).toContain('alerts.vibration.off')
-    expect(btn.attributes('aria-pressed')).toBe('false')
+    expect(w.findAll('[role="radio"]').map((b) => b.attributes('data-mode'))).toEqual(['loud', 'vibrate', 'silent'])
+    expect(w.get('[data-mode="loud"]').attributes('aria-checked')).toBe('true')
+    await w.get('[data-mode="silent"]').trigger('click')
+    expect(w.get('[data-mode="silent"]').attributes('aria-checked')).toBe('true')
+    expect(useAttention().mode.value).toBe('silent')
   })
 
-  it('vibration: hidden on devices that cannot vibrate', async () => {
+  it('says so when vibration only cannot vibrate', async () => {
     Object.defineProperty(navigator, 'vibrate', { value: undefined, configurable: true })
     const w = mount(AlertToggles)
     await w.vm.$nextTick()
-    expect(w.find('[data-test="vibration-toggle"]').exists()).toBe(false)
-    expect(w.find('[data-test="sound-toggle"]').exists()).toBe(true)
+    expect(w.find('[data-test="no-vibration"]').exists()).toBe(false)
+    await w.get('[data-mode="vibrate"]').trigger('click')
+    expect(w.find('[data-test="no-vibration"]').exists()).toBe(true)
+  })
+})
+
+describe('SoundLockedBanner and AlertFlash', () => {
+  const stubs = { ClientOnly: { template: '<div><slot /></div>' } }
+
+  it('the banner shows until the first tap unlocks the tone, and not when silent', async () => {
+    const w = mount(SoundLockedBanner, { global: { stubs }, attachTo: document.body })
+    await w.vm.$nextTick()
+    expect(w.find('[data-test="sound-locked"]').exists()).toBe(true)
+    await w.get('[data-test="sound-locked"]').trigger('click')
+    await vi.waitFor(() => expect(w.find('[data-test="sound-locked"]').exists()).toBe(false))
+    w.unmount()
+
+    resetAttention()
+    localStorage.setItem('alert-mode', 'silent')
+    const quiet = mount(SoundLockedBanner, { global: { stubs } })
+    await quiet.vm.$nextTick()
+    expect(quiet.find('[data-test="sound-locked"]').exists()).toBe(false)
+  })
+
+  it('the flash appears on an alert', async () => {
+    const w = mount(AlertFlash)
+    expect(w.find('[data-test="alert-flash"]').exists()).toBe(false)
+    useAttention().notify()
+    await w.vm.$nextTick()
+    expect(w.find('[data-test="alert-flash"]').exists()).toBe(true)
   })
 })
 
