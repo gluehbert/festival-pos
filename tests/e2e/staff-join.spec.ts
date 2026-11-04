@@ -8,7 +8,7 @@ test.describe('@smoke Join by link', () => {
   test('helper joins, admin lets them in, helper works as that person', async ({ browser, page }) => {
     await loginStaff(page, 'admin', 'admin123', 'password')
     await openLiveEvent(page)
-    await openEventTab(page, 'Staff')
+    await openEventTab(page, 'Helpers')
     const link = page.locator('[data-test="join-link"]')
     const create = link.locator('[data-test="join-create"]')
     const shown = link.locator('[data-test="join-url"]')
