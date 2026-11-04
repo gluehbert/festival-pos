@@ -1252,18 +1252,22 @@
     }
   },
   "alerts": {
-    "soundLabel": "Sound for new alerts",
-    "sound": {
-      "on": "Sound on",
-      "off": "Sound off",
-      "locked": "Enable sound"
+    "label": "Alerts",
+    "modeLabel": "Alerts on this device",
+    "mode": {
+      "loud": "Loud: tone and vibration",
+      "vibrate": "Vibration only",
+      "silent": "Silent"
     },
-    "vibrationLabel": "Vibration for new alerts",
-    "vibration": {
-      "on": "Vibration on",
-      "off": "Vibration off"
+    "state": {
+      "loud": "Loud",
+      "locked": "Tone still off – tap once",
+      "vibrate": "Vibration only",
+      "silent": "Silent"
     },
-    "label": "Alerts"
+    "flashHint": "The screen edge lights up for every new alert, also when silent.",
+    "noVibration": "This device cannot vibrate: only the screen lights up.",
+    "lockedBanner": "Tone is still off. Tap here once so new alerts beep."
   },
   "legal": {
     "imprint": "Legal notice",
