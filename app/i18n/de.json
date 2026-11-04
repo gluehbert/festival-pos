@@ -648,7 +648,11 @@
       "others": "Weitere Events",
       "noOthers": "Keine weiteren Events.",
       "cancelNew": "Abbrechen",
-      "endedOn": "Beendet am {date}"
+      "endedOn": "Beendet am {date}",
+      "copyFrom": "Einrichten wie",
+      "copyNone": "Nichts übernehmen, leer anfangen",
+      "copyHint": "Übernimmt Speisekarte, Gestaltung, Logos, Impressum, Funktionen, Aktionspreise und Buzzer. Name, PIN, Datum und Helfer trägst du neu ein. Am alten Event ändert sich nichts.",
+      "copyNoneHint": "Das neue Event startet ohne Speisekarte."
     },
     "status": {
       "draft": "Entwurf",
