@@ -16,13 +16,13 @@ const stations = (): Station[] => (['kitchen', 'bar', 'cafe'] as const).filter((
 <template>
   <div
     v-if="kitchen + bar + cafe > 0"
-    class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-rose-400 bg-rose-50 px-3 py-2"
+    class="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-emerald-500 bg-emerald-50 px-3 py-2"
     role="status"
     data-test="ready-banner"
   >
     <div>
-      <ReadyBadges :ready="{ kitchen, bar, cafe }" class="text-rose-800" />
-      <p v-if="!walkin" class="mt-1 text-xs text-rose-900" data-test="ready-hint">
+      <ReadyBadges :ready="{ kitchen, bar, cafe }" class="text-emerald-800" />
+      <p v-if="!walkin" class="mt-1 text-xs text-emerald-900" data-test="ready-hint">
         {{ $t('staff.detail.servedHint') }}
       </p>
     </div>
@@ -31,7 +31,7 @@ const stations = (): Station[] => (['kitchen', 'bar', 'cafe'] as const).filter((
         v-for="s in stations()"
         :key="s"
         type="button"
-        class="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-rose-400 bg-surface px-3 text-sm text-rose-900 disabled:opacity-60"
+        class="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-emerald-500 bg-surface px-3 text-sm text-emerald-900 disabled:opacity-60"
         :data-test="`served-${s}`"
         :disabled="busy"
         @click="emit('served', s)"

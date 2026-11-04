@@ -210,7 +210,7 @@
   },
   "staff": {
     "login": {
-      "title": "Staff-Anmeldung",
+      "title": "Anmeldung für Helfer",
       "username": "Benutzername",
       "password": "Passwort",
       "pin": "PIN",
@@ -232,7 +232,7 @@
       "empty": "Keine Tische.",
       "logout": "Abmelden",
       "newOrder": "Neue Bestellung",
-      "walkin": "Theke",
+      "walkin": "Ohne Tisch",
       "heading": {
         "open": "Offene Tische",
         "paid": "Bezahlte Tische",
@@ -246,20 +246,21 @@
     "detail": {
       "back": "Zurück",
       "table": "Tisch {n}",
-      "walkin": "Walk-in",
+      "walkin": "Ohne Tisch",
       "open": "offen",
       "cashier": "Kassieren",
       "locked": "Dieses Ticket wird gerade von einem anderen Service bedient.",
       "addOrder": "Nachbestellen",
       "served": "Gebracht",
-      "checked": "Nachgefragt – nichts gewünscht",
+      "checked": "War am Tisch – nichts gewünscht",
       "served_kitchen": "Essen gebracht",
       "served_bar": "Getränke gebracht",
       "served_cafe": "Kuchen & Kaffee gebracht",
       "servedHint": "Verschwindet beim Kassieren von selbst.",
       "empty": "Noch nichts bestellt",
       "foodToPay": "{n} Essen warten auf Zahlung: Die Küche beginnt, sobald es kassiert ist.",
-      "payFood": "Essen kassieren"
+      "payFood": "Essen kassieren",
+      "firstOrder": "Bestellen"
     },
     "pay": {
       "back": "Zurück",
@@ -354,7 +355,7 @@
     },
     "order": {
       "title": "Bestellung aufnehmen",
-      "walkinTitle": "Walk-in / Theke",
+      "walkinTitle": "Verkauf ohne Tisch",
       "tableLabel": "Tisch",
       "addAria": "{name} hinzufügen",
       "summary": "{n} Artikel",
@@ -365,7 +366,7 @@
       "payFailed": "Bestellung gesendet, Kassieren fehlgeschlagen. Bitte in der Übersicht kassieren.",
       "soldOut": "Nicht gesendet: Etwas ist inzwischen ausverkauft. Bitte Block prüfen und erneut senden.",
       "soldOutRemoved": "Ausverkauft, vom Block genommen: {items}",
-      "linesTitle": "Positionen & Notizen",
+      "linesTitle": "Artikel & Notizen",
       "linesEmpty": "Noch nichts ausgewählt.",
       "blockMealReason": "Bitte einen Grund eingeben (mind. 3 Zeichen).",
       "sendAndPayFood": "Senden & Essen bar kassiert",
@@ -510,7 +511,7 @@
       },
       "none": "Keine Tische.",
       "noneMine": "Du hast noch keine Tische. Die Schichtleitung teilt sie dir zu. Bis dahin findest du unter „Alle“ jeden Tisch.",
-      "walkins": "Walk-ins / Theke"
+      "walkins": "Ohne Tisch"
     },
     "needsSomeone": {
       "heading": "Braucht jemanden",
@@ -585,7 +586,7 @@
     "previewLogin": {
       "title": "Preview: direkt anmelden als",
       "as": {
-        "waiter": "Service",
+        "waiter": "Bedienung",
         "lead": "Schichtleitung",
         "kitchen": "Küche",
         "bar": "Bar",
@@ -639,8 +640,8 @@
       "endsOn": "Datum (Ende, optional)",
       "undated": "ohne Datum",
       "edit": "Bearbeiten",
-      "toService": "Zum Service",
-      "toProduction": "Zur Produktion",
+      "toService": "Zur Bedienung",
+      "toProduction": "Zu Küche & Bar",
       "liveKicker": "Läuft gerade",
       "liveTrialKicker": "Läuft gerade · Probelauf",
       "noneLive": "Gerade ist kein Event live. Öffne ein Event und aktiviere es, damit Gäste bestellen können.",
@@ -663,7 +664,7 @@
       "tabs": {
         "overview": "Übersicht",
         "branding": "Gestaltung",
-        "menu": "Preisliste",
+        "menu": "Speisekarte",
         "qr": "QR-Codes",
         "reports": "Berichte",
         "pricing": "Aktionspreise",
@@ -677,7 +678,7 @@
       },
       "currentlyLive": "Live ist gerade „{name}“.",
       "nothingLive": "Gerade ist kein Event live.",
-      "confirmActivate": "„{name}“ wird live: Gäste bestellen ab sofort von dieser Preisliste.",
+      "confirmActivate": "„{name}“ wird live: Gäste bestellen ab sofort von dieser Speisekarte.",
       "confirmActivateButton": "Jetzt live schalten",
       "reactivate": "Wieder aktivieren",
       "setup": {
@@ -865,7 +866,7 @@
       "activated": "Aktiviert.",
       "roles": {
         "admin": "Admin",
-        "waiter": "Service",
+        "waiter": "Bedienung",
         "lead": "Schichtleitung",
         "kitchen": "Küche",
         "bar": "Bar",
@@ -1173,9 +1174,9 @@
     "reload": "Neu laden"
   },
   "nav": {
-    "production": "Produktion",
+    "production": "Küche & Bar",
     "admin": "Admin",
-    "service": "Service",
+    "service": "Bedienung",
     "passkeys": "Passkeys",
     "account": "Konto",
     "settings": "Sprache & Darstellung",
@@ -1197,8 +1198,8 @@
     "toastStarted": "In Zubereitung",
     "toastFailed": "Aktion fehlgeschlagen.",
     "loading": "Lade Warteschlange …",
-    "empty": "Keine offenen Positionen.",
-    "counter": "Theke",
+    "empty": "Gerade keine Bestellungen.",
+    "counter": "Ohne Tisch",
     "orderNos": "Bestellungen {nos}",
     "finishOrder": "{label} komplett fertig",
     "soldOut": {
@@ -1240,15 +1241,15 @@
       "minutes": "{n} Min."
     },
     "cafe": {
-      "close": "Theke schließen",
-      "open": "Theke öffnen",
-      "closeConfirm": "Theke schließen? Neue Bestellungen von Kaffee und Kuchen gehen dann an die Küche.",
+      "close": "Kuchentheke schließen",
+      "open": "Kuchentheke öffnen",
+      "closeConfirm": "Kuchentheke schließen? Neue Bestellungen von Kaffee und Kuchen gehen dann an die Küche.",
       "closeYes": "Ja, schließen",
       "cancel": "Abbrechen",
-      "closedBanner": "Theke geschlossen: Neue Bestellungen gehen an die Küche.",
+      "closedBanner": "Kuchentheke geschlossen: Neue Bestellungen gehen an die Küche.",
       "kitchenBanner": "Kuchentheke geschlossen: Kaffee und Kuchen kommen jetzt hier an.",
-      "toastClosed": "Theke geschlossen, die Küche übernimmt.",
-      "toastOpened": "Theke wieder offen."
+      "toastClosed": "Kuchentheke geschlossen, die Küche übernimmt.",
+      "toastOpened": "Kuchentheke wieder offen."
     }
   },
   "alerts": {

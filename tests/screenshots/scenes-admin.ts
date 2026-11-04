@@ -41,7 +41,7 @@ export const adminEvent: Scene = async (ctx) => {
 }
 
 export const adminMenu: Scene = async (ctx) => {
-  await ctx.shoot(await adminOnEvent(ctx, 'Price list'), 'admin-menu')
+  await ctx.shoot(await adminOnEvent(ctx, 'Menu'), 'admin-menu')
 }
 
 export const adminReports: Scene = async (ctx) => {

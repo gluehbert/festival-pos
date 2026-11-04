@@ -199,7 +199,7 @@ const ticket = computed(() => tickets.selected)
           class="inline-flex min-h-[44px] items-center rounded bg-brand-gradient px-4 font-semibold text-brand-contrast"
           data-test="empty-table-order"
         >
-          {{ $t('staff.detail.addOrder') }}
+          {{ $t('staff.detail.firstOrder') }}
         </NuxtLink>
       </header>
       <TableAssignment :table-no="tableNo" :assignee="assignee" />
