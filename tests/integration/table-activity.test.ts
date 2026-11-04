@@ -93,6 +93,26 @@ describe('time since the last order and "asked, nothing wanted"', () => {
     expect(detail.lastCheckAt).toBe(t4.lastCheckAt)
   })
 
+  it('bringing finished items and collecting payment count as a visit', async () => {
+    const o = await waiterOrder(7)
+    await waiterOrder(8)
+    backdate(o.orderId, 30)
+    await call('production/orders/[id]/done.post', { role: 'kitchen', body: {}, params: { id: o.orderId } })
+
+    // Nothing finished yet at table 8: "Gebracht" there is no visit.
+    await call('tickets/[id]/served.post', { role: 'waiter', body: {}, params: { id: 't-8' } })
+    await call('tickets/[id]/served.post', { role: 'waiter', body: {}, params: { id: 't-7' } })
+    let tickets = (await list()).tickets
+    expect(minutesAgo(tickets.find((t) => t.ticketKey === 't-7')!.lastCheckAt!)).toBe(0)
+    expect(tickets.find((t) => t.ticketKey === 't-8')!.lastCheckAt).toBeNull()
+
+    const detail = await call('tickets/[id].get', { role: 'waiter', method: 'GET', params: { id: 't-8' } }) as { items: Array<{ orderItemId: string }> }
+    await call('payments/index.post', { role: 'waiter', body: { ticketKey: 't-8', orderItemIds: detail.items.map((i) => i.orderItemId) } })
+    expect((ctx.mem.public.many(`SELECT table_no FROM table_checks ORDER BY table_no`) as Array<{ table_no: number }>).map((r) => r.table_no)).toEqual([7, 8])
+    tickets = (await list()).tickets
+    expect(tickets.find((t) => t.ticketKey === 't-8')).toBeUndefined() // paid in full, no longer open
+  })
+
   it('leaves walk-ins without a check', async () => {
     const walk = await waiterOrder(0, 'walkin')
     const t = (await list()).tickets.find((x) => x.ticketKey === `w-${walk.orderId}`)!
