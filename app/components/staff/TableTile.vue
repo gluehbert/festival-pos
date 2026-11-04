@@ -27,6 +27,8 @@ const STYLE = {
 } as const
 
 const style = computed(() => STYLE[props.tile.state])
+// Nothing to bring or cash at a free table: a tap takes the order right away.
+const to = computed(() => (props.tile.state === 'free' ? `/staff/order?table=${props.tile.tableNo}` : `/staff/${props.tile.tableNo}`))
 
 const status = computed(() => {
   const ticket = props.tile.ticket
@@ -45,7 +47,7 @@ const owner = computed(() => (props.showOwner && !props.mine ? props.tile.assign
 
 <template>
   <NuxtLink
-    :to="`/staff/${tile.tableNo}`"
+    :to="to"
     class="flex min-h-[96px] w-full flex-col justify-between rounded-xl border-2 p-3 text-left focus:outline-none focus:ring-2 focus:ring-brand"
     :class="style.box"
     :data-state="tile.state"

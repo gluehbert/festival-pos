@@ -3,6 +3,7 @@ import { flushPromises, mount, RouterLinkStub } from '@vue/test-utils'
 import { useAuthStore, type StaffRole } from '~/stores/auth'
 import OverviewPage from '~/pages/staff/index.vue'
 import { useWelcome } from '~/composables/useWelcome'
+import { useStaffOrderStore } from '~/stores/staffOrder'
 import { useCookie } from './setup/imports'
 
 const ANNA = { staffId: '00000000-0000-4000-8000-00000000000a', username: 'anna' }
@@ -89,5 +90,13 @@ describe('short guide', () => {
     await w.get('[data-test="welcome-close"]').trigger('click')
     expect(w.find('[data-test="welcome"]').exists()).toBe(false)
     vi.restoreAllMocks()
+  })
+
+  it('confirms a sent table order once, then forgets it when the waiter moves on', async () => {
+    useStaffOrderStore().sentNotice = 'Table 2: order of €8.00 sent.'
+    const w = await open('waiter')
+    expect(w.get('[data-test="order-sent-notice"]').text()).toContain('Table 2')
+    w.unmount()
+    expect(useStaffOrderStore().sentNotice).toBeNull()
   })
 })

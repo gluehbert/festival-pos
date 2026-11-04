@@ -16,6 +16,8 @@ test.describe('@smoke US6 — waiter takes the order and splits the bill', () =>
     await tapMenuItem(page, /^add shandy 0\.5$/i, 8)
     await tapMenuItem(page, /^add sausage$/i, 2)
     await page.getByRole('button', { name: /send to kitchen\/bar/i }).click()
+    // Sent: back on the overview, where serving and cashing happen.
+    await expect(page).toHaveURL(/\/staff$/)
     await expect(page.getByRole('status')).toContainText('Table 8')
 
     const kitchen = await browser.newContext()
