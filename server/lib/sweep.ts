@@ -1,6 +1,7 @@
 import { and, eq, inArray, isNotNull, lt, lte, notInArray } from 'drizzle-orm'
 import type { Db } from '../db/client'
-import { eventAssets, events, guestSessions, maintenanceRuns, orders, paymentLocks } from '../db/schema'
+import { eventAssets, events, guestSessions, orders, paymentLocks } from '../db/schema'
+import { maintenanceRuns } from '../db/schema-service'
 import { loginAttempts } from '../db/schema-auth'
 import { LOGIN_THROTTLE_WINDOW_MS } from './login-throttle'
 import { deleteExpiredChallenges } from './passkeys'

@@ -60,6 +60,7 @@ export const menuItems = pgTable(
     sortOrder: integer('sort_order').notNull().default(0),
     allergens: text('allergens').array(), // keys from lib/allergens.ts; NULL = not recorded, {} = none
     diet: text('diet'), // 'vegetarian' | 'vegan' | NULL
+    archivedAt: timestamp('archived_at', { withTimezone: true }), // set by a replacing import; hidden, kept for orders
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
@@ -294,6 +295,3 @@ export const eventAssets = pgTable( // logo, dark-mode logo, flyer as base64: no
     check('event_assets_kind_chk', sql`${t.kind} IN ('logo','logo_dark','flyer')`),
   ],
 )
-
-// Last run per background job; lib/sweep.ts claims its slot here, so all instances together sweep at most hourly.
-export const maintenanceRuns = pgTable('maintenance_runs', { job: text('job').primaryKey(), lastRunAt: timestamp('last_run_at', { withTimezone: true }).notNull() })

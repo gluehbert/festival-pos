@@ -43,7 +43,7 @@ async function onCreate(input: CreateMenuItem) {
 }
 
 function onImported(result: MenuImportResult) {
-  toast.success(t('admin.menuImport.done', { created: result.created, updated: result.updated }))
+  toast.success(t('admin.menuImport.done', { created: result.created, updated: result.updated, archived: result.archived }))
 }
 
 async function onPatch(id: string, patch: UpdateMenuItem) {

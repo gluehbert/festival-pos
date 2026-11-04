@@ -172,7 +172,8 @@ export type QrRangeQuery = z.infer<typeof QrRangeQuerySchema>
 export interface MenuImportRow {
   row: number
   nameDe: string
-  action: 'create' | 'update' | 'unchanged'
+  // `archive`: in the event but not in the file (replace mode); row is 0.
+  action: 'create' | 'update' | 'unchanged' | 'archive'
 }
 
 export interface MenuImportResult {
@@ -180,6 +181,7 @@ export interface MenuImportResult {
   created: number
   updated: number
   unchanged: number
+  archived: number
   rows: MenuImportRow[]
   errors: Array<{ row: number; message: string }>
 }

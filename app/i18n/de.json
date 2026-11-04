@@ -930,16 +930,21 @@
       "hint": "Vorlage herunterladen (enthält die aktuelle Karte), in Excel, LibreOffice oder Google Sheets bearbeiten und wieder hochladen. Erlaubt sind .xlsx (Office Open XML) und .csv. Artikel werden über den deutschen Namen zugeordnet.",
       "download": "Vorlage / aktuelle Karte herunterladen (.xlsx)",
       "choose": "Datei hochladen …",
+      "modeLabel": "Importart",
+      "modeMerge": "Karte ergänzen: Artikel, die nicht in der Datei stehen, bleiben unverändert",
+      "modeReplace": "Karte ersetzen: Artikel, die nicht in der Datei stehen, werden entfernt (bisherige Bestellungen und Berichte behalten sie)",
       "summary": "Vorschau: {created} neu, {updated} geändert, {unchanged} unverändert.",
+      "summaryArchived": "{archived} entfernt.",
       "errorsTitle": "{n} Zeile(n) mit Fehlern – bitte in der Datei korrigieren und erneut hochladen:",
       "row": "Zeile {row}",
       "apply": "Import übernehmen",
       "cancel": "Abbrechen",
-      "done": "Import übernommen: {created} neu, {updated} geändert.",
+      "done": "Import übernommen: {created} neu, {updated} geändert, {archived} entfernt.",
       "action": {
         "create": "neu",
         "update": "geändert",
-        "unchanged": "unverändert"
+        "unchanged": "unverändert",
+        "archive": "entfernt"
       }
     },
     "trial": {

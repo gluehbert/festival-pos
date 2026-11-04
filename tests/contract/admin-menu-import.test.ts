@@ -68,6 +68,30 @@ describe('menu import/export', () => {
     expect(ctx.mem.public.one(`SELECT is_available, deposit_cents FROM menu_items WHERE name_de='Bier'`)).toEqual({ is_available: true, deposit_cents: 200 })
   })
 
+  it('replace mode archives items missing from the file and brings them back when they return', async () => {
+    const handler = (await import('../../server/api/admin/events/[id]/menu-items/import.post')).default
+    upload(CSV)
+    const preview = await handler(adminEvent('/import?dryRun=1&mode=replace').event)
+    expect(preview).toMatchObject({ applied: false, created: 1, updated: 1, archived: 2 })
+    expect(preview?.rows.filter((r) => r.action === 'archive').map((r) => r.nameDe).sort()).toEqual(['Bier', 'Wasser'])
+    expect(ctx.mem.public.many(`SELECT * FROM menu_items WHERE archived_at IS NOT NULL`)).toHaveLength(0)
+
+    upload(CSV)
+    expect(await handler(adminEvent('/import?mode=replace').event)).toMatchObject({ applied: true, archived: 2 })
+    expect(ctx.mem.public.many(`SELECT name_de, is_available FROM menu_items WHERE archived_at IS NOT NULL ORDER BY name_de`))
+      .toEqual([{ name_de: 'Bier', is_available: false }, { name_de: 'Wasser', is_available: false }])
+    const list = (await import('../../server/api/admin/events/[id]/menu-items/index.get')).default
+    const e = makeEvent({ method: 'GET', url: `/api/admin/events/${eventId}/menu-items` })
+    e.event.context.auth = { staff: { staffId: adminId, role: 'admin', username: 'a' } }
+    e.event.context.params = { id: eventId }
+    expect((await list(e.event))?.items.map((i) => i.nameDe).sort()).toEqual(['Pommes', 'Radler'])
+
+    upload(`${CSV}\nBier;Beer;4,00;Bier;Bar;10;yes`)
+    expect(await handler(adminEvent('/import').event)).toMatchObject({ applied: true, created: 1, archived: 0 })
+    expect(ctx.mem.public.one(`SELECT archived_at, is_available FROM menu_items WHERE name_de='Bier'`)).toEqual({ archived_at: null, is_available: true })
+    expect(ctx.mem.public.many(`SELECT * FROM menu_items WHERE name_de='Bier'`)).toHaveLength(1)
+  })
+
   it('writes nothing when any row is invalid', async () => {
     const handler = (await import('../../server/api/admin/events/[id]/menu-items/import.post')).default
     upload(`${CSV}\nCola;;teuer;Softdrinks;Bar;;`)
