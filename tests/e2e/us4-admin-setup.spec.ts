@@ -11,7 +11,7 @@ test.describe('@smoke US4 — admin setup', () => {
 
     await openLiveEvent(page)
     await expect(page.locator('[data-test="event-context"]')).toContainText('Live')
-    await openEventTab(page, 'Price list')
+    await openEventTab(page, 'Menu')
     const form = page.locator('form')
     await form.getByLabel(/name \(de\)/i).fill(name)
     await form.getByLabel(/name \(en\)/i).fill(name)

@@ -9,7 +9,7 @@ test.describe('@smoke Allergens', () => {
   test('admin records allergens, guests see codes and legend', async ({ browser, page }) => {
     await loginStaff(page, 'admin', 'admin123', 'password')
     await openLiveEvent(page)
-    await openEventTab(page, 'Price list')
+    await openEventTab(page, 'Menu')
 
     const row = page.locator('[data-test="admin-menu-row"]').filter({ hasText: 'Aperol Spritz' })
     await row.locator('[data-test="allergen-edit"]').click()

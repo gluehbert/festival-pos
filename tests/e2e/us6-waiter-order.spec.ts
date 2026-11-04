@@ -49,9 +49,9 @@ test.describe('@smoke US6 — waiter takes the order and splits the bill', () =>
     await expect(page.getByRole('link', { name: /table 8\b/i })).toContainText(/empty/i)
   })
 
-  test('walk-in at the counter is sent and paid in one go', async ({ page }) => {
+  test('walk-in without a table is sent and paid in one go', async ({ page }) => {
     await loginStaff(page, 'waiter1', '1111', 'pin')
-    await page.getByRole('link', { name: /^counter$/i }).click()
+    await page.getByRole('link', { name: /^no table$/i }).click()
     await tapMenuItem(page, /^add cola 0\.33$/i, 2)
     await page.getByRole('button', { name: /send & paid cash/i }).click()
     await expect(page.getByRole('status')).toContainText('6.00')

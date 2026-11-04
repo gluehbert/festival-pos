@@ -44,7 +44,7 @@ const second = computed(() => (props.mode === 'counter' ? table : counter))
       v-if="staffMeals"
       to="/staff/order?meal=1"
       :class="deposit ? '' : 'col-span-3'"
-      class="flex min-h-[48px] items-center justify-center rounded-lg px-2 text-center text-sm font-semibold text-slate-600 hover:bg-slate-100"
+      class="flex min-h-[48px] items-center justify-center rounded-lg border-2 border-slate-300 bg-surface px-2 text-center text-sm font-semibold text-slate-900"
       data-test="staff-meal-link"
     >
       {{ $t('staff.meal.nav') }}
