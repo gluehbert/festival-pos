@@ -59,6 +59,9 @@ async function activate() {
       {{ eventDates(event.startsOn, event.endsOn) ?? $t('admin.events.undated') }}
       · {{ $t('admin.events.summary', { pin: event.pinCode, from: event.tableRangeFrom, to: event.tableRangeTo }) }}
     </p>
+    <p class="text-xs text-slate-600" data-test="pin-hint">
+      {{ $t('admin.events.pinHint', { pin: event.pinCode }) }}
+    </p>
 
     <p class="mt-2 text-sm font-medium" :class="status === 'live' ? 'text-emerald-900' : status === 'trial' ? 'text-amber-900' : 'text-slate-700'">
       {{ $t(`admin.workspace.hint.${status}`) }}

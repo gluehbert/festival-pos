@@ -15,6 +15,7 @@ const admin = useAdminStore()
 // The service screen reads the switches from the public branding.
 const { refresh: refreshPublicBranding } = useBranding()
 const busy = ref(false)
+// One sentence each; the details sit behind "More" (all but staff meals).
 const FEATURES = ['depositEnabled', 'staffMealsEnabled', 'waiterCallsEnabled', 'foodPrepayEnabled', 'cafeClosed'] as const
 
 async function toggle(key: (typeof FEATURES)[number]) {
@@ -43,6 +44,12 @@ async function toggle(key: (typeof FEATURES)[number]) {
         <p class="text-slate-600">
           {{ $t(`admin.features.${key}.hint`) }}
         </p>
+        <details v-if="key !== 'staffMealsEnabled'" class="text-slate-600">
+          <summary class="inline-flex min-h-[32px] cursor-pointer items-center font-semibold text-slate-700 underline">
+            {{ $t('admin.features.moreLabel') }}
+          </summary>
+          <p>{{ $t(`admin.features.${key}.more`) }}</p>
+        </details>
       </div>
       <button
         type="button"

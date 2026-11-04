@@ -20,6 +20,9 @@ const message = ref<{ kind: 'success' | 'error'; text: string } | null>(null)
 
 onMounted(() => { mounted.value = true })
 
+// The admin sets up once a year at a desk: an offer, not the first thing to see.
+const quiet = computed(() => route.path.startsWith('/admin'))
+
 const visible = computed(() => {
   const s = auth.staff
   if (!mounted.value || !s) return false
@@ -61,18 +64,30 @@ function never() {
 </script>
 
 <template>
-  <div v-if="visible" class="border-b border-slate-200 bg-surface px-4 py-3" data-test="passkey-offer">
+  <div v-if="visible" class="border-b border-slate-200 bg-surface px-4" :class="quiet ? 'py-1' : 'py-3'" data-test="passkey-offer">
     <div class="mx-auto flex max-w-5xl flex-wrap items-center gap-3">
       <p v-if="message" class="flex-1 text-sm" :class="message.kind === 'success' ? 'text-emerald-800' : 'text-rose-700'" :role="message.kind === 'success' ? 'status' : 'alert'">
         {{ message.text }}
       </p>
       <template v-else>
-        <UIcon name="i-lucide-fingerprint-pattern" class="size-6 shrink-0 text-brand-ink" aria-hidden="true" />
+        <UIcon name="i-lucide-fingerprint-pattern" class="shrink-0 text-brand-ink" :class="quiet ? 'size-5' : 'size-6'" aria-hidden="true" />
         <p class="min-w-48 flex-1 text-sm text-slate-800">
-          <span class="font-semibold">{{ $t('staff.passkeys.offerTitle') }}</span>
-          {{ $t('staff.passkeys.offerText') }}
+          <template v-if="quiet">
+            {{ $t('staff.passkeys.offerQuiet') }}
+          </template>
+          <template v-else>
+            <span class="font-semibold">{{ $t('staff.passkeys.offerTitle') }}</span>
+            {{ $t('staff.passkeys.offerText') }}
+          </template>
         </p>
-        <button type="button" class="min-h-[44px] rounded bg-brand px-4 font-semibold text-brand-contrast disabled:bg-slate-300" :disabled="busy" data-test="passkey-offer-setup" @click="setUp">
+        <button
+          type="button"
+          class="min-h-[44px] rounded font-semibold disabled:bg-slate-300"
+          :class="quiet ? 'border border-slate-300 px-3 text-sm text-slate-800' : 'bg-brand px-4 text-brand-contrast'"
+          :disabled="busy"
+          data-test="passkey-offer-setup"
+          @click="setUp"
+        >
           {{ $t('staff.passkeys.add') }}
         </button>
         <button type="button" class="min-h-[44px] rounded border border-slate-300 px-3 text-sm" :disabled="busy" data-test="passkey-offer-later" @click="later">
