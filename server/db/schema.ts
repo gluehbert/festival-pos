@@ -25,6 +25,7 @@ export const events = pgTable(
     staffMealsEnabled: boolean('staff_meals_enabled').notNull().default(false), // free meals for helpers
     waiterCallsEnabled: boolean('waiter_calls_enabled').notNull().default(false), // guests can call the service
     foodPrepayEnabled: boolean('food_prepay_enabled').notNull().default(false), // kitchen gets food only once paid (lib/food-prepay.ts)
+    cashDrawerEnabled: boolean('cash_drawer_enabled').notNull().default(false), // each cashier counts a float in and out (schema-cash.ts)
     cafeClosed: boolean('cafe_closed').notNull().default(false), // cafe counter closed: coffee and cake go to the kitchen (lib/cafe-routing.ts)
     // Legal pages for guests (Impressum, Datenschutz), plain text per event.
     imprintText: text('imprint_text'),

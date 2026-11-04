@@ -3,6 +3,7 @@ import type { Db } from '../db/client'
 import { events, payments, staff } from '../db/schema'
 import { cashSessions, depositReturns, refunds, type CashSession } from '../db/schema-cash'
 import type { CashSessionDto } from './contracts/cash'
+import { AppError } from './errors'
 
 const toIso = (d: Date | string) => (d instanceof Date ? d : new Date(d)).toISOString()
 const num = (v: unknown) => Number(v ?? 0)
@@ -94,6 +95,15 @@ export async function findOpenSession(db: Db, eventId: string, staffId: string):
     .where(and(eq(cashSessions.eventId, eventId), eq(cashSessions.staffId, staffId), isNull(cashSessions.closedAt)))
     .limit(1)
   return rows[0] ?? null
+}
+
+// With drawers switched on, cash only moves through an open drawer, so the
+// count at closing adds up. Off, nobody counts and money moves freely.
+export async function requireDrawer(db: Db, ev: { id: string; cashDrawerEnabled: boolean }, staffId: string, what: string): Promise<void> {
+  if (!ev.cashDrawerEnabled) return
+  if (!(await findOpenSession(db, ev.id, staffId))) {
+    throw new AppError('CASH_SESSION_REQUIRED', 409, `Open your drawer first, then ${what}`)
+  }
 }
 
 // The waiter's open drawer whatever the event: the one of the live event

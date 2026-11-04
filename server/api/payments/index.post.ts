@@ -25,6 +25,7 @@ import { findBookedPayment, ticketStatusAfter } from '../../lib/payment-replay'
 import { loadReceipt } from '../../lib/receipt'
 import { recordTableCheck } from '../../lib/table-checks'
 import { answerTableCalls } from '../../lib/waiter-calls'
+import { requireDrawer } from '../../lib/cash-sessions'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -65,6 +66,7 @@ export default defineEventHandler(async (event) => {
       const booked = await findBookedPayment(db, ev.id, staff.staffId, key)
       if (booked) return await replay(booked)
     }
+    await requireDrawer(db, ev, staff.staffId, 'cash')
 
     // Fetch candidate items + their owning order
     const itemRows = await db

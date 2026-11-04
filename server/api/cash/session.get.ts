@@ -1,5 +1,7 @@
 import { defineEventHandler } from 'h3'
+import { eq } from 'drizzle-orm'
 import { getDb } from '../../db/client'
+import { events } from '../../db/schema'
 import { sendAppError } from '../../lib/errors'
 import { requireRole, SERVICE_ROLES } from '../../lib/rbac'
 import { requireActiveEvent } from '../../lib/active-event'
@@ -14,12 +16,14 @@ export default defineEventHandler(async (event) => {
     const db = getDb()
     const open = await findOpenSessionAnyEvent(db, me.staffId)
     if (!open) {
-      await requireActiveEvent(db) // 404 when nothing is live
-      return CurrentCashSessionSchema.parse({ session: null, otherEventName: null })
+      const ev = await requireActiveEvent(db) // 404 when nothing is live
+      return CurrentCashSessionSchema.parse({ session: null, otherEventName: null, required: ev.cashDrawerEnabled })
     }
+    const [live] = await db.select({ on: events.cashDrawerEnabled }).from(events).where(eq(events.isActive, true)).limit(1)
     return CurrentCashSessionSchema.parse({
       session: await toCashSessionDto(db, open.session, me.username),
       otherEventName: open.otherEventName,
+      required: live?.on ?? false,
     })
   }
   catch (err) {

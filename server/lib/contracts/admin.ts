@@ -61,6 +61,7 @@ export const EventSchema = z.object({
   staffMealsEnabled: z.boolean(),
   waiterCallsEnabled: z.boolean(),
   foodPrepayEnabled: z.boolean(),
+  cashDrawerEnabled: z.boolean(),
   // Cafe counter closed: coffee and cake go to the kitchen.
   cafeClosed: z.boolean(),
   guestOpenLimitBarCents: z.number().int().nullable(),

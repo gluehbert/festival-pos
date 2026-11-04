@@ -414,7 +414,9 @@
       "depositReturned": "Pfandrückgabe",
       "otherEvent": "Kasse vom Event „{name}“ noch offen. Bitte zählen und abschließen.",
       "tip": "Trinkgeld",
-      "tipHint": "Trinkgeld bleibt in der Kasse und wird nach dem Fest verteilt."
+      "tipHint": "Trinkgeld bleibt in der Kasse und wird nach dem Fest verteilt.",
+      "promptTitle": "Erst das Wechselgeld zählen",
+      "promptText": "Diese Veranstaltung rechnet pro Bedienung ab. Zähl das Wechselgeld in deiner Geldbörse und trag den Betrag ein. Danach geht es mit dem Kassieren weiter."
     },
     "deposit": {
       "nav": "Pfand zurück",
@@ -1092,6 +1094,10 @@
       "foodPrepayEnabled": {
         "label": "Essen bei Bestellung bezahlen",
         "hint": "Die Küche bekommt Essen erst, wenn es bezahlt ist, so kann die Essensausgabe verteilen, ohne zu kassieren. Essen der Gäste (QR-Code) wartet, bis eine Bedienung es kassiert hat; der Tisch zeigt „Essen kassieren“. Getränke werden weiter beim Bringen bezahlt."
+      },
+      "cashDrawerEnabled": {
+        "label": "Kasse pro Bedienung",
+        "hint": "Jede Bedienung zählt beim ersten Kassieren ihr Wechselgeld ein und am Ende den Bestand aus; die App rechnet aus, was in der Kasse sein müsste. Aus: Niemand muss eine Kasse öffnen."
       },
       "cafeClosed": {
         "label": "Kuchentheke geschlossen",

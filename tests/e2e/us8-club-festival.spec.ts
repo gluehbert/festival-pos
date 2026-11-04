@@ -1,9 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { collectPayment, joinTable, loginStaff, openEventTab, openLiveEvent, pickTable, tapMenuItem } from './helpers'
+import { collectPayment, joinTable, loginStaff, openEventTab, openLiveEvent, pickTable, setCashDrawers, tapMenuItem } from './helpers'
 
 // US8: festival extras — notes for the kitchen, cash drawer with closing,
 // printable receipt, staff meals and the legal pages.
 test.describe('@smoke US8 — club festival extras', () => {
+  test.beforeAll(async ({ browser }) => setCashDrawers(browser, true))
+  test.afterAll(async ({ browser }) => setCashDrawers(browser, false))
+
   test('drawer -> order with note -> kitchen sees it -> cash -> receipt -> closing', async ({ browser, page }) => {
     await page.addInitScript(() => {
       window.print = () => { (window as unknown as { printed: number }).printed = ((window as unknown as { printed?: number }).printed ?? 0) + 1 }

@@ -113,3 +113,52 @@ describe('cash page', () => {
     expect(w.find('[data-test="cash-opening"]').exists()).toBe(true)
   })
 })
+
+describe('first cashing with drawers switched on', () => {
+  const paid = { paymentId: 'p', totalCents: 700, tipCents: 0, ticketStatusAfter: 'paid', receipt: null }
+  const url = (i: number) => String(fetchMock.mock.calls[i]![0])
+
+  it('asks for the float, opens the drawer and then books the payment', async () => {
+    const { usePaymentsStore } = await import('~/stores/payments')
+    const CashOpenPrompt = (await import('~/components/staff/CashOpenPrompt.vue')).default
+    const cash = useCashStore()
+    const w = mount(CashOpenPrompt, { global: { stubs: { NuxtLink: true } } })
+    cash.required = true
+    fetchMock.mockImplementation(async (u: string, opts?: { method?: string }) => {
+      if (u === '/api/cash/session' && opts?.method === 'POST') return session
+      if (u === '/api/cash/session') return { session: null, otherEventName: null, required: true }
+      return paid
+    })
+
+    const paying = usePaymentsStore().createPayment('t-4', ['i1'])
+    await flushPromises()
+    expect(cash.prompting).toBe(true)
+    expect(w.text()).toContain('staff.cash.promptTitle')
+    // Nothing booked while the float is not counted.
+    expect(fetchMock.mock.calls.some((c) => c[0] === '/api/payments')).toBe(false)
+
+    await w.find('[data-test="cash-prompt-opening"]').setValue('50')
+    await w.find('[data-test="confirm-ok"]').trigger('click')
+    expect(await paying).toEqual(paid)
+    expect(url(fetchMock.mock.calls.length - 1)).toBe('/api/payments')
+    expect(cash.session?.openingCents).toBe(5000)
+    expect(cash.prompting).toBe(false)
+  })
+
+  it('cancelling books nothing; with drawers off nobody is asked', async () => {
+    const { usePaymentsStore } = await import('~/stores/payments')
+    const cash = useCashStore()
+    cash.required = true
+    fetchMock.mockResolvedValueOnce({ session: null, otherEventName: null, required: true })
+    const paying = usePaymentsStore().createPayment('t-4', ['i1'])
+    await flushPromises()
+    cash.finishPrompt(false)
+    expect(await paying).toBeNull()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    cash.required = false
+    fetchMock.mockResolvedValueOnce(paid)
+    expect(await usePaymentsStore().createPayment('t-4', ['i1'])).toEqual(paid)
+    expect(cash.prompting).toBe(false)
+  })
+})

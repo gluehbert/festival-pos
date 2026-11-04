@@ -7,6 +7,7 @@ import ThemeSwitcher from '~/components/common/ThemeSwitcher.vue'
 import LocaleSwitcher from '~/components/common/LocaleSwitcher.vue'
 import { DEVICE_MODES, useDeviceMode } from '~/composables/useDeviceMode'
 import { useWelcome } from '~/composables/useWelcome'
+import { useBranding } from '~/composables/useBranding'
 
 // One menu instead of a row of links: signed-in staff find their account
 // (password, passkeys), the other areas (by role), cash, language, colours
@@ -14,6 +15,7 @@ import { useWelcome } from '~/composables/useWelcome'
 const auth = useAuthStore()
 const route = useRoute()
 const device = useDeviceMode()
+const { branding } = useBranding()
 const version = useRuntimeConfig().public.version
 onMounted(device.restore)
 // The admin or shift lead sets up the counter device once; waiters never switch.
@@ -25,7 +27,8 @@ const links = computed(() => {
     { to: '/staff', key: 'nav.service', show: auth.hasRole('admin') },
     { to: '/production', key: 'nav.production', show: auth.hasRole('admin') },
     { to: '/admin/events', key: 'nav.admin', show: auth.hasRole('admin') },
-    { to: '/staff/cash', key: 'staff.cash.nav', show: auth.hasRole(['waiter', 'lead', 'admin']) },
+    // Only when the event counts cash per drawer (feature switch).
+    { to: '/staff/cash', key: 'staff.cash.nav', show: branding.value.cashDrawerEnabled && auth.hasRole(['waiter', 'lead', 'admin']) },
   ]
   return all.filter((l) => l.show)
 })
