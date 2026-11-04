@@ -1249,6 +1249,14 @@
       "kitchenBanner": "Cake counter closed: coffee and cake now come here.",
       "toastClosed": "Counter closed, the kitchen takes over.",
       "toastOpened": "Counter open again."
+    },
+    "guide": {
+      "title": "How it works",
+      "arrive": "New orders appear here by themselves. It beeps and the screen edge lights up.",
+      "start": "Prepare it. \"Start preparing\" is optional: the guest then sees \"Preparing\".",
+      "done": "When everything is ready, tap \"all done\". The service sees it at once. Wrong tap? \"Undo\" shows briefly at the bottom.",
+      "soldOut": "When something runs out, tap \"Sold out\" at the top. Then nobody can order it.",
+      "cafeClose": "After the coffee hour, tap \"Close cake counter\" at the top: new orders then go to the kitchen."
     }
   },
   "alerts": {

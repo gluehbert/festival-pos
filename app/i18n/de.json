@@ -1249,6 +1249,14 @@
       "kitchenBanner": "Kuchentheke geschlossen: Kaffee und Kuchen kommen jetzt hier an.",
       "toastClosed": "Theke geschlossen, die Küche übernimmt.",
       "toastOpened": "Theke wieder offen."
+    },
+    "guide": {
+      "title": "So geht’s",
+      "arrive": "Neue Bestellungen erscheinen hier von selbst. Es piept, und der Bildschirmrand leuchtet auf.",
+      "start": "Zubereiten. „Starten“ ist freiwillig: Dann sieht der Gast „In Zubereitung“.",
+      "done": "Ist alles fertig, „komplett fertig“ tippen. Die Bedienung sieht es sofort. Vertippt? Unten erscheint kurz „Rückgängig“.",
+      "soldOut": "Ist etwas aus, oben „Ausverkauft“ tippen. Dann kann es niemand mehr bestellen.",
+      "cafeClose": "Nach dem Kaffeeklatsch oben „Kuchentheke schließen“: Neue Bestellungen gehen dann an die Küche."
     }
   },
   "alerts": {

@@ -9,6 +9,7 @@ import LanesView from '~/components/production/LanesView.vue'
 import StationFilter from '~/components/production/StationFilter.vue'
 import SoldOutPanel from '~/components/production/SoldOutPanel.vue'
 import CafeCounterSwitch from '~/components/production/CafeCounterSwitch.vue'
+import StationGuide from '~/components/production/StationGuide.vue'
 import StaleBanner from '~/components/common/StaleBanner.vue'
 import WaiterCalls from '~/components/staff/WaiterCalls.vue'
 import { useBranding } from '~/composables/useBranding'
@@ -185,9 +186,7 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
     <p v-if="production.loading && production.queue.length === 0" class="mt-8 text-sm text-slate-500">
       {{ $t('production.loading') }}
     </p>
-    <p v-else-if="production.queue.length === 0" class="mt-8 text-sm text-slate-500">
-      {{ $t('production.empty') }}
-    </p>
+    <StationGuide v-else-if="production.queue.length === 0" :station="effectiveStation ?? 'kitchen'" />
 
     <LanesView
       v-else-if="lanesActive"
