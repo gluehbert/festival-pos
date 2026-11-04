@@ -370,7 +370,7 @@
       "blockMealReason": "Bitte einen Grund eingeben (mind. 3 Zeichen).",
       "sendAndPayFood": "Senden & Essen bar kassiert",
       "picker": {
-        "title": "Für welchen Tisch?",
+        "title": "Für welchen Tisch bestellen?",
         "mine": "Meine ({n})",
         "all": "Alle",
         "other": "Andere Nr.",

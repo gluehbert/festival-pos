@@ -370,7 +370,7 @@
       "blockMealReason": "Please enter a reason (at least 3 characters).",
       "sendAndPayFood": "Send & food paid cash",
       "picker": {
-        "title": "Which table?",
+        "title": "Which table is this order for?",
         "mine": "Mine ({n})",
         "all": "All",
         "other": "Other no.",
