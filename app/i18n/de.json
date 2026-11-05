@@ -308,17 +308,17 @@
       }
     },
     "void": {
-      "title": "Position stornieren",
+      "title": "Artikel stornieren",
       "reason": "Grund (mind. 3 Zeichen)",
       "confirm": "Stornieren",
       "cancel": "Abbrechen",
       "errorTooShort": "Grund muss mind. 3 Zeichen lang sein.",
       "errorPaid": "Bereits bezahlte Artikel können nicht storniert werden – bitte über „Erstatten“ (Schichtleitung oder Admin).",
       "button": "Storno",
-      "errorAdminOnly": "Diese Position ist schon fertig oder serviert. Stornieren darf sie nur die Schichtleitung oder ein Admin.",
-      "errorCancelled": "Diese Position ist bereits storniert.",
-      "errorConflict": "Die Position hat sich gerade geändert. Bitte neu laden und erneut versuchen.",
-      "errorNotFound": "Position nicht gefunden – gehört sie zu einem anderen Fest?",
+      "errorAdminOnly": "Dieser Artikel ist schon fertig oder serviert. Stornieren darf ihn nur die Schichtleitung oder ein Admin.",
+      "errorCancelled": "Dieser Artikel ist bereits storniert.",
+      "errorConflict": "Der Artikel hat sich gerade geändert. Bitte neu laden und erneut versuchen.",
+      "errorNotFound": "Artikel nicht gefunden – gehört er zu einem anderen Fest?",
       "notOrdered": "Nicht vom Tisch bestellt"
     },
     "errors": {
@@ -347,7 +347,7 @@
     },
     "refund": {
       "button": "Erstatten",
-      "title": "Bezahlte Position erstatten",
+      "title": "Bezahlten Artikel erstatten",
       "confirm": "Erstatten",
       "hint": "Der Betrag wird aus deiner Kasse genommen.",
       "needsDrawer": "Öffne zuerst deine Kasse, dann erstatte.",

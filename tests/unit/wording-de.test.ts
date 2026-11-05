@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 const BANNED: Array<[RegExp, string]> = [
   [/\bService\b/, 'Bedienung'],
   [/\bPreisliste\b/, 'Speisekarte'],
-  [/\bPositionen?\b/, 'Artikel'],
+  [/\bPosition(en)?\b/, 'Artikel'],
   [/\bWalk-?ins?\b/i, 'Ohne Tisch'],
   [/\bProduktion\b/, 'Küche & Bar'],
   [/\bStaff\b/, 'Helfer / Bedienung'],
