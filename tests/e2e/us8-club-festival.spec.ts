@@ -11,7 +11,7 @@ test.describe('@smoke US8 — club festival extras', () => {
     await page.addInitScript(() => {
       window.print = () => { (window as unknown as { printed: number }).printed = ((window as unknown as { printed?: number }).printed ?? 0) + 1 }
     })
-    await loginStaff(page, 'waiter1', '1111', 'pin')
+    await loginStaff(page, 'waiter1', '1111')
     await page.goto('/staff/cash')
     // Re-runs against the same database may find the drawer still open.
     const closeButton = page.getByRole('button', { name: /close drawer/i })
@@ -38,7 +38,7 @@ test.describe('@smoke US8 — club festival extras', () => {
 
     const kitchen = await browser.newContext()
     const kitchenPage = await kitchen.newPage()
-    await loginStaff(kitchenPage, 'kitchen1', '1111', 'pin')
+    await loginStaff(kitchenPage, 'kitchen1', '1111')
     await expect(kitchenPage.locator('[data-test="order-card"]').filter({ hasText: 'Table 9' }).locator('[data-test="note-badge"]').first()).toContainText('no mustard')
     await kitchen.close()
 
@@ -61,7 +61,7 @@ test.describe('@smoke US8 — club festival extras', () => {
   })
 
   test('staff meal is booked at €0 with a reason', async ({ page }) => {
-    await loginStaff(page, 'waiter1', '1111', 'pin')
+    await loginStaff(page, 'waiter1', '1111')
     await page.locator('[data-test="staff-meal-link"]').click()
     await tapMenuItem(page, /^add sausage$/i, 2)
     const book = page.getByRole('button', { name: /book as staff meal/i })
@@ -72,7 +72,7 @@ test.describe('@smoke US8 — club festival extras', () => {
   })
 
   test('admin maintains the legal notice, guests find it in the footer', async ({ page, browser }) => {
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     await openLiveEvent(page)
     await openEventTab(page, 'Design')
     await page.locator('[data-test="legal-imprint"]').fill('Demo Music Club\n1 Main Street')

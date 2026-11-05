@@ -6,7 +6,7 @@ import { joinTable, loginStaff, menuItem, openEventTab, openLiveEvent } from './
 // preview), then uploads a CSV with a new item and a price change.
 test.describe('@smoke Admin imports the price list from Excel/CSV', () => {
   test('template download, preview, apply', async ({ browser, page }) => {
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     await openLiveEvent(page)
     await openEventTab(page, 'Menu')
 
@@ -40,7 +40,7 @@ test.describe('@smoke Admin imports the price list from Excel/CSV', () => {
   })
 
   test('shows row errors and does not apply a broken file', async ({ page }) => {
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     await openLiveEvent(page)
     await openEventTab(page, 'Menu')
     const csv = 'Name (DE);Price (€);Category;Station\nCola;expensive;Drinks;Bar\n'

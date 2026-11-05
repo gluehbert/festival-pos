@@ -14,7 +14,7 @@ async function addKitchenBuzzer(page: Page, n: 1 | 2, key: string) {
 // lane keeps its card.
 test.describe('@smoke Buzzers at the kitchen/bar', () => {
   test('admin sets two buzzers, each finishes its own lane, the other lane stays put', async ({ browser, page }) => {
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     await openLiveEvent(page)
     await openEventTab(page, 'Settings')
     await addKitchenBuzzer(page, 1, 'F9')
@@ -27,7 +27,7 @@ test.describe('@smoke Buzzers at the kitchen/bar', () => {
 
     const kitchenContext = await browser.newContext()
     const kitchen = await kitchenContext.newPage()
-    await loginStaff(kitchen, 'kitchen1', '1111', 'pin')
+    await loginStaff(kitchen, 'kitchen1', '1111')
     await expect(kitchen).toHaveURL(/\/production$/)
     const one = kitchen.locator('[data-test="lane-1"] [data-test="lane-label"]')
     const two = kitchen.locator('[data-test="lane-2"] [data-test="lane-label"]')

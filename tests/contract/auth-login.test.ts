@@ -38,6 +38,7 @@ describe('POST /api/auth/login', () => {
     expect(() => StaffLoginSchema.parse({ username: 'u', secret: 'x', kind: 'password' })).toThrow()
     expect(() => StaffLoginSchema.parse({ username: 'u', secret: 'abcd', kind: 'unknown' })).toThrow()
     expect(StaffLoginSchema.parse({ username: 'u', secret: 'abcd', kind: 'pin' })).toEqual({ username: 'u', secret: 'abcd', kind: 'pin' })
+    expect(StaffLoginSchema.parse({ username: 'u', secret: 'abcd' })).toEqual({ username: 'u', secret: 'abcd' })
   })
 
   it('logs in via password and sets pos_staff cookie', async () => {
@@ -99,6 +100,42 @@ describe('POST /api/auth/login', () => {
     const handler = (await import('../../server/api/auth/login.post')).default
     const { event } = makeEvent({ method: 'POST' })
     await expect(handler(event)).rejects.toMatchObject({ statusCode: 401 })
+  })
+})
+
+describe('POST /api/auth/login with one field (no kind)', () => {
+  beforeEach(async () => {
+    ctx = await makeCtx()
+    setCtx(ctx)
+  })
+
+  const login = async (username: string, secret: string) => {
+    const { makeEvent } = await import('../setup/h3-event')
+    const handler = (await import('../../server/api/auth/login.post')).default
+    ctx.setBody({ username, secret })
+    return handler(makeEvent({ method: 'POST' }).event) as Promise<{ username: string; via: string }>
+  }
+
+  it('accepts a PIN and says it was a PIN', async () => {
+    await seedStaff({ username: 'bob', pin: '1234', password: 'secret123' })
+    expect(await login('bob', '1234')).toMatchObject({ username: 'bob', via: 'pin' })
+  })
+
+  it('accepts a password and says it was a password', async () => {
+    await seedStaff({ username: 'alice', pin: '1234', password: 'secret123' })
+    expect(await login('alice', 'secret123')).toMatchObject({ username: 'alice', via: 'password' })
+  })
+
+  it('counts a wrong entry as one failed attempt, not two', async () => {
+    await seedStaff({ username: 'dave', pin: '1234', password: 'secret123' })
+    await expect(login('dave', '9999')).rejects.toMatchObject({ statusCode: 401 })
+    expect(ctx.mem.public.many(`SELECT * FROM login_attempts WHERE username = 'dave'`).length).toBe(1)
+  })
+
+  it('still refuses a PIN for admins', async () => {
+    await seedStaff({ username: 'boss', password: 'secret123456', pin: '1234', role: 'admin' })
+    await expect(login('boss', '1234')).rejects.toMatchObject({ statusCode: 401 })
+    expect(await login('boss', 'secret123456')).toMatchObject({ via: 'password' })
   })
 })
 

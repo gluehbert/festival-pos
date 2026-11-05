@@ -13,18 +13,11 @@ export async function joinTable(page: Page, tableNo: number): Promise<void> {
   await expect(page).toHaveURL(new RegExp(`/t/${tableNo}$`))
 }
 
-export async function loginStaff(page: Page, username: string, secret: string, kind: 'password' | 'pin'): Promise<void> {
+// One field takes the PIN or the password.
+export async function loginStaff(page: Page, username: string, secret: string): Promise<void> {
   await page.goto('/staff/login')
   await page.getByLabel(/username/i).fill(username)
-  if (kind === 'pin') {
-    await page.getByRole('radio', { name: 'PIN' }).check()
-    await page.getByRole('textbox', { name: 'PIN' }).fill(secret)
-  }
-  else {
-    // The mode is remembered per device: pick it explicitly.
-    await page.getByRole('radio', { name: /password/i }).check()
-    await page.getByRole('textbox', { name: /password/i }).fill(secret)
-  }
+  await page.getByRole('textbox', { name: /pin or password/i }).fill(secret)
   await page.getByRole('button', { name: /sign in/i }).click()
   await expect(page).not.toHaveURL(/\/staff\/login/)
 }
@@ -119,7 +112,7 @@ export async function openEventTab(page: Page, name: string): Promise<void> {
 export async function setCashDrawers(browser: Browser, on: boolean): Promise<void> {
   const context = await browser.newContext()
   const page = await context.newPage()
-  await loginStaff(page, 'admin', 'admin123', 'password')
+  await loginStaff(page, 'admin', 'admin123')
   const id = await openLiveEvent(page)
   const ok = await page.evaluate(async ({ id, on }) => {
     const token = (await (await fetch('/api/csrf-token')).json()).csrfToken

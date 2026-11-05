@@ -16,8 +16,7 @@ test.describe('@smoke US2 — staff cashes at table', () => {
 
     await page.goto('/staff/login')
     await page.getByLabel(/username/i).fill('waiter1')
-    await page.getByRole('radio', { name: 'PIN' }).check()
-    await page.getByRole('textbox', { name: 'PIN' }).fill('1111')
+    await page.getByRole('textbox', { name: /pin or password/i }).fill('1111')
     await page.getByRole('button', { name: /sign in/i }).click()
     await expect(page).toHaveURL(/\/staff$/)
 

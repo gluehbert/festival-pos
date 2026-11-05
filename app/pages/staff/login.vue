@@ -10,7 +10,10 @@ const { t } = useI18n()
 const auth = useAuthStore()
 const username = ref('')
 const secret = ref('')
-const kind = ref<LoginKind>('password')
+// One field for PIN or password; the server tries both. Only the keyboard
+// differs: the number pad unless this device last signed in with a password
+// (helpers use PINs, admins mostly sign in at a laptop).
+const keyboard = ref<LoginKind>('pin')
 const reveal = ref(false)
 const submitting = ref(false)
 const err = ref<string | null>(null)
@@ -21,17 +24,17 @@ onMounted(() => {
   canPasskey.value = passkeysSupported()
   const prefs = loadLoginPrefs()
   if (!prefs) return
-  kind.value = prefs.kind
+  keyboard.value = prefs.kind
   if (!username.value) username.value = prefs.username
 })
-watch(kind, () => { reveal.value = false })
+watch(keyboard, () => { reveal.value = false })
 
 async function submit() {
   err.value = null
   submitting.value = true
   try {
-    const session = await auth.login({ username: username.value, secret: secret.value, kind: kind.value })
-    saveLoginPrefs({ kind: kind.value, username: username.value.trim() })
+    const session = await auth.login({ username: username.value, secret: secret.value })
+    saveLoginPrefs({ kind: session.via, username: username.value.trim() })
     await navigateTo(homeForRole(session?.role))
   }
   catch (e: unknown) {
@@ -47,7 +50,7 @@ async function submitPasskey() {
   submitting.value = true
   try {
     const session = await auth.loginWithPasskey()
-    saveLoginPrefs({ kind: kind.value, username: session.username })
+    saveLoginPrefs({ kind: keyboard.value, username: session.username })
     // Works here already: no need to offer setting one up.
     markPasskeyOffer(session.username, 'done')
     await navigateTo(homeForRole(session.role))
@@ -98,20 +101,9 @@ async function submitPasskey() {
           class="mt-1 w-full rounded border border-slate-300 px-3 py-2"
         >
       </div>
-      <fieldset class="space-y-1">
-        <legend class="text-sm font-medium text-slate-700">
-          {{ $t('staff.login.kind') }}
-        </legend>
-        <label class="inline-flex min-h-[44px] items-center gap-2 text-sm">
-          <input v-model="kind" type="radio" value="password" class="size-5"> {{ $t('staff.login.password') }}
-        </label>
-        <label class="ml-4 inline-flex min-h-[44px] items-center gap-2 text-sm">
-          <input v-model="kind" type="radio" value="pin" class="size-5"> {{ $t('staff.login.pin') }}
-        </label>
-      </fieldset>
       <div>
         <label class="block text-sm font-medium text-slate-700" for="secret">
-          {{ kind === 'pin' ? $t('staff.login.pin') : $t('staff.login.password') }}
+          {{ $t('staff.login.secret') }}
         </label>
         <div class="relative mt-1">
           <input
@@ -119,8 +111,7 @@ async function submitPasskey() {
             v-model="secret"
             required
             :type="reveal ? 'text' : 'password'"
-            :inputmode="kind === 'pin' ? 'numeric' : 'text'"
-            :pattern="kind === 'pin' ? '[0-9]*' : undefined"
+            :inputmode="keyboard === 'pin' ? 'numeric' : 'text'"
             minlength="4"
             autocomplete="current-password"
             class="w-full rounded border border-slate-300 py-2 pl-3 pr-12"
@@ -136,6 +127,14 @@ async function submitPasskey() {
             <UIcon :name="reveal ? 'i-lucide-eye-off' : 'i-lucide-eye'" class="size-5 shrink-0" aria-hidden="true" />
           </button>
         </div>
+        <button
+          type="button"
+          class="mt-1 min-h-[44px] text-sm text-slate-600 underline"
+          data-test="toggle-keyboard"
+          @click="keyboard = keyboard === 'pin' ? 'password' : 'pin'"
+        >
+          {{ keyboard === 'pin' ? $t('staff.login.lettersKeyboard') : $t('staff.login.numberKeyboard') }}
+        </button>
       </div>
       <p v-if="err" class="text-sm text-rose-600" role="alert">
         {{ err }}

@@ -15,7 +15,7 @@ test.describe('@smoke US9 — handing out tables and my tables', () => {
   test('lead hands out a table, waiter sees it, lead frees it again', async ({ browser, page }) => {
     const other = await browser.newContext()
     const lead = await other.newPage()
-    await loginStaff(lead, 'admin', 'admin123', 'password')
+    await loginStaff(lead, 'admin', 'admin123')
     await lead.goto('/staff/tables')
     await lead.locator('[data-test="distribute-person"]').filter({ hasText: 'waiter1' }).click()
     const leadTile = lead.locator('[data-test="distribute-table"]').filter({ hasText: new RegExp(`^${TABLE}`) })
@@ -25,7 +25,7 @@ test.describe('@smoke US9 — handing out tables and my tables', () => {
     await expect(leadTile).toContainText('waiter1')
     await expectNoViolations(lead)
 
-    await loginStaff(page, 'waiter1', '1111', 'pin')
+    await loginStaff(page, 'waiter1', '1111')
     await page.goto('/staff')
     // Waiters start in "My tables", with the grid only.
     await expect(page.locator('[data-test="owner-mine"]')).toHaveAttribute('aria-pressed', 'true')

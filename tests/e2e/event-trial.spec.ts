@@ -6,7 +6,7 @@ import { guestOrders, loginStaff, openEventTab, openLiveEvent } from './helpers'
 // tests and deleted before the real event.
 test.describe('@smoke Event date and rehearsal', () => {
   test('admin sets the date, runs a rehearsal and deletes its orders', async ({ browser, page }) => {
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     const eventId = await openLiveEvent(page)
     const header = page.locator('[data-test="event-context"]')
 

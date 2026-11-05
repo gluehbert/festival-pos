@@ -8,7 +8,7 @@ test.describe('@smoke Admin manages staff accounts', () => {
 
     await page.goto('/staff/login')
     await page.getByLabel(/username/i).fill('admin')
-    await page.getByRole('textbox', { name: /password/i }).fill('admin123')
+    await page.getByRole('textbox', { name: /pin or password/i }).fill('admin123')
     await page.getByRole('button', { name: /sign in/i }).click()
     await expect(page).toHaveURL(/\/admin\/events$/)
 
@@ -23,8 +23,7 @@ test.describe('@smoke Admin manages staff accounts', () => {
     const waiterPage = await waiter.newPage()
     await waiterPage.goto('/staff/login')
     await waiterPage.getByLabel(/username/i).fill(username)
-    await waiterPage.getByRole('radio', { name: 'PIN' }).check()
-    await waiterPage.getByRole('textbox', { name: 'PIN' }).fill('2468')
+    await waiterPage.getByRole('textbox', { name: /pin or password/i }).fill('2468')
     await waiterPage.getByRole('button', { name: /sign in/i }).click()
     await expect(waiterPage).toHaveURL(/\/staff$/)
 

@@ -7,7 +7,7 @@ import { joinTable, loginStaff, menuItem, openEventTab, openLiveEvent } from './
 test.describe('@smoke US4 — admin setup', () => {
   test('menu item lifecycle, event creation and QR PDF', async ({ browser, page }) => {
     const name = `Pretzel ${Date.now().toString().slice(-5)}`
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
 
     await openLiveEvent(page)
     await expect(page.locator('[data-test="event-context"]')).toContainText('Live')

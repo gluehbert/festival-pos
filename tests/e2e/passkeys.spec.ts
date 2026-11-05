@@ -17,7 +17,7 @@ test.describe('@smoke Passkey login', () => {
       options: { protocol: 'ctap2', transport: 'internal', hasResidentKey: true, hasUserVerification: true, isUserVerified: true, automaticPresenceSimulation: true },
     })
 
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     await expect(page).toHaveURL(/\/admin\//)
     const offer = page.locator('[data-test="passkey-offer"]')
     await expect(offer).toBeVisible()
