@@ -7,8 +7,7 @@ test.describe('@smoke Role start pages and language switch', () => {
   test('kitchen staff land on the production queue, in English and German', async ({ page }) => {
     await page.goto('/staff/login')
     await page.getByLabel(/username/i).fill('kitchen1')
-    await page.getByRole('radio', { name: 'PIN' }).check()
-    await page.getByRole('textbox', { name: 'PIN' }).fill('1111')
+    await page.getByRole('textbox', { name: /pin or password/i }).fill('1111')
     await page.getByRole('button', { name: /sign in/i }).click()
 
     await expect(page).toHaveURL(/\/production$/)
@@ -24,7 +23,7 @@ test.describe('@smoke Role start pages and language switch', () => {
   test('on a phone the kitchen screen names the station in full, not the event', async ({ browser }) => {
     const phone = await browser.newContext({ viewport: { width: 412, height: 915 } })
     const page = await phone.newPage()
-    await loginStaff(page, 'kitchen1', '1111', 'pin')
+    await loginStaff(page, 'kitchen1', '1111')
     await expect(page).toHaveURL(/\/production$/)
     const title = page.getByRole('heading', { level: 1 })
     await expect(title).toHaveText('Kitchen')

@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useAttention } from '~/composables/useAttention'
 
 // Shown while a station has nothing to do: kitchen, bar and cake counter
 // staff work the screen once a year, so the quiet moment explains it in the
 // words the buttons use. Bar and cake counter have no "Start" step.
 const props = defineProps<{ station: 'kitchen' | 'bar' | 'cafe' }>()
+// The first line says what this device actually does: beep, vibrate or only light up.
+const { mode } = useAttention()
+const ARRIVE = { loud: 'arrive', vibrate: 'arriveVibrate', silent: 'arriveSilent' } as const
 
 const steps = computed(() => [
-  { key: 'arrive', icon: 'i-lucide-bell-ring' },
+  { key: ARRIVE[mode.value], icon: 'i-lucide-bell-ring' },
   ...(props.station === 'kitchen' ? [{ key: 'start', icon: 'i-lucide-flame' }] : []),
   { key: 'done', icon: 'i-lucide-check' },
   { key: 'soldOut', icon: 'i-lucide-circle-slash' },

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, toRef } from 'vue'
+import { computed, onMounted, toRef, watch } from 'vue'
 import { navigateTo } from '#imports'
 import { useSetupGuide } from '~/composables/useSetupGuide'
 import { nextStep, prevStep, SETUP_STEPS, stepAt } from '~/utils/setup-steps'
@@ -12,6 +12,8 @@ import type { EventDto } from '~/../server/lib/contracts/admin'
 const props = defineProps<{ event: EventDto; subPath: string }>()
 const guide = useSetupGuide(toRef(props, 'event'))
 onMounted(guide.restore)
+// A tab may have changed what the data says (menu items, helpers, QR codes).
+watch(() => props.subPath, () => { void guide.restore() })
 
 const base = computed(() => `/admin/events/${props.event.id}`)
 const step = computed(() => stepAt(props.subPath))
@@ -22,7 +24,7 @@ const firstOpen = computed(() => SETUP_STEPS.find((s) => s.key === guide.open.va
 
 async function goNext() {
   if (!step.value || !next.value) return
-  guide.confirm(step.value.key)
+  await guide.confirm(step.value.key)
   await navigateTo(base.value + next.value.path)
 }
 </script>

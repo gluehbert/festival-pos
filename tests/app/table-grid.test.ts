@@ -84,12 +84,13 @@ describe('useStaffView', () => {
   it('remembers filter and view per device', () => {
     const a = useStaffView()
     a.restore()
-    expect([a.owner.value, a.view.value]).toEqual(['all', 'list'])
+    // A new device starts with the grid: every table shows, also on a quiet evening.
+    expect([a.owner.value, a.view.value]).toEqual(['all', 'grid'])
     a.setOwner('mine')
-    a.setView('grid')
+    a.setView('list')
     const b = useStaffView()
     b.restore()
-    expect([b.owner.value, b.view.value]).toEqual(['mine', 'grid'])
+    expect([b.owner.value, b.view.value]).toEqual(['mine', 'list'])
     localStorage.setItem('staff-owner-filter', 'bogus')
     b.restore()
     expect(b.owner.value).toBe('all')
@@ -115,8 +116,8 @@ describe('useStaffView', () => {
     v.restore()
     expect(v.owner.value).toBe('all')
     v.setOwner('mine')
-    v.setView('grid')
-    expect([v.owner.value, v.view.value]).toEqual(['mine', 'grid'])
+    v.setView('list')
+    expect([v.owner.value, v.view.value]).toEqual(['mine', 'list'])
   })
 })
 

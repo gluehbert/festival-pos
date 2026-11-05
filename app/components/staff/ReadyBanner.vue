@@ -3,10 +3,11 @@ import ReadyBadges from '~/components/staff/ReadyBadges.vue'
 
 type Station = 'kitchen' | 'bar' | 'cafe'
 
-// Finished, not yet paid and not yet brought. Cashing clears it by itself,
-// so "Gebracht" is only a small extra for a guest who pays later. With food
-// and drinks both ready the waiter often brings one first: one button each.
-// A walk-in is paid already: there the button is the only way to clear it.
+// Finished, not yet paid and not yet brought. Cashing clears it, and ten
+// minutes after kitchen/bar finished it counts as brought anyway, so
+// "Gebracht" is only a small extra. With food and drinks both ready the
+// waiter often brings one first: one button each. A walk-in is paid
+// already: there only the button or the ten minutes clear it.
 const props = defineProps<{ kitchen: number; bar: number; cafe: number; busy?: boolean; walkin?: boolean }>()
 const emit = defineEmits<{ (e: 'served', station: Station): void }>()
 
@@ -22,8 +23,8 @@ const stations = (): Station[] => (['kitchen', 'bar', 'cafe'] as const).filter((
   >
     <div>
       <ReadyBadges :ready="{ kitchen, bar, cafe }" class="text-emerald-800" />
-      <p v-if="!walkin" class="mt-1 text-xs text-emerald-900" data-test="ready-hint">
-        {{ $t('staff.detail.servedHint') }}
+      <p class="mt-1 text-xs text-emerald-900" data-test="ready-hint">
+        {{ $t(walkin ? 'staff.detail.servedHintWalkin' : 'staff.detail.servedHint') }}
       </p>
     </div>
     <div class="flex flex-wrap gap-2">

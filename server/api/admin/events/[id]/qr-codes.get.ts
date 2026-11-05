@@ -6,6 +6,7 @@ import { QrRangeQuerySchema } from '../../../../lib/contracts/admin'
 import { generateQrPdf } from '../../../../lib/pdf'
 import { publicBaseUrl } from '../../../../lib/public-url'
 import { eventIdParam, loadEvent } from '../../../../lib/events'
+import { markSetup } from '../../../../lib/event-setup'
 
 const MAX_TABLES_PER_PDF = 300
 
@@ -34,6 +35,8 @@ export default defineEventHandler(async (event) => {
       to: query.to,
       appUrl: publicBaseUrl(event),
     })
+    // Ticks off "QR-Codes" in the guided setup.
+    await markSetup(db, ev.id, { qrDownloadedAt: new Date() })
 
     setResponseHeader(event, 'Content-Type', 'application/pdf')
     setResponseHeader(

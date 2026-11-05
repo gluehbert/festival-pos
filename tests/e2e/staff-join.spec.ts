@@ -6,7 +6,7 @@ import { loginStaff, openEventTab, openLiveEvent } from './helpers'
 // in from the waiting room, and they land on the service screen.
 test.describe('@smoke Join by link', () => {
   test('helper joins, admin lets them in, helper works as that person', async ({ browser, page }) => {
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     await openLiveEvent(page)
     await openEventTab(page, 'Helpers')
     const link = page.locator('[data-test="join-link"]')

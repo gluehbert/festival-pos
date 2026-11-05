@@ -11,8 +11,8 @@ describe('ReadyBanner', () => {
     const w = mount(ReadyBanner, { props: { kitchen: 0, bar: 2, cafe: 0 } })
     // Cashing clears it anyway: the banner says so, "Gebracht" is only an extra.
     expect(w.get('[data-test="ready-hint"]').text()).toBe('staff.detail.servedHint')
-    // A walk-in is paid already: no such promise there.
-    expect(mount(ReadyBanner, { props: { kitchen: 1, bar: 0, cafe: 0, walkin: true } }).find('[data-test="ready-hint"]').exists()).toBe(false)
+    // A walk-in is paid already: only the ten minutes apply there.
+    expect(mount(ReadyBanner, { props: { kitchen: 1, bar: 0, cafe: 0, walkin: true } }).get('[data-test="ready-hint"]').text()).toBe('staff.detail.servedHintWalkin')
     const buttons = w.findAll('button')
     expect(buttons.map((b) => b.text())).toEqual(['staff.detail.served'])
     await buttons[0]!.trigger('click')

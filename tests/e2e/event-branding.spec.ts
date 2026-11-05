@@ -7,7 +7,7 @@ import { joinTable, loginStaff, openEventTab, openLiveEvent } from './helpers'
 // name, logo, colour, greeting, programme and flyer on the ordering pages.
 test.describe('@smoke Event branding', () => {
   test('admin customises the event, guests see it', async ({ browser, page }) => {
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     await openLiveEvent(page)
     await openEventTab(page, 'Design')
     const form = page.locator('[data-test="event-branding"]')

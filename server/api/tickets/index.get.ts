@@ -11,6 +11,7 @@ import {
 } from '../../lib/contracts/staff'
 import { makeTableKey, makeWalkKey } from '../../lib/tickets'
 import { lineTotalSql } from '../../lib/line-total'
+import { awaitingService } from '../../lib/ready'
 import { loadTableChecks } from '../../lib/table-checks'
 import { loadAssignments, loadUsernames } from '../../lib/table-assignments'
 
@@ -24,8 +25,9 @@ const sumInt = (expr: SQL) => sql<number>`SUM(${expr})`.mapWith(Number)
 // At a table, paid items are not the waiter's to bring: food paid at
 // ordering is handed out by other helpers (and paying marks finished items
 // brought). A walk-in pays first and collects at the counter.
-const readyAt = (station: 'kitchen' | 'bar' | 'cafe') => sumInt(sql`CASE WHEN ${orderItems.station} = ${station}
-  AND ${orderItems.productionStatus} = 'done' AND ${orderItems.servedAt} IS NULL
+// After ten minutes a finished item counts as brought (lib/ready.ts).
+const readyAt = (station: 'kitchen' | 'bar' | 'cafe', now: Date) => sumInt(sql`CASE WHEN ${orderItems.station} = ${station}
+  AND ${awaitingService(now)}
   AND (${isWalk} OR ${orderItems.paymentStatus} = 'unpaid') THEN ${orderItems.quantity} ELSE 0 END`)
 const heldFood = sumInt(sql`CASE WHEN ${orderItems.station} = 'kitchen' AND ${orderItems.paymentStatus} = 'unpaid'
   AND ${orderItems.productionStatus} = 'pending' THEN ${orderItems.quantity} ELSE 0 END`)
@@ -45,6 +47,7 @@ export default defineEventHandler(async (event) => {
     requireRole(event, SERVICE_ROLES)
     const query = TicketsQuerySchema.parse(getQuery(event))
     const db = getDb()
+    const now = new Date()
 
     const evRows = await db.select().from(events).where(eq(events.isActive, true)).limit(1)
     const ev = evRows[0]
@@ -64,9 +67,9 @@ export default defineEventHandler(async (event) => {
         hasKitchen: hasStation('kitchen'),
         hasBar: hasStation('bar'),
         hasCafe: hasStation('cafe'),
-        readyKitchen: readyAt('kitchen'),
-        readyBar: readyAt('bar'),
-        readyCafe: readyAt('cafe'),
+        readyKitchen: readyAt('kitchen', now),
+        readyBar: readyAt('bar', now),
+        readyCafe: readyAt('cafe', now),
         heldFood,
       })
       .from(orderItems)
@@ -138,7 +141,7 @@ export default defineEventHandler(async (event) => {
       tickets,
       assignments,
       tableRange: { from: ev.tableRangeFrom, to: ev.tableRangeTo },
-      serverNow: new Date().toISOString(),
+      serverNow: now.toISOString(),
     })
   }
   catch (err) {

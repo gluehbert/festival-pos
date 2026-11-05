@@ -6,6 +6,7 @@ import { requireRole } from '../../../../lib/rbac'
 import { log } from '../../../../lib/log'
 import { TrialResetSchema } from '../../../../lib/contracts/admin'
 import { deleteTrialData, loadEventDto } from '../../../../lib/events'
+import { markSetup } from '../../../../lib/event-setup'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -21,6 +22,8 @@ export default defineEventHandler(async (event) => {
     const db = getDb()
     await loadEventDto(db, id) // 404 for unknown events
     const deleted = await deleteTrialData(db, id, staff.staffId)
+    // Test orders existed: a rehearsal was held ("Probelauf" in the setup).
+    if (deleted.orders > 0) await markSetup(db, id, { trialHeldAt: new Date() })
     log.info('event.trial_data_deleted', {
       requestId: event.context.requestId as string | undefined,
       userId: staff.staffId,

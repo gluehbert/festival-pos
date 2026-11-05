@@ -56,7 +56,8 @@ const statusBadge = computed(() => {
       <p class="text-xs text-slate-500">
         {{ lineEur }}
         <template v-if="item.depositCents > 0">· {{ $t('common.deposit.includedShort', { amount: euro(item.depositCents * item.quantity) }) }}</template>
-        · <span class="font-mono tracking-wider" data-test="order-number">{{ $t('common.orderNo', { no: shortOrderNo(item.orderId) }) }}</span>
+        <!-- Only to tell orders apart when asked: quiet, not in typewriter type. -->
+        · <span class="text-[11px] text-slate-400" data-test="order-number">{{ $t('common.orderNo', { no: shortOrderNo(item.orderId) }) }}</span>
         <template v-if="item.device">
           · <span data-test="order-device">{{ $t('staff.ticket.device', { n: item.device }) }}</span>
         </template>

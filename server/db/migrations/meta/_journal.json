@@ -260,6 +260,20 @@
       "when": 1793829907937,
       "tag": "0036_ancient_shooting_star",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1793868683703,
+      "tag": "0037_square_photon",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1793884981558,
+      "tag": "0038_curious_tomas",
+      "breakpoints": true
     }
   ]
 }

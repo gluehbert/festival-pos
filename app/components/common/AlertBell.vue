@@ -16,7 +16,7 @@ const icon = computed(() => ({ loud: 'i-lucide-bell-ring', locked: 'i-lucide-bel
   <UPopover :ui="{ content: 'bg-surface ring-slate-200' }">
     <button
       type="button"
-      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded"
+      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded md:px-2"
       :class="state === 'locked' ? 'bg-amber-100 text-amber-900' : 'text-slate-600 hover:bg-slate-100'"
       :aria-label="`${$t('alerts.label')}: ${$t(`alerts.state.${state}`)}`"
       :title="$t(`alerts.state.${state}`)"
@@ -24,6 +24,8 @@ const icon = computed(() => ({ loud: 'i-lucide-bell-ring', locked: 'i-lucide-bel
       :data-state="state"
     >
       <UIcon :name="icon" class="size-5" aria-hidden="true" />
+      <!-- From tablet width there is room for the word: a symbol alone is guesswork once a year. -->
+      <span class="hidden text-sm font-semibold md:inline" aria-hidden="true" data-test="alert-bell-label">{{ $t('alerts.short') }}</span>
     </button>
     <template #content>
       <div class="p-3">

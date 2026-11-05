@@ -7,6 +7,7 @@ import { EndCheckSchema, type EndCheck } from './contracts/admin'
 import { AppError } from './errors'
 import { lineTotalSql } from './line-total'
 import { loadEvent } from './events'
+import { awaitingService } from './ready'
 
 const iso = (d: Date | string) => (d instanceof Date ? d : new Date(d)).toISOString()
 
@@ -27,7 +28,7 @@ export async function loadEndCheck(db: Db, eventId: string): Promise<EndCheck> {
     .select({ n: count() })
     .from(orderItems)
     .innerJoin(orders, eq(orders.id, orderItems.orderId))
-    .where(and(realLine(eventId), eq(orderItems.productionStatus, 'done'), isNull(orderItems.servedAt)))
+    .where(and(realLine(eventId), awaitingService()))
   const drawers = await db
     .select({ username: staff.username, openedAt: cashSessions.openedAt })
     .from(cashSessions)
