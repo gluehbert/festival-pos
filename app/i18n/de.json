@@ -1195,6 +1195,16 @@
       "done": "erledigt",
       "notDone": "offen",
       "open": "Öffnen",
+      "detail": {
+        "branded": "Logo oder Begrüßung gesetzt",
+        "tables": "Tische {from}–{to}",
+        "menuItems": "Noch keine Artikel | 1 Artikel | {n} Artikel",
+        "priceRules": "Kein Aktionspreis | 1 Aktionspreis | {n} Aktionspreise",
+        "helpers": "Noch kein Helfer über den Link aufgenommen | 1 Helfer aufgenommen | {n} Helfer aufgenommen",
+        "qrDownloaded": "QR-Codes geladen am {date}",
+        "trialHeld": "Probelauf am {date}",
+        "noTrial": "Ohne Probelauf gestartet"
+      },
       "steps": {
         "branding": {
           "title": "Gestaltung",

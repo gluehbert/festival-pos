@@ -17,7 +17,7 @@ export default defineConfig({
   dialect: 'postgresql',
   out: './server/db/migrations',
   // schema.ts is at the 300-line limit (FR-045); newer tables live next to it.
-  schema: ['./server/db/schema.ts', './server/db/schema-service.ts', './server/db/schema-cash.ts', './server/db/schema-auth.ts', './server/db/schema-pricing.ts'],
+  schema: ['./server/db/schema.ts', './server/db/schema-service.ts', './server/db/schema-cash.ts', './server/db/schema-auth.ts', './server/db/schema-pricing.ts', './server/db/schema-setup.ts'],
   strict: true,
   verbose: true,
 })

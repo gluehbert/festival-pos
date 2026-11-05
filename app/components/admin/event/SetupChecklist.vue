@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, toRef } from 'vue'
 import { useSetupGuide } from '~/composables/useSetupGuide'
-import { SETUP_STEPS } from '~/utils/setup-steps'
+import { SETUP_STEPS, type SetupStepKey } from '~/utils/setup-steps'
 import type { EventDto } from '~/../server/lib/contracts/admin'
 
 // The overview's status: every setup step with what is done and what is
@@ -11,6 +11,18 @@ const guide = useSetupGuide(toRef(props, 'event'))
 onMounted(guide.restore)
 const base = computed(() => `/admin/events/${props.event.id}`)
 const openCount = computed(() => guide.open.value.length)
+
+const { locale, t } = useI18n()
+const day = (iso: string) => new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'numeric' })
+// What the data says per step: "12 Artikel", "QR-Codes geladen am 3.11." …
+function detailText(key: SetupStepKey): string | null {
+  const d = guide.detail(key)
+  if (!d) return null
+  const values = { ...d.values, ...(typeof d.values.date === 'string' ? { date: day(d.values.date) } : {}) }
+  return typeof d.values.n === 'number'
+    ? t(`admin.setup.detail.${d.key}`, values, d.values.n)
+    : t(`admin.setup.detail.${d.key}`, values)
+}
 </script>
 
 <template>
@@ -40,6 +52,7 @@ const openCount = computed(() => guide.open.value.length)
               <span v-if="s.optional" class="font-normal text-slate-500">({{ $t('admin.setup.optional') }})</span>
             </span>
             <span class="block text-slate-600">{{ $t(`admin.setup.steps.${s.key}.short`) }}</span>
+            <span v-if="detailText(s.key)" class="block text-xs font-semibold" :class="s.key === 'start' && !guide.done(s.key) ? 'text-amber-800' : 'text-slate-700'" :data-detail="s.key">{{ detailText(s.key) }}</span>
           </span>
           <span class="sr-only">{{ guide.done(s.key) ? $t('admin.setup.done') : $t('admin.setup.notDone') }}</span>
         </span>

@@ -1195,6 +1195,16 @@
       "done": "done",
       "notDone": "open",
       "open": "Open",
+      "detail": {
+        "branded": "Logo or greeting set",
+        "tables": "Tables {from}–{to}",
+        "menuItems": "No items yet | 1 item | {n} items",
+        "priceRules": "No promotional price | 1 promotional price | {n} promotional prices",
+        "helpers": "No helper let in through the link yet | 1 helper let in | {n} helpers let in",
+        "qrDownloaded": "QR codes downloaded on {date}",
+        "trialHeld": "Rehearsal on {date}",
+        "noTrial": "Started without a rehearsal"
+      },
       "steps": {
         "branding": {
           "title": "Design",
