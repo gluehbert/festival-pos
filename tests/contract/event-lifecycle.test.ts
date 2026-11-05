@@ -16,16 +16,17 @@ const rows = <T>(q: string) => ctx.mem.public.many(q) as T[]
 const count = (table: string) => (ctx.mem.public.one(`SELECT count(*)::int AS n FROM ${table}`) as { n: number }).n
 
 // One order with one line at a table; returns the item id.
-function addLine(tableNo: number, opts: { price?: number; qty?: number; status?: string; pay?: string; served?: boolean; trial?: boolean; voided?: boolean } = {}): string {
+function addLine(tableNo: number, opts: { price?: number; qty?: number; status?: string; pay?: string; served?: boolean; trial?: boolean; voided?: boolean; readyMinutesAgo?: number } = {}): string {
   const orderId = (ctx.mem.public.one(
     `INSERT INTO orders (event_id, table_no, kind, created_by_staff, is_trial)
      VALUES ('${seeded.eventId}', ${tableNo}, 'staff_table', '${waiterId}', ${opts.trial ?? false}) RETURNING id`,
   ) as { id: string }).id
   return (ctx.mem.public.one(
-    `INSERT INTO order_items (order_id, menu_item_id, quantity, unit_price_cents, station, production_status, payment_status, served_at, voided_at)
+    `INSERT INTO order_items (order_id, menu_item_id, quantity, unit_price_cents, station, production_status, payment_status, served_at, voided_at, ready_at)
      VALUES ('${orderId}', '${seeded.menuItemIds[0]}', ${opts.qty ?? 1}, ${opts.price ?? 350}, 'kitchen',
              '${opts.voided ? 'cancelled' : (opts.status ?? 'pending')}', '${opts.pay ?? 'unpaid'}',
-             ${opts.served ? 'now()' : 'NULL'}, ${opts.voided ? 'now()' : 'NULL'}) RETURNING id`,
+             ${opts.served ? 'now()' : 'NULL'}, ${opts.voided ? 'now()' : 'NULL'},
+             ${opts.status === 'done' ? `'${new Date(Date.now() - (opts.readyMinutesAgo ?? 1) * 60_000).toISOString()}'` : 'NULL'}) RETURNING id`,
   ) as { id: string }).id
 }
 
@@ -71,6 +72,7 @@ describe('event end — contract', () => {
     addLine(7, { price: 200, status: 'done' }) // finished, unpaid, not brought
     addLine(9, { pay: 'paid', status: 'done' }) // paid but not brought
     addLine(4, { pay: 'paid', status: 'done', served: true }) // all settled
+    addLine(8, { pay: 'paid', status: 'done', readyMinutesAgo: 11 }) // finished long ago: counts as brought
     addLine(5, { voided: true }) // voided: not open
     addLine(6, { trial: true }) // rehearsal: ignored
     ctx.mem.public.none(`INSERT INTO cash_sessions (event_id, staff_id, opening_cents) VALUES ('${seeded.eventId}', '${waiterId}', 5000)`)

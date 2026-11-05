@@ -256,7 +256,8 @@
       "served_kitchen": "Food served",
       "served_bar": "Drinks served",
       "served_cafe": "Cake & coffee served",
-      "servedHint": "Clears by itself when you cash out.",
+      "servedHint": "Counts as brought by itself after 10 min or when you cash out.",
+      "servedHintWalkin": "Counts as handed over by itself after 10 min.",
       "empty": "Nothing ordered yet",
       "foodToPay": "{n} food waiting for payment: the kitchen starts once it is cashed.",
       "payFood": "Cash food",
@@ -577,7 +578,7 @@
       },
       "bring": {
         "title": "Bring",
-        "text": "When a table turns green, something is ready. Pick it up and bring it to the table."
+        "text": "When a table turns green, something is ready. Pick it up and bring it to the table. After 10 min it counts as brought by itself."
       },
       "pay": {
         "title": "Cash out",
