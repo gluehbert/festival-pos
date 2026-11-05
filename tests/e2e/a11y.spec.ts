@@ -21,7 +21,7 @@ test.describe('@smoke a11y — axe-core', () => {
   test('staff login, service overview, production and admin pages', async ({ page }) => {
     await page.goto('/staff/login')
     await expectNoViolations(page)
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     for (const path of ['/admin/events', '/admin/staff', '/staff', '/production']) {
       await page.goto(path)
       await expectNoViolations(page)

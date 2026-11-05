@@ -17,7 +17,8 @@ export interface StaffSession {
 export interface LoginCredentials {
   username: string
   secret: string
-  kind: 'password' | 'pin'
+  // Left out: the server tries password and PIN.
+  kind?: 'password' | 'pin'
 }
 
 // Start page after login: everyone lands where their work is.
@@ -33,13 +34,14 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref<string | null>(null)
   const { apply: applyTheme } = useTheme()
 
-  async function login(creds: LoginCredentials): Promise<StaffSession> {
+  async function login(creds: LoginCredentials): Promise<StaffSession & { via: 'password' | 'pin' }> {
     loading.value = true
     error.value = null
     try {
       const api = useApi()
-      const res = await api.post<StaffSession>('/api/auth/login', creds)
-      staff.value = res
+      const { via, ...session } = await api.post<StaffSession & { via: 'password' | 'pin' }>('/api/auth/login', creds)
+      const res = { ...session, via }
+      staff.value = session
       applyTheme(res.theme)
       return res
     }

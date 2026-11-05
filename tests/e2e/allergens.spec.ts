@@ -7,7 +7,7 @@ import { joinTable, loginStaff, menuItem, openEventTab, openLiveEvent } from './
 // the code and the legend.
 test.describe('@smoke Allergens', () => {
   test('admin records allergens, guests see codes and legend', async ({ browser, page }) => {
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     await openLiveEvent(page)
     await openEventTab(page, 'Menu')
 

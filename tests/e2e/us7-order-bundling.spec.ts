@@ -11,7 +11,7 @@ test.describe('@smoke US7 — kitchen finishes whole orders, waiter brings them'
 
     const kitchen = await browser.newContext()
     const kitchenPage = await kitchen.newPage()
-    await loginStaff(kitchenPage, 'kitchen1', '1111', 'pin')
+    await loginStaff(kitchenPage, 'kitchen1', '1111')
     const card = kitchenPage.locator('[data-test="order-card"]').filter({ hasText: 'Table 16' })
     await expect(card).toHaveCount(1)
     await expect(card).toContainText('1 × Fries')
@@ -21,7 +21,7 @@ test.describe('@smoke US7 — kitchen finishes whole orders, waiter brings them'
     await expect(card).toHaveCount(0)
     await kitchen.close()
 
-    await loginStaff(page, 'waiter1', '1111', 'pin')
+    await loginStaff(page, 'waiter1', '1111')
     // Nobody looks after table 16 yet: under "All". The bar is not done, so
     // only the two kitchen items are to bring.
     await page.locator('[data-test="owner-all"]').click()

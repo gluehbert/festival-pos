@@ -19,7 +19,7 @@ test.describe('@smoke Admin refunds a paid item', () => {
 
     await page.goto('/staff/login')
     await page.getByLabel(/username/i).fill('admin')
-    await page.getByRole('textbox', { name: /password/i }).fill('admin123')
+    await page.getByRole('textbox', { name: /pin or password/i }).fill('admin123')
     await page.getByRole('button', { name: /sign in/i }).click()
     await expect(page).toHaveURL(/\/admin\/events$/)
 
@@ -54,7 +54,7 @@ test.describe('@smoke Admin refunds a paid item', () => {
     await expect(guestPage.getByRole('status')).toContainText(/order/i)
     await guest.close()
 
-    await loginStaff(page, 'lead1', '1111', 'pin')
+    await loginStaff(page, 'lead1', '1111')
     // Re-runs may find the drawer open; close it so that cashing asks first.
     const closeDrawer = async () => {
       await page.goto('/staff/cash')

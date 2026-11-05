@@ -11,12 +11,12 @@ test.describe('@smoke US3 — kitchen production queue', () => {
 
     const bar = await browser.newContext()
     const barPage = await bar.newPage()
-    await loginStaff(barPage, 'bar1', '1111', 'pin')
+    await loginStaff(barPage, 'bar1', '1111')
     await expect(barPage).toHaveURL(/\/production$/)
     await expect(barPage.locator('[data-test="order-card"]').filter({ hasText: 'Table 15' })).toHaveCount(0)
     await bar.close()
 
-    await loginStaff(page, 'kitchen1', '1111', 'pin')
+    await loginStaff(page, 'kitchen1', '1111')
     // The table's card: its line moves through "preparing"; with one line the
     // card's own button finishes it (no second "Done" next to the line).
     const card = page.locator('[data-test="order-card"]').filter({ hasText: 'Table 15' })

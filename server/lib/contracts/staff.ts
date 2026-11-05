@@ -7,7 +7,9 @@ export type StaffRoleDto = z.infer<typeof StaffRoleEnum>
 export const StaffLoginSchema = z.object({
   username: z.string().min(1),
   secret: z.string().min(4),
-  kind: z.enum(['password', 'pin']),
+  // Left out: one field "PIN oder Passwort", the server tries both. Older
+  // app versions still send the kind they picked.
+  kind: z.enum(['password', 'pin']).optional(),
 })
 export type StaffLogin = z.infer<typeof StaffLoginSchema>
 
@@ -25,6 +27,11 @@ export const StaffSessionSchema = z.object({
   theme: ThemeEnum,
 })
 export type StaffSession = z.infer<typeof StaffSessionSchema>
+
+// The login also says which secret matched, so the device can offer the
+// number pad next time.
+export const StaffLoginResponseSchema = StaffSessionSchema.extend({ via: z.enum(['password', 'pin']) })
+export type StaffLoginResponse = z.infer<typeof StaffLoginResponseSchema>
 
 export const OkSchema = z.object({ ok: z.literal(true) })
 export type Ok = z.infer<typeof OkSchema>

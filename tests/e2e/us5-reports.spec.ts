@@ -5,7 +5,7 @@ import { loginStaff, openEventTab, openLiveEvent } from './helpers'
 // section can be exported as CSV.
 test.describe('@smoke US5 — admin reports', () => {
   test('admin sees report sections and downloads a CSV', async ({ page }) => {
-    await loginStaff(page, 'admin', 'admin123', 'password')
+    await loginStaff(page, 'admin', 'admin123')
     await openLiveEvent(page)
     await openEventTab(page, 'Reports')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Demo Festival')

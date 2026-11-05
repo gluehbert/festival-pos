@@ -9,7 +9,7 @@ async function tap(page: Page, name: RegExp, times: number): Promise<void> {
 // kitchen, and two guests at the table pay their own share in cash.
 test.describe('@smoke US6 — waiter takes the order and splits the bill', () => {
   test('table order -> kitchen -> two guests pay their share', async ({ browser, page }) => {
-    await loginStaff(page, 'waiter1', '1111', 'pin')
+    await loginStaff(page, 'waiter1', '1111')
     await page.getByRole('link', { name: /new order/i }).click()
     await pickTable(page, 8)
     await tapMenuItem(page, /^add beer 0\.5$/i, 3)
@@ -22,7 +22,7 @@ test.describe('@smoke US6 — waiter takes the order and splits the bill', () =>
 
     const kitchen = await browser.newContext()
     const kitchenPage = await kitchen.newPage()
-    await loginStaff(kitchenPage, 'kitchen1', '1111', 'pin')
+    await loginStaff(kitchenPage, 'kitchen1', '1111')
     // .first(): re-runs against the same database leave earlier items queued.
     await expect(kitchenPage.locator('[data-test="order-card"]').filter({ hasText: 'Table 8' }).filter({ hasText: 'Sausage' }).first()).toBeVisible()
     await kitchen.close()
@@ -52,7 +52,7 @@ test.describe('@smoke US6 — waiter takes the order and splits the bill', () =>
   })
 
   test('walk-in without a table is sent and paid in one go', async ({ page }) => {
-    await loginStaff(page, 'waiter1', '1111', 'pin')
+    await loginStaff(page, 'waiter1', '1111')
     await page.getByRole('link', { name: /^no table$/i }).click()
     await tapMenuItem(page, /^add cola 0\.33$/i, 2)
     await page.getByRole('button', { name: /send & paid cash/i }).click()

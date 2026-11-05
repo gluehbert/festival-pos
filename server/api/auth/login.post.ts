@@ -6,7 +6,7 @@ import { staff } from '../../db/schema'
 import { AppError, sendAppError } from '../../lib/errors'
 import { setStaffCookie, signStaffJwt, type StaffRole } from '../../lib/auth'
 import { assertLoginAllowed, clearLoginFailures, clientIp, recordLoginFailure } from '../../lib/login-throttle'
-import { StaffLoginSchema, StaffSessionSchema } from '../../lib/contracts/staff'
+import { StaffLoginResponseSchema, StaffLoginSchema } from '../../lib/contracts/staff'
 
 // bcrypt hash of a random string; compared against when the user does not exist.
 const DUMMY_HASH = '$2b$10$hhoE8rxLiVXOHANuL6E5o./FrDa3ejnXviNY50Um5MUTcrxByPoBO'
@@ -31,11 +31,18 @@ export default defineEventHandler(async (event) => {
     // an account that can change prices and staff (a PIN may be left over
     // from before a promotion).
     const pinHash = s?.role === 'admin' ? null : s?.pinHash ?? null
-    const hash = s ? (input.kind === 'password' ? s.passwordHash : pinHash) : null
-
-    // Always run bcrypt so unknown usernames are not distinguishable by timing.
-    const ok = await bcrypt.compare(input.secret, hash ?? DUMMY_HASH)
-    if (!s || !hash || !ok || !s.isActive) {
+    // One field for both: the password first, then the PIN. Both compares
+    // always run, so neither timing nor the order tells which one exists;
+    // a wrong entry counts as one failed attempt.
+    const tries = input.kind ? [input.kind] : (['password', 'pin'] as const)
+    let via: 'password' | 'pin' | null = null
+    for (const kind of tries) {
+      const hash = s ? (kind === 'password' ? s.passwordHash : pinHash) : null
+      // Always run bcrypt so unknown usernames are not distinguishable by timing.
+      const ok = await bcrypt.compare(input.secret, hash ?? DUMMY_HASH)
+      if (ok && hash && !via) via = kind
+    }
+    if (!s || !via || !s.isActive) {
       await recordLoginFailure(db, input.username, ip)
       throw new AppError('UNAUTHORIZED', 401, 'Invalid credentials')
     }
@@ -46,11 +53,12 @@ export default defineEventHandler(async (event) => {
     setStaffCookie(event, token)
 
     setResponseStatus(event, 200)
-    return StaffSessionSchema.parse({
+    return StaffLoginResponseSchema.parse({
       staffId: s.id,
       username: s.username,
       role,
       theme: s.theme,
+      via,
     })
   }
   catch (err) {
