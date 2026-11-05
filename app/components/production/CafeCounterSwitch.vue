@@ -59,7 +59,7 @@ async function set(closed: boolean, close?: () => void) {
           </button>
           <button
             type="button"
-            class="min-h-[44px] rounded-lg bg-slate-900 px-3 font-semibold text-white disabled:opacity-50"
+            class="min-h-[44px] rounded-lg bg-primary px-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
             :disabled="busy"
             data-test="cafe-close-confirm"
             @click="set(true, close)"

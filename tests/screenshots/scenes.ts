@@ -11,7 +11,7 @@ import { adminDelete, adminEndCheck, adminEndClean, staffCashOtherEvent } from '
 import { adminReportsTips, staffCashTip, staffPayDoneTip, staffPayTip } from './scenes-pay.ts'
 import { guestSending, staffPaySending, staffPayUnconfirmed } from './scenes-network.ts'
 import { staffCashRefundLine, staffRefundLead, staffRefundNeedsDrawer } from './scenes-refund.ts'
-import { adminEvent, adminMenu, adminReports, adminReportsAsOf, productionOrders, productionPhoneAdmin, productionPhoneCafe } from './scenes-admin.ts'
+import { adminEvent, adminMenu, adminReports, adminReportsAsOf, productionOrders, productionPhoneAdmin, productionPhoneCafe, productionPhoneCafeClose } from './scenes-admin.ts'
 
 // Takes screenshots of the running app (see scripts/screenshots-env.sh).
 // Usage: pnpm screenshots [--scene <name>]... [--out <dir>] [--base <url>] [--reset]
@@ -39,6 +39,7 @@ const SCENES: Record<string, Scene> = {
   'admin-reports-tips': adminReportsTips,
   'production-orders': productionOrders,
   'production-phone-cafe': productionPhoneCafe,
+  'production-phone-cafe-close': productionPhoneCafeClose,
   'production-phone-admin': productionPhoneAdmin,
   'admin-event': adminEvent,
   'admin-menu': adminMenu,

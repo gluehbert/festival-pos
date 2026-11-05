@@ -27,6 +27,16 @@ export const productionPhoneCafe: Scene = async (ctx) => {
   await ctx.shoot(page, 'production-phone-cafe')
 }
 
+// The confirm popover of the cafe counter's close button, over an order card.
+export const productionPhoneCafeClose: Scene = async (ctx) => {
+  await ensureService(ctx)
+  const { page } = await ctx.open('staff')
+  await loginStaff(page, 'cafe1', '1111', 'pin')
+  await page.locator('[data-test="cafe-close"]').click()
+  await page.locator('[data-test="cafe-close-confirm"]').waitFor()
+  await ctx.shoot(page, 'production-phone-cafe-close')
+}
+
 export const productionPhoneAdmin: Scene = async (ctx) => {
   await ensureService(ctx)
   const { page } = await ctx.open('staff')
