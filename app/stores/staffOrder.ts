@@ -5,6 +5,7 @@ import { useSendState } from '~/composables/useSendState'
 import { newIdempotencyKey } from '~/utils/idempotency'
 import { apiError } from '~/utils/api-error'
 import { usePaymentsStore } from '~/stores/payments'
+import { useCashStore } from '~/stores/cash'
 import { useMenuStore } from '~/stores/menu'
 import type { MenuItemDto, Order } from '~/../server/lib/contracts/guest'
 import type { PaymentResponse } from '~/../server/lib/contracts/staff'
@@ -86,6 +87,8 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
   // prepay), drinks when they are brought. staffMealReason: required for 'staff_meal'.
   async function submit(mode: StaffOrderMode, tableNo: number, payNow = false, staffMealReason?: string): Promise<StaffOrderResult | null> {
     if (lines.value.length === 0) return null
+    // Cash right away: count the float first, before anything is sent.
+    if (payNow && mode !== 'staff_meal' && !(await useCashStore().ensureOpen())) return null
     submitting.value = true
     error.value = null
     const api = useApi()

@@ -16,7 +16,7 @@ const admin = useAdminStore()
 const { refresh: refreshPublicBranding } = useBranding()
 const busy = ref(false)
 // One sentence each; the details sit behind "More" (all but staff meals).
-const FEATURES = ['depositEnabled', 'staffMealsEnabled', 'waiterCallsEnabled', 'foodPrepayEnabled', 'cafeClosed'] as const
+const FEATURES = ['depositEnabled', 'staffMealsEnabled', 'waiterCallsEnabled', 'foodPrepayEnabled', 'cashDrawerEnabled', 'cafeClosed'] as const
 
 async function toggle(key: (typeof FEATURES)[number]) {
   busy.value = true

@@ -414,7 +414,9 @@
       "depositReturned": "Pfandrückgabe",
       "otherEvent": "Kasse vom Event „{name}“ noch offen. Bitte zählen und abschließen.",
       "tip": "Trinkgeld",
-      "tipHint": "Trinkgeld bleibt in der Kasse und wird nach dem Fest verteilt."
+      "tipHint": "Trinkgeld bleibt in der Kasse und wird nach dem Fest verteilt.",
+      "promptTitle": "Erst das Wechselgeld zählen",
+      "promptText": "Diese Veranstaltung rechnet pro Bedienung ab. Zähl das Wechselgeld in deiner Geldbörse und trag den Betrag ein. Danach geht es mit dem Kassieren weiter."
     },
     "deposit": {
       "nav": "Pfand zurück",
@@ -629,6 +631,7 @@
       "list": "Vorhandene Events",
       "name": "Name",
       "pin": "PIN",
+      "pinNew": "Neue PIN",
       "from": "Tisch von",
       "to": "Tisch bis",
       "create": "Anlegen",
@@ -650,7 +653,11 @@
       "noOthers": "Keine weiteren Events.",
       "cancelNew": "Abbrechen",
       "endedOn": "Beendet am {date}",
-      "pinHint": "Gäste ohne QR-Code tippen die PIN {pin} auf der Startseite ein."
+      "pinHint": "Gäste ohne QR-Code tippen die PIN {pin} auf der Startseite ein.",
+      "copyFrom": "Einrichten wie",
+      "copyNone": "Nichts übernehmen, leer anfangen",
+      "copyHint": "Übernimmt Speisekarte, Gestaltung, Logos, Impressum, Funktionen, Aktionspreise und Buzzer. Name, PIN, Datum und Helfer trägst du neu ein. Am alten Event ändert sich nichts.",
+      "copyNoneHint": "Das neue Event startet ohne Speisekarte."
     },
     "status": {
       "draft": "Entwurf",
@@ -670,7 +677,8 @@
         "qr": "QR-Codes",
         "reports": "Berichte",
         "pricing": "Aktionspreise",
-        "staff": "Personal"
+        "staff": "Helfer",
+        "settings": "Einstellungen"
       },
       "hint": {
         "live": "Live: Änderungen sind sofort für Gäste und Service sichtbar.",
@@ -683,13 +691,6 @@
       "confirmActivate": "„{name}“ wird live: Gäste bestellen ab sofort von dieser Speisekarte.",
       "confirmActivateButton": "Jetzt live schalten",
       "reactivate": "Wieder aktivieren",
-      "setup": {
-        "title": "Vorbereitung",
-        "branding": "Name, Datum, Logo, Farben und Begrüßung",
-        "menu": "Artikel und Preise",
-        "menuCount": "noch keine Artikel | 1 Artikel | {n} Artikel",
-        "qr": "Tisch-QR-Codes drucken"
-      },
       "endLiveFirst": "Erst das laufende Event beenden.",
       "toLive": "Zu „{name}“"
     },
@@ -1099,6 +1100,11 @@
         "hint": "Die Küche bekommt Essen erst, wenn es bezahlt ist.",
         "more": "So kann die Essensausgabe verteilen, ohne zu kassieren. Essen der Gäste (QR-Code) wartet, bis eine Bedienung es kassiert hat; der Tisch zeigt „Essen kassieren“. Getränke werden weiter beim Bringen bezahlt."
       },
+      "cashDrawerEnabled": {
+        "label": "Kasse pro Bedienung",
+        "hint": "Jede Bedienung zählt beim ersten Kassieren ihr Wechselgeld ein.",
+        "more": "Am Ende zählt sie den Bestand aus; die App rechnet aus, was in der Kasse sein müsste. Aus: Niemand muss eine Kasse öffnen."
+      },
       "cafeClosed": {
         "label": "Kuchentheke geschlossen",
         "hint": "Neue Bestellungen von Kaffee und Kuchen gehen an die Küche.",
@@ -1171,6 +1177,61 @@
       "save": "Grenzen speichern",
       "saved": "Grenzen gespeichert.",
       "invalid": "Bitte einen Betrag ab 1 € eingeben oder das Feld leer lassen."
+    },
+    "setup": {
+      "label": "Einrichtung",
+      "stepOf": "Einrichtung · Schritt {n} von {total}",
+      "stepsLabel": "Schritte der Einrichtung",
+      "hide": "Anleitung ausblenden",
+      "show": "Schritt-für-Schritt-Anleitung anzeigen",
+      "optional": "optional",
+      "back": "Zurück",
+      "next": "Weiter: {step}",
+      "allDone": "Alles erledigt. Viel Erfolg beim Fest!",
+      "continue": "Weiter mit der Einrichtung: {step}",
+      "checklistTitle": "Einrichtung",
+      "openCount": "{n} Schritte offen | 1 Schritt offen | {n} Schritte offen",
+      "allDoneShort": "Alles erledigt",
+      "done": "erledigt",
+      "notDone": "offen",
+      "open": "Öffnen",
+      "steps": {
+        "branding": {
+          "title": "Gestaltung",
+          "short": "Name, Datum, Logo, Farben, Begrüßung, Impressum",
+          "text": "Name und Datum stehen schon da. Lade ein Logo hoch, wähle die Farben und schreib eine kurze Begrüßung für die Gäste. Weiter unten kommen Impressum und Datenschutz hin; die Gäste sehen sie als Links."
+        },
+        "settings": {
+          "title": "Einstellungen",
+          "short": "Tische, Funktionen, Bestellgrenzen",
+          "text": "Prüfe, welche Tischnummern es gibt. Schalte dann nur die Funktionen ein, die ihr wirklich nutzt, zum Beispiel Pfand oder Helferessen: Was aus ist, taucht nirgends auf. Die Bestellgrenzen schützen vor Spaßbestellungen von Leuten, die nur vorbeigehen."
+        },
+        "menu": {
+          "title": "Speisekarte",
+          "short": "Artikel, Preise, Station, Allergene",
+          "text": "Trag alle Artikel mit Preis ein und wähle für jeden, wo er zubereitet wird: Küche, Bar oder Kuchentheke. Am schnellsten geht es mit der Excel-Vorlage: herunterladen, ausfüllen, wieder hochladen."
+        },
+        "pricing": {
+          "title": "Aktionspreise",
+          "short": "Happy Hour und andere Zeitpreise",
+          "text": "Nur nötig, wenn es zeitweise günstigere Preise gibt, etwa eine Happy Hour. Sonst einfach weiter."
+        },
+        "staff": {
+          "title": "Helfer",
+          "short": "Beitrittslink für alle Helfer",
+          "text": "Erstelle den Beitrittslink. Häng den QR-Code aus oder schick den Link in die Helfergruppe. Wer ihn öffnet, gibt seinen Namen ein, und du lässt die Leute hier mit ihrer Rolle herein. Der Link gilt, sobald das Event aktiv ist."
+        },
+        "qr": {
+          "title": "QR-Codes",
+          "short": "Tisch-QR-Codes drucken",
+          "text": "Lade die QR-Codes für alle Tische als PDF herunter und drucke sie aus. Gäste scannen den Code auf ihrem Tisch und bestellen direkt von dort."
+        },
+        "start": {
+          "title": "Probelauf & Start",
+          "short": "Erst üben, dann echt loslegen",
+          "text": "1. Oben „Aktivieren“ tippen.\n2. Unten „Probelauf starten“: Alle Helfer bestellen, bereiten zu und kassieren zum Üben.\n3. „Probelauf beenden“ löscht die Testbestellungen. Ab dann zählt alles echt."
+        }
+      }
     }
   },
   "errors": {},
@@ -1282,7 +1343,9 @@
     "imprint": "Impressum",
     "privacy": "Datenschutz",
     "loading": "Lade …",
-    "missing": "Für dieses Fest ist noch kein Text hinterlegt."
+    "missing": "Für dieses Fest ist noch kein Text hinterlegt.",
+    "backToTable": "Zurück zu Tisch {table}",
+    "backToStart": "Zurück zur Startseite"
   },
   "receipt": {
     "last": "Letzte Zahlung: {amount}",

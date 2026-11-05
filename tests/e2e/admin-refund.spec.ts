@@ -1,10 +1,13 @@
 import { test, expect } from '@playwright/test'
-import { collectPayment, ensureDrawerOpen, finishPayment, joinTable, loginStaff, openEventTab, openLiveEvent, tapMenuItem, submitCart } from './helpers'
+import { collectPayment, ensureDrawerOpen, finishPayment, joinTable, loginStaff, openEventTab, openLiveEvent, setCashDrawers, tapMenuItem, submitCart } from './helpers'
 
 // Paid by the waiter, then refunded by the admin or the shift lead from their
 // own drawer: the item shows as cancelled; the admin sees the amount in the
 // voids report.
 test.describe('@smoke Admin refunds a paid item', () => {
+  test.beforeAll(async ({ browser }) => setCashDrawers(browser, true))
+  test.afterAll(async ({ browser }) => setCashDrawers(browser, false))
+
   test('pay, refund, see it in the report', async ({ browser, page }) => {
     const guest = await browser.newContext()
     const guestPage = await guest.newPage()
@@ -52,19 +55,29 @@ test.describe('@smoke Admin refunds a paid item', () => {
     await guest.close()
 
     await loginStaff(page, 'lead1', '1111', 'pin')
-    // Re-runs may find the drawer open; close it so that the hint shows first.
-    await page.goto('/staff/cash')
-    const closeButton = page.getByRole('button', { name: /close drawer/i })
-    await closeButton.or(page.locator('[data-test="cash-opening"]')).first().waitFor()
-    if (await closeButton.isVisible()) {
-      await page.locator('[data-test="cash-counted"]').fill('0')
-      await closeButton.click()
-      await page.locator('[data-test="confirm-ok"]').click()
-      await page.locator('[data-test="cash-opening"]').waitFor()
+    // Re-runs may find the drawer open; close it so that cashing asks first.
+    const closeDrawer = async () => {
+      await page.goto('/staff/cash')
+      const closeButton = page.getByRole('button', { name: /close drawer/i })
+      await closeButton.or(page.locator('[data-test="cash-opening"]')).first().waitFor()
+      if (await closeButton.isVisible()) {
+        await page.locator('[data-test="cash-counted"]').fill('0')
+        await closeButton.click()
+        await page.locator('[data-test="confirm-ok"]').click()
+        await page.locator('[data-test="cash-opening"]').waitFor()
+      }
     }
+    await closeDrawer()
+    // The first cashing asks for the change float, then books.
     await page.goto('/staff/15/pay')
     await collectPayment(page)
+    const prompt = page.getByRole('dialog', { name: /count your change/i })
+    await prompt.locator('[data-test="cash-prompt-opening"]').fill('20')
+    await prompt.getByRole('button', { name: /open drawer/i }).click()
     await finishPayment(page)
+
+    // A refund pays out of the drawer: closed, the dialog points to it.
+    await closeDrawer()
 
     await page.goto('/staff/15')
     await page.getByRole('button', { name: 'Refund' }).first().click()

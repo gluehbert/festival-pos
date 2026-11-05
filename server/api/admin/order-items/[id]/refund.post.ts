@@ -8,7 +8,7 @@ import { AppError, sendAppError } from '../../../../lib/errors'
 import { assertCsrf } from '../../../../lib/csrf'
 import { requireRole, TABLE_LEAD_ROLES } from '../../../../lib/rbac'
 import { requireActiveEvent } from '../../../../lib/active-event'
-import { findOpenSession } from '../../../../lib/cash-sessions'
+import { requireDrawer } from '../../../../lib/cash-sessions'
 import { lineTotalCents } from '../../../../lib/line-total'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -47,9 +47,7 @@ export default defineEventHandler(async (event) => {
     if (!item.paymentId) throw new AppError('CONFLICT', 409, 'Item is not paid, void it instead')
 
     const live = await requireActiveEvent(db)
-    if (!(await findOpenSession(db, live.id, me.staffId))) {
-      throw new AppError('CASH_SESSION_REQUIRED', 409, 'Open your drawer first, then refund')
-    }
+    await requireDrawer(db, live, me.staffId, 'refund')
 
     // Hands back what was paid for the line, Pfand included.
     const amountCents = lineTotalCents(item)

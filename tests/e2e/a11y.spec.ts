@@ -27,7 +27,7 @@ test.describe('@smoke a11y — axe-core', () => {
       await expectNoViolations(page)
     }
     await openLiveEvent(page)
-    for (const tab of ['Overview', 'Design', 'Menu', 'QR codes', 'Reports']) {
+    for (const tab of ['Overview', 'Design', 'Settings', 'Menu', 'Helpers', 'QR codes', 'Reports']) {
       await openEventTab(page, tab)
       await expectNoViolations(page)
     }

@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm'
 import { defineEventHandler, readBody, setResponseStatus } from 'h3'
 import { getDb } from '../../../db/client'
 import { events } from '../../../db/schema'
@@ -7,6 +8,7 @@ import { requireRole } from '../../../lib/rbac'
 import { CreateEventSchema } from '../../../lib/contracts/admin'
 import { toEventDto } from '../../../lib/events'
 import { writeAudit } from '../../../lib/audit'
+import { copyEventSetup } from '../../../lib/event-copy'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -16,6 +18,9 @@ export default defineEventHandler(async (event) => {
     const input = CreateEventSchema.parse(body)
 
     const db = getDb()
+    if (input.copyFromId && (await db.select({ id: events.id }).from(events).where(eq(events.id, input.copyFromId))).length === 0) {
+      throw new AppError('NOT_FOUND', 404, 'event to copy from not found')
+    }
     let created
     try {
       created = await db.transaction(async (tx) => {
@@ -31,15 +36,16 @@ export default defineEventHandler(async (event) => {
             isActive: false,
           })
           .returning())[0]!
+        const copied = input.copyFromId ? await copyEventSetup(tx, input.copyFromId, row.id) : null
         // The guest PIN itself is not logged.
         await writeAudit(tx, {
           action: 'event_create',
           staffId: admin.staffId,
           targetKind: 'event',
           targetId: row.id,
-          payload: { name: row.name, tableRangeFrom: row.tableRangeFrom, tableRangeTo: row.tableRangeTo, startsOn: row.startsOn, endsOn: row.endsOn },
+          payload: { name: row.name, tableRangeFrom: row.tableRangeFrom, tableRangeTo: row.tableRangeTo, startsOn: row.startsOn, endsOn: row.endsOn, copiedFrom: input.copyFromId ?? null, copiedMenuItems: copied?.menuItems ?? 0 },
         })
-        return row
+        return copied ? (await tx.select().from(events).where(eq(events.id, row.id)))[0]! : row
       })
     }
     catch (err) {

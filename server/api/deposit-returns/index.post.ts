@@ -8,6 +8,7 @@ import { assertCsrf } from '../../lib/csrf'
 import { requireRole, SERVICE_ROLES } from '../../lib/rbac'
 import { requireActiveEvent } from '../../lib/active-event'
 import { log } from '../../lib/log'
+import { requireDrawer } from '../../lib/cash-sessions'
 import { CreateDepositReturnSchema, DepositReturnSchema } from '../../lib/contracts/deposit'
 
 // Deposit return: the waiter pays the deposit back for returned glasses. Only
@@ -26,6 +27,7 @@ export default defineEventHandler(async (event) => {
       .where(and(eq(menuItems.eventId, ev.id), eq(menuItems.depositCents, input.unitCents)))
       .limit(1)
     if (known.length === 0) throw new AppError('VALIDATION', 400, 'No menu item has this deposit value')
+    await requireDrawer(db, ev, me.staffId, 'pay the deposit back')
 
     const amountCents = -(input.unitCents * input.quantity)
     const row = await db.transaction(async (tx) => {

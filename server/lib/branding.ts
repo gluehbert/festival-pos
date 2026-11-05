@@ -71,6 +71,7 @@ export async function loadBranding(db: Db, eventId: string): Promise<Branding> {
     staffMealsEnabled: ev.staffMealsEnabled,
     waiterCallsEnabled: ev.waiterCallsEnabled,
     foodPrepayEnabled: ev.foodPrepayEnabled,
+    cashDrawerEnabled: ev.cashDrawerEnabled,
     hasImprint: !!ev.imprintText,
     hasPrivacy: !!ev.privacyText,
   })

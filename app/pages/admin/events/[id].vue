@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute } from '#imports'
 import AdminToast from '~/components/admin/AdminToast.vue'
 import EventContextHeader from '~/components/admin/event/EventContextHeader.vue'
+import SetupGuideBar from '~/components/admin/event/SetupGuideBar.vue'
 import { ensureAdmin, useAdminToast } from '~/composables/useAdminPage'
 import { useAdminStore } from '~/stores/admin'
 
@@ -17,16 +18,20 @@ const ready = ref(false)
 const eventId = computed(() => String(route.params.id))
 const event = computed(() => admin.events.find((e) => e.id === eventId.value) ?? null)
 const live = computed(() => admin.events.find((e) => e.isActive) ?? null)
+// The tab below the workspace, e.g. '/menu' ('' = overview), for the setup guide.
+const subPath = computed(() => route.path.slice(`/admin/events/${eventId.value}`.length))
 
 const tabs = computed(() => {
   const base = `/admin/events/${eventId.value}`
   return [
     { to: base, key: 'admin.workspace.tabs.overview' },
+    // The setup steps, in the order the guide walks them.
     { to: `${base}/branding`, key: 'admin.workspace.tabs.branding' },
+    { to: `${base}/settings`, key: 'admin.workspace.tabs.settings' },
     { to: `${base}/menu`, key: 'admin.workspace.tabs.menu' },
     { to: `${base}/pricing`, key: 'admin.workspace.tabs.pricing' },
-    { to: `${base}/qr-codes`, key: 'admin.workspace.tabs.qr' },
     { to: `${base}/staff`, key: 'admin.workspace.tabs.staff' },
+    { to: `${base}/qr-codes`, key: 'admin.workspace.tabs.qr' },
     { to: `${base}/reports`, key: 'admin.workspace.tabs.reports' },
   ]
 })
@@ -57,6 +62,7 @@ onMounted(async () => {
     </p>
     <template v-else>
       <EventContextHeader :event="event" :live="live" />
+      <SetupGuideBar :event="event" :sub-path="subPath" />
 
       <nav class="mb-4 flex gap-1 overflow-x-auto border-b border-slate-200 text-sm" :aria-label="$t('admin.workspace.tabsLabel')">
         <NuxtLink

@@ -12,6 +12,7 @@ import { useAuthStore } from '~/stores/auth'
 import EventLogo from '~/components/common/EventLogo.vue'
 import LegalFooter from '~/components/common/LegalFooter.vue'
 import PasskeyOffer from '~/components/staff/PasskeyOffer.vue'
+import CashOpenPrompt from '~/components/staff/CashOpenPrompt.vue'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -105,5 +106,6 @@ onBeforeUnmount(() => {
     </main>
     <LegalFooter v-if="isGuestPage" />
     <AlertFlash v-if="showBell" />
+    <CashOpenPrompt v-if="!isGuestPage" />
   </div>
 </template>

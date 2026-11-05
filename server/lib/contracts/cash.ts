@@ -37,5 +37,7 @@ export const CurrentCashSessionSchema = z.object({
   session: CashSessionSchema.nullable(),
   // Set when the open drawer belongs to an event that has ended.
   otherEventName: z.string().nullable(),
+  // The live event counts cash per drawer: open one before the first payment.
+  required: z.boolean(),
 })
 export type CurrentCashSession = z.infer<typeof CurrentCashSessionSchema>

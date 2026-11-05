@@ -414,7 +414,9 @@
       "depositReturned": "Deposit returns",
       "otherEvent": "Cash drawer from the event \"{name}\" is still open. Please count and close it.",
       "tip": "Tips",
-      "tipHint": "Tips stay in the drawer and are shared out after the festival."
+      "tipHint": "Tips stay in the drawer and are shared out after the festival.",
+      "promptTitle": "Count your change first",
+      "promptText": "This event counts cash per waiter. Count the change in your wallet and enter the amount. Then cashing continues."
     },
     "deposit": {
       "nav": "Deposit back",
@@ -629,6 +631,7 @@
       "list": "Existing events",
       "name": "Name",
       "pin": "PIN",
+      "pinNew": "New PIN",
       "from": "Table from",
       "to": "Table to",
       "create": "Create",
@@ -650,7 +653,11 @@
       "noOthers": "No other events.",
       "cancelNew": "Cancel",
       "endedOn": "Ended on {date}",
-      "pinHint": "Guests without a QR code type the PIN {pin} on the start page."
+      "pinHint": "Guests without a QR code type the PIN {pin} on the start page.",
+      "copyFrom": "Set up like",
+      "copyNone": "Copy nothing, start empty",
+      "copyHint": "Copies the menu, design, logos, legal notice, features, price rules and buzzers. Name, PIN, date and helpers are new. The old event stays as it is.",
+      "copyNoneHint": "The new event starts without a menu."
     },
     "status": {
       "draft": "Draft",
@@ -670,7 +677,8 @@
         "qr": "QR codes",
         "reports": "Reports",
         "pricing": "Promotions",
-        "staff": "Staff"
+        "staff": "Helpers",
+        "settings": "Settings"
       },
       "hint": {
         "live": "Live: changes are visible to guests and service immediately.",
@@ -683,13 +691,6 @@
       "confirmActivate": "\"{name}\" goes live: guests order from this menu from now on.",
       "confirmActivateButton": "Go live now",
       "reactivate": "Activate again",
-      "setup": {
-        "title": "Preparation",
-        "branding": "Name, date, logo, colours and welcome text",
-        "menu": "Items and prices",
-        "menuCount": "no items yet | 1 item | {n} items",
-        "qr": "Print table QR codes"
-      },
       "endLiveFirst": "End the running event first.",
       "toLive": "Go to \"{name}\""
     },
@@ -1099,6 +1100,11 @@
         "hint": "The kitchen only gets food once it is paid.",
         "more": "So food runners can hand it out without cashing. Guests' food (QR code) waits until a waiter has cashed it; the table shows \"Food to cash\". Drinks are still paid when they are brought."
       },
+      "cashDrawerEnabled": {
+        "label": "Cash drawer per waiter",
+        "hint": "Each waiter counts their change float at the first payment.",
+        "more": "At the end they count the cash; the app works out what should be there. Off: nobody needs to open a drawer."
+      },
       "cafeClosed": {
         "label": "Cake counter closed",
         "hint": "New orders of coffee and cake go to the kitchen.",
@@ -1171,6 +1177,61 @@
       "save": "Save limits",
       "saved": "Limits saved.",
       "invalid": "Enter an amount of at least €1, or leave the field empty."
+    },
+    "setup": {
+      "label": "Setup",
+      "stepOf": "Setup · step {n} of {total}",
+      "stepsLabel": "Setup steps",
+      "hide": "Hide the guide",
+      "show": "Show the step-by-step guide",
+      "optional": "optional",
+      "back": "Back",
+      "next": "Next: {step}",
+      "allDone": "All done. Have a great festival!",
+      "continue": "Continue the setup: {step}",
+      "checklistTitle": "Setup",
+      "openCount": "{n} steps open | 1 step open | {n} steps open",
+      "allDoneShort": "All done",
+      "done": "done",
+      "notDone": "open",
+      "open": "Open",
+      "steps": {
+        "branding": {
+          "title": "Design",
+          "short": "Name, date, logo, colours, welcome, legal notice",
+          "text": "Name and date are already there. Upload a logo, pick the colours and write a short welcome for the guests. Further down go the legal notice and privacy policy; guests see them as links."
+        },
+        "settings": {
+          "title": "Settings",
+          "short": "Tables, features, order limits",
+          "text": "Check which table numbers there are. Then switch on only the features you really use, such as deposit or helper meals: whatever is off does not show anywhere. The order limits guard against prank orders from passers-by."
+        },
+        "menu": {
+          "title": "Menu",
+          "short": "Items, prices, station, allergens",
+          "text": "Enter every item with its price and pick where it is made: kitchen, bar or cake counter. The quickest way is the Excel template: download, fill in, upload again."
+        },
+        "pricing": {
+          "title": "Promotions",
+          "short": "Happy hour and other timed prices",
+          "text": "Only needed when some prices are lower for a while, such as a happy hour. Otherwise just go on."
+        },
+        "staff": {
+          "title": "Helpers",
+          "short": "Join link for all helpers",
+          "text": "Create the join link. Put up its QR code or send the link to the helpers' group. Whoever opens it enters their name, and you let them in here with their role. The link works once the event is active."
+        },
+        "qr": {
+          "title": "QR codes",
+          "short": "Print the table QR codes",
+          "text": "Download the QR codes for all tables as a PDF and print them. Guests scan the code on their table and order from there."
+        },
+        "start": {
+          "title": "Rehearsal & start",
+          "short": "Practise first, then start for real",
+          "text": "1. Tap \"Activate\" at the top.\n2. Below, \"Start rehearsal\": all helpers order, prepare and cash up to practise.\n3. \"End rehearsal\" deletes the test orders. From then on everything counts."
+        }
+      }
     }
   },
   "errors": {},
@@ -1282,7 +1343,9 @@
     "imprint": "Legal notice",
     "privacy": "Privacy",
     "loading": "Loading …",
-    "missing": "No text has been provided for this event yet."
+    "missing": "No text has been provided for this event yet.",
+    "backToTable": "Back to table {table}",
+    "backToStart": "Back to the start page"
   },
   "receipt": {
     "last": "Last payment: {amount}",

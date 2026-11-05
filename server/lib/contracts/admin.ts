@@ -33,6 +33,8 @@ export const CreateEventSchema = z
     tableRangeTo: z.number().int().min(1),
     startsOn: OptionalEventDateSchema,
     endsOn: OptionalEventDateSchema,
+    // Set up like this earlier event: menu, look, features (lib/event-copy.ts).
+    copyFromId: z.string().uuid().nullish(),
   })
   .refine((v) => v.tableRangeTo >= v.tableRangeFrom, {
     message: 'tableRangeTo must be >= tableRangeFrom',
@@ -61,6 +63,7 @@ export const EventSchema = z.object({
   staffMealsEnabled: z.boolean(),
   waiterCallsEnabled: z.boolean(),
   foodPrepayEnabled: z.boolean(),
+  cashDrawerEnabled: z.boolean(),
   // Cafe counter closed: coffee and cake go to the kitchen.
   cafeClosed: z.boolean(),
   guestOpenLimitBarCents: z.number().int().nullable(),

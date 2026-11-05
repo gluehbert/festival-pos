@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useApi } from '~/composables/useApi'
 import { navigateTo, useRoute } from '#imports'
 import { useBranding } from '~/composables/useBranding'
 import EventInfo from '~/components/guest/EventInfo.vue'
 import EventLogo from '~/components/common/EventLogo.vue'
+import { useGuestSession } from '~/composables/useGuestSession'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -14,6 +15,20 @@ const tableNo = ref<number | null>(Number(route.query.table) || null)
 const pin = ref('')
 const error = ref<string | null>(null)
 const submitting = ref(false)
+
+// A guest who already sits at a table (QR scanned or PIN typed) comes back
+// here through the logo or a link: straight back to that table, nobody types
+// the PIN twice. /?table=N (sent by a table page) always shows the form.
+const checking = ref(!route.query.table)
+onMounted(async () => {
+  if (!checking.value) return
+  const current = await useGuestSession().load()
+  if (current) {
+    await navigateTo(`/t/${current.tableNo}`, { replace: true })
+    return
+  }
+  checking.value = false
+})
 
 async function submit() {
   error.value = null
@@ -68,7 +83,7 @@ async function submit() {
         {{ $t('guest.landing.description') }}
       </p>
     </header>
-    <form class="space-y-4" novalidate @submit.prevent="submit">
+    <form v-if="!checking" class="space-y-4" novalidate data-test="landing-form" @submit.prevent="submit">
       <label for="table-no" class="block text-sm font-medium text-slate-700">
         {{ $t('guest.landing.tableLabel') }}
       </label>

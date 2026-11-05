@@ -11,6 +11,12 @@ export const useCashStore = defineStore('cash', () => {
   const lastClosed = ref<CashSessionDto | null>(null)
   // Name of the ended event whose drawer is still open, if any.
   const otherEventName = ref<string | null>(null)
+  // The live event counts cash per drawer (feature switch, from the branding
+  // via CashOpenPrompt or from the drawer answer); null = not known yet.
+  const required = ref<boolean | null>(null)
+  // The "count your float" dialog is waiting for an answer.
+  const prompting = ref(false)
+  let answerPrompt: ((opened: boolean) => void) | null = null
   const loading = ref(false)
   const busy = ref(false)
   const error = ref<string | null>(null)
@@ -23,6 +29,7 @@ export const useCashStore = defineStore('cash', () => {
       const res = await useApi().get<CurrentCashSession>('/api/cash/session')
       session.value = res.session
       otherEventName.value = res.otherEventName
+      required.value = res.required
       error.value = null
     }
     catch (e) {
@@ -68,8 +75,32 @@ export const useCashStore = defineStore('cash', () => {
     }
   }
 
+  // Before cash changes hands: with drawers on and none open for the live
+  // event, ask for the float first (CashOpenPrompt). False when the helper
+  // cancels; the caller then does nothing.
+  async function ensureOpen(): Promise<boolean> {
+    if (!required.value) return true
+    if (!session.value || otherEventName.value) await load()
+    if (!required.value || (session.value && !otherEventName.value)) return true
+    prompting.value = true
+    return new Promise((resolve) => { answerPrompt = resolve })
+  }
+
+  function finishPrompt(opened: boolean): void {
+    prompting.value = false
+    answerPrompt?.(opened)
+    answerPrompt = null
+  }
+
+  // The server says the drawer is not open (closed on another device).
+  function forgetSession(): void {
+    session.value = null
+    required.value = true
+  }
+
   // Pfand handed back: one booking per deposit value with a count.
   async function returnDeposit(counts: Record<number, number>): Promise<number | null> {
+    if (!(await ensureOpen())) return null
     busy.value = true
     error.value = null
     let total = 0
@@ -90,5 +121,5 @@ export const useCashStore = defineStore('cash', () => {
     }
   }
 
-  return { session, lastClosed, otherEventName, loading, busy, error, load, open, close, returnDeposit }
+  return { session, lastClosed, otherEventName, required, prompting, loading, busy, error, load, open, close, ensureOpen, finishPrompt, forgetSession, returnDeposit }
 })

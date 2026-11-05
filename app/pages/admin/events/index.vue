@@ -28,7 +28,8 @@ async function onCreate(input: CreateEvent) {
   try {
     const ev = await admin.createEvent(input)
     toast.success(t('admin.events.created'))
-    await navigateTo(`/admin/events/${ev.id}`)
+    // A new event starts with the first step of the guided setup.
+    await navigateTo(`/admin/events/${ev.id}/branding`)
   }
   catch {
     toast.failure(t('admin.toast.createFailed'))
@@ -107,7 +108,7 @@ async function onCreate(input: CreateEvent) {
       </div>
 
       <div v-if="creating" class="mb-4">
-        <EventForm @submit="onCreate" />
+        <EventForm :sources="admin.events" @submit="onCreate" />
       </div>
 
       <ul class="divide-y divide-slate-200 rounded border border-slate-200 bg-surface">

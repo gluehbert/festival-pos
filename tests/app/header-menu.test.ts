@@ -55,10 +55,10 @@ describe('HeaderMenu', () => {
     expect(w.find('[data-test="app-version"]').text()).toContain('abc1234')
   })
 
-  it('gives a waiter the account and cash, but no other areas', () => {
+  it('gives a waiter the account, but no other areas (cash only with drawers on)', () => {
     signIn('waiter')
     const w = mount(HeaderMenu, { global: { stubs } })
-    expect(targets(w)).toEqual(['/staff/account', '/staff/cash'])
+    expect(targets(w)).toEqual(['/staff/account'])
   })
 
   it('shows who is signed in as a link to the own account', () => {
@@ -112,7 +112,7 @@ describe('HeaderMenu', () => {
     signIn('admin')
     route.path = '/admin/events/e1'
     const w = mount(HeaderMenu, { global: { stubs } })
-    expect(targets(w)).toEqual(['/staff/account', '/staff', '/production', '/admin/events', '/staff/cash'])
+    expect(targets(w)).toEqual(['/staff/account', '/staff', '/production', '/admin/events'])
     expect(w.get('[data-test="menu-link-/admin/events"]').classes()).toContain('font-semibold')
     expect(w.get('[data-test="menu-link-/staff"]').classes()).not.toContain('font-semibold')
   })
