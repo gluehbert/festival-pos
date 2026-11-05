@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
 
     const done = await db
       .update(orderItems)
-      .set({ productionStatus: 'done' })
+      .set({ productionStatus: 'done', readyAt: new Date() })
       .where(and(
         eq(orderItems.orderId, orderId),
         eq(orderItems.station, station),

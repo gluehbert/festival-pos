@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
     // Only apply the transition if nobody else moved (or served) the item in the meantime.
     const updated = await db
       .update(orderItems)
-      .set({ productionStatus: input.nextStatus })
+      .set({ productionStatus: input.nextStatus, readyAt: input.nextStatus === 'done' ? new Date() : null })
       .where(and(
         eq(orderItems.id, id),
         eq(orderItems.productionStatus, item.productionStatus),

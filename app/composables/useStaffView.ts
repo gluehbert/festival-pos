@@ -34,13 +34,14 @@ export function useStaffView(): {
   setView: (v: OverviewView) => void
 } {
   const owner = ref<OwnerFilter>('all')
-  const view = ref<OverviewView>('list')
+  // The grid shows every table, also on a quiet evening: the better start.
+  const view = ref<OverviewView>('grid')
   return {
     owner,
     view,
     restore(defaultOwner = 'all') {
       owner.value = read(OWNER_KEY, ['mine', 'all'] as const, defaultOwner)
-      view.value = read(VIEW_KEY, ['list', 'grid'] as const, 'list')
+      view.value = read(VIEW_KEY, ['list', 'grid'] as const, 'grid')
     },
     setOwner(v) {
       owner.value = v

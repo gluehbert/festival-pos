@@ -258,7 +258,8 @@
       "served_kitchen": "Food served",
       "served_bar": "Drinks served",
       "served_cafe": "Cake & coffee served",
-      "servedHint": "Clears by itself when you cash out.",
+      "servedHint": "Counts as brought by itself after 10 min or when you cash out.",
+      "servedHintWalkin": "Counts as handed over by itself after 10 min.",
       "empty": "Nothing ordered yet",
       "foodToPay": "{n} food waiting for payment: the kitchen starts once it is cashed.",
       "payFood": "Cash food",
@@ -387,7 +388,7 @@
     },
     "activity": {
       "order": "Last order {age}",
-      "check": "Asked {age}"
+      "check": "Last at the table {age}"
     },
     "cash": {
       "nav": "Cash",
@@ -575,11 +576,11 @@
       "title": "How it works",
       "order": {
         "title": "Order",
-        "text": "Tap a free table (or “New order”), tap the items, “Send to kitchen/bar”. Then you are back here."
+        "text": "Tap a free table (or “New order”), tap the items, “Send to kitchen/bar”. Then you are back here, and the table is yours by itself (“My table”)."
       },
       "bring": {
         "title": "Bring",
-        "text": "When a table turns green, something is ready. Pick it up and bring it to the table."
+        "text": "When a table turns green, something is ready. Pick it up and bring it to the table. After 10 min it counts as brought by itself."
       },
       "pay": {
         "title": "Cash out",
@@ -683,7 +684,7 @@
         "settings": "Settings"
       },
       "hint": {
-        "live": "Live: changes are visible to guests and service immediately.",
+        "live": "Live: changes are visible to guests and waiters immediately.",
         "trial": "Rehearsal: the event is active, orders count as tests. Changes are visible immediately.",
         "draft": "Draft: not active yet, guests see none of it. Prepare everything at your own pace.",
         "ended": "Ended: no longer active, guests see none of it."
@@ -758,7 +759,7 @@
         "revenue": "Revenue by category",
         "topItems": "Top items",
         "voids": "Voids",
-        "perStaff": "Payments per staff",
+        "perStaff": "Payments per waiter",
         "perHour": "Orders per hour",
         "cashSessions": "Cash closings",
         "deposits": "Deposit",
@@ -777,7 +778,7 @@
         "quantity": "Quantity",
         "reason": "Reason",
         "voidedAt": "Voided at",
-        "staff": "Staff",
+        "staff": "Waiter",
         "paymentCount": "Payments",
         "hour": "Hour",
         "orderCount": "Orders",
@@ -1068,7 +1069,7 @@
       "depositEnabled": {
         "label": "Deposit",
         "hint": "Deposits are charged with the items and paid back with \"Return deposit\".",
-        "more": "Waiters and the counter get the \"Return deposit\" button for it. Off: no deposit, even if items have a deposit value."
+        "more": "Waiters get the \"Return deposit\" button for it, also for sales without a table. Off: no deposit, even if items have a deposit value."
       },
       "staffMealsEnabled": {
         "label": "Helper / staff meals",
@@ -1197,6 +1198,16 @@
       "done": "done",
       "notDone": "open",
       "open": "Open",
+      "detail": {
+        "branded": "Logo or greeting set",
+        "tables": "Tables {from}–{to}",
+        "menuItems": "No items yet | 1 item | {n} items",
+        "priceRules": "No promotional price | 1 promotional price | {n} promotional prices",
+        "helpers": "No helper let in through the link yet | 1 helper let in | {n} helpers let in",
+        "qrDownloaded": "QR codes downloaded on {date}",
+        "trialHeld": "Rehearsal on {date}",
+        "noTrial": "Started without a rehearsal"
+      },
       "steps": {
         "branding": {
           "title": "Design",
@@ -1325,6 +1336,8 @@
     "guide": {
       "title": "How it works",
       "arrive": "New orders appear here by themselves. It beeps and the screen edge lights up.",
+      "arriveVibrate": "New orders appear here by themselves. The device vibrates and the screen edge lights up.",
+      "arriveSilent": "New orders appear here by themselves. The screen edge lights up.",
       "start": "Prepare it. \"Start preparing\" is optional: the guest then sees \"Preparing\".",
       "done": "When everything is ready, tap \"all done\". The service sees it at once. Wrong tap? \"Undo\" shows briefly at the bottom.",
       "soldOut": "When something runs out, tap \"Sold out\" at the top. Then nobody can order it.",
@@ -1333,6 +1346,7 @@
   },
   "alerts": {
     "label": "Alerts",
+    "short": "Sound",
     "modeLabel": "Alerts on this device",
     "mode": {
       "loud": "Loud: tone and vibration",

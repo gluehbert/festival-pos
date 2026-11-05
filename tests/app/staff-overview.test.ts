@@ -52,7 +52,9 @@ describe('service overview', () => {
   it('keeps list, paid tables, unattended tables and handing out for the shift lead', async () => {
     const w = await open('lead')
     expect(w.find('[data-test="distribute-link"]').exists()).toBe(true)
-    expect(w.find('[data-test="view-list"]').exists()).toBe(true)
+    // A new device starts with the grid of all tables; the list is one tap away.
+    expect(w.find('[data-test="paid-toggle"]').exists()).toBe(false)
+    await w.get('[data-test="view-list"]').trigger('click')
     expect(w.find('[data-test="paid-toggle"]').exists()).toBe(true)
     await w.get('[data-test="owner-mine"]').trigger('click')
     expect(w.find('[data-test="needs-someone"]').text()).toContain('3')

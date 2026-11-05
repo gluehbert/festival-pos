@@ -10,6 +10,7 @@ import {
 } from '../../lib/contracts/staff'
 import { parseTicketKey } from '../../lib/tickets'
 import { lineTotalCents } from '../../lib/line-total'
+import { awaitingService } from '../../lib/ready'
 import { loadTableCheck } from '../../lib/table-checks'
 import { loadAssignee, loadUsernames } from '../../lib/table-assignments'
 
@@ -29,6 +30,7 @@ export default defineEventHandler(async (event) => {
       throw new AppError('VALIDATION', 400, `Invalid ticket key '${id}'`)
     }
     const db = getDb()
+    const now = new Date()
 
     const evRows = await db.select().from(events).where(eq(events.isActive, true)).limit(1)
     const ev = evRows[0]
@@ -55,6 +57,7 @@ export default defineEventHandler(async (event) => {
         productionStatus: orderItems.productionStatus,
         paymentStatus: orderItems.paymentStatus,
         servedAt: orderItems.servedAt,
+        awaiting: awaitingService(now),
         createdAt: orderItems.createdAt,
         kind: orders.kind,
         createdByStaff: orders.createdByStaff,
@@ -106,7 +109,8 @@ export default defineEventHandler(async (event) => {
         station: r.station as 'kitchen' | 'bar' | 'cafe',
         productionStatus: r.productionStatus as 'pending' | 'in_progress' | 'done' | 'cancelled',
         paymentStatus: r.paymentStatus as 'unpaid' | 'paid',
-        served: r.servedAt !== null,
+        // Finished more than ten minutes ago counts as brought (lib/ready.ts).
+        served: r.servedAt !== null || (r.productionStatus === 'done' && !r.awaiting),
         createdAt: createdAt.toISOString(),
         device: r.guestSessionId ? devices.get(r.guestSessionId)! : null,
       })
