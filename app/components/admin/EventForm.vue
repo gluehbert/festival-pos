@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { CreateEvent, EventDto } from '~/../server/lib/contracts/admin'
+import { generateEventPin } from '~/utils/event-pin'
 
 const { t } = useI18n()
 // Earlier events, newest first: the new one starts like the first of them.
@@ -8,7 +9,8 @@ const props = withDefaults(defineProps<{ sources?: EventDto[] }>(), { sources: (
 const emit = defineEmits<{ (e: 'submit', input: CreateEvent): void }>()
 
 const name = ref('')
-const pinCode = ref('')
+// Filled in already; the admin may type their own.
+const pinCode = ref(generateEventPin())
 const tableRangeFrom = ref(1)
 const tableRangeTo = ref(24)
 const startsOn = ref('')
@@ -51,7 +53,7 @@ async function onSubmit() {
       copyFromId: copyFromId.value || null,
     })
     name.value = ''
-    pinCode.value = ''
+    pinCode.value = generateEventPin()
     startsOn.value = ''
     endsOn.value = ''
   }
@@ -75,10 +77,15 @@ async function onSubmit() {
       <span class="block text-xs uppercase tracking-wide text-slate-500">{{ $t('admin.events.name', 'Name') }}</span>
       <input v-model="name" required minlength="1" maxlength="200" class="mt-1 w-full rounded border border-slate-300 px-2 py-1">
     </label>
-    <label class="text-sm">
-      <span class="block text-xs uppercase tracking-wide text-slate-500">{{ $t('admin.events.pin', 'PIN') }}</span>
-      <input v-model="pinCode" required class="mt-1 w-full rounded border border-slate-300 px-2 py-1 font-mono uppercase" @input="pinCode = pinCode.toUpperCase()">
-    </label>
+    <div class="text-sm">
+      <label for="event-pin" class="block text-xs uppercase tracking-wide text-slate-500">{{ $t('admin.events.pin', 'PIN') }}</label>
+      <div class="mt-1 flex gap-1">
+        <input id="event-pin" v-model="pinCode" required maxlength="10" class="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1 font-mono uppercase" data-test="event-pin" @input="pinCode = pinCode.toUpperCase()">
+        <button type="button" class="min-h-[36px] shrink-0 rounded border border-slate-300 px-2 text-xs font-semibold text-slate-800 hover:bg-slate-50" data-test="event-pin-new" @click="pinCode = generateEventPin()">
+          {{ $t('admin.events.pinNew') }}
+        </button>
+      </div>
+    </div>
     <label class="text-sm">
       <span class="block text-xs uppercase tracking-wide text-slate-500">{{ $t('admin.events.from', 'Table from') }}</span>
       <input v-model.number="tableRangeFrom" type="number" min="1" required class="mt-1 w-full rounded border border-slate-300 px-2 py-1">

@@ -628,6 +628,7 @@
       "list": "Vorhandene Events",
       "name": "Name",
       "pin": "PIN",
+      "pinNew": "Neue PIN",
       "from": "Tisch von",
       "to": "Tisch bis",
       "create": "Anlegen",

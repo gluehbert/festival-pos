@@ -628,6 +628,7 @@
       "list": "Existing events",
       "name": "Name",
       "pin": "PIN",
+      "pinNew": "New PIN",
       "from": "Table from",
       "to": "Table to",
       "create": "Create",
