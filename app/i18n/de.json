@@ -249,7 +249,7 @@
       "walkin": "Ohne Tisch",
       "open": "offen",
       "cashier": "Kassieren",
-      "locked": "Dieses Ticket wird gerade von einem anderen Service bedient.",
+      "locked": "Hier kassiert gerade eine andere Bedienung.",
       "addOrder": "Nachbestellen",
       "served": "Gebracht",
       "checked": "War am Tisch – nichts gewünscht",
@@ -309,17 +309,17 @@
       }
     },
     "void": {
-      "title": "Position stornieren",
+      "title": "Artikel stornieren",
       "reason": "Grund (mind. 3 Zeichen)",
       "confirm": "Stornieren",
       "cancel": "Abbrechen",
       "errorTooShort": "Grund muss mind. 3 Zeichen lang sein.",
-      "errorPaid": "Bereits bezahlte Positionen können nicht storniert werden – bitte über „Erstatten“ (Schichtleitung oder Admin).",
+      "errorPaid": "Bereits bezahlte Artikel können nicht storniert werden – bitte über „Erstatten“ (Schichtleitung oder Admin).",
       "button": "Storno",
-      "errorAdminOnly": "Diese Position ist schon fertig oder serviert. Stornieren darf sie nur die Schichtleitung oder ein Admin.",
-      "errorCancelled": "Diese Position ist bereits storniert.",
-      "errorConflict": "Die Position hat sich gerade geändert. Bitte neu laden und erneut versuchen.",
-      "errorNotFound": "Position nicht gefunden – gehört sie zu einem anderen Fest?",
+      "errorAdminOnly": "Dieser Artikel ist schon fertig oder serviert. Stornieren darf ihn nur die Schichtleitung oder ein Admin.",
+      "errorCancelled": "Dieser Artikel ist bereits storniert.",
+      "errorConflict": "Der Artikel hat sich gerade geändert. Bitte neu laden und erneut versuchen.",
+      "errorNotFound": "Artikel nicht gefunden – gehört er zu einem anderen Fest?",
       "notOrdered": "Nicht vom Tisch bestellt"
     },
     "errors": {
@@ -348,7 +348,7 @@
     },
     "refund": {
       "button": "Erstatten",
-      "title": "Bezahlte Position erstatten",
+      "title": "Bezahlten Artikel erstatten",
       "confirm": "Erstatten",
       "hint": "Der Betrag wird aus deiner Kasse genommen.",
       "needsDrawer": "Öffne zuerst deine Kasse, dann erstatte.",
@@ -386,7 +386,7 @@
     },
     "activity": {
       "order": "Letzte Bestellung {age}",
-      "check": "Nachgefragt {age}"
+      "check": "Zuletzt am Tisch {age}"
     },
     "cash": {
       "nav": "Kasse",
@@ -574,7 +574,7 @@
       "title": "So geht’s",
       "order": {
         "title": "Bestellen",
-        "text": "Freien Tisch antippen (oder „Neue Bestellung“), Sachen antippen, „An Küche/Bar senden“. Danach bist du wieder hier."
+        "text": "Freien Tisch antippen (oder „Neue Bestellung“), Sachen antippen, „An Küche/Bar senden“. Danach bist du wieder hier, und der Tisch ist von selbst deiner („Mein Tisch“)."
       },
       "bring": {
         "title": "Bringen",
@@ -682,7 +682,7 @@
         "settings": "Einstellungen"
       },
       "hint": {
-        "live": "Live: Änderungen sind sofort für Gäste und Service sichtbar.",
+        "live": "Live: Änderungen sind sofort für Gäste und Bedienung sichtbar.",
         "trial": "Probelauf: Das Event ist aktiv, Bestellungen zählen als Test. Änderungen sind sofort sichtbar.",
         "draft": "Entwurf: noch nicht aktiv, Gäste sehen davon nichts. Du kannst alles in Ruhe vorbereiten.",
         "ended": "Beendet: nicht mehr aktiv, Gäste sehen davon nichts."
@@ -736,7 +736,7 @@
       "priceOf": "Preis für {name}",
       "editItem": "Bearbeiten",
       "editItemAria": "{name} bearbeiten",
-      "editHint": "Änderungen gelten für neue Bestellungen. Bereits gebuchte Positionen behalten Name und Preis.",
+      "editHint": "Änderungen gelten für neue Bestellungen. Bereits gebuchte Artikel behalten Name und Preis.",
       "editTitle": "{name} bearbeiten",
       "allergensTitle": "Allergene: {name}"
     },
@@ -757,7 +757,7 @@
         "revenue": "Umsatz nach Kategorie",
         "topItems": "Top-Artikel",
         "voids": "Stornos",
-        "perStaff": "Zahlungen pro Service",
+        "perStaff": "Zahlungen pro Bedienung",
         "perHour": "Bestellungen pro Stunde",
         "cashSessions": "Kassenabschlüsse",
         "deposits": "Pfand",
@@ -776,7 +776,7 @@
         "quantity": "Menge",
         "reason": "Grund",
         "voidedAt": "Storniert am",
-        "staff": "Service",
+        "staff": "Bedienung",
         "paymentCount": "Zahlungen",
         "hour": "Stunde",
         "orderCount": "Bestellungen",
@@ -804,7 +804,7 @@
         "tip": "Trinkgeld"
       },
       "tipsHint": "Kein Umsatz: Trinkgeld bleibt in der Kasse und zählt zum Soll. Probelauf und Erstattungen ändern es nicht.",
-      "revenueHint": "Nur bezahlte Positionen, ohne Pfand, abzüglich Erstattungen. Artikelname und Kategorie wie zum Bestellzeitpunkt.",
+      "revenueHint": "Nur bezahlte Artikel, ohne Pfand, abzüglich Erstattungen. Artikelname und Kategorie wie zum Bestellzeitpunkt.",
       "depositHint": "Pfand ist kein Umsatz: kassiert mit bezahlten Artikeln, zurückgezahlt über die Pfandrückgabe.",
       "deposit": {
         "unit": "Pfand",
@@ -931,7 +931,7 @@
       "name": "Name des Events"
     },
     "menuImport": {
-      "title": "Preisliste aus Excel importieren",
+      "title": "Speisekarte aus Excel importieren",
       "hint": "Vorlage herunterladen (enthält die aktuelle Karte), in Excel, LibreOffice oder Google Sheets bearbeiten und wieder hochladen. Erlaubt sind .xlsx (Office Open XML) und .csv. Artikel werden über den deutschen Namen zugeordnet.",
       "download": "Vorlage / aktuelle Karte herunterladen (.xlsx)",
       "choose": "Datei hochladen …",
@@ -960,7 +960,7 @@
       "count": "Keine Testbestellungen | 1 Testbestellung | {n} Testbestellungen",
       "deleteData": "Testdaten löschen",
       "end": "Probelauf beenden",
-      "confirmEnd": "{count} und die zugehörigen Zahlungen werden endgültig gelöscht, Tischzuteilungen und Nachgefragt-Marken werden zurückgesetzt, danach zählen Bestellungen wieder echt.",
+      "confirmEnd": "{count} und die zugehörigen Zahlungen werden endgültig gelöscht, Tischzuteilungen und „War am Tisch“-Marken werden zurückgesetzt, danach zählen Bestellungen wieder echt.",
       "confirmDelete": "{count} und die zugehörigen Zahlungen werden endgültig gelöscht. Der Probelauf läuft weiter.",
       "confirmEndButton": "Löschen und Probelauf beenden",
       "confirmDeleteButton": "Endgültig löschen",
@@ -1024,7 +1024,7 @@
         "amount": "{amount} günstiger"
       },
       "targets": "Betroffene Artikel",
-      "noItems": "Die Preisliste ist noch leer.",
+      "noItems": "Die Speisekarte ist noch leer.",
       "wholeCategory": "Ganze Kategorie „{category}“",
       "active": "Aktiv",
       "inactive": "Aus",
@@ -1067,16 +1067,16 @@
       "depositEnabled": {
         "label": "Pfand",
         "hint": "Pfand wird mit den Artikeln berechnet und über „Pfand zurück“ wieder ausgezahlt.",
-        "more": "Service und Theke bekommen dafür den Button „Pfand zurück“. Aus: kein Pfand, auch wenn Artikel einen Pfandbetrag haben."
+        "more": "Die Bedienung bekommt dafür den Knopf „Pfand zurück“, auch beim Verkauf ohne Tisch. Aus: kein Pfand, auch wenn Artikel einen Pfandbetrag haben."
       },
       "staffMealsEnabled": {
         "label": "Helfer- / Personalessen",
-        "hint": "Service kann kostenlose Bestellungen für Helfer buchen (mit Begründung)."
+        "hint": "Die Bedienung kann kostenlose Bestellungen für Helfer buchen (mit Begründung)."
       },
       "waiterCallsEnabled": {
         "label": "Bedienung rufen",
         "hint": "Gäste können die Bedienung an den Tisch rufen.",
-        "more": "Mit Grund: bezahlen, bestellen oder Frage. Zuerst sieht es die Bedienung des Tisches, nach 2 Minuten der ganze Service; der Bar-Bildschirm zeigt jeden Ruf. Aus: Der Button verschwindet."
+        "more": "Mit Grund: bezahlen, bestellen oder Frage. Zuerst sieht es die Bedienung des Tisches, nach 2 Minuten jede Bedienung; der Bar-Bildschirm zeigt jeden Ruf. Aus: Der Button verschwindet."
       },
       "buzzer": {
         "label": "Buzzer an Küche und Bar",
@@ -1147,7 +1147,7 @@
       "tableList": "Tisch {list}",
       "openCash": "Keine offene Kasse | 1 Kasse noch nicht abgeschlossen | {n} Kassen noch nicht abgeschlossen",
       "cashLine": "{name}, offen seit {since}",
-      "undelivered": "Keine fertige Position nicht gebracht | 1 Position ist fertig, aber noch nicht am Tisch | {n} Positionen sind fertig, aber noch nicht am Tisch",
+      "undelivered": "Alle fertigen Artikel sind am Tisch | 1 Artikel ist fertig, aber noch nicht am Tisch | {n} Artikel sind fertig, aber noch nicht am Tisch",
       "confirm": "Event beenden",
       "confirmAnyway": "Trotzdem beenden",
       "confirmFinal": "Ja, jetzt beenden",
@@ -1334,6 +1334,8 @@
     "guide": {
       "title": "So geht’s",
       "arrive": "Neue Bestellungen erscheinen hier von selbst. Es piept, und der Bildschirmrand leuchtet auf.",
+      "arriveVibrate": "Neue Bestellungen erscheinen hier von selbst. Das Gerät vibriert, und der Bildschirmrand leuchtet auf.",
+      "arriveSilent": "Neue Bestellungen erscheinen hier von selbst. Der Bildschirmrand leuchtet auf.",
       "start": "Zubereiten. „Starten“ ist freiwillig: Dann sieht der Gast „In Zubereitung“.",
       "done": "Ist alles fertig, „komplett fertig“ tippen. Die Bedienung sieht es sofort. Vertippt? Unten erscheint kurz „Rückgängig“.",
       "soldOut": "Ist etwas aus, oben „Ausverkauft“ tippen. Dann kann es niemand mehr bestellen.",
@@ -1342,6 +1344,7 @@
   },
   "alerts": {
     "label": "Benachrichtigungen",
+    "short": "Ton",
     "modeLabel": "Meldungen auf diesem Gerät",
     "mode": {
       "loud": "Laut: Ton und Vibration",

@@ -130,6 +130,18 @@ describe('OrderCard', () => {
     expect(w.emitted('advance')).toEqual([[['a'], 'done']])
   })
 
+  it('shows one "done" button only when the card has a single line', () => {
+    const one = (status: 'pending' | 'in_progress', oneStep = false) => mount(OrderCard, {
+      props: { group: { ...group, items: [item('a', 'o1', '', { productionStatus: status })] }, busyIds: new Set<string>(), oneStep },
+    })
+    // Bar: "Fertig" next to the line would do what "… komplett fertig" does.
+    expect(one('pending', true).findAll('[data-test="order-line"] button')).toHaveLength(0)
+    expect(one('in_progress').findAll('[data-test="order-line"] button')).toHaveLength(0)
+    // Kitchen: "Starten" is another step and stays.
+    expect(one('pending').findAll('[data-test="order-line"] button').map((b) => b.text())).toEqual(['production.start'])
+    expect(one('pending', true).text()).toContain('production.finishOrder')
+  })
+
   it('names counter sales instead of table 0', () => {
     const w = mount(OrderCard, { props: { group: { ...group, tableNo: 0, orderKind: 'walkin' as const }, busyIds: new Set<string>() } })
     expect(w.find('h2').text()).toBe('production.counter')

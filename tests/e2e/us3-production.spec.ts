@@ -17,12 +17,14 @@ test.describe('@smoke US3 — kitchen production queue', () => {
     await bar.close()
 
     await loginStaff(page, 'kitchen1', '1111', 'pin')
-    // The table's card: its line moves through "preparing" to "done" on its own.
+    // The table's card: its line moves through "preparing"; with one line the
+    // card's own button finishes it (no second "Done" next to the line).
     const card = page.locator('[data-test="order-card"]').filter({ hasText: 'Table 15' })
     await expect(card).toContainText('Sausage')
     await card.getByRole('button', { name: 'Start preparing', exact: true }).click()
     await expect(card).toContainText('Preparing')
-    await card.getByRole('button', { name: 'Done', exact: true }).click()
+    await expect(card.getByRole('button', { name: 'Done', exact: true })).toHaveCount(0)
+    await card.getByRole('button', { name: /^table 15 all done$/i }).click()
     await expect(card).toHaveCount(0)
 
     await guest.reload()

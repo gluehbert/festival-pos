@@ -130,7 +130,7 @@ const roundButton = 'inline-flex size-11 items-center justify-center rounded-ful
   <div ref="root">
     <button
       type="button"
-      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-slate-600 hover:bg-slate-100"
+      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded text-slate-600 hover:bg-slate-100 md:px-2"
       :aria-label="$t('production.display.label')"
       :title="$t('production.display.label')"
       :aria-expanded="open"
@@ -138,6 +138,7 @@ const roundButton = 'inline-flex size-11 items-center justify-center rounded-ful
       @click="open = !open"
     >
       <UIcon name="i-lucide-monitor" class="size-5" aria-hidden="true" />
+      <span class="hidden text-sm font-semibold md:inline" aria-hidden="true" data-test="display-menu-label">{{ $t('production.display.label') }}</span>
     </button>
     <div
       v-if="open"
