@@ -17,9 +17,9 @@ export async function joinTable(page: Page, tableNo: number): Promise<void> {
 export async function loginStaff(page: Page, username: string, secret: string, kind: 'password' | 'pin'): Promise<void> {
   await page.goto('/staff/login')
   await page.getByLabel(/username/i).fill(username)
-  const mode = kind === 'pin' ? 'PIN' : /password/i
-  await page.getByRole('radio', { name: mode }).check()
-  await page.getByRole('textbox', { name: mode }).fill(secret)
+  // One field takes PIN or password; `kind` only documents what the scene uses.
+  void kind
+  await page.getByRole('textbox', { name: /pin or password/i }).fill(secret)
   await page.getByRole('button', { name: /sign in/i }).click()
   await page.waitForURL((url) => !url.pathname.endsWith('/staff/login'))
   // First visit on a device shows the "How it works" card; scenes show the app itself.

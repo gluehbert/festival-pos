@@ -228,7 +228,7 @@ const backTo = computed(() => (!isWalkin.value && route.query.table && hasTicket
         :items="menu.items"
         :popular="menu.popular"
         :quantities="quantities"
-        list-class="rounded-lg border border-slate-200 bg-surface px-2"
+        list-class="overflow-hidden rounded-lg border border-slate-200 bg-surface"
         tuck-search
       >
         <template #item="{ item }">

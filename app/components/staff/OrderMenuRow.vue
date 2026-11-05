@@ -17,7 +17,7 @@ const name = computed(() => itemName(props.item))
 <template>
   <li
     data-test="order-menu-item"
-    class="flex items-center gap-3 border-b border-slate-100 py-2 last:border-b-0"
+    class="flex items-center gap-3 border-b border-slate-100 px-2 py-2 last:border-b-0"
     :class="quantity > 0 ? 'bg-emerald-50' : ''"
   >
     <button
