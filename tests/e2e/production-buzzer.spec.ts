@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { guestOrders, loginStaff, openLiveEvent } from './helpers'
+import { guestOrders, loginStaff, openEventTab, openLiveEvent } from './helpers'
 
 async function addKitchenBuzzer(page: Page, n: 1 | 2, key: string) {
   const kitchen = page.locator('[data-test="buzzers-kitchen"]')
@@ -16,6 +16,7 @@ test.describe('@smoke Buzzers at the kitchen/bar', () => {
   test('admin sets two buzzers, each finishes its own lane, the other lane stays put', async ({ browser, page }) => {
     await loginStaff(page, 'admin', 'admin123', 'password')
     await openLiveEvent(page)
+    await openEventTab(page, 'Settings')
     await addKitchenBuzzer(page, 1, 'F9')
     await addKitchenBuzzer(page, 2, 'F10')
 

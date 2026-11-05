@@ -76,7 +76,7 @@ function approveAll() {
     <ul v-else class="mt-2 divide-y divide-slate-100">
       <li v-for="m in members" :key="m.id" class="flex items-center gap-2 py-2" data-test="join-member">
         <span class="min-w-0 flex-1">
-          <span class="block truncate font-medium" :class="m.isActive ? 'text-slate-900' : 'text-slate-400 line-through'">{{ m.username }}</span>
+          <span class="block truncate font-medium" :class="m.isActive ? 'text-slate-900' : 'text-slate-500 line-through'">{{ m.username }}</span>
           <span class="block text-xs text-slate-500">{{ $t(`admin.staff.roles.${m.role}`) }}</span>
         </span>
         <button
