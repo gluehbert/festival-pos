@@ -188,10 +188,9 @@ onBeforeUnmount(clearTimers)
         <template v-else-if="armed">
           {{ $t('staff.pay.confirm', { amount: payEur }) }}
         </template>
-        <span v-else class="inline-flex items-center justify-center gap-2">
-          <UIcon name="i-lucide-banknote" class="size-5 shrink-0" aria-hidden="true" />
+        <template v-else>
           {{ $t('staff.pay.submit', { amount: payEur }) }}
-        </span>
+        </template>
       </button>
     </div>
   </div>

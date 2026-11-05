@@ -57,11 +57,15 @@ async function logout(close: () => void) {
   <UPopover :ui="{ content: 'bg-surface ring-slate-200' }">
     <button
       type="button"
-      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded text-slate-600 hover:bg-slate-100"
+      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded px-1 text-slate-600 hover:bg-slate-100"
       :aria-label="$t(auth.isAuthenticated ? 'nav.account' : 'nav.settings')"
       data-test="header-menu"
     >
-      <UIcon :name="auth.isAuthenticated ? 'i-lucide-circle-user-round' : 'i-lucide-globe'" class="size-6" aria-hidden="true" />
+      <!-- Word under the symbol on phones, beside it from tablet: like the station tools next to it. -->
+      <span class="inline-flex flex-col items-center gap-0.5 md:flex-row md:gap-1.5">
+        <UIcon :name="auth.isAuthenticated ? 'i-lucide-circle-user-round' : 'i-lucide-globe'" class="size-5" aria-hidden="true" />
+        <span class="text-[10px] font-semibold leading-none md:text-sm" aria-hidden="true" data-test="header-menu-label">{{ $t(auth.isAuthenticated ? 'nav.menuShort' : 'nav.languageShort') }}</span>
+      </span>
       <UIcon name="i-lucide-chevron-down" class="size-3" aria-hidden="true" />
     </button>
     <template #content="{ close }">
@@ -125,8 +129,6 @@ async function logout(close: () => void) {
                 :class="device.mode.value === m ? 'bg-primary text-white' : 'text-slate-600 hover:bg-slate-100'"
                 @click="device.setMode(m)"
               >
-                <UIcon v-if="m === 'counter'" name="i-lucide-store" class="mr-1 inline-block size-4 align-[-0.2em]" aria-hidden="true" />
-                <UIcon v-else name="i-lucide-hand-platter" class="mr-1 inline-block size-4 align-[-0.2em]" aria-hidden="true" />
                 {{ $t(`nav.device.${m}`) }}
               </button>
             </div>

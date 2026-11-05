@@ -254,32 +254,29 @@ const backTo = computed(() => (!isWalkin.value && route.query.table && hasTicket
         <div class="flex gap-2">
           <button
             type="button"
-            class="inline-flex min-h-[52px] flex-1 items-center justify-center gap-2 rounded-lg bg-brand-gradient px-4 font-semibold text-brand-contrast disabled:bg-slate-300 disabled:bg-none"
+            class="min-h-[52px] flex-1 rounded-lg bg-brand-gradient px-4 font-semibold text-brand-contrast disabled:bg-slate-300 disabled:bg-none"
             :disabled="!!block || pad.submitting"
             @click="send(false)"
           >
-            <UIcon v-if="!pad.submitting" name="i-lucide-send" class="size-5 shrink-0" aria-hidden="true" />
             {{ pad.submitting ? $t('staff.login.submitting') : isMeal ? $t('staff.meal.book') : $t('staff.order.send') }}
           </button>
           <button
             v-if="isWalkin && !isMeal"
             type="button"
-            class="inline-flex min-h-[52px] flex-1 items-center justify-center gap-2 rounded-lg bg-success px-4 font-semibold text-white disabled:bg-slate-300"
+            class="min-h-[52px] flex-1 rounded-lg bg-success px-4 font-semibold text-white disabled:bg-slate-300"
             :disabled="pad.isEmpty || pad.submitting"
             @click="send(true)"
           >
-            <UIcon name="i-lucide-banknote" class="size-5 shrink-0" aria-hidden="true" />
             {{ $t('staff.order.sendAndPay') }}
           </button>
           <button
             v-if="canPayFood"
             type="button"
-            class="inline-flex min-h-[52px] flex-1 items-center justify-center gap-2 rounded-lg bg-success px-4 font-semibold text-white disabled:bg-slate-300"
+            class="min-h-[52px] flex-1 rounded-lg bg-success px-4 font-semibold text-white disabled:bg-slate-300"
             :disabled="!!block || pad.submitting"
             data-test="order-send-pay-food"
             @click="send(true)"
           >
-            <UIcon name="i-lucide-banknote" class="size-5 shrink-0" aria-hidden="true" />
             {{ $t('staff.order.sendAndPayFood') }}
           </button>
         </div>

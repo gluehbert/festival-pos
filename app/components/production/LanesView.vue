@@ -115,11 +115,10 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
           </p>
           <button
             type="button"
-            class="mt-2 inline-flex min-h-[52px] w-full shrink-0 items-center justify-center gap-2 rounded-lg border-2 border-success text-lg font-bold text-emerald-800 hover:bg-emerald-50 disabled:opacity-60"
+            class="mt-2 min-h-[52px] w-full shrink-0 rounded-lg border-2 border-success text-lg font-bold text-emerald-800 hover:bg-emerald-50 disabled:opacity-60"
             :disabled="finishing.has(l.group.key)"
             @click="emit('finish', l.group, false)"
           >
-            <UIcon v-if="!finishing.has(l.group.key)" name="i-lucide-check-check" class="size-5 shrink-0" aria-hidden="true" />
             {{ finishing.has(l.group.key) ? '…' : $t('production.finishOrder', { label: groupLabel(l.group, t) }) }}
           </button>
         </div>
@@ -155,12 +154,11 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
           </ul>
           <button
             type="button"
-            class="mt-2 inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-lg border-2 border-success font-bold text-emerald-800 hover:bg-emerald-50 disabled:opacity-60"
+            class="mt-2 min-h-[44px] w-full rounded-lg border-2 border-success font-bold text-emerald-800 hover:bg-emerald-50 disabled:opacity-60"
             :disabled="finishing.has(g.key)"
             :aria-label="$t('production.toastDoneFor', { label: groupLabel(g, t) })"
             @click="emit('finish', g, false)"
           >
-            <UIcon v-if="!finishing.has(g.key)" name="i-lucide-check" class="size-4 shrink-0" aria-hidden="true" />
             {{ finishing.has(g.key) ? '…' : $t('production.done') }}
           </button>
         </li>

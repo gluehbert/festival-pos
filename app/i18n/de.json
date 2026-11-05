@@ -1342,6 +1342,8 @@
     "service": "Bedienung",
     "passkeys": "Passkeys",
     "account": "Konto",
+    "menuShort": "Menü",
+    "languageShort": "Sprache",
     "settings": "Sprache & Darstellung",
     "language": "Sprache",
     "device": {
