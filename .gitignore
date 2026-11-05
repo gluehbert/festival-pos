@@ -64,3 +64,4 @@ Icon?
 !/docs/screenshots/
 server.log
 tests/screenshots/out/
+perf-flow-result.json

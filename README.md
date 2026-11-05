@@ -31,6 +31,7 @@ Demo logins from `db:seed`: `admin` / `admin123` (password), `lead1` (shift lead
 
 ## At the festival
 
+- **Rehearsal**: [one-page checklist](docs/rehearsal-checklist.md) for a dress rehearsal with real phones at the venue; `pnpm perf:flow` drives the whole flow (guests, waiters, kitchen, bar, cafe, admin) as a load test.
 - **Cake and coffee counter** as a third station next to kitchen and bar: each menu item picks its station (Kitchen, Bar or Cafe; Excel import accepts "Cafe"). Cake made in the kitchen stays on "Kitchen", a separate counter uses "Cafe" and a staff role of the same name with its own screen. Like the bar it skips "Start"; its open amount counts toward the guests' drinks limit. Waiters get a "Cake & coffee ready" hint and a serve button of its own. After the coffee hour the counter closes itself ("Close cake counter" in its app bar, or Event → Features): new orders of coffee and cake then go to the kitchen, which can also mark them sold out; what is already at the counter is finished there. Guests see those items under food, and with food prepay on they wait for payment like other food. "Open cake counter" reverses it.
 - **Notes per item** ("no onions", max. 80 characters) from guests and waiters; kitchen and bar see them highlighted, and items with different notes are never merged.
 - **Cash register and closing** per waiter (`/staff/cash`): opening float, expected = opening + collected − refunds paid out from this drawer − deposit returns (excluding rehearsal mode), counted amount and difference; all closings appear in the reports.
@@ -77,6 +78,7 @@ Server values are read at runtime, not baked into the build. `/api/healthz` resp
 | `pnpm db:generate` / `pnpm db:migrate` | Generate a migration from `server/db/schema.ts` / apply migrations |
 | `pnpm db:seed` | Demo data (refuses to run in production) |
 | `pnpm admin:create` | Create an admin account or reset its password |
+| `pnpm perf:flow` | Full-flow load test against `PERF_BASE_URL` (seeded app; `PERF_TABLES`, `PERF_GUESTS`, `PERF_WAITERS`, `PERF_DURATION_S`, `PERF_ORDERS_PER_HOUR`): p50/p95/p99 per endpoint, visibility delays, report consistency; exits 1 on p95 > 500 ms, errors > 1 %, visibility > 5 s. Books real orders: use a rehearsal event or a throwaway database |
 | `pnpm screenshots` | Screenshots of the scenes (light/dark) against a local Postgres, e.g. `--scene staff-grid --out docs/screenshots/<package>`; starts the app and database if needed |
 
 ## CI
