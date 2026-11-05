@@ -1,5 +1,5 @@
 {
-  "id": "4ccd74c7-c69c-4ad2-9887-79523fef6bdb",
+  "id": "a52fca26-9d66-4de8-bd2b-ddb47aa71005",
   "prevId": "712f2a2e-e423-4e90-a49d-28061651d0ae",
   "version": "7",
   "dialect": "postgresql",
@@ -843,6 +843,12 @@
         },
         "voided_at": {
           "name": "voided_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ready_at": {
+          "name": "ready_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
@@ -3356,58 +3362,6 @@
           "value": "\"price_rules\".\"valid_to\" IS NULL OR \"price_rules\".\"valid_from\" IS NULL OR \"price_rules\".\"valid_to\" >= \"price_rules\".\"valid_from\""
         }
       },
-      "isRLSEnabled": false
-    },
-    "public.event_setup": {
-      "name": "event_setup",
-      "schema": "",
-      "columns": {
-        "event_id": {
-          "name": "event_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "confirmed": {
-          "name": "confirmed",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "qr_downloaded_at": {
-          "name": "qr_downloaded_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "trial_held_at": {
-          "name": "trial_held_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "event_setup_event_id_events_id_fk": {
-          "name": "event_setup_event_id_events_id_fk",
-          "tableFrom": "event_setup",
-          "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
       "isRLSEnabled": false
     }
   },
