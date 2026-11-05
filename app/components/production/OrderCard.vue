@@ -33,6 +33,10 @@ const lines = computed(() => cardLines(props.group.items))
 function next(line: CardLine): 'in_progress' | 'done' {
   return line.first.productionStatus === 'pending' && !props.oneStep ? 'in_progress' : 'done'
 }
+
+// With a single line its "Fertig" does what "… komplett fertig" below does:
+// one button for one thing. "Starten" stays.
+const lineButton = (line: CardLine) => lines.value.length > 1 || next(line) === 'in_progress'
 </script>
 
 <template>
@@ -64,6 +68,7 @@ function next(line: CardLine): 'in_progress' | 'done' {
           <NoteBadge :note="line.first.note" large />
         </div>
         <button
+          v-if="lineButton(line)"
           type="button"
           class="min-h-[44px] rounded-lg px-3 text-sm font-semibold disabled:opacity-60"
           :class="next(line) === 'in_progress' ? 'border border-slate-300 text-slate-700' : 'bg-success text-white hover:bg-success-hover'"
