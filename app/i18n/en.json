@@ -1274,7 +1274,9 @@
     "imprint": "Legal notice",
     "privacy": "Privacy",
     "loading": "Loading …",
-    "missing": "No text has been provided for this event yet."
+    "missing": "No text has been provided for this event yet.",
+    "backToTable": "Back to table {table}",
+    "backToStart": "Back to the start page"
   },
   "receipt": {
     "last": "Last payment: {amount}",

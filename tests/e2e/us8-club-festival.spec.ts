@@ -81,6 +81,13 @@ test.describe('@smoke US8 — club festival extras', () => {
     await joinTable(guestPage, 4)
     await guestPage.locator('[data-test="legal-footer"]').getByRole('link', { name: 'Legal notice' }).click()
     await expect(guestPage.locator('[data-test="legal-text"]')).toContainText('Demo Music Club')
+    // Back to the table without the PIN again: the back link, and the logo
+    // (the start page sends a seated guest to their table).
+    await guestPage.locator('[data-test="legal-back"]').click()
+    await expect(guestPage).toHaveURL(/\/t\/4$/)
+    await guestPage.goto('/legal/imprint')
+    await guestPage.getByRole('banner').getByRole('link').first().click()
+    await expect(guestPage).toHaveURL(/\/t\/4$/)
     await guest.close()
   })
 })

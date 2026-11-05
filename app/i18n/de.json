@@ -1274,7 +1274,9 @@
     "imprint": "Impressum",
     "privacy": "Datenschutz",
     "loading": "Lade …",
-    "missing": "Für dieses Fest ist noch kein Text hinterlegt."
+    "missing": "Für dieses Fest ist noch kein Text hinterlegt.",
+    "backToTable": "Zurück zu Tisch {table}",
+    "backToStart": "Zurück zur Startseite"
   },
   "receipt": {
     "last": "Letzte Zahlung: {amount}",
