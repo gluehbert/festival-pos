@@ -158,6 +158,8 @@ describe('TableTile and TableGrid', () => {
     expect(free.text()).toContain('staff.grid.state.free')
     expect(free.attributes('data-mine')).toBeUndefined()
     expect(free.find('[data-test="tile-mine"]').exists()).toBe(false)
+    // Nothing to bring or cash: a free table goes straight to the order.
+    expect(free.findComponent(RouterLinkStub).props('to')).toBe('/staff/order?table=6')
 
     const hidden = mount(TableTile, {
       props: { tile: { tableNo: 7, state: 'busy', ticket: ticket(), assignee: BEN }, mine: false, nowMs: NOW, showOwner: false },

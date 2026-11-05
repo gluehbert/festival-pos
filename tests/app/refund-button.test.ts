@@ -43,6 +43,16 @@ describe('refund button on the table page', () => {
   })
 })
 
+describe('table page actions', () => {
+  it('puts "Add order" for this table first, so more orders skip the table picker', async () => {
+    const w = mountAs('waiter')
+    await flushPromises()
+    const add = w.get('[data-test="table-add-order"]')
+    expect(add.findComponent(RouterLinkStub).props('to')).toBe('/staff/order?table=5')
+    expect(add.text()).toContain('staff.detail.addOrder')
+  })
+})
+
 describe('refund without an open drawer', () => {
   it('keeps the server code and links to the cash page', async () => {
     fetchMock.mockRejectedValue(apiFailure(409, 'CASH_SESSION_REQUIRED', { message: 'Open your drawer first, then refund' }))

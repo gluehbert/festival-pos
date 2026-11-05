@@ -8,15 +8,18 @@ import { assertCsrf } from '../../../lib/csrf'
 import { requireRole, SERVICE_ROLES } from '../../../lib/rbac'
 import { parseTicketKey } from '../../../lib/tickets'
 import { StationEnum } from '../../../lib/contracts/production'
+import { recordTableCheck } from '../../../lib/table-checks'
 
 const BodySchema = z.object({ station: StationEnum.optional() })
 
 // The waiter brought the finished items to the table: clears the
 // "food/drinks ready" hint. Optional station = only food or only drinks.
+// Bringing something counts as having been at the table, like "asked":
+// nobody taps that button as well, and the table should not turn red.
 export default defineEventHandler(async (event) => {
   try {
     assertCsrf(event)
-    requireRole(event, SERVICE_ROLES)
+    const staff = requireRole(event, SERVICE_ROLES)
     const id = getRouterParam(event, 'id') ?? ''
     const parsed = parseTicketKey(id)
     if (!parsed) {
@@ -47,6 +50,7 @@ export default defineEventHandler(async (event) => {
         input.station ? eq(orderItems.station, input.station) : undefined,
       ))
       .returning({ id: orderItems.id })
+    if (parsed.kind === 'table' && served.length > 0) await recordTableCheck(db, ev.id, parsed.tableNo!, staff.staffId)
 
     return { ticketKey: id, servedItemIds: served.map((s) => s.id) }
   }

@@ -57,7 +57,7 @@ test.describe('@smoke Buzzers at the kitchen/bar', () => {
     await expect(next.filter({ hasText: 'Table 19' })).toHaveCount(1)
 
     // Leave no open orders behind for the other smokes.
-    const empty = kitchen.getByText('No open items.')
+    const empty = kitchen.getByText('No orders right now.')
     for (let i = 0; i < 30 && !(await empty.isVisible()); i++) {
       const button = kitchen.locator('[data-test^="lane-"] button:enabled').first()
       if (await button.count()) await button.click()

@@ -1,42 +1,40 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useAttention } from '~/composables/useAttention'
+import { onMounted } from 'vue'
+import { ALERT_MODES, useAttention } from '~/composables/useAttention'
 
-// Sound and vibration switches for the alerts, remembered per device.
-const { enabled, unlocked, vibrationEnabled, vibrationSupported, init, toggle, toggleVibration } = useAttention()
+// The alert mode of this device, as on a phone: loud, vibration only, silent.
+// Remembered per device; the screen flashes in every mode.
+const { mode, vibrationSupported, init, setMode } = useAttention()
 
 onMounted(init)
 
-const sound = computed(() => (!enabled.value ? 'off' : unlocked.value ? 'on' : 'locked'))
-const offClass = 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+const ICONS = { loud: 'i-lucide-bell-ring', vibrate: 'i-lucide-vibrate', silent: 'i-lucide-bell-off' } as const
 </script>
 
 <template>
-  <div class="inline-flex flex-wrap gap-2">
-    <button
-      type="button"
-      class="inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-sm font-semibold"
-      :class="sound === 'off' ? offClass : sound === 'on' ? 'bg-primary text-white' : 'bg-amber-100 text-amber-900'"
-      :aria-pressed="enabled"
-      :title="$t('alerts.soundLabel')"
-      data-test="sound-toggle"
-      @click="toggle"
-    >
-      <UIcon :name="sound === 'off' ? 'i-lucide-bell-off' : sound === 'on' ? 'i-lucide-bell-ring' : 'i-lucide-bell'" class="size-4 shrink-0" aria-hidden="true" />
-      {{ $t(`alerts.sound.${sound}`) }}
-    </button>
-    <button
-      v-if="vibrationSupported"
-      type="button"
-      class="inline-flex min-h-[44px] items-center gap-2 rounded-full px-4 text-sm font-semibold"
-      :class="vibrationEnabled ? 'bg-primary text-white' : offClass"
-      :aria-pressed="vibrationEnabled"
-      :title="$t('alerts.vibrationLabel')"
-      data-test="vibration-toggle"
-      @click="toggleVibration"
-    >
-      <UIcon name="i-lucide-vibrate" class="size-4 shrink-0" aria-hidden="true" />
-      {{ $t(`alerts.vibration.${vibrationEnabled ? 'on' : 'off'}`) }}
-    </button>
+  <div class="flex w-64 flex-col gap-2">
+    <span class="text-xs text-slate-500">{{ $t('alerts.modeLabel') }}</span>
+    <div role="radiogroup" :aria-label="$t('alerts.modeLabel')" class="flex flex-col gap-1" data-test="alert-modes">
+      <button
+        v-for="m in ALERT_MODES"
+        :key="m"
+        type="button"
+        role="radio"
+        :aria-checked="mode === m"
+        class="flex min-h-[44px] items-center gap-3 rounded-lg px-3 text-left text-sm font-semibold"
+        :class="mode === m ? 'bg-primary text-white' : 'text-slate-700 hover:bg-slate-100'"
+        :data-mode="m"
+        @click="setMode(m)"
+      >
+        <UIcon :name="ICONS[m]" class="size-5 shrink-0" aria-hidden="true" />
+        {{ $t(`alerts.mode.${m}`) }}
+      </button>
+    </div>
+    <p class="text-xs text-slate-500">
+      {{ $t('alerts.flashHint') }}
+    </p>
+    <p v-if="mode === 'vibrate' && !vibrationSupported" class="text-xs text-amber-800" data-test="no-vibration">
+      {{ $t('alerts.noVibration') }}
+    </p>
   </div>
 </template>

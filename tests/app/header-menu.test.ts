@@ -143,13 +143,13 @@ describe('AlertBell', () => {
   it('shows the sound state and holds the switches', async () => {
     const w = mount(AlertBell, { global: { stubs } })
     expect(w.get('[data-test="alert-bell"]').attributes('data-state')).toBe('locked')
-    expect(w.find('[data-test="sound-toggle"]').exists()).toBe(true)
+    expect(w.find('[data-test="alert-modes"]').exists()).toBe(true)
 
-    localStorage.setItem('alert-sound', 'off')
+    localStorage.setItem('alert-mode', 'silent')
     resetAttention()
     useAttention().init()
     await w.vm.$nextTick()
-    expect(w.get('[data-test="alert-bell"]').attributes('data-state')).toBe('off')
+    expect(w.get('[data-test="alert-bell"]').attributes('data-state')).toBe('silent')
     expect(w.find('[data-icon="i-lucide-bell-off"]').exists()).toBe(true)
   })
 })
