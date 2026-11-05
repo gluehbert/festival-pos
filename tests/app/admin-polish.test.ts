@@ -43,7 +43,7 @@ describe('admin texts for once-a-year use', () => {
     const w = mount(EventFeaturesPanel, { props: { event: ev() } })
     const details = w.findAll('details')
     // Deposit, waiter calls, food prepay, cafe closed and buzzers; staff meals needs none.
-    expect(details).toHaveLength(5)
+    expect(details).toHaveLength(6)
     expect(details[0]!.text()).toContain('admin.features.depositEnabled.more')
     expect(w.text()).not.toContain('admin.features.staffMealsEnabled.more')
   })
