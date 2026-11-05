@@ -170,6 +170,10 @@ export const useAdminStore = defineStore('admin', () => {
     })
   }
 
+  async function downloadCheatSheet(eventId: string, lang: string): Promise<Blob> {
+    return await useApi().get<Blob>(`/api/admin/events/${eventId}/cheat-sheet?lang=${lang === 'en' ? 'en' : 'de'}`, { responseType: 'blob' })
+  }
+
   async function downloadAllergenPdf(eventId: string): Promise<Blob> {
     return await useApi().get<Blob>(`/api/admin/events/${eventId}/allergens`, { responseType: 'blob' })
   }
@@ -235,5 +239,6 @@ export const useAdminStore = defineStore('admin', () => {
     toggleAvailability,
     downloadQrPdf,
     downloadAllergenPdf,
+    downloadCheatSheet,
   }
 })

@@ -1237,7 +1237,7 @@
         "qr": {
           "title": "QR codes",
           "short": "Print the table QR codes",
-          "text": "Download the QR codes for all tables as a PDF and print them. Guests scan the code on their table and order from there."
+          "text": "Download the QR codes for all tables as a PDF and print them. Guests scan the code on their table and order from there. Below that is a cheat sheet per role to lay out, with the join QR code for new helpers."
         },
         "start": {
           "title": "Rehearsal & start",
@@ -1245,6 +1245,87 @@
           "text": "1. Tap \"Activate\" at the top.\n2. Below, \"Start rehearsal\": all helpers order, prepare and cash up to practise.\n3. \"End rehearsal\" deletes the test orders. From then on everything counts."
         }
       }
+    },
+    "cheatSheet": {
+      "title": "Cheat sheet for the helpers",
+      "file": "cheat-sheet",
+      "button": "Download cheat sheet",
+      "hint": "One A4 page per role to lay out: the three steps and “What if …”. The page for the service carries the join QR code.",
+      "failed": "Could not create the cheat sheet.",
+      "steps": "How it works",
+      "help": "What if …",
+      "roles": {
+        "waiter": "Service",
+        "kitchen": "Kitchen",
+        "bar": "Bar",
+        "cafe": "Cake counter",
+        "lead": "Shift lead"
+      },
+      "stepTitles": {
+        "arrive": "An order comes in",
+        "start": "Get going",
+        "done": "Mark it done",
+        "cafeClose": "Close the counter",
+        "overview": "Overview",
+        "assign": "Hand out tables",
+        "fix": "Fix mistakes"
+      },
+      "lead": {
+        "overview": "The grid shows every table. Green means: something is ready and must go to the table.",
+        "assign": "Tap a table and hand it out. Each waiter finds their tables under “My table”.",
+        "fix": "Paying money back: tap the table, then “Refund” at the item. Only you or an admin may void finished items."
+      },
+      "faq": {
+        "waiter": {
+          "i1": {
+            "q": "The table belongs to someone else?",
+            "a": "Tap “Take over table” or ask the shift lead."
+          },
+          "i2": {
+            "q": "Ordered the wrong thing?",
+            "a": "In the table, tap “Void” at the item. If it is already done, the shift lead helps."
+          },
+          "i3": {
+            "q": "Phone empty or logged out?",
+            "a": "Log in again on another device. Nothing is lost."
+          }
+        },
+        "station": {
+          "i1": {
+            "q": "Nothing beeps?",
+            "a": "Check “Sound” at the top and keep the screen on."
+          },
+          "i2": {
+            "q": "Something ran out?",
+            "a": "Tap “Sold out” at the top. Then nobody can order it."
+          },
+          "i3": {
+            "q": "Tapped “done” by mistake?",
+            "a": "Tap “Undo” at the bottom right away. Too late? Tell the waiter."
+          },
+          "i4": {
+            "q": "An order without a table?",
+            "a": "Call out the order number. The guest picks it up."
+          }
+        },
+        "lead": {
+          "i1": {
+            "q": "A waiter drops out?",
+            "a": "Free their tables or give them to another waiter."
+          },
+          "i2": {
+            "q": "A guest wants money back?",
+            "a": "Open the table, tap “Refund” at the paid item."
+          },
+          "i3": {
+            "q": "New helpers arrive?",
+            "a": "Let them scan the join QR code on the service page and let them in in the admin."
+          }
+        }
+      },
+      "joinTitle": "New here? Scan the code",
+      "joinText": "Scan with the phone camera, enter your name and wait until you are let in.",
+      "joinMissing": "No join link yet. Create one in the “Helpers” tab and download the cheat sheet again."
     }
   },
   "errors": {},

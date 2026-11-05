@@ -1237,7 +1237,7 @@
         "qr": {
           "title": "QR-Codes",
           "short": "Tisch-QR-Codes drucken",
-          "text": "Lade die QR-Codes für alle Tische als PDF herunter und drucke sie aus. Gäste scannen den Code auf ihrem Tisch und bestellen direkt von dort."
+          "text": "Lade die QR-Codes für alle Tische als PDF herunter und drucke sie aus. Gäste scannen den Code auf ihrem Tisch und bestellen direkt von dort. Darunter gibt es einen Spickzettel je Rolle zum Auslegen, mit dem Beitritts-QR-Code für neue Helfer."
         },
         "start": {
           "title": "Probelauf & Start",
@@ -1245,6 +1245,87 @@
           "text": "1. Oben „Aktivieren“ tippen.\n2. Unten „Probelauf starten“: Alle Helfer bestellen, bereiten zu und kassieren zum Üben.\n3. „Probelauf beenden“ löscht die Testbestellungen. Ab dann zählt alles echt."
         }
       }
+    },
+    "cheatSheet": {
+      "title": "Spickzettel für die Helfer",
+      "file": "spickzettel",
+      "button": "Spickzettel herunterladen",
+      "hint": "Eine A4-Seite je Rolle zum Auslegen: die drei Schritte und „Was tun, wenn …“. Auf dem Zettel für die Bedienung steht der Beitritts-QR-Code.",
+      "failed": "Spickzettel konnte nicht erstellt werden.",
+      "steps": "So geht’s",
+      "help": "Was tun, wenn …",
+      "roles": {
+        "waiter": "Bedienung",
+        "kitchen": "Küche",
+        "bar": "Bar",
+        "cafe": "Kuchentheke",
+        "lead": "Schichtleitung"
+      },
+      "stepTitles": {
+        "arrive": "Bestellung kommt",
+        "start": "Loslegen",
+        "done": "Fertig melden",
+        "cafeClose": "Theke schließen",
+        "overview": "Überblick",
+        "assign": "Tische verteilen",
+        "fix": "Korrigieren"
+      },
+      "lead": {
+        "overview": "Im Raster siehst du alle Tische. Grün heißt: Etwas ist fertig und muss zum Tisch.",
+        "assign": "Tisch antippen und zuteilen. Jede Bedienung findet ihre Tische unter „Mein Tisch“.",
+        "fix": "Bezahltes zurückgeben: Tisch antippen, beim Artikel „Erstatten“. Fertiges stornieren darfst nur du oder ein Admin."
+      },
+      "faq": {
+        "waiter": {
+          "i1": {
+            "q": "Der Tisch gehört jemand anderem?",
+            "a": "„Tisch übernehmen“ tippen oder die Schichtleitung fragen."
+          },
+          "i2": {
+            "q": "Falsch bestellt?",
+            "a": "Im Tisch beim Artikel „Stornieren“. Ist er schon fertig, hilft die Schichtleitung."
+          },
+          "i3": {
+            "q": "Handy leer oder abgemeldet?",
+            "a": "Auf einem anderen Gerät neu anmelden. Es geht nichts verloren."
+          }
+        },
+        "station": {
+          "i1": {
+            "q": "Nichts piept?",
+            "a": "Oben „Ton“ prüfen und den Bildschirm anlassen."
+          },
+          "i2": {
+            "q": "Etwas ist aus?",
+            "a": "Oben „Ausverkauft“ tippen. Dann kann es niemand mehr bestellen."
+          },
+          "i3": {
+            "q": "Aus Versehen „fertig“ getippt?",
+            "a": "Unten kurz „Rückgängig“ tippen. Zu spät? Der Bedienung Bescheid sagen."
+          },
+          "i4": {
+            "q": "Bestellung ohne Tisch?",
+            "a": "Die Bestellnummer laut aufrufen. Der Gast holt sie ab."
+          }
+        },
+        "lead": {
+          "i1": {
+            "q": "Eine Bedienung fällt aus?",
+            "a": "Ihre Tische freigeben oder einer anderen Bedienung geben."
+          },
+          "i2": {
+            "q": "Ein Gast will Geld zurück?",
+            "a": "Tisch öffnen, beim bezahlten Artikel „Erstatten“."
+          },
+          "i3": {
+            "q": "Neue Helfer kommen dazu?",
+            "a": "Den Beitritts-QR-Code auf dem Zettel der Bedienung scannen lassen und im Admin freigeben."
+          }
+        }
+      },
+      "joinTitle": "Neu dabei? Code scannen",
+      "joinText": "Mit der Handykamera scannen, Namen eingeben und warten, bis du hereingelassen wirst.",
+      "joinMissing": "Noch kein Beitritts-Link. Im Reiter „Helfer“ einen Link erstellen und den Spickzettel neu herunterladen."
     }
   },
   "errors": {},
