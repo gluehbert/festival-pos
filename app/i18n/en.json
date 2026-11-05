@@ -628,6 +628,7 @@
       "list": "Existing events",
       "name": "Name",
       "pin": "PIN",
+      "pinNew": "New PIN",
       "from": "Table from",
       "to": "Table to",
       "create": "Create",
@@ -648,7 +649,11 @@
       "others": "Other events",
       "noOthers": "No other events.",
       "cancelNew": "Cancel",
-      "endedOn": "Ended on {date}"
+      "endedOn": "Ended on {date}",
+      "copyFrom": "Set up like",
+      "copyNone": "Copy nothing, start empty",
+      "copyHint": "Copies the menu, design, logos, legal notice, features, price rules and buzzers. Name, PIN, date and helpers are new. The old event stays as it is.",
+      "copyNoneHint": "The new event starts without a menu."
     },
     "status": {
       "draft": "Draft",

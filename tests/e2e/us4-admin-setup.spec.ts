@@ -40,6 +40,8 @@ test.describe('@smoke US4 — admin setup', () => {
     await page.getByRole('link', { name: /all events/i }).click()
     await page.getByRole('button', { name: 'New event' }).click()
     const eventForm = page.locator('form')
+    // A new event starts like the newest earlier one.
+    await expect(eventForm.getByLabel('Set up like')).toHaveValue(/.+/)
     await eventForm.getByLabel('Name', { exact: true }).fill('Autumn Fair')
     await eventForm.getByLabel('PIN', { exact: true }).fill(`HF${Date.now().toString().slice(-4)}`)
     await eventForm.getByLabel(/table from/i).fill('1')
@@ -50,6 +52,8 @@ test.describe('@smoke US4 — admin setup', () => {
     await expect(header.locator('h1')).toHaveText('Autumn Fair')
     await expect(header).toContainText('Draft')
     await expect(header).toContainText('"Demo Festival" is live right now')
+    await openEventTab(page, 'Menu')
+    await expect(page.getByText(/sausage/i).first()).toBeVisible()
 
     await openEventTab(page, 'QR codes')
     // The overview has forms of its own; wait for the QR form.

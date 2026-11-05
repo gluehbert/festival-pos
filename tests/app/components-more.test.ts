@@ -172,7 +172,40 @@ describe('admin components', () => {
       tableRangeTo: 20,
       startsOn: '2026-06-14',
       endsOn: '2026-06-15',
+      copyFromId: null,
     }])
+  })
+
+  it('EventForm fills in a readable PIN that can be renewed or typed over', async () => {
+    const w = mount(EventForm)
+    const pin = w.find<HTMLInputElement>('[data-test="event-pin"]')
+    const first = pin.element.value
+    expect(first).toMatch(/^[A-HJKMNP-Z2-9]{6}$/)
+    const seen = new Set([first])
+    for (let i = 0; i < 5; i++) {
+      await w.find('[data-test="event-pin-new"]').trigger('click')
+      expect(pin.element.value).toMatch(/^[A-HJKMNP-Z2-9]{6}$/)
+      seen.add(pin.element.value)
+    }
+    expect(seen.size).toBeGreaterThan(1)
+    await pin.setValue('fest27')
+    expect(pin.element.value).toBe('FEST27')
+  })
+
+  it('EventForm starts a new event like the newest earlier one, or empty', async () => {
+    const src = (id: string, to: number) => ({ id, name: `Fest ${id}`, tableRangeFrom: 1, tableRangeTo: to }) as never
+    const w = mount(EventForm, { props: { sources: [src('a', 40), src('b', 12)] } })
+    const select = w.find<HTMLSelectElement>('[data-test="copy-from"]')
+    expect(select.element.value).toBe('a')
+    expect(w.text()).toContain('admin.events.copyHint')
+    expect((w.findAll('input')[3]!.element as HTMLInputElement).value).toBe('40')
+    await select.setValue('')
+    expect(w.text()).toContain('admin.events.copyNoneHint')
+    const inputs = w.findAll('input')
+    await inputs[0]!.setValue('Fest 2027')
+    await inputs[1]!.setValue('FEST27')
+    await w.find('form').trigger('submit')
+    expect(w.emitted('submit')![0]![0]).toMatchObject({ copyFromId: null, tableRangeTo: 40 })
   })
 
   it('QrRangeForm rejects inverted ranges', async () => {
