@@ -44,6 +44,9 @@ export async function joinRequestByToken(db: Db, tokenHash: string) {
   return (await db.select().from(staffJoinRequests).where(eq(staffJoinRequests.tokenHash, tokenHash)).limit(1))[0]
 }
 
+export const joinUrl = (ev: Pick<Event, 'joinCode'>, baseUrl: string): string | null =>
+  ev.joinCode ? `${baseUrl.replace(/\/+$/, '')}/staff/join/${ev.joinCode}` : null
+
 export async function joinOverview(db: Db, ev: Event, baseUrl: string): Promise<JoinOverview> {
   const requests = await db
     .select({ id: staffJoinRequests.id, name: staffJoinRequests.name, staffId: staffJoinRequests.staffId, role: staff.role, createdAt: staffJoinRequests.createdAt })
@@ -58,7 +61,7 @@ export async function joinOverview(db: Db, ev: Event, baseUrl: string): Promise<
     .orderBy(asc(staff.username))
   return {
     code: ev.joinCode,
-    url: ev.joinCode ? `${baseUrl.replace(/\/+$/, '')}/staff/join/${ev.joinCode}` : null,
+    url: joinUrl(ev, baseUrl),
     pending: requests.map((r) => ({
       id: r.id,
       name: r.name,
