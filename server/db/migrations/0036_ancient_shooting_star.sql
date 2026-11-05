@@ -1,0 +1,1 @@
+ALTER TABLE "events" ADD COLUMN "cash_drawer_enabled" boolean DEFAULT false NOT NULL;

@@ -44,6 +44,8 @@ describe('POST /api/admin/order-items/:id/refund', () => {
     setCtx(ctx)
     const { seedEvent } = await import('../setup/pg-mem-db')
     seeded = seedEvent(ctx.mem)
+    // Drawers on: refunds pay out of the refunding person's drawer.
+    ctx.mem.public.none(`UPDATE events SET cash_drawer_enabled = true`)
   })
 
   it('refunds a paid item once and cancels it', async () => {
@@ -98,5 +100,12 @@ describe('POST /api/admin/order-items/:id/refund', () => {
     const handler = (await import('../../server/api/admin/order-items/[id]/refund.post')).default
     ctx.setBody({ reason: 'kalt serviert' })
     await expect(handler(refundEvent('admin', orderItem(true)))).rejects.toMatchObject({ statusCode: 409 })
+  })
+
+  it('needs no drawer while drawers are switched off', async () => {
+    const handler = (await import('../../server/api/admin/order-items/[id]/refund.post')).default
+    ctx.mem.public.none(`UPDATE events SET cash_drawer_enabled = false`)
+    ctx.setBody({ reason: 'kalt serviert' })
+    await expect(handler(refundEvent('admin', orderItem(true)))).resolves.toMatchObject({ amountCents: 700 })
   })
 })

@@ -25,6 +25,7 @@ export const UpdateBrandingSchema = z.object({
   staffMealsEnabled: z.boolean().optional(),
   waiterCallsEnabled: z.boolean().optional(),
   foodPrepayEnabled: z.boolean().optional(),
+  cashDrawerEnabled: z.boolean().optional(),
   // After the Kaffeeklatsch: coffee and cake go to the kitchen (also from the cafe screen).
   cafeClosed: z.boolean().optional(),
   // Unpaid cents one guest phone may have per station; null = no limit.
@@ -55,6 +56,7 @@ export const BrandingSchema = z.object({
   staffMealsEnabled: z.boolean(),
   waiterCallsEnabled: z.boolean(),
   foodPrepayEnabled: z.boolean(),
+  cashDrawerEnabled: z.boolean(),
   // Footer links on the guest pages; the texts come from /api/event/legal.
   hasImprint: z.boolean(),
   hasPrivacy: z.boolean(),
@@ -86,6 +88,7 @@ export const EMPTY_BRANDING: Branding = {
   staffMealsEnabled: false,
   waiterCallsEnabled: false,
   foodPrepayEnabled: false,
+  cashDrawerEnabled: false,
   hasImprint: false,
   hasPrivacy: false,
 }

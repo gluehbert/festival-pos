@@ -4,6 +4,7 @@ import { useApi } from '~/composables/useApi'
 import { useSendState } from '~/composables/useSendState'
 import { newIdempotencyKey } from '~/utils/idempotency'
 import { apiError } from '~/utils/api-error'
+import { useCashStore } from '~/stores/cash'
 import type { PaymentResponse } from '~/../server/lib/contracts/staff'
 
 export interface LockConflict {
@@ -43,6 +44,8 @@ export const usePaymentsStore = defineStore('payments', () => {
     quantities?: Record<string, number>,
     tipCents = 0,
   ): Promise<PaymentResponse | null> {
+    const cash = useCashStore()
+    if (!(await cash.ensureOpen())) return null
     submitting.value = true
     error.value = null
     lockConflict.value = null
@@ -66,6 +69,15 @@ export const usePaymentsStore = defineStore('payments', () => {
       const { code, details } = apiError<LockConflict>(e)
       if (status === 409 && code === 'LOCK_CONFLICT' && details) {
         lockConflict.value = details
+      }
+      // The drawer was closed meanwhile (or drawers were just switched on):
+      // ask for the float and book the same selection again.
+      if (code === 'CASH_SESSION_REQUIRED') {
+        forgetPending()
+        cash.forgetSession()
+        submitting.value = false
+        end()
+        if (await cash.ensureOpen()) return createPayment(ticketKey, orderItemIds, quantities, tipCents)
       }
       if (status === undefined || status >= 500) {
         unconfirmed.value = true

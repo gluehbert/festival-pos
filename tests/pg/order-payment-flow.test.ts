@@ -132,6 +132,8 @@ describe.skipIf(!url)('real Postgres: migrations + order/payment flow', () => {
       e.event.context.params = { id }
       return refund(e.event)
     }
+    // Drawers switched on: a refund pays out of the refunding person's drawer.
+    await real.db.execute(sql`UPDATE events SET cash_drawer_enabled = true WHERE id = ${eventId}`)
     ctx.setBody({ reason: 'Bier war warm' })
     await expect(call('waiter', beerId)).rejects.toMatchObject({ statusCode: 403 })
     await expect(call('admin', beerId)).rejects.toMatchObject({ statusCode: 409, data: { code: 'CASH_SESSION_REQUIRED' } })

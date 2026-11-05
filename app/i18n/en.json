@@ -414,7 +414,9 @@
       "depositReturned": "Deposit returns",
       "otherEvent": "Cash drawer from the event \"{name}\" is still open. Please count and close it.",
       "tip": "Tips",
-      "tipHint": "Tips stay in the drawer and are shared out after the festival."
+      "tipHint": "Tips stay in the drawer and are shared out after the festival.",
+      "promptTitle": "Count your change first",
+      "promptText": "This event counts cash per waiter. Count the change in your wallet and enter the amount. Then cashing continues."
     },
     "deposit": {
       "nav": "Deposit back",
@@ -1091,6 +1093,10 @@
       "foodPrepayEnabled": {
         "label": "Pay for food when ordering",
         "hint": "The kitchen only gets food once it is paid, so food runners can hand it out without cashing. Guests' food (QR code) waits until a waiter has cashed it; the table shows \"Food to cash\". Drinks are still paid when they are brought."
+      },
+      "cashDrawerEnabled": {
+        "label": "Cash drawer per waiter",
+        "hint": "Each waiter counts their change float at the first payment and the cash at the end; the app works out what should be there. Off: nobody needs to open a drawer."
       },
       "cafeClosed": {
         "label": "Cake counter closed",

@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test'
+import { expect, type Browser, type Locator, type Page } from '@playwright/test'
 
 // Seeded by `pnpm db:seed` (scripts/seed.ts).
 export const DEMO_EVENT_PIN = 'DEMO1234'
@@ -112,4 +112,24 @@ export async function openLiveEvent(page: Page): Promise<string> {
 
 export async function openEventTab(page: Page, name: string): Promise<void> {
   await page.getByRole('navigation', { name: 'Sections of this event' }).getByRole('link', { name, exact: true }).click()
+}
+
+// Switches "cash drawer per waiter" on the live event (off by default), as
+// the admin in a context of its own.
+export async function setCashDrawers(browser: Browser, on: boolean): Promise<void> {
+  const context = await browser.newContext()
+  const page = await context.newPage()
+  await loginStaff(page, 'admin', 'admin123', 'password')
+  const id = await openLiveEvent(page)
+  const ok = await page.evaluate(async ({ id, on }) => {
+    const token = (await (await fetch('/api/csrf-token')).json()).csrfToken
+    const res = await fetch(`/api/admin/events/${id}/branding`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json', 'x-csrf-token': token },
+      body: JSON.stringify({ cashDrawerEnabled: on }),
+    })
+    return res.ok
+  }, { id, on })
+  expect(ok).toBe(true)
+  await context.close()
 }
