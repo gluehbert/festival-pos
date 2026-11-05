@@ -65,29 +65,68 @@ export function productionCards(
 // own lane on the station's screen, in list order (lane 1 green, 2 blue,
 // 3 amber, 4 violet). More lanes would not fit next to "Next up".
 export const BUZZERS_PER_STATION = 4
-export const StationBuzzersSchema = z.object({ kitchen: z.array(z.string()), bar: z.array(z.string()), cafe: z.array(z.string()) })
+
+// Colours a lane can have; the first four are the lanes' defaults in order.
+// A buzzer may take any of them, so its lane matches the buzzer's own colour.
+export const LANE_COLOR_NAMES = ['green', 'blue', 'amber', 'violet', 'red', 'orange', 'pink', 'gray'] as const
+export const LaneColorEnum = z.enum(LANE_COLOR_NAMES)
+export type LaneColor = z.infer<typeof LaneColorEnum>
+
+// Each lane's colour: the buzzer's own if it has one, otherwise the first
+// default no other lane of the station uses.
+export function laneColors(own: ReadonlyArray<LaneColor | null>, laneCount: number): LaneColor[] {
+  const taken = new Set(own.slice(0, laneCount).filter((c): c is LaneColor => c !== null))
+  return Array.from({ length: laneCount }, (_, i) => {
+    const mine = own[i] ?? null
+    if (mine) return mine
+    const free = LANE_COLOR_NAMES.find((c) => !taken.has(c))!
+    taken.add(free)
+    return free
+  })
+}
+
+const PerStation = <T extends z.ZodTypeAny>(t: T) => z.object({ kitchen: z.array(t), bar: z.array(t), cafe: z.array(t) })
+export const StationBuzzersSchema = PerStation(z.string()).extend({ colors: PerStation(LaneColorEnum.nullable()) })
 export type StationBuzzers = z.infer<typeof StationBuzzersSchema>
 export const SetStationBuzzersSchema = z.object({
   station: StationEnum,
   keys: z.array(z.string().min(1).max(32)).max(BUZZERS_PER_STATION)
     .refine((keys) => new Set(keys).size === keys.length, 'Each buzzer needs its own key'),
+  // One per key; missing ones take the lane's default colour.
+  colors: z.array(LaneColorEnum.nullable()).max(BUZZERS_PER_STATION).optional()
+    .refine((c) => !c || new Set(c.filter(Boolean)).size === c.filter(Boolean).length, 'Each buzzer needs its own colour'),
 })
 export type SetStationBuzzers = z.infer<typeof SetStationBuzzersSchema>
 
-// Buzzer lanes of the station: the buzzer's key, the card the lane holds and
-// since when (items ordered later are new to it).
+// Lanes of the station, one per person working side by side: the buzzer's
+// key (null without a buzzer), the lane's colour, whether the lane pauses (takes no new card),
+// the card the lane holds and since when (items ordered later are new to it).
 export const ProductionLaneSchema = z.object({
   lane: z.number().int().min(1).max(BUZZERS_PER_STATION),
-  key: z.string(),
+  key: z.string().nullable(),
+  color: LaneColorEnum,
+  paused: z.boolean(),
   groupKey: z.string().nullable(),
   assignedAt: z.string().datetime().nullable(),
 })
 export type ProductionLane = z.infer<typeof ProductionLaneSchema>
 
+// The people at the station change their lanes: how many (1 = no lanes unless
+// the station has a buzzer) or one lane's pause. The admin names the station.
+export const ProductionLanesPatchSchema = z.union([
+  z.object({ station: StationEnum.optional(), laneCount: z.number().int().min(1).max(BUZZERS_PER_STATION) }),
+  z.object({ station: StationEnum.optional(), lane: z.number().int().min(1).max(BUZZERS_PER_STATION), paused: z.boolean() }),
+])
+export type ProductionLanesPatch = z.infer<typeof ProductionLanesPatchSchema>
+export const ProductionLanesSettingSchema = z.object({ laneCount: z.number().int().min(1).max(BUZZERS_PER_STATION), paused: z.array(z.number().int()) })
+export type ProductionLanesSetting = z.infer<typeof ProductionLanesSettingSchema>
+
 export const ProductionQueueSchema = z.object({
   station: StationEnum,
   items: z.array(ProductionQueueItemSchema),
   lanes: z.array(ProductionLaneSchema),
+  // Lanes set at the station; 1 with an empty `lanes` shows the plain cards.
+  laneCount: z.number().int().min(1).max(BUZZERS_PER_STATION),
   // Cafe counter closed: coffee and cake go to the kitchen (lib/cafe-routing.ts).
   cafeClosed: z.boolean(),
 })

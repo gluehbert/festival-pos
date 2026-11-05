@@ -1083,20 +1083,27 @@
       "buzzer": {
         "label": "Buzzer an Küche und Bar",
         "hint": "Ein großer Taster an der Ausgabe: ein Druck schließt die älteste Bestellung ab.",
-        "more": "Der Buzzer funktioniert wie eine Tastatur mit einer Taste (USB oder Bluetooth). Mit Buzzern zeigt der Bildschirm der Station eine Spur pro Buzzer: die älteste Bestellung, groß, für die Person an diesem Buzzer. Ein Druck schließt sie ab, und die Spur holt sich die nächste. Ein zweiter Druck innerhalb einer Sekunde wird ignoriert. Bis zu vier Buzzer pro Station.",
+        "more": "Der Buzzer funktioniert wie eine Tastatur mit einer Taste (USB oder Bluetooth). Mit Buzzern zeigt der Bildschirm der Station eine Linie pro Buzzer: die älteste Bestellung, groß, für die Person an diesem Buzzer. Ein Druck schließt sie ab, und die Linie holt sich die nächste. Ein zweiter Druck innerhalb einer Sekunde wird ignoriert. Bis zu vier Buzzer pro Station. Linien gehen auch ohne Buzzer: an der Station im Menü „Anzeige“.",
         "lane": "Buzzer {n} – {color}",
         "color": {
           "green": "grün",
           "blue": "blau",
           "amber": "gelb",
-          "violet": "lila"
+          "violet": "lila",
+          "red": "rot",
+          "orange": "orange",
+          "pink": "pink",
+          "gray": "grau"
         },
         "add": "Buzzer hinzufügen",
         "change": "Ändern",
         "clear": "Entfernen",
         "listening": "Jetzt den Buzzer drücken …",
         "space": "Leertaste",
-        "sameKey": "Diese Taste nutzt schon ein anderer Buzzer dieser Station."
+        "sameKey": "Diese Taste nutzt schon ein anderer Buzzer dieser Station.",
+        "colorLabel": "Farbe von Buzzer {n}",
+        "colorHint": "Die Linie auf dem Bildschirm bekommt die Farbe des Buzzers.",
+        "name": "Buzzer {n}"
       },
       "foodPrepayEnabled": {
         "label": "Essen bei Bestellung bezahlen",
@@ -1387,21 +1394,40 @@
       "fullscreen": "Vollbild",
       "exitFullscreen": "Vollbild beenden",
       "keepAwakeOn": "Bildschirm bleibt an",
-      "keepAwakeOff": "Bildschirm darf ausgehen"
+      "keepAwakeOff": "Bildschirm darf ausgehen",
+      "lanes": "Linien",
+      "lanesFewer": "Weniger Linien",
+      "lanesMore": "Mehr Linien",
+      "lanesHint": "Eine Linie pro Person, die gleichzeitig arbeitet. Gilt für alle Geräte dieser Station.",
+      "shown": "Dieses Gerät zeigt"
     },
     "toastDoneFor": "{label} fertig",
     "lanes": {
-      "buzzer1": "Grüner Buzzer",
-      "buzzer2": "Blauer Buzzer",
-      "buzzer3": "Gelber Buzzer",
-      "buzzer4": "Lila Buzzer",
       "free": "Frei – die nächste Bestellung landet hier.",
       "next": "Als Nächstes ({n})",
       "followUp": "Nachbestellung",
       "new": "Neu",
       "more": "+{n} weitere",
       "cut": "Nicht alles sichtbar – im Bildschirm-Menü (Monitor-Symbol oben) verkleinern.",
-      "minutes": "{n} Min."
+      "minutes": "{n} Min.",
+      "pause": "Pause",
+      "resume": "Weiter",
+      "pausingAfter": "Pause nach dieser Bestellung",
+      "paused": "{lane} – Pause",
+      "pausedTap": "Tippen zum Weitermachen",
+      "elsewhere": "{lane} – auf anderem Gerät",
+      "elsewhereTap": "Hier zeigen",
+      "color": {
+        "green": "Grün",
+        "blue": "Blau",
+        "amber": "Gelb",
+        "violet": "Lila",
+        "red": "Rot",
+        "orange": "Orange",
+        "pink": "Pink",
+        "gray": "Grau"
+      },
+      "withBuzzer": "Buzzer {color}"
     },
     "cafe": {
       "close": "Kuchentheke schließen",

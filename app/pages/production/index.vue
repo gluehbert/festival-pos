@@ -144,6 +144,16 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
   // The server refills a freed lane on the next poll: ask now, not in 4 s.
   if (lanesActive.value) await loadQuietly()
 }
+
+// A paused lane finishes its card, then shrinks to a bar; a tap brings it back.
+async function onPause(lane: number, paused: boolean) {
+  try {
+    await production.setLanes({ lane, paused }, isAdmin.value ? adminStation.value : undefined)
+  }
+  catch {
+    showToast('error', t('production.toastFailed'))
+  }
+}
 </script>
 
 <template>
@@ -193,7 +203,10 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
       :groups="production.groups"
       :lanes="production.lanes"
       :finishing="finishingIds"
+      :hidden="production.hiddenLanes"
       @finish="onFinish"
+      @pause="onPause"
+      @show="(lane) => production.setLaneShown(lane, true)"
     />
 
     <ul v-else class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

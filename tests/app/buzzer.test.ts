@@ -5,7 +5,7 @@ import { defineComponent, h, ref } from 'vue'
 import { BUZZER_COOLDOWN_MS, useBuzzer } from '~/composables/useBuzzer'
 import BuzzerKeys from '~/components/admin/BuzzerKeys.vue'
 import type { EventDto } from '~/../server/lib/contracts/admin'
-import type { StationBuzzers } from '~/../server/lib/contracts/production'
+import type { LaneColor, StationBuzzers } from '~/../server/lib/contracts/production'
 import { useCookie } from './setup/imports'
 
 function press(key: string, init: KeyboardEventInit = {}, target: EventTarget = document.body): KeyboardEvent {
@@ -107,9 +107,9 @@ describe('BuzzerKeys (admin)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     fetchMock.mockReset()
-    stored = { kitchen: [], bar: [], cafe: [] }
-    fetchMock.mockImplementation(async (_url: string, o?: { method?: string; body?: { station: 'kitchen' | 'bar' | 'cafe'; keys: string[] } }) => {
-      if (o?.method === 'PUT') stored = { ...stored, [o.body!.station]: o.body!.keys }
+    stored = { kitchen: [], bar: [], cafe: [], colors: { kitchen: [], bar: [], cafe: [] } }
+    fetchMock.mockImplementation(async (_url: string, o?: { method?: string; body?: { station: 'kitchen' | 'bar' | 'cafe'; keys: string[]; colors: LaneColor[] } }) => {
+      if (o?.method === 'PUT') stored = { ...stored, [o.body!.station]: o.body!.keys, colors: { ...stored.colors, [o.body!.station]: o.body!.colors } }
       return stored
     })
     vi.stubGlobal('$fetch', fetchMock)
@@ -135,7 +135,7 @@ describe('BuzzerKeys (admin)', () => {
     const e = press('F9')
     await flushPromises()
     expect(e.defaultPrevented).toBe(true)
-    expect(puts()).toEqual([{ station: 'kitchen', keys: ['F9'] }])
+    expect(puts()).toEqual([{ station: 'kitchen', keys: ['F9'], colors: ['green'] }])
     expect(w.emitted('saved')).toHaveLength(1)
 
     // Listening ended: later keys are not stored.
@@ -155,7 +155,7 @@ describe('BuzzerKeys (admin)', () => {
   })
 
   it('refuses a key another buzzer of the station uses, but not one of the other station', async () => {
-    stored = { kitchen: ['F9'], bar: [], cafe: [] }
+    stored = { kitchen: ['F9'], bar: [], cafe: [], colors: { kitchen: [null], bar: [], cafe: [] } }
     const w = await mountKeys()
     await w.find('[data-test="buzzers-kitchen"] [data-test="buzzer-add"]').trigger('click')
     press('F9')
@@ -166,12 +166,12 @@ describe('BuzzerKeys (admin)', () => {
     await w.find('[data-test="buzzers-bar"] [data-test="buzzer-add"]').trigger('click')
     press('F9')
     await flushPromises()
-    expect(puts()).toEqual([{ station: 'bar', keys: ['F9'] }])
+    expect(puts()).toEqual([{ station: 'bar', keys: ['F9'], colors: ['green'] }])
     w.unmount()
   })
 
   it('shows the current keys, changes one, can cancel and removes one', async () => {
-    stored = { kitchen: [' ', 'F10'], bar: [], cafe: [] }
+    stored = { kitchen: [' ', 'F10'], bar: [], cafe: [], colors: { kitchen: [null, 'red'], bar: [], cafe: [] } }
     const w = await mountKeys()
     const one = () => w.find('[data-test="buzzer-kitchen-1"]')
     expect(one().find('[data-test="buzzer-current"]').text()).toBe('admin.features.buzzer.space')
@@ -184,12 +184,26 @@ describe('BuzzerKeys (admin)', () => {
     await one().find('[data-test="buzzer-set"]').trigger('click')
     press('F8')
     await flushPromises()
-    expect(puts()).toEqual([{ station: 'kitchen', keys: ['F8', 'F10'] }])
+    expect(puts()).toEqual([{ station: 'kitchen', keys: ['F8', 'F10'], colors: ['green', 'red'] }])
 
     await one().find('[data-test="buzzer-clear"]').trigger('click')
     await flushPromises()
-    expect(puts()[1]).toEqual({ station: 'kitchen', keys: ['F10'] })
+    // The colour stays with its buzzer, not with the lane.
+    expect(puts()[1]).toEqual({ station: 'kitchen', keys: ['F10'], colors: ['red'] })
     expect(w.findAll('[data-test="buzzers-kitchen"] [data-test="buzzer-current"]').map((k) => k.text())).toEqual(['F10'])
+    w.unmount()
+  })
+  it('picks a buzzer\'s colour; a colour another buzzer has cannot be picked', async () => {
+    stored = { kitchen: ['F9', 'F10'], bar: [], cafe: [], colors: { kitchen: [null, null], bar: [], cafe: [] } }
+    const w = await mountKeys()
+    const select = (n: number) => w.find(`[data-test="buzzer-kitchen-${n}"] [data-test="buzzer-color"]`)
+    expect((select(1).element as HTMLSelectElement).value).toBe('green')
+    expect((select(2).element as HTMLSelectElement).value).toBe('blue')
+    expect(select(2).find('option[value="green"]').attributes('disabled')).toBeDefined()
+    await select(1).setValue('red')
+    await flushPromises()
+    expect(puts()).toEqual([{ station: 'kitchen', keys: ['F9', 'F10'], colors: ['red', 'blue'] }])
+    expect(w.find('[data-test="buzzer-kitchen-1"] .bg-red-600').exists()).toBe(true)
     w.unmount()
   })
 })

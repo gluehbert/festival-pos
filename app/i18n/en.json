@@ -1083,20 +1083,27 @@
       "buzzer": {
         "label": "Buzzers at the kitchen and bar",
         "hint": "A big button at the counter: one press finishes the oldest order.",
-        "more": "The buzzer works like a one-key keyboard (USB or Bluetooth). With buzzers, the station's screen shows one lane per buzzer: the oldest order, large, for the person at that buzzer. A press finishes it and the lane takes the next one. A second press within a second is ignored. Up to four buzzers per station.",
+        "more": "The buzzer works like a one-key keyboard (USB or Bluetooth). With buzzers, the station's screen shows one lane per buzzer: the oldest order, large, for the person at that buzzer. A press finishes it and the lane takes the next one. A second press within a second is ignored. Up to four buzzers per station. Lanes also work without buzzers: set them at the station in the \"Display\" menu.",
         "lane": "Buzzer {n} – {color}",
         "color": {
           "green": "green",
           "blue": "blue",
           "amber": "amber",
-          "violet": "violet"
+          "violet": "violet",
+          "red": "red",
+          "orange": "orange",
+          "pink": "pink",
+          "gray": "grey"
         },
         "add": "Add buzzer",
         "change": "Change",
         "clear": "Remove",
         "listening": "Press the buzzer now …",
         "space": "Space",
-        "sameKey": "Another buzzer at this station already uses this key."
+        "sameKey": "Another buzzer at this station already uses this key.",
+        "colorLabel": "Colour of buzzer {n}",
+        "colorHint": "The lane on the screen takes the buzzer's colour.",
+        "name": "Buzzer {n}"
       },
       "foodPrepayEnabled": {
         "label": "Pay for food when ordering",
@@ -1387,21 +1394,40 @@
       "fullscreen": "Fullscreen",
       "exitFullscreen": "Exit fullscreen",
       "keepAwakeOn": "Screen stays on",
-      "keepAwakeOff": "Screen may turn off"
+      "keepAwakeOff": "Screen may turn off",
+      "lanes": "Lanes",
+      "lanesFewer": "Fewer lanes",
+      "lanesMore": "More lanes",
+      "lanesHint": "One lane per person working at the same time. Applies to every device of this station.",
+      "shown": "This device shows"
     },
     "toastDoneFor": "{label} done",
     "lanes": {
-      "buzzer1": "Green buzzer",
-      "buzzer2": "Blue buzzer",
-      "buzzer3": "Amber buzzer",
-      "buzzer4": "Violet buzzer",
       "free": "Free – the next order lands here.",
       "next": "Next up ({n})",
       "followUp": "Later order",
       "new": "New",
       "more": "+{n} more",
       "cut": "Not everything fits – zoom out in the display menu (screen icon at the top).",
-      "minutes": "{n} min"
+      "minutes": "{n} min",
+      "pause": "Pause",
+      "resume": "Resume",
+      "pausingAfter": "Pause after this order",
+      "paused": "{lane} – paused",
+      "pausedTap": "Tap to resume",
+      "elsewhere": "{lane} – on another device",
+      "elsewhereTap": "Show here",
+      "color": {
+        "green": "Green",
+        "blue": "Blue",
+        "amber": "Yellow",
+        "violet": "Purple",
+        "red": "Red",
+        "orange": "Orange",
+        "pink": "Pink",
+        "gray": "Grey"
+      },
+      "withBuzzer": "Buzzer {color}"
     },
     "cafe": {
       "close": "Close cake counter",

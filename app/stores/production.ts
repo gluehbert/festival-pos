@@ -5,6 +5,7 @@ import { LANE_ROUND_MS, productionCards } from '~/../server/lib/contracts/produc
 import type {
   CafeClosed,
   ProductionLane,
+  ProductionLanesPatch,
   ProductionOrderDoneResponse,
   ProductionQueue,
   ProductionQueueItem,
@@ -26,11 +27,27 @@ export interface ProductionOrderGroup {
   items: ProductionQueueItem[]
 }
 
+const HIDDEN_KEY = 'production-hidden-lanes-'
+
+function readHidden(station: Station): number[] {
+  try {
+    const v: unknown = JSON.parse(localStorage.getItem(HIDDEN_KEY + station) ?? '[]')
+    return Array.isArray(v) ? v.filter((l): l is number => Number.isInteger(l) && l >= 1 && l <= 4) : []
+  }
+  catch {
+    return []
+  }
+}
+
 export const useProductionStore = defineStore('production', () => {
   const station = ref<Station | null>(null)
   const queue = ref<ProductionQueueItem[]>([])
-  // Buzzer lanes; empty when the event has no buzzer.
+  // Lanes of the station, one per person; empty with one lane and no buzzer.
   const lanes = ref<ProductionLane[]>([])
+  const laneCount = ref(1)
+  // Lanes this device leaves out (another tablet shows them), per station.
+  // Remembered per device; storage may be unavailable.
+  const hiddenByStation = ref<Partial<Record<Station, number[]>>>({})
   // Cafe counter closed: its coffee and cake now go to the kitchen.
   const cafeClosed = ref(false)
   const loading = ref(false)
@@ -88,6 +105,8 @@ export const useProductionStore = defineStore('production', () => {
       station.value = res.station
       queue.value = withOverrides(res.items)
       lanes.value = res.lanes
+      laneCount.value = res.laneCount
+      if (!(res.station in hiddenByStation.value)) hiddenByStation.value = { ...hiddenByStation.value, [res.station]: readHidden(res.station) }
       cafeClosed.value = res.cafeClosed
       syncFailed.value = false
       lastSyncAt.value = Date.now()
@@ -101,6 +120,28 @@ export const useProductionStore = defineStore('production', () => {
     finally {
       loading.value = false
     }
+  }
+
+  const hiddenLanes = computed(() => (station.value ? hiddenByStation.value[station.value] ?? [] : []))
+
+  // This device shows a lane again or leaves it to another screen.
+  function setLaneShown(lane: number, shown: boolean): void {
+    if (!station.value) return
+    const next = shown ? hiddenLanes.value.filter((l) => l !== lane) : [...new Set([...hiddenLanes.value, lane])].sort((a, b) => a - b)
+    hiddenByStation.value = { ...hiddenByStation.value, [station.value]: next }
+    try {
+      localStorage.setItem(HIDDEN_KEY + station.value, JSON.stringify(next))
+    }
+    catch { /* not remembered, still works */ }
+  }
+
+  // More or fewer lanes, or one lane's pause: for every screen of the station.
+  // The admin names the station it looks at; a station login has its own.
+  async function setLanes(change: { laneCount: number } | { lane: number; paused: boolean }, stationParam?: Station): Promise<void> {
+    const body: ProductionLanesPatch = stationParam ? { ...change, station: stationParam } : change
+    await useApi().patch('/api/production/lanes', body)
+    // Saved; a failed reload only shows the outdated warning, the poller retries.
+    await fetchQueue(stationParam).catch(() => {})
   }
 
   // The cafe counter closes after the Kaffeeklatsch or opens again.
@@ -183,5 +224,5 @@ export const useProductionStore = defineStore('production', () => {
     }
   }
 
-  return { station, queue, lanes, cafeClosed, setCafeClosed, groups, loading, error, syncFailed, syncError, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
+  return { station, queue, lanes, laneCount, hiddenLanes, setLaneShown, setLanes, cafeClosed, setCafeClosed, groups, loading, error, syncFailed, syncError, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
 })

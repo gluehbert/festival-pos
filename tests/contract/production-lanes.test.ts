@@ -37,7 +37,7 @@ function finish(itemId: string) {
   ctx.mem.public.none(`UPDATE order_items SET production_status = 'done' WHERE id = '${itemId}'`)
 }
 
-interface Polled { lanes: Array<{ lane: number; key: string; groupKey: string | null; assignedAt: string | null }>; items: Array<{ tableNo: number; productionStatus: string }> }
+interface Polled { lanes: Array<{ lane: number; key: string | null; color: string; paused: boolean; groupKey: string | null; assignedAt: string | null }>; items: Array<{ tableNo: number; productionStatus: string }> }
 
 // Lane -> table it holds ("table:12:<order id>" -> 12).
 const tables = (r: Polled) => r.lanes.map((l) => [l.lane, l.groupKey === null ? null : Number(l.groupKey.split(':')[1])])
@@ -138,9 +138,118 @@ describe('production lanes (buzzers)', () => {
     expect(tables(await poll())).toEqual([[1, 10], [2, 11], [3, 12], [4, 13]])
     expect((await poll('bar')).lanes).toEqual([])
     ctx.mem.public.none(`INSERT INTO station_buzzers (event_id, station, lane, key) VALUES ('${seeded.eventId}', 'bar', 1, '1')`)
-    expect((await poll('bar')).lanes).toEqual([{ lane: 1, key: '1', groupKey: null, assignedAt: null }])
+    expect((await poll('bar')).lanes).toEqual([{ lane: 1, key: '1', color: 'green', paused: false, groupKey: null, assignedAt: null }])
     expect(() => ctx.mem.public.none(
       `INSERT INTO station_buzzers (event_id, station, lane, key) VALUES ('${seeded.eventId}', 'kitchen', 5, '5')`,
     )).toThrow()
+  })
+})
+
+const CSRF = 'a'.repeat(64)
+
+// The people at the station change their lanes (+/- in the display menu, pause).
+async function setLanes(body: unknown, role: 'kitchen' | 'bar' | 'admin' = 'kitchen') {
+  const { makeEvent } = await import('../setup/h3-event')
+  const handler = (await import('../../server/api/production/lanes.patch')).default
+  ctx.setBody(body)
+  const { event } = makeEvent({ method: 'PATCH', cookies: { csrf: CSRF }, headers: { 'x-csrf-token': CSRF } })
+  event.context.auth = { staff: { staffId: seeded.staffId, role, username: 'k' } }
+  return await handler(event) as never
+}
+
+describe('production lanes without buzzers', () => {
+  beforeEach(async () => {
+    ctx = await makeCtx()
+    setCtx(ctx)
+    const { seedEvent } = await import('../setup/pg-mem-db')
+    seeded = seedEvent(ctx.mem, { tableRangeFrom: 1, tableRangeTo: 20 })
+  })
+
+  it('splits the orders into the lanes set at the station, each lane one card', async () => {
+    order(12, 0)
+    order(7, 10)
+    order(3, 20)
+    const before = await poll() as Polled & { laneCount: number }
+    expect(before.lanes).toEqual([])
+    expect(before.laneCount).toBe(1)
+
+    expect(await setLanes({ laneCount: 2 })).toEqual({ laneCount: 2, paused: [] })
+    const r = await poll() as Polled & { laneCount: number }
+    expect(r.laneCount).toBe(2)
+    expect(tables(r)).toEqual([[1, 12], [2, 7]])
+    expect(r.lanes.map((l) => l.key)).toEqual([null, null])
+    // The bar keeps its own setting.
+    expect((await poll('bar')).lanes).toEqual([])
+
+    // Back to one lane: the plain cards again, nothing held.
+    await setLanes({ laneCount: 1 })
+    expect((await poll()).lanes).toEqual([])
+  })
+
+  it('a paused lane finishes its card, then takes no new one until it goes on', async () => {
+    const t12 = order(12, 0)
+    order(7, 10)
+    order(3, 20)
+    await setLanes({ laneCount: 2 })
+    await poll()
+    expect(await setLanes({ lane: 1, paused: true })).toEqual({ laneCount: 2, paused: [1] })
+    const paused = await poll()
+    expect(tables(paused)).toEqual([[1, 12], [2, 7]])
+    expect(paused.lanes.map((l) => l.paused)).toEqual([true, false])
+
+    finish(t12)
+    expect(tables(await poll())).toEqual([[1, null], [2, 7]])
+    await setLanes({ lane: 1, paused: false })
+    expect(tables(await poll())).toEqual([[1, 3], [2, 7]])
+  })
+
+  it('fewer lanes send the last lane\'s card back to the queue and drop its pause', async () => {
+    order(12, 0)
+    order(7, 10)
+    order(3, 20)
+    await setLanes({ laneCount: 3 })
+    expect(tables(await poll())).toEqual([[1, 12], [2, 7], [3, 3]])
+    await setLanes({ lane: 3, paused: true })
+    expect(await setLanes({ laneCount: 2 })).toEqual({ laneCount: 2, paused: [] })
+    const r = await poll()
+    expect(tables(r)).toEqual([[1, 12], [2, 7]])
+    expect(r.items.map((i) => i.tableNo)).toEqual([12, 7, 3])
+  })
+
+  it('buzzers count as lanes; a new buzzer brings its lane back', async () => {
+    order(12, 0)
+    buzzers('F9', 'F10')
+    expect((await poll()).lanes.map((l) => l.key)).toEqual(['F9', 'F10'])
+    await setLanes({ laneCount: 3 })
+    expect((await poll()).lanes.map((l) => l.key)).toEqual(['F9', 'F10', null])
+    await setLanes({ laneCount: 1 })
+    // One lane with a buzzer stays a lane: the buzzer still finishes it.
+    expect((await poll()).lanes.map((l) => l.key)).toEqual(['F9'])
+
+    const { makeEvent } = await import('../setup/h3-event')
+    const put = (await import('../../server/api/admin/events/[id]/buzzers.put')).default
+    ctx.setBody({ station: 'kitchen', keys: ['F9', 'F10'] })
+    const { event } = makeEvent({ method: 'PUT', cookies: { csrf: CSRF }, headers: { 'x-csrf-token': CSRF } })
+    event.context.auth = { staff: { staffId: seeded.staffId, role: 'admin', username: 'a' } }
+    event.context.params = { id: seeded.eventId }
+    await put(event)
+    expect((await poll()).lanes.map((l) => l.key)).toEqual(['F9', 'F10'])
+  })
+
+  it('a lane takes its buzzer\'s colour; lanes without one take free defaults', async () => {
+    order(12, 0)
+    ctx.mem.public.none(`INSERT INTO station_buzzers (event_id, station, lane, key, color) VALUES ('${seeded.eventId}', 'kitchen', 1, 'F9', 'blue')`)
+    await setLanes({ laneCount: 3 })
+    expect((await poll()).lanes.map((l) => l.color)).toEqual(['blue', 'green', 'amber'])
+  })
+
+  it('refuses bad counts, the admin without a station and the waiter', async () => {
+    for (const body of [{ laneCount: 0 }, { laneCount: 5 }, { lane: 5, paused: true }, {}]) {
+      await expect(setLanes(body)).rejects.toMatchObject({ statusCode: 400 })
+    }
+    await expect(setLanes({ laneCount: 2 }, 'admin')).rejects.toMatchObject({ statusCode: 400 })
+    expect(await setLanes({ station: 'bar', laneCount: 2 }, 'admin')).toEqual({ laneCount: 2, paused: [] })
+    expect((await poll('bar')).lanes).toHaveLength(2)
+    await expect(setLanes({ laneCount: 2 }, 'waiter' as never)).rejects.toMatchObject({ statusCode: 403 })
   })
 })
