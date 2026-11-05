@@ -54,6 +54,7 @@ export async function ensurePreviewEvent(db: Db): Promise<void> {
         depositCents: m.depositCents,
         station: m.station,
         productionStatus: sample.done ? 'done' : 'pending',
+        readyAt: sample.done ? new Date() : null,
         nameDe: m.nameDe,
         nameEn: m.nameEn,
         category: m.category,

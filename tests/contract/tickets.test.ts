@@ -108,11 +108,12 @@ describe('GET /api/tickets', () => {
 
   it('sums each ticket from all its items: paid, ready and per walk-in', async () => {
     const one = (q: string) => ctx.mem.public.one(q) as { id: string }
-    const addItem = (orderId: string, opts: { station: string; qty: number; paid?: boolean; done?: boolean }) =>
+    const readyAt = (minutesAgo: number) => `'${new Date(Date.now() - minutesAgo * 60_000).toISOString()}'`
+    const addItem = (orderId: string, opts: { station: string; qty: number; paid?: boolean; done?: boolean; readyMinutesAgo?: number }) =>
       ctx.mem.public.none(
-        `INSERT INTO order_items (order_id, menu_item_id, quantity, unit_price_cents, deposit_cents, station, payment_status, production_status)
+        `INSERT INTO order_items (order_id, menu_item_id, quantity, unit_price_cents, deposit_cents, station, payment_status, production_status, ready_at)
          VALUES ('${orderId}', '${seeded.menuItemIds[0]}', ${opts.qty}, 300, 100, '${opts.station}',
-                 '${opts.paid ? 'paid' : 'unpaid'}', '${opts.done ? 'done' : 'pending'}')`,
+                 '${opts.paid ? 'paid' : 'unpaid'}', '${opts.done ? 'done' : 'pending'}', ${opts.done ? readyAt(opts.readyMinutesAgo ?? 1) : 'NULL'})`,
       )
     const order = (kind: string) => one(
       `INSERT INTO orders (event_id, table_no, kind, created_by_staff) VALUES ('${seeded.eventId}', ${kind === 'walkin' ? 0 : 3}, '${kind}', '${seeded.staffId}') RETURNING id`,
@@ -121,6 +122,8 @@ describe('GET /api/tickets', () => {
     addItem(first, { station: 'kitchen', qty: 2, paid: true, done: true }) // paid: not the waiter's to bring
     addItem(first, { station: 'bar', qty: 1, done: true })
     addItem(order('staff_table'), { station: 'kitchen', qty: 3, done: true })
+    // Finished eleven minutes ago: counts as brought, nothing left to bring.
+    addItem(first, { station: 'bar', qty: 4, done: true, readyMinutesAgo: 11 })
     const walkA = order('walkin')
     addItem(walkA, { station: 'kitchen', qty: 1, paid: true, done: true })
     const walkB = order('walkin')
@@ -133,7 +136,7 @@ describe('GET /api/tickets', () => {
     const r = await handler(event) as { tickets: Array<{ ticketKey: string; status: string; totalCents: number; unpaidCents: number; ready: { kitchen: number; bar: number; cafe: number }; assignee: { staffId: string } | null }> }
     const byKey = new Map(r.tickets.map((t) => [t.ticketKey, t]))
     expect(r.tickets).toHaveLength(3)
-    expect(byKey.get('t-3')).toMatchObject({ status: 'open', totalCents: 2400, unpaidCents: 1600, ready: { kitchen: 3, bar: 1, cafe: 0 }, assignee: null })
+    expect(byKey.get('t-3')).toMatchObject({ status: 'open', totalCents: 4000, unpaidCents: 3200, ready: { kitchen: 3, bar: 1, cafe: 0 }, assignee: null })
     expect(byKey.get(`w-${walkA}`)).toMatchObject({ status: 'paid', totalCents: 400, unpaidCents: 0, ready: { kitchen: 1, bar: 0, cafe: 0 } })
     expect(byKey.get(`w-${walkA}`)!.assignee?.staffId).toBe(seeded.staffId)
     expect(byKey.get(`w-${walkB}`)).toMatchObject({ status: 'open', totalCents: 800, unpaidCents: 800, ready: { kitchen: 0, bar: 0, cafe: 0 } })

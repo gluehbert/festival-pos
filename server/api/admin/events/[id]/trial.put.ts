@@ -1,12 +1,13 @@
 import { defineEventHandler, getRouterParam, readBody } from 'h3'
-import { eq } from 'drizzle-orm'
+import { and, count, eq } from 'drizzle-orm'
 import { getDb } from '../../../../db/client'
-import { auditLog, events } from '../../../../db/schema'
+import { auditLog, events, orders } from '../../../../db/schema'
 import { AppError, sendAppError } from '../../../../lib/errors'
 import { assertCsrf } from '../../../../lib/csrf'
 import { requireRole } from '../../../../lib/rbac'
 import { TrialModeSchema } from '../../../../lib/contracts/admin'
 import { loadEventDto, resetTableState } from '../../../../lib/events'
+import { markSetup } from '../../../../lib/event-setup'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -27,7 +28,12 @@ export default defineEventHandler(async (event) => {
       if (!before) throw new AppError('NOT_FOUND', 404, 'Event not found')
       await tx.update(events).set({ trialMode: enabled }).where(eq(events.id, id))
       // Only the real switch off resets the floor; a repeated "off" must not touch a live event.
-      if (before.trialMode && !enabled) await resetTableState(tx, id)
+      if (before.trialMode && !enabled) {
+        await resetTableState(tx, id)
+        // A rehearsal with at least one test order ticks off "Probelauf" in the setup.
+        const [held] = await tx.select({ n: count() }).from(orders).where(and(eq(orders.eventId, id), eq(orders.isTrial, true)))
+        if (Number(held?.n ?? 0) > 0) await markSetup(tx, id, { trialHeldAt: new Date() })
+      }
       await tx.insert(auditLog).values({
         action: 'event_trial',
         staffId: staff.staffId,

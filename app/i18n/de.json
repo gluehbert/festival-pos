@@ -256,7 +256,8 @@
       "served_kitchen": "Essen gebracht",
       "served_bar": "Getränke gebracht",
       "served_cafe": "Kuchen & Kaffee gebracht",
-      "servedHint": "Verschwindet beim Kassieren von selbst.",
+      "servedHint": "Zählt nach 10 Min. oder beim Kassieren von selbst als gebracht.",
+      "servedHintWalkin": "Zählt nach 10 Min. von selbst als abgeholt.",
       "empty": "Noch nichts bestellt",
       "foodToPay": "{n} Essen warten auf Zahlung: Die Küche beginnt, sobald es kassiert ist.",
       "payFood": "Essen kassieren",
@@ -577,7 +578,7 @@
       },
       "bring": {
         "title": "Bringen",
-        "text": "Wird ein Tisch grün, ist etwas fertig. Abholen und zum Tisch bringen."
+        "text": "Wird ein Tisch grün, ist etwas fertig. Abholen und zum Tisch bringen. Nach 10 Min. zählt es von selbst als gebracht."
       },
       "pay": {
         "title": "Kassieren",
@@ -1195,6 +1196,16 @@
       "done": "erledigt",
       "notDone": "offen",
       "open": "Öffnen",
+      "detail": {
+        "branded": "Logo oder Begrüßung gesetzt",
+        "tables": "Tische {from}–{to}",
+        "menuItems": "Noch keine Artikel | 1 Artikel | {n} Artikel",
+        "priceRules": "Kein Aktionspreis | 1 Aktionspreis | {n} Aktionspreise",
+        "helpers": "Noch kein Helfer über den Link aufgenommen | 1 Helfer aufgenommen | {n} Helfer aufgenommen",
+        "qrDownloaded": "QR-Codes geladen am {date}",
+        "trialHeld": "Probelauf am {date}",
+        "noTrial": "Ohne Probelauf gestartet"
+      },
       "steps": {
         "branding": {
           "title": "Gestaltung",

@@ -177,6 +177,7 @@ export const orderItems = pgTable(
     voidReason: text('void_reason'),
     voidedByStaff: uuid('voided_by_staff').references(() => staff.id, { onDelete: 'set null' }),
     voidedAt: timestamp('voided_at', { withTimezone: true }),
+    readyAt: timestamp('ready_at', { withTimezone: true }), // "Fertig" tapped; 10 min later counts as brought (lib/ready.ts)
     // Set when the waiter brought a finished item to the table.
     servedAt: timestamp('served_at', { withTimezone: true }),
     note: text('note'), // guest/waiter wish for kitchen/bar, e.g. "ohne Zwiebeln"
