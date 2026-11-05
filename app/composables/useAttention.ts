@@ -1,21 +1,35 @@
 import { readonly, ref } from 'vue'
 
-// Sound + vibration when something needs staff attention (new orders at the
-// kitchen / bar, finished items for the service). Shared by all screens: one
-// AudioContext; sound and vibration are switched separately, per device (a
-// tablet lying on the counter should not rattle).
+// Alerts when something needs staff attention (new orders at the kitchen /
+// bar, finished items for the service). Shared by all screens: one
+// AudioContext and one mode per device, as on a phone:
+//   loud    – tone + vibration
+//   vibrate – vibration only (a counter next to a stage programme)
+//   silent  – nothing but the screen flash
+// Every alert also flashes the screen, so a muted counter still notices.
 //
 // Browsers block audio until the user interacted with the page, so the
 // context is created / resumed on the first tap or key press. The tone is
 // synthesised (Web Audio), no asset file needed.
 
-const STORAGE_KEY = 'alert-sound'
-const VIBRATION_KEY = 'alert-vibration'
-const enabled = ref(true)
+export type AlertMode = 'loud' | 'vibrate' | 'silent'
+export const ALERT_MODES: readonly AlertMode[] = ['loud', 'vibrate', 'silent']
+
+const MODE_KEY = 'alert-mode'
+// Before the modes there were two switches; their values still count.
+const OLD_SOUND_KEY = 'alert-sound'
+const OLD_VIBRATION_KEY = 'alert-vibration'
+// How long the screen flash runs (see AlertFlash.vue).
+const FLASH_MS = 1800
+
+const mode = ref<AlertMode>('loud')
 const unlocked = ref(false)
-const vibrationEnabled = ref(true)
 // Only known on the client (e.g. iOS Safari cannot vibrate).
 const vibrationSupported = ref(false)
+// Bumped on every alert; the flash restarts when it changes.
+const flashKey = ref(0)
+const flashing = ref(false)
+let flashTimer: ReturnType<typeof setTimeout> | null = null
 let ctx: AudioContext | null = null
 let listening = false
 
@@ -47,7 +61,7 @@ function onGesture() {
 
 // Two short, bright tones: audible over a noisy tent.
 function beep(): void {
-  if (!enabled.value || !ctx || ctx.state !== 'running') return
+  if (mode.value !== 'loud' || !ctx || ctx.state !== 'running') return
   const start = ctx.currentTime
   for (const [i, freq] of [880, 1320].entries()) {
     const osc = ctx.createOscillator()
@@ -69,78 +83,68 @@ function canVibrate(): boolean {
 }
 
 function vibrate(): void {
-  if (!vibrationEnabled.value || !canVibrate()) return
+  if (mode.value === 'silent' || !canVibrate()) return
   try {
     navigator.vibrate([200, 100, 200])
   }
   catch { /* not supported */ }
 }
 
-function readSetting(key: string): boolean {
+function flash(): void {
+  flashKey.value += 1
+  flashing.value = true
+  if (flashTimer) clearTimeout(flashTimer)
+  flashTimer = setTimeout(() => { flashing.value = false }, FLASH_MS)
+}
+
+function readMode(): AlertMode {
   try {
-    return localStorage.getItem(key) !== 'off'
+    const saved = localStorage.getItem(MODE_KEY)
+    if (saved && (ALERT_MODES as string[]).includes(saved)) return saved as AlertMode
+    if (localStorage.getItem(OLD_SOUND_KEY) !== 'off') return 'loud'
+    return localStorage.getItem(OLD_VIBRATION_KEY) === 'off' ? 'silent' : 'vibrate'
   }
   catch {
-    return true
+    return 'loud'
   }
 }
 
-function writeSetting(key: string, on: boolean): void {
-  try {
-    localStorage.setItem(key, on ? 'on' : 'off')
-  }
-  catch { /* not remembered, still works */ }
-}
-
-// Client only, from onMounted: reads the setting and waits for a gesture.
+// Client only, from onMounted: reads the mode and waits for a gesture.
 function init(): void {
   if (listening || typeof window === 'undefined') return
   listening = true
-  enabled.value = readSetting(STORAGE_KEY)
-  vibrationEnabled.value = readSetting(VIBRATION_KEY)
+  mode.value = readMode()
   vibrationSupported.value = canVibrate()
-  // Bubble phase, so a tap on the toggle is handled before it unlocks.
+  // Bubble phase, so a tap on a mode button is handled before it unlocks.
   for (const ev of UNLOCK_EVENTS) window.addEventListener(ev, onGesture, { passive: true })
 }
 
-function setEnabled(on: boolean): void {
-  enabled.value = on
-  writeSetting(STORAGE_KEY, on)
-}
-
-// Switching vibration on buzzes once as a test.
-function toggleVibration(): void {
-  vibrationEnabled.value = !vibrationEnabled.value
-  writeSetting(VIBRATION_KEY, vibrationEnabled.value)
-  vibrate()
-}
-
-// The toggle: while sound is on but still blocked, a tap unlocks it (and
-// plays the tone as a test) instead of switching it off.
-async function toggle(): Promise<void> {
-  if (enabled.value && unlocked.value) {
-    setEnabled(false)
-    return
+// Picking a mode plays it once as a test (tone, buzz, or just the flash).
+async function setMode(next: AlertMode): Promise<void> {
+  mode.value = next
+  try {
+    localStorage.setItem(MODE_KEY, next)
   }
-  setEnabled(true)
-  await unlock()
-  beep()
+  catch { /* not remembered, still works */ }
+  if (next === 'loud') await unlock()
+  notify()
 }
 
 function notify(): void {
   beep()
   vibrate()
+  flash()
 }
 
 export function useAttention() {
   return {
-    enabled: readonly(enabled),
+    mode: readonly(mode),
     unlocked: readonly(unlocked),
-    vibrationEnabled: readonly(vibrationEnabled),
     vibrationSupported: readonly(vibrationSupported),
+    flashKey: readonly(flashKey),
+    flashing: readonly(flashing),
     init,
-    toggle,
-    toggleVibration,
+    setMode,
     notify,
   }
 }
@@ -150,10 +154,13 @@ export function resetAttention(): void {
   if (typeof window !== 'undefined') {
     for (const ev of UNLOCK_EVENTS) window.removeEventListener(ev, onGesture)
   }
-  enabled.value = true
+  mode.value = 'loud'
   unlocked.value = false
-  vibrationEnabled.value = true
   vibrationSupported.value = false
+  flashKey.value = 0
+  flashing.value = false
+  if (flashTimer) clearTimeout(flashTimer)
+  flashTimer = null
   ctx = null
   listening = false
 }

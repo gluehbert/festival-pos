@@ -29,6 +29,8 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
   const lines = ref<StaffOrderLine[]>([])
   const submitting = ref(false)
   const error = ref<string | null>(null)
+  // "Table 12: order sent", shown on the overview the waiter returns to.
+  const sentNotice = ref<string | null>(null)
   const { sending, begin, end, cancel: cancelSending } = useSendState()
   // One key per pad, kept across retries so a double tap or a flaky network
   // never sends the order twice. Renewed once the order went through.
@@ -143,5 +145,5 @@ export const useStaffOrderStore = defineStore('staff-order', () => {
     }
   }
 
-  return { lines, submitting, sending, cancelSending, error, totalCents, valueCents, itemCount, isEmpty, add, setQty, setLineQuantity, setNote, qtyOf, syncWithMenu, clear, submit }
+  return { lines, submitting, sending, cancelSending, error, sentNotice, totalCents, valueCents, itemCount, isEmpty, add, setQty, setLineQuantity, setNote, qtyOf, syncWithMenu, clear, submit }
 })

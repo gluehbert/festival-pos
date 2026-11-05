@@ -19,12 +19,29 @@ export const productionOrders: Scene = async (ctx) => {
   await ctx.shoot(page, 'production-orders')
 }
 
+// On a phone the station name gets its own row under logo and icons.
+export const productionPhoneCafe: Scene = async (ctx) => {
+  const { page } = await ctx.open('staff')
+  await loginStaff(page, 'cafe1', '1111', 'pin')
+  await page.locator('[data-test="cafe-close"]').waitFor()
+  await ctx.shoot(page, 'production-phone-cafe')
+}
+
+export const productionPhoneAdmin: Scene = async (ctx) => {
+  await ensureService(ctx)
+  const { page } = await ctx.open('staff')
+  await loginStaff(page, 'admin', 'admin123', 'password')
+  await page.goto('/production')
+  await page.locator('[data-test="order-card"]').first().waitFor()
+  await ctx.shoot(page, 'production-phone-admin')
+}
+
 export const adminEvent: Scene = async (ctx) => {
   await ctx.shoot(await adminOnEvent(ctx), 'admin-event')
 }
 
 export const adminMenu: Scene = async (ctx) => {
-  await ctx.shoot(await adminOnEvent(ctx, 'Price list'), 'admin-menu')
+  await ctx.shoot(await adminOnEvent(ctx, 'Menu'), 'admin-menu')
 }
 
 export const adminReports: Scene = async (ctx) => {

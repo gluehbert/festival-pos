@@ -21,7 +21,7 @@ async function choose(w: ReturnType<typeof mount>, name = 'karte.csv') {
 }
 
 const preview = (over = {}) => ({
-  applied: false, created: 1, updated: 1, unchanged: 0, errors: [],
+  applied: false, created: 1, updated: 1, unchanged: 0, archived: 0, errors: [],
   rows: [{ row: 2, nameDe: 'Pommes', action: 'update' }, { row: 3, nameDe: 'Radler', action: 'create' }],
   ...over,
 })
@@ -47,6 +47,30 @@ describe('MenuImport', () => {
     expect(fetchMock.mock.calls[2]![0]).toBe(`/api/admin/events/${EVENT}/menu-items`)
     expect(w.emitted('imported')).toHaveLength(1)
     expect(w.find('[data-test="menu-import-preview"]').exists()).toBe(false)
+  })
+
+  it('re-previews in replace mode, lists removed items and applies with mode=replace', async () => {
+    fetchMock.mockResolvedValueOnce(preview())
+    const w = mount(MenuImport, { props: { eventId: EVENT } })
+    await choose(w)
+    fetchMock.mockResolvedValueOnce(preview({
+      created: 0, updated: 0, archived: 1,
+      rows: [{ row: 0, nameDe: 'Wasser', action: 'archive' }],
+    }))
+    await w.find('[data-test="menu-import-replace"]').setValue(true)
+    await flushPromises()
+    expect(fetchMock.mock.calls[1]![0]).toBe(`/api/admin/events/${EVENT}/menu-items/import?dryRun=1&mode=replace`)
+    expect(w.text()).toContain('admin.menuImport.summaryArchived')
+    expect(w.text()).toContain('admin.menuImport.action.archive')
+
+    fetchMock
+      .mockResolvedValueOnce(preview({ applied: true, archived: 1 }))
+      .mockResolvedValueOnce({ eventId: 'e', items: [] })
+    const apply = w.findAll('button').find((b) => b.text() === 'admin.menuImport.apply')!
+    expect(apply.attributes('disabled')).toBeUndefined()
+    await apply.trigger('click')
+    await flushPromises()
+    expect(fetchMock.mock.calls[2]![0]).toBe(`/api/admin/events/${EVENT}/menu-items/import?mode=replace`)
   })
 
   it('lists row errors and blocks applying', async () => {

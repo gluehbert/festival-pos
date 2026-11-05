@@ -254,7 +254,8 @@ const HELP = [
   '7. Upload it in the app under Admin → Menu → "Import Excel". You will see a preview before anything is applied.',
   '',
   'Items with the same Name (DE) are updated, new items are created.',
-  'Items missing from the file stay unchanged (set them to "not available" in the app).',
+  'Items missing from the file stay unchanged, unless you choose "Replace the menu" when uploading:',
+  '   then they are removed from the menu (past orders and reports keep them).',
   'The import always applies to the active event.',
 ]
 

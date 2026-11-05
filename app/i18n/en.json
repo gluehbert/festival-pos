@@ -210,7 +210,7 @@
   },
   "staff": {
     "login": {
-      "title": "Staff login",
+      "title": "Sign-in for helpers",
       "username": "Username",
       "password": "Password",
       "pin": "PIN",
@@ -232,7 +232,7 @@
       "empty": "No tables.",
       "logout": "Sign out",
       "newOrder": "New order",
-      "walkin": "Counter",
+      "walkin": "No table",
       "heading": {
         "open": "Open tables",
         "paid": "Paid tables",
@@ -246,20 +246,21 @@
     "detail": {
       "back": "Back",
       "table": "Table {n}",
-      "walkin": "Walk-in",
+      "walkin": "No table",
       "open": "open",
       "cashier": "Cash out",
       "locked": "This ticket is currently being cashed out by another staff member.",
       "addOrder": "Add order",
       "served": "Served",
-      "checked": "Asked – nothing wanted",
+      "checked": "Was at the table – nothing wanted",
       "served_kitchen": "Food served",
       "served_bar": "Drinks served",
       "served_cafe": "Cake & coffee served",
       "servedHint": "Clears by itself when you cash out.",
       "empty": "Nothing ordered yet",
       "foodToPay": "{n} food waiting for payment: the kitchen starts once it is cashed.",
-      "payFood": "Cash food"
+      "payFood": "Cash food",
+      "firstOrder": "Order"
     },
     "pay": {
       "back": "Back",
@@ -354,7 +355,7 @@
     },
     "order": {
       "title": "Take order",
-      "walkinTitle": "Walk-in / counter",
+      "walkinTitle": "Sale without a table",
       "tableLabel": "Table",
       "addAria": "Add {name}",
       "summary": "{n} items",
@@ -370,7 +371,7 @@
       "blockMealReason": "Please enter a reason (at least 3 characters).",
       "sendAndPayFood": "Send & food paid cash",
       "picker": {
-        "title": "Which table?",
+        "title": "Which table is this order for?",
         "mine": "Mine ({n})",
         "all": "All",
         "other": "Other no.",
@@ -510,7 +511,7 @@
       },
       "none": "No tables.",
       "noneMine": "You have no tables yet. The shift lead will hand them to you. Until then, \"All\" shows every table.",
-      "walkins": "Walk-ins / counter"
+      "walkins": "No table"
     },
     "needsSomeone": {
       "heading": "Needs someone",
@@ -569,7 +570,7 @@
       "title": "How it works",
       "order": {
         "title": "Order",
-        "text": "Tap “New order”, tap the table, tap the items, “Send to kitchen/bar”."
+        "text": "Tap a free table (or “New order”), tap the items, “Send to kitchen/bar”. Then you are back here."
       },
       "bring": {
         "title": "Bring",
@@ -640,7 +641,7 @@
       "undated": "no date",
       "edit": "Edit",
       "toService": "Go to service",
-      "toProduction": "Go to production",
+      "toProduction": "Go to kitchen & bar",
       "liveKicker": "Running now",
       "liveTrialKicker": "Running now · rehearsal",
       "noneLive": "No event is live right now. Open an event and activate it so guests can order.",
@@ -663,7 +664,7 @@
       "tabs": {
         "overview": "Overview",
         "branding": "Design",
-        "menu": "Price list",
+        "menu": "Menu",
         "qr": "QR codes",
         "reports": "Reports",
         "pricing": "Promotions",
@@ -677,7 +678,7 @@
       },
       "currentlyLive": "\"{name}\" is live right now.",
       "nothingLive": "No event is live right now.",
-      "confirmActivate": "\"{name}\" goes live: guests order from this price list from now on.",
+      "confirmActivate": "\"{name}\" goes live: guests order from this menu from now on.",
       "confirmActivateButton": "Go live now",
       "reactivate": "Activate again",
       "setup": {
@@ -930,16 +931,21 @@
       "hint": "Download the template (contains the current menu), edit it in Excel, LibreOffice or Google Sheets and upload it again. Accepted: .xlsx (Office Open XML) and .csv. Items are matched by their German name.",
       "download": "Download template / current menu (.xlsx)",
       "choose": "Upload file …",
+      "modeLabel": "Import mode",
+      "modeMerge": "Add to the menu: items not in the file stay as they are",
+      "modeReplace": "Replace the menu: items not in the file are removed (past orders and reports keep them)",
       "summary": "Preview: {created} new, {updated} changed, {unchanged} unchanged.",
+      "summaryArchived": "{archived} removed.",
       "errorsTitle": "{n} row(s) with errors – please fix them in the file and upload again:",
       "row": "Row {row}",
       "apply": "Apply import",
       "cancel": "Cancel",
-      "done": "Import applied: {created} new, {updated} changed.",
+      "done": "Import applied: {created} new, {updated} changed, {archived} removed.",
       "action": {
         "create": "new",
         "update": "changed",
-        "unchanged": "unchanged"
+        "unchanged": "unchanged",
+        "archive": "removed"
       }
     },
     "trial": {
@@ -1168,7 +1174,7 @@
     "reload": "Reload"
   },
   "nav": {
-    "production": "Production",
+    "production": "Kitchen & bar",
     "admin": "Admin",
     "service": "Service",
     "passkeys": "Passkeys",
@@ -1192,8 +1198,8 @@
     "toastStarted": "In preparation",
     "toastFailed": "Action failed.",
     "loading": "Loading queue …",
-    "empty": "No open items.",
-    "counter": "Counter",
+    "empty": "No orders right now.",
+    "counter": "No table",
     "orderNos": "Orders {nos}",
     "finishOrder": "{label} all done",
     "soldOut": {
@@ -1235,30 +1241,34 @@
       "minutes": "{n} min"
     },
     "cafe": {
-      "close": "Close counter",
-      "open": "Open counter",
-      "closeConfirm": "Close the counter? New orders of coffee and cake then go to the kitchen.",
+      "close": "Close cake counter",
+      "open": "Open cake counter",
+      "closeConfirm": "Close the cake counter? New orders of coffee and cake then go to the kitchen.",
       "closeYes": "Yes, close",
       "cancel": "Cancel",
-      "closedBanner": "Counter closed: new orders go to the kitchen.",
+      "closedBanner": "Cake counter closed: new orders go to the kitchen.",
       "kitchenBanner": "Cake counter closed: coffee and cake now come here.",
-      "toastClosed": "Counter closed, the kitchen takes over.",
-      "toastOpened": "Counter open again."
+      "toastClosed": "Cake counter closed, the kitchen takes over.",
+      "toastOpened": "Cake counter open again."
     }
   },
   "alerts": {
-    "soundLabel": "Sound for new alerts",
-    "sound": {
-      "on": "Sound on",
-      "off": "Sound off",
-      "locked": "Enable sound"
+    "label": "Alerts",
+    "modeLabel": "Alerts on this device",
+    "mode": {
+      "loud": "Loud: tone and vibration",
+      "vibrate": "Vibration only",
+      "silent": "Silent"
     },
-    "vibrationLabel": "Vibration for new alerts",
-    "vibration": {
-      "on": "Vibration on",
-      "off": "Vibration off"
+    "state": {
+      "loud": "Loud",
+      "locked": "Tone still off – tap once",
+      "vibrate": "Vibration only",
+      "silent": "Silent"
     },
-    "label": "Alerts"
+    "flashHint": "The screen edge lights up for every new alert, also when silent.",
+    "noVibration": "This device cannot vibrate: only the screen lights up.",
+    "lockedBanner": "Tone is still off. Tap here once so new alerts beep."
   },
   "legal": {
     "imprint": "Legal notice",

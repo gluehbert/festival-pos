@@ -1,5 +1,5 @@
 import { defineEventHandler, setResponseHeader } from 'h3'
-import { asc, eq } from 'drizzle-orm'
+import { and, asc, eq, isNull } from 'drizzle-orm'
 import { getDb } from '../../../../../db/client'
 import { menuItems } from '../../../../../db/schema'
 import { sendAppError } from '../../../../../lib/errors'
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     requireRole(event, ['admin'])
     const db = getDb()
     const ev = await loadEvent(db, eventIdParam(event))
-    const rows = await db.select().from(menuItems).where(eq(menuItems.eventId, ev.id)).orderBy(asc(menuItems.sortOrder))
+    const rows = await db.select().from(menuItems).where(and(eq(menuItems.eventId, ev.id), isNull(menuItems.archivedAt))).orderBy(asc(menuItems.sortOrder))
     const buffer = await buildMenuWorkbook(rows.map((r) => ({
       nameDe: r.nameDe,
       nameEn: r.nameEn,
