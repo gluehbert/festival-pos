@@ -33,7 +33,7 @@ function pick(next: Theme) {
       :aria-label="$t(`common.theme.${option}`)"
       :title="$t(`common.theme.${option}`)"
       :data-theme-option="option"
-      class="inline-flex min-h-[44px] min-w-[44px] flex-1 items-center justify-center rounded"
+      class="inline-flex min-h-[44px] min-w-[44px] flex-1 flex-col items-center justify-center gap-0.5 rounded py-1"
       :class="theme === option ? 'bg-primary text-white' : 'text-slate-600 hover:bg-slate-100'"
       @click="pick(option)"
     >
@@ -49,6 +49,7 @@ function pick(next: Theme) {
       >
         <path :d="ICONS[option]" />
       </svg>
+      <span class="text-[11px] leading-none" aria-hidden="true">{{ $t(`common.theme.${option}`) }}</span>
     </button>
   </div>
 </template>

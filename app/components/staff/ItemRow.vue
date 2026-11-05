@@ -71,9 +71,10 @@ const statusBadge = computed(() => {
     <button
       v-if="showVoid"
       type="button"
-      class="min-h-[44px] rounded border border-rose-300 px-3 text-sm text-rose-700 hover:bg-rose-50"
+      class="inline-flex min-h-[44px] items-center gap-1 rounded border border-rose-300 px-3 text-sm text-rose-700 hover:bg-rose-50"
       @click="emit('void')"
     >
+      <UIcon name="i-lucide-circle-x" class="size-4 shrink-0" aria-hidden="true" />
       {{ $t('staff.void.button') }}
     </button>
     <button

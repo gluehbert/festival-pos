@@ -25,9 +25,10 @@ const second = computed(() => (props.mode === 'counter' ? table : counter))
     </NuxtLink>
     <NuxtLink
       :to="second.to"
-      class="flex min-h-[56px] items-center justify-center rounded-lg border-2 border-slate-300 bg-surface px-2 text-center text-sm font-semibold text-slate-900"
+      class="flex min-h-[56px] items-center justify-center gap-1.5 rounded-lg border-2 border-slate-300 bg-surface px-2 text-center text-sm font-semibold text-slate-900"
       :data-test="second.test"
     >
+      <UIcon :name="second.icon" class="size-5 shrink-0" aria-hidden="true" />
       {{ $t(second.key) }}
     </NuxtLink>
     <NuxtLink
@@ -44,9 +45,10 @@ const second = computed(() => (props.mode === 'counter' ? table : counter))
       v-if="staffMeals"
       to="/staff/order?meal=1"
       :class="deposit ? '' : 'col-span-3'"
-      class="flex min-h-[48px] items-center justify-center rounded-lg border-2 border-slate-300 bg-surface px-2 text-center text-sm font-semibold text-slate-900"
+      class="flex min-h-[48px] items-center justify-center gap-1.5 rounded-lg border-2 border-slate-300 bg-surface px-2 text-center text-sm font-semibold text-slate-900"
       data-test="staff-meal-link"
     >
+      <UIcon name="i-lucide-id-card" class="size-5 shrink-0" aria-hidden="true" />
       {{ $t('staff.meal.nav') }}
     </NuxtLink>
   </div>

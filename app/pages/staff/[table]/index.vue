@@ -218,11 +218,12 @@ const ticket = computed(() => tickets.selected)
       />
       <button
         type="button"
-        class="min-h-[44px] rounded-lg border-2 border-slate-300 bg-surface px-3 text-sm font-semibold text-slate-900 disabled:opacity-50"
+        class="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border-2 border-slate-300 bg-surface px-3 text-sm font-semibold text-slate-900 disabled:opacity-50"
         data-test="table-checked"
         :disabled="checking"
         @click="checked"
       >
+        <UIcon name="i-lucide-user-check" class="size-4 shrink-0" aria-hidden="true" />
         {{ $t('staff.detail.checked') }}
       </button>
     </div>

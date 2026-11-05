@@ -24,11 +24,11 @@ const initial = computed(() => auth.staff?.username.slice(0, 1).toUpperCase() ??
 
 const links = computed(() => {
   const all = [
-    { to: '/staff', key: 'nav.service', show: auth.hasRole('admin') },
-    { to: '/production', key: 'nav.production', show: auth.hasRole('admin') },
-    { to: '/admin/events', key: 'nav.admin', show: auth.hasRole('admin') },
+    { to: '/staff', key: 'nav.service', icon: 'i-lucide-hand-platter', show: auth.hasRole('admin') },
+    { to: '/production', key: 'nav.production', icon: 'i-lucide-chef-hat', show: auth.hasRole('admin') },
+    { to: '/admin/events', key: 'nav.admin', icon: 'i-lucide-settings', show: auth.hasRole('admin') },
     // Only when the event counts cash per drawer (feature switch).
-    { to: '/staff/cash', key: 'staff.cash.nav', show: branding.value.cashDrawerEnabled && auth.hasRole(['waiter', 'lead', 'admin']) },
+    { to: '/staff/cash', key: 'staff.cash.nav', icon: 'i-lucide-wallet', show: branding.value.cashDrawerEnabled && auth.hasRole(['waiter', 'lead', 'admin']) },
   ]
   return all.filter((l) => l.show)
 })
@@ -91,11 +91,12 @@ async function logout(close: () => void) {
               v-for="l in links"
               :key="l.to"
               :to="l.to"
-              class="flex min-h-[44px] items-center rounded px-2 text-slate-700 hover:bg-slate-100"
+              class="flex min-h-[44px] items-center gap-2 rounded px-2 text-slate-700 hover:bg-slate-100"
               :class="isCurrent(l.to) ? 'font-semibold text-slate-900' : ''"
               :data-test="`menu-link-${l.to}`"
               @click="close()"
             >
+              <UIcon :name="l.icon" class="size-4 shrink-0" aria-hidden="true" />
               {{ $t(l.key) }}
             </NuxtLink>
             <button
@@ -124,6 +125,8 @@ async function logout(close: () => void) {
                 :class="device.mode.value === m ? 'bg-primary text-white' : 'text-slate-600 hover:bg-slate-100'"
                 @click="device.setMode(m)"
               >
+                <UIcon v-if="m === 'counter'" name="i-lucide-store" class="mr-1 inline-block size-4 align-[-0.2em]" aria-hidden="true" />
+                <UIcon v-else name="i-lucide-hand-platter" class="mr-1 inline-block size-4 align-[-0.2em]" aria-hidden="true" />
                 {{ $t(`nav.device.${m}`) }}
               </button>
             </div>

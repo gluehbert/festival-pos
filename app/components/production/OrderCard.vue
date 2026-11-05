@@ -70,11 +70,13 @@ const lineButton = (line: CardLine) => lines.value.length > 1 || next(line) === 
         <button
           v-if="lineButton(line)"
           type="button"
-          class="min-h-[44px] rounded-lg px-3 text-sm font-semibold disabled:opacity-60"
+          class="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg px-3 text-sm font-semibold disabled:opacity-60"
           :class="next(line) === 'in_progress' ? 'border border-slate-300 text-slate-700' : 'bg-success text-white hover:bg-success-hover'"
           :disabled="line.ids.some((id) => busyIds.has(id))"
           @click="emit('advance', line.ids, next(line))"
         >
+          <UIcon v-if="next(line) === 'in_progress'" name="i-lucide-flame" class="size-4 shrink-0" aria-hidden="true" />
+          <UIcon v-else name="i-lucide-check" class="size-4 shrink-0" aria-hidden="true" />
           {{ next(line) === 'in_progress' ? $t('production.start') : $t('production.done') }}
         </button>
       </li>
@@ -82,10 +84,11 @@ const lineButton = (line: CardLine) => lines.value.length > 1 || next(line) === 
 
     <button
       type="button"
-      class="mt-3 min-h-[56px] w-full rounded-lg border-2 border-success text-lg font-bold text-emerald-800 hover:bg-emerald-50 disabled:opacity-60"
+      class="mt-3 inline-flex min-h-[56px] w-full items-center justify-center gap-2 rounded-lg border-2 border-success text-lg font-bold text-emerald-800 hover:bg-emerald-50 disabled:opacity-60"
       :disabled="finishing"
       @click="emit('finish')"
     >
+      <UIcon v-if="!finishing" name="i-lucide-check-check" class="size-5 shrink-0" aria-hidden="true" />
       {{ finishing ? '…' : $t('production.finishOrder', { label }) }}
     </button>
   </article>

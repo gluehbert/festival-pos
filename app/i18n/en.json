@@ -1405,6 +1405,7 @@
     },
     "cafe": {
       "close": "Close cake counter",
+      "closeShort": "Close",
       "open": "Open cake counter",
       "closeConfirm": "Close the cake counter? New orders of coffee and cake then go to the kitchen.",
       "closeYes": "Yes, close",

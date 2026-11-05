@@ -71,10 +71,12 @@ async function activate() {
     </p>
 
     <div v-if="event.isActive" class="mt-3 flex flex-wrap gap-2">
-      <NuxtLink to="/staff" class="inline-flex min-h-[44px] items-center rounded border border-slate-300 bg-surface px-3 text-sm font-semibold text-slate-800">
+      <NuxtLink to="/staff" class="inline-flex min-h-[44px] items-center gap-1.5 rounded border border-slate-300 bg-surface px-3 text-sm font-semibold text-slate-800">
+        <UIcon name="i-lucide-hand-platter" class="size-4 shrink-0" aria-hidden="true" />
         {{ $t('admin.events.toService') }}
       </NuxtLink>
-      <NuxtLink to="/production" class="inline-flex min-h-[44px] items-center rounded border border-slate-300 bg-surface px-3 text-sm font-semibold text-slate-800">
+      <NuxtLink to="/production" class="inline-flex min-h-[44px] items-center gap-1.5 rounded border border-slate-300 bg-surface px-3 text-sm font-semibold text-slate-800">
+        <UIcon name="i-lucide-chef-hat" class="size-4 shrink-0" aria-hidden="true" />
         {{ $t('admin.events.toProduction') }}
       </NuxtLink>
     </div>
