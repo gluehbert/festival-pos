@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useFetch, useHead } from '#imports'
 import type { LegalTexts } from '~/../server/lib/contracts/branding'
+import { useGuestSession } from '~/composables/useGuestSession'
 
 // Impressum (/legal/imprint) and Datenschutz (/legal/privacy) of the active
 // event. Plain text, kept as written (line breaks); never rendered as HTML.
@@ -13,10 +14,20 @@ const { data, pending } = useFetch<LegalTexts>('/api/event/legal', { key: 'event
 const text = computed(() => (kind.value === 'privacy' ? data.value?.privacyText : data.value?.imprintText) ?? null)
 const title = computed(() => t(`legal.${kind.value}`))
 useHead({ title })
+
+// Back to the guest's table, or to the start page without one.
+const table = ref<number | null>(null)
+onMounted(async () => {
+  table.value = (await useGuestSession().load())?.tableNo ?? null
+})
 </script>
 
 <template>
   <main class="mx-auto max-w-3xl px-4 py-6">
+    <NuxtLink :to="table ? `/t/${table}` : '/'" class="inline-flex min-h-[44px] items-center gap-1 text-sm font-semibold text-brand-ink" data-test="legal-back">
+      <UIcon name="i-lucide-arrow-left" class="size-4 shrink-0" aria-hidden="true" />
+      {{ table ? $t('legal.backToTable', { table }) : $t('legal.backToStart') }}
+    </NuxtLink>
     <h1 class="text-2xl font-bold text-slate-900">
       {{ title }}
     </h1>
