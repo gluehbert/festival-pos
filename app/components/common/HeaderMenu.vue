@@ -13,6 +13,8 @@ import { useBranding } from '~/composables/useBranding'
 // (password, passkeys), the other areas (by role), cash, language, colours
 // and sign-out here. Guests only get language and colours.
 const auth = useAuthStore()
+// Guests see the globe and the current language: found by anyone, whatever they read.
+const { locale } = useI18n()
 const route = useRoute()
 const device = useDeviceMode()
 const { branding } = useBranding()
@@ -63,8 +65,9 @@ async function logout(close: () => void) {
     >
       <!-- Word under the symbol on phones, beside it from tablet: like the station tools next to it. -->
       <span class="inline-flex flex-col items-center gap-0.5 md:flex-row md:gap-1.5">
-        <UIcon :name="auth.isAuthenticated ? 'i-lucide-circle-user-round' : 'i-lucide-globe'" class="size-5" aria-hidden="true" />
-        <span class="text-[10px] font-semibold leading-none md:text-sm" aria-hidden="true" data-test="header-menu-label">{{ $t(auth.isAuthenticated ? 'nav.menuShort' : 'nav.languageShort') }}</span>
+        <UIcon v-if="auth.isAuthenticated" name="i-lucide-circle-user-round" class="size-5" aria-hidden="true" />
+        <UIcon v-else name="i-lucide-globe" class="size-5" aria-hidden="true" />
+        <span class="text-[10px] font-semibold leading-none md:text-sm" aria-hidden="true" data-test="header-menu-label">{{ auth.isAuthenticated ? $t('nav.menuShort') : locale.toUpperCase() }}</span>
       </span>
       <UIcon name="i-lucide-chevron-down" class="size-3" aria-hidden="true" />
     </button>
