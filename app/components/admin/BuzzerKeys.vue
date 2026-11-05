@@ -89,6 +89,12 @@ onBeforeUnmount(stop)
     <p class="text-slate-600">
       {{ $t('admin.features.buzzer.hint') }}
     </p>
+    <details class="text-slate-600">
+      <summary class="inline-flex min-h-[32px] cursor-pointer items-center font-semibold text-slate-700 underline">
+        {{ $t('admin.features.moreLabel') }}
+      </summary>
+      <p>{{ $t('admin.features.buzzer.more') }}</p>
+    </details>
     <div v-if="buzzers" class="mt-2 grid gap-4 md:grid-cols-2">
       <section v-for="station in STATIONS" :key="station" :data-test="`buzzers-${station}`">
         <h3 class="font-semibold text-slate-700">

@@ -443,6 +443,7 @@
       "title": "My passkeys",
       "offerTitle": "Sign in faster next time?",
       "offerText": "Set up a passkey: sign in with your fingerprint, face or device PIN.",
+      "offerQuiet": "Sign in with fingerprint or face next time?",
       "intro": "With a passkey you sign in using your fingerprint, face or device PIN – no password or PIN to type. It is safer than a password, and your password manager can sync it to your other devices.",
       "sharedHint": "Shared device (e.g. kitchen or bar tablet)? Then do not store a personal passkey here: anyone who can unlock the device could use it. Sign in with your PIN instead, or use the passkey on your own phone via QR code.",
       "sharedHintShort": "Only set this up on your own device, not on a shared tablet.",
@@ -652,6 +653,7 @@
       "noOthers": "No other events.",
       "cancelNew": "Cancel",
       "endedOn": "Ended on {date}",
+      "pinHint": "Guests without a QR code type the PIN {pin} on the start page.",
       "copyFrom": "Set up like",
       "copyNone": "Copy nothing, start empty",
       "copyHint": "Copies the menu, design, logos, legal notice, features, price rules and buzzers. Name, PIN, date and helpers are new. The old event stays as it is.",
@@ -1063,7 +1065,8 @@
       "saved": "Saved.",
       "depositEnabled": {
         "label": "Deposit",
-        "hint": "Item deposits are charged; waiters and the counter get the \"Return deposit\" button. Off: no deposit, even if items have a deposit value."
+        "hint": "Deposits are charged with the items and paid back with \"Return deposit\".",
+        "more": "Waiters and the counter get the \"Return deposit\" button for it. Off: no deposit, even if items have a deposit value."
       },
       "staffMealsEnabled": {
         "label": "Helper / staff meals",
@@ -1071,11 +1074,13 @@
       },
       "waiterCallsEnabled": {
         "label": "Call the service",
-        "hint": "Guests can call the service to their table with a reason (pay, order, question). The table's waiter sees it first, after 2 minutes everyone in service; the bar screen shows every call. Off: the button is gone."
+        "hint": "Guests can call the service to their table.",
+        "more": "With a reason: pay, order or question. The table's waiter sees it first, after 2 minutes everyone in service; the bar screen shows every call. Off: the button is gone."
       },
       "buzzer": {
         "label": "Buzzers at the kitchen and bar",
-        "hint": "A buzzer is a big button at the counter that works like a one-key keyboard (USB or Bluetooth). With buzzers, the station's screen shows one lane per buzzer: the oldest order, large, for the person at that buzzer. A press finishes it and the lane takes the next one. A second press within a second is ignored. Up to four buzzers per station.",
+        "hint": "A big button at the counter: one press finishes the oldest order.",
+        "more": "The buzzer works like a one-key keyboard (USB or Bluetooth). With buzzers, the station's screen shows one lane per buzzer: the oldest order, large, for the person at that buzzer. A press finishes it and the lane takes the next one. A second press within a second is ignored. Up to four buzzers per station.",
         "lane": "Buzzer {n} – {color}",
         "color": {
           "green": "green",
@@ -1092,16 +1097,20 @@
       },
       "foodPrepayEnabled": {
         "label": "Pay for food when ordering",
-        "hint": "The kitchen only gets food once it is paid, so food runners can hand it out without cashing. Guests' food (QR code) waits until a waiter has cashed it; the table shows \"Food to cash\". Drinks are still paid when they are brought."
+        "hint": "The kitchen only gets food once it is paid.",
+        "more": "So food runners can hand it out without cashing. Guests' food (QR code) waits until a waiter has cashed it; the table shows \"Food to cash\". Drinks are still paid when they are brought."
       },
       "cashDrawerEnabled": {
         "label": "Cash drawer per waiter",
-        "hint": "Each waiter counts their change float at the first payment and the cash at the end; the app works out what should be there. Off: nobody needs to open a drawer."
+        "hint": "Each waiter counts their change float at the first payment.",
+        "more": "At the end they count the cash; the app works out what should be there. Off: nobody needs to open a drawer."
       },
       "cafeClosed": {
         "label": "Cake counter closed",
-        "hint": "After the coffee hour: new orders of coffee and cake go to the kitchen. What is already at the counter is still finished there. The counter can also close and reopen itself."
-      }
+        "hint": "New orders of coffee and cake go to the kitchen.",
+        "more": "For after the coffee hour. What is already at the counter is still finished there. The counter can also close and reopen itself."
+      },
+      "moreLabel": "More"
     },
     "join": {
       "linkTitle": "Join link for helpers",

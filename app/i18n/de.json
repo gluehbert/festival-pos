@@ -443,6 +443,7 @@
       "title": "Meine Passkeys",
       "offerTitle": "Nächstes Mal schneller anmelden?",
       "offerText": "Richte einen Passkey ein: Anmelden per Fingerabdruck, Gesicht oder Geräte-PIN.",
+      "offerQuiet": "Nächstes Mal per Fingerabdruck oder Gesicht anmelden?",
       "intro": "Mit einem Passkey meldest du dich per Fingerabdruck, Gesicht oder Geräte-PIN an – ohne Passwort oder PIN einzutippen. Er ist sicherer als ein Passwort und kann in deinem Passwort-Manager auch auf deine anderen Geräte übertragen werden.",
       "sharedHint": "Gemeinsam genutztes Gerät (z. B. Küchen- oder Theken-Tablet)? Dann hier keinen persönlichen Passkey speichern: Jeder, der das Gerät entsperren kann, könnte ihn nutzen. Melde dich stattdessen mit der PIN an oder nutze den Passkey deines eigenen Handys per QR-Code.",
       "sharedHintShort": "Nur auf deinem eigenen Gerät einrichten, nicht auf einem gemeinsam genutzten Tablet.",
@@ -652,6 +653,7 @@
       "noOthers": "Keine weiteren Events.",
       "cancelNew": "Abbrechen",
       "endedOn": "Beendet am {date}",
+      "pinHint": "Gäste ohne QR-Code tippen die PIN {pin} auf der Startseite ein.",
       "copyFrom": "Einrichten wie",
       "copyNone": "Nichts übernehmen, leer anfangen",
       "copyHint": "Übernimmt Speisekarte, Gestaltung, Logos, Impressum, Funktionen, Aktionspreise und Buzzer. Name, PIN, Datum und Helfer trägst du neu ein. Am alten Event ändert sich nichts.",
@@ -1063,7 +1065,8 @@
       "saved": "Gespeichert.",
       "depositEnabled": {
         "label": "Pfand",
-        "hint": "Pfand der Artikel wird mitberechnet; Service und Theke bekommen den Button „Pfand zurück“. Aus: kein Pfand, auch wenn Artikel einen Pfandbetrag haben."
+        "hint": "Pfand wird mit den Artikeln berechnet und über „Pfand zurück“ wieder ausgezahlt.",
+        "more": "Service und Theke bekommen dafür den Button „Pfand zurück“. Aus: kein Pfand, auch wenn Artikel einen Pfandbetrag haben."
       },
       "staffMealsEnabled": {
         "label": "Helfer- / Personalessen",
@@ -1071,11 +1074,13 @@
       },
       "waiterCallsEnabled": {
         "label": "Bedienung rufen",
-        "hint": "Gäste können die Bedienung mit einem Grund an den Tisch rufen (bezahlen, bestellen, Frage). Zuerst sieht es die Bedienung des Tisches, nach 2 Minuten der ganze Service; der Bar-Bildschirm zeigt jeden Ruf. Aus: Der Button verschwindet."
+        "hint": "Gäste können die Bedienung an den Tisch rufen.",
+        "more": "Mit Grund: bezahlen, bestellen oder Frage. Zuerst sieht es die Bedienung des Tisches, nach 2 Minuten der ganze Service; der Bar-Bildschirm zeigt jeden Ruf. Aus: Der Button verschwindet."
       },
       "buzzer": {
         "label": "Buzzer an Küche und Bar",
-        "hint": "Ein Buzzer ist ein großer Taster an der Ausgabe, der wie eine Tastatur mit einer Taste funktioniert (USB oder Bluetooth). Mit Buzzern zeigt der Bildschirm der Station eine Spur pro Buzzer: die älteste Bestellung, groß, für die Person an diesem Buzzer. Ein Druck schließt sie ab, und die Spur holt sich die nächste. Ein zweiter Druck innerhalb einer Sekunde wird ignoriert. Bis zu vier Buzzer pro Station.",
+        "hint": "Ein großer Taster an der Ausgabe: ein Druck schließt die älteste Bestellung ab.",
+        "more": "Der Buzzer funktioniert wie eine Tastatur mit einer Taste (USB oder Bluetooth). Mit Buzzern zeigt der Bildschirm der Station eine Spur pro Buzzer: die älteste Bestellung, groß, für die Person an diesem Buzzer. Ein Druck schließt sie ab, und die Spur holt sich die nächste. Ein zweiter Druck innerhalb einer Sekunde wird ignoriert. Bis zu vier Buzzer pro Station.",
         "lane": "Buzzer {n} – {color}",
         "color": {
           "green": "grün",
@@ -1092,16 +1097,20 @@
       },
       "foodPrepayEnabled": {
         "label": "Essen bei Bestellung bezahlen",
-        "hint": "Die Küche bekommt Essen erst, wenn es bezahlt ist, so kann die Essensausgabe verteilen, ohne zu kassieren. Essen der Gäste (QR-Code) wartet, bis eine Bedienung es kassiert hat; der Tisch zeigt „Essen kassieren“. Getränke werden weiter beim Bringen bezahlt."
+        "hint": "Die Küche bekommt Essen erst, wenn es bezahlt ist.",
+        "more": "So kann die Essensausgabe verteilen, ohne zu kassieren. Essen der Gäste (QR-Code) wartet, bis eine Bedienung es kassiert hat; der Tisch zeigt „Essen kassieren“. Getränke werden weiter beim Bringen bezahlt."
       },
       "cashDrawerEnabled": {
         "label": "Kasse pro Bedienung",
-        "hint": "Jede Bedienung zählt beim ersten Kassieren ihr Wechselgeld ein und am Ende den Bestand aus; die App rechnet aus, was in der Kasse sein müsste. Aus: Niemand muss eine Kasse öffnen."
+        "hint": "Jede Bedienung zählt beim ersten Kassieren ihr Wechselgeld ein.",
+        "more": "Am Ende zählt sie den Bestand aus; die App rechnet aus, was in der Kasse sein müsste. Aus: Niemand muss eine Kasse öffnen."
       },
       "cafeClosed": {
         "label": "Kuchentheke geschlossen",
-        "hint": "Nach dem Kaffeeklatsch: Neue Bestellungen von Kaffee und Kuchen gehen an die Küche. Was schon an der Theke liegt, macht die Theke noch fertig. Die Theke kann sich auch selbst schließen und wieder öffnen."
-      }
+        "hint": "Neue Bestellungen von Kaffee und Kuchen gehen an die Küche.",
+        "more": "Für die Zeit nach dem Kaffeeklatsch. Was schon an der Theke liegt, macht die Theke noch fertig. Die Theke kann sich auch selbst schließen und wieder öffnen."
+      },
+      "moreLabel": "Mehr dazu"
     },
     "join": {
       "linkTitle": "Beitritts-Link für Helfer",
