@@ -133,6 +133,7 @@ describe('LanesView without buzzers', () => {
     { lane: 1, key: null, color: 'green', paused: false, groupKey: 'table:12', assignedAt: AT },
     { lane: 2, key: null, color: 'blue', paused: true, groupKey: 'table:7', assignedAt: AT },
     { lane: 3, key: null, color: 'amber', paused: true, groupKey: null, assignedAt: null },
+    { lane: 4, key: null, color: 'violet', paused: false, groupKey: null, assignedAt: null },
   ]
 
   it('names a lane by its colour and pauses it; a paused lane first finishes its card', async () => {
@@ -156,7 +157,7 @@ describe('LanesView without buzzers', () => {
   })
 
   it('a lane another device shows is a bar with its table; a tap shows it here', async () => {
-    const w = mount(LanesView, { props: { groups: [t12, t7, t3], lanes: plain, finishing: new Set<string>(), hidden: [1, 2, 3] } })
+    const w = mount(LanesView, { props: { groups: [t12, t7, t3], lanes: plain, finishing: new Set<string>(), hidden: [1, 2, 3, 4] } })
     expect(w.findAll('section[data-test^="lane-"]')).toHaveLength(0)
     expect(w.find('[data-test="lane-bar-1"]').text()).toContain('production.lanes.elsewhere')
     expect(w.find('[data-test="lane-bar-1"]').text()).toContain('12')
@@ -169,6 +170,17 @@ describe('LanesView without buzzers', () => {
 })
 
 describe('LanesView with one lane', () => {
+  it('the last lane still working cannot pause', () => {
+    const two: ProductionLane[] = [
+      { lane: 1, key: null, color: 'green', paused: false, groupKey: 'table:12', assignedAt: AT },
+      { lane: 2, key: null, color: 'blue', paused: true, groupKey: null, assignedAt: null },
+    ]
+    const w = mount(LanesView, { props: { groups: [t12], lanes: two, finishing: new Set<string>() } })
+    expect(w.find('[data-test="lane-pause-1"]').exists()).toBe(false)
+    const alone = mount(LanesView, { props: { groups: [t12], lanes: [two[0]!], finishing: new Set<string>() } })
+    expect(alone.find('[data-test="lane-pause-1"]').exists()).toBe(false)
+  })
+
   it('without a buzzer the lane has a calm header, no colour name; with one it keeps its colour', () => {
     const one: ProductionLane = { lane: 1, key: null, color: 'green', paused: false, groupKey: 'table:12', assignedAt: AT }
     const plain = mount(LanesView, { props: { groups: [t12, t7], lanes: [one], finishing: new Set<string>() } })

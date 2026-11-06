@@ -38,6 +38,8 @@ const openLanes = computed(() => laneCards.value.filter((l) => !l.bar))
 const bars = computed(() => laneCards.value.filter((l) => l.bar))
 const waiting = computed(() => props.groups.filter((g) => !props.lanes.some((l) => l.groupKey === g.key)))
 const single = computed(() => openLanes.value.length === 1)
+// Someone always works: the last lane not pausing has no pause button.
+const canPause = (l: ProductionLane) => l.paused || props.lanes.filter((x) => !x.paused).length > 1
 // One lane without a buzzer needs no colour to tell it apart: a calm header.
 const neutral = computed(() => props.lanes.length === 1 && !props.lanes[0]!.key)
 const NEUTRAL = { border: 'border-slate-400', header: 'bg-slate-200 text-slate-800', pause: 'bg-slate-900/10 text-slate-800 hover:bg-slate-900/20' }
@@ -136,6 +138,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
               {{ $t('production.waiting', { n: minutesWaiting(l.group) }) }}
             </span>
             <button
+              v-if="canPause(l)"
               type="button"
               class="inline-flex min-h-[40px] items-center gap-1 rounded-full px-3 text-sm font-bold"
               :class="neutral ? NEUTRAL.pause : 'bg-white/20 text-white hover:bg-white/30'"

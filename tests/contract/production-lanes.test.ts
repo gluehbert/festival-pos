@@ -247,6 +247,14 @@ describe('production lanes without buzzers', () => {
     expect((await poll()).lanes.map((l) => l.color)).toEqual(['blue', 'green', 'amber'])
   })
 
+  it('the last working lane cannot pause; fewer lanes never leave only paused ones', async () => {
+    await expect(setLanes({ lane: 1, paused: true })).rejects.toMatchObject({ statusCode: 409 })
+    await setLanes({ laneCount: 2 })
+    expect(await setLanes({ lane: 1, paused: true })).toEqual({ laneCount: 2, paused: [1] })
+    await expect(setLanes({ lane: 2, paused: true })).rejects.toMatchObject({ statusCode: 409 })
+    expect(await setLanes({ laneCount: 1 })).toEqual({ laneCount: 1, paused: [] })
+  })
+
   it('refuses bad counts, the admin without a station and the waiter', async () => {
     for (const body of [{ laneCount: 0 }, { laneCount: 5 }, { lane: 5, paused: true }, {}]) {
       await expect(setLanes(body)).rejects.toMatchObject({ statusCode: 400 })

@@ -1,5 +1,6 @@
 import { and, asc, eq, inArray } from 'drizzle-orm'
 import type { Db } from '../db/client'
+import { AppError } from './errors'
 import { orderItems } from '../db/schema'
 import { productionLanes, stationBuzzers, stationLaneSettings } from '../db/schema-service'
 import { LANE_ROUND_MS, productionCards, laneColors, type LaneColor, type ProductionLane, type ProductionLanesSetting, type ProductionQueueItem, type Station, type StationBuzzers } from './contracts/production'
@@ -34,6 +35,8 @@ export async function activeLanes(db: Db, eventId: string, station: Station): Pr
 
 // Changes the station's lane count or one lane's pause. Fewer lanes drop
 // the highest ones: their cards go back to "Next up" on the next poll.
+// One lane always works: the last one cannot pause, and if fewer lanes
+// leave only paused ones, they all go on again.
 export async function changeLanes(
   db: Db,
   eventId: string,
@@ -45,6 +48,10 @@ export async function changeLanes(
   let paused = now.paused
   if ('lane' in change) paused = change.paused ? [...new Set([...paused, change.lane])] : paused.filter((l) => l !== change.lane)
   paused = paused.filter((l) => l <= laneCount).sort((a, b) => a - b)
+  if (paused.length >= laneCount) {
+    if ('lane' in change) throw new AppError('CONFLICT', 409, 'The last working lane cannot pause')
+    paused = []
+  }
   const pausedMask = paused.reduce((m, l) => m | (1 << (l - 1)), 0)
   await db.insert(stationLaneSettings).values({ eventId, station, laneCount, pausedMask })
     .onConflictDoUpdate({ target: [stationLaneSettings.eventId, stationLaneSettings.station], set: { laneCount, pausedMask } })
