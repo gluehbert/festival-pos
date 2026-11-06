@@ -79,6 +79,15 @@ describe('useAttention', () => {
     expect(useAttention().mode.value).toBe('vibrate')
   })
 
+  it('a caller that lights up its own spot skips the screen flash', () => {
+    const a = useAttention()
+    a.init()
+    const flashes = a.flashKey.value
+    a.notify({ flash: false })
+    expect(vibrate).toHaveBeenCalledTimes(1)
+    expect(a.flashKey.value).toBe(flashes)
+  })
+
   it('silent mode: only the screen flash', async () => {
     const a = useAttention()
     a.init()

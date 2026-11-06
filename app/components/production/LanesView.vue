@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
 import { useFormat } from '~/composables/useFormat'
 import { useBuzzer } from '~/composables/useBuzzer'
 import type { ProductionOrderGroup } from '~/stores/production'
@@ -16,7 +16,14 @@ import { laneColor } from '~/utils/buzzer-lanes'
 // A paused lane that is empty, and a lane this device leaves to another
 // screen, shrink to a thin bar on top: nothing hides without a trace.
 // On a tablet or TV the view fills the screen exactly: nobody scrolls.
-const props = defineProps<{ groups: ProductionOrderGroup[]; lanes: ProductionLane[]; finishing: Set<string>; hidden?: number[] }>()
+const props = defineProps<{
+  groups: ProductionOrderGroup[]
+  lanes: ProductionLane[]
+  finishing: Set<string>
+  hidden?: number[]
+  // Lanes that just got work after being empty: they light up for a moment.
+  flash?: number[]
+}>()
 const emit = defineEmits<{
   (e: 'finish', group: ProductionOrderGroup, named: boolean): void
   (e: 'pause', lane: number, paused: boolean): void
@@ -40,6 +47,23 @@ const waiting = computed(() => props.groups.filter((g) => !props.lanes.some((l) 
 const single = computed(() => openLanes.value.length === 1)
 // Someone always works: the last lane not pausing has no pause button.
 const canPause = (l: ProductionLane) => l.paused || props.lanes.filter((x) => !x.paused).length > 1
+// A card new under "Next up" stands out for a moment; nobody has to act yet.
+const FRESH_MS = 8000
+const fresh = ref<Set<string>>(new Set())
+let seenWaiting: Set<string> | null = null
+watch(waiting, (now) => {
+  const keys = now.map((g) => g.key)
+  const added = seenWaiting ? keys.filter((k) => !seenWaiting!.has(k)) : []
+  seenWaiting = new Set([...(seenWaiting ?? []), ...keys])
+  if (added.length === 0) return
+  fresh.value = new Set([...fresh.value, ...added])
+  setTimeout(() => {
+    const next = new Set(fresh.value)
+    for (const k of added) next.delete(k)
+    fresh.value = next
+  }, FRESH_MS)
+}, { immediate: true })
+
 // One lane without a buzzer needs no colour to tell it apart: a calm header.
 const neutral = computed(() => props.lanes.length === 1 && !props.lanes[0]!.key)
 const NEUTRAL = { border: 'border-slate-400', header: 'bg-slate-200 text-slate-800', pause: 'bg-slate-900/10 text-slate-800 hover:bg-slate-900/20' }
@@ -123,7 +147,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
         :data-test="`lane-${l.lane}`"
         :data-card="l.group ? '' : undefined"
         class="flex min-h-[280px] flex-col overflow-hidden rounded-2xl border-[3px] bg-surface md:min-h-0"
-        :class="neutral ? NEUTRAL.border : laneColor(l.color).border"
+        :class="[neutral ? NEUTRAL.border : laneColor(l.color).border, flash?.includes(l.lane) ? 'lane-flash' : '']"
       >
         <header class="flex shrink-0 items-center justify-between gap-2 px-4 py-1.5" :class="neutral ? NEUTRAL.header : [laneColor(l.color).bg, 'text-white']">
           <span v-if="neutral" class="min-w-0 truncate text-lg font-extrabold uppercase tracking-wide" data-test="lane-name">
@@ -197,7 +221,15 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
         {{ $t('production.lanes.next', { n: waiting.length }) }}
       </h2>
       <ul class="grid min-h-0 grid-cols-1 content-start gap-2 overflow-y-auto" :class="openLanes.length > 0 ? '' : 'sm:grid-cols-2 lg:grid-cols-3'" data-test="lane-queue">
-        <li v-for="g in waiting" :key="g.key" class="flex flex-col rounded-xl border-2 border-slate-200 bg-surface p-2.5" data-test="lane-queue-card" data-card>
+        <li
+          v-for="g in waiting"
+          :key="g.key"
+          class="flex flex-col rounded-xl border-2 p-2.5 transition-colors duration-700"
+          :class="fresh.has(g.key) ? 'border-amber-400 bg-amber-50' : 'border-slate-200 bg-surface'"
+          :data-fresh="fresh.has(g.key) ? '' : undefined"
+          data-test="lane-queue-card"
+          data-card
+        >
           <div class="flex items-start justify-between gap-2">
             <span class="text-lg font-black leading-tight text-slate-900">
               {{ groupLabel(g, t) }}
@@ -232,3 +264,23 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Three slow pulses around the lane that just got work (well under three a
+   second); with reduced motion one steady glow. */
+.lane-flash {
+  animation: lane-pulse 0.6s ease-in-out 3;
+}
+
+@keyframes lane-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 0 10px var(--color-amber-400), 0 0 40px 12px color-mix(in oklab, var(--color-amber-300) 60%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lane-flash {
+    animation: none;
+    box-shadow: 0 0 0 6px var(--color-amber-400);
+  }
+}
+</style>

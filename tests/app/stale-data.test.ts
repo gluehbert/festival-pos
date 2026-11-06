@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { useProductionStore } from '~/stores/production'
 import { useTicketsStore } from '~/stores/tickets'
 import { usePolling } from '~/composables/usePolling'
-import { createIncreaseTracker, createSeenTracker } from '~/utils/arrivals'
+import { createIncreaseTracker, createLaneFillTracker, createSeenTracker } from '~/utils/arrivals'
 import StaleBanner from '~/components/common/StaleBanner.vue'
 import { syncErrorKind } from '~/utils/sync-error'
 import { apiFailure } from './setup/api-error'
@@ -155,6 +155,18 @@ describe('arrival trackers', () => {
     expect(t.update(['a', 'c'])).toEqual([])
     t.reset()
     expect(t.update(['x'])).toEqual([])
+  })
+
+  it('lane fill tracker: only a lane that was empty and got a card', () => {
+    const t = createLaneFillTracker()
+    expect(t.update([{ lane: 1, groupKey: null }, { lane: 2, groupKey: 'a' }])).toEqual([])
+    // Lane 1 gets work; lane 2 is refilled right after "Done": quiet.
+    expect(t.update([{ lane: 1, groupKey: 'b' }, { lane: 2, groupKey: 'c' }])).toEqual([1])
+    expect(t.update([{ lane: 1, groupKey: 'b' }, { lane: 2, groupKey: null }])).toEqual([])
+    // A lane added with +: its person is looking already.
+    expect(t.update([{ lane: 1, groupKey: 'b' }, { lane: 2, groupKey: 'd' }, { lane: 3, groupKey: 'e' }])).toEqual([2])
+    t.reset()
+    expect(t.update([{ lane: 1, groupKey: null }])).toEqual([])
   })
 
   it('increase tracker: reports keys whose count grew', () => {

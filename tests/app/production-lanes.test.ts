@@ -191,3 +191,25 @@ describe('LanesView with one lane', () => {
     expect(buzzer.find('[data-test="lane-1"]').classes()).toContain('border-emerald-600')
   })
 })
+
+describe('LanesView alerts', () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  it('lights up only the lanes that just got work', () => {
+    const w = mount(LanesView, { props: { groups: [t12, t7, t3], lanes, finishing: new Set<string>(), flash: [2] } })
+    expect(w.find('[data-test="lane-1"]').classes()).not.toContain('lane-flash')
+    expect(w.find('[data-test="lane-2"]').classes()).toContain('lane-flash')
+  })
+
+  it('a card new under "Next up" stands out for a moment, the first ones do not', async () => {
+    const w = mount(LanesView, { props: { groups: [t12, t7, t3], lanes, finishing: new Set<string>() } })
+    expect(w.findAll('[data-fresh]')).toHaveLength(0)
+    const t5 = group(5, [item(5, 'Water')])
+    await w.setProps({ groups: [t12, t7, t3, t5] })
+    expect(w.findAll('[data-fresh]').map((c) => c.text())).toEqual([expect.stringContaining('5')])
+    vi.advanceTimersByTime(8000)
+    await w.vm.$nextTick()
+    expect(w.findAll('[data-fresh]')).toHaveLength(0)
+  })
+})

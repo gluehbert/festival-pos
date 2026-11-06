@@ -6,7 +6,8 @@ import { readonly, ref } from 'vue'
 //   loud    – tone + vibration
 //   vibrate – vibration only (a counter next to a stage programme)
 //   silent  – nothing but the screen flash
-// Every alert also flashes the screen, so a muted counter still notices.
+// Every alert also flashes the screen, so a muted counter still notices,
+// unless the caller lights up something smaller itself (a station's lane).
 //
 // Browsers block audio until the user interacted with the page, so the
 // context is created / resumed on the first tap or key press. The tone is
@@ -130,10 +131,10 @@ async function setMode(next: AlertMode): Promise<void> {
   notify()
 }
 
-function notify(): void {
+function notify(opts: { flash?: boolean } = {}): void {
   beep()
   vibrate()
-  flash()
+  if (opts.flash !== false) flash()
 }
 
 export function useAttention() {

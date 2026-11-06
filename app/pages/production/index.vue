@@ -14,7 +14,7 @@ import WaiterCalls from '~/components/staff/WaiterCalls.vue'
 import { useBranding } from '~/composables/useBranding'
 import { useAttention } from '~/composables/useAttention'
 import { groupLabel } from '~/utils/production-card'
-import { createSeenTracker } from '~/utils/arrivals'
+import { createLaneFillTracker } from '~/utils/arrivals'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 
 type Station = 'kitchen' | 'bar' | 'cafe'
@@ -53,11 +53,21 @@ function loadQuietly() {
   return load().catch(() => {})
 }
 
-// New orders in the queue: tone + vibration.
+// A lane that was empty got a card: tone + vibration, and that lane lights
+// up (not the whole screen). New cards under "Next up" need nobody at once:
+// they only stand out for a moment. Lanes another screen shows stay quiet.
 const attention = useAttention()
-const arrivals = createSeenTracker()
+const laneFills = createLaneFillTracker()
+const FLASH_MS = 1800
+const flash = ref<number[]>([])
+let flashTimer: ReturnType<typeof setTimeout> | null = null
 watch(() => production.lastSyncAt, () => {
-  if (arrivals.update(production.queue.map((i) => i.orderItemId)).length > 0) attention.notify()
+  const filled = laneFills.update(production.lanes).filter((lane) => !production.hiddenLanes.includes(lane))
+  if (filled.length === 0) return
+  attention.notify({ flash: false })
+  flash.value = filled
+  if (flashTimer) clearTimeout(flashTimer)
+  flashTimer = setTimeout(() => { flash.value = [] }, FLASH_MS)
 })
 
 onMounted(async () => {
@@ -80,7 +90,7 @@ const polling = usePolling(load, { intervalMs: 4000, immediate: false, maxBackof
 watch(adminStation, async () => {
   if (!isAdmin.value) return
   polling.stop()
-  arrivals.reset()
+  laneFills.reset()
   await loadQuietly()
   polling.start()
 })
@@ -183,6 +193,7 @@ async function onPause(lane: number, paused: boolean) {
       :lanes="production.lanes"
       :finishing="finishingIds"
       :hidden="production.hiddenLanes"
+      :flash="flash"
       @finish="onFinish"
       @pause="onPause"
       @show="(lane) => production.setLaneShown(lane, true)"

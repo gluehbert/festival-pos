@@ -37,3 +37,21 @@ export function createIncreaseTracker() {
     },
   }
 }
+
+// Lanes that were empty and now hold a card: their person just got work.
+// A lane refilled straight after "Done" was never empty between two polls,
+// so it stays quiet; so does a lane that was not there before.
+export function createLaneFillTracker() {
+  let prev: Map<number, string | null> | null = null
+  return {
+    update(lanes: ReadonlyArray<{ lane: number; groupKey: string | null }>): number[] {
+      const before = prev
+      prev = new Map(lanes.map((l) => [l.lane, l.groupKey]))
+      if (!before) return []
+      return lanes.filter((l) => l.groupKey !== null && before.has(l.lane) && before.get(l.lane) === null).map((l) => l.lane)
+    },
+    reset(): void {
+      prev = null
+    },
+  }
+}
