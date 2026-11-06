@@ -20,6 +20,9 @@ export const useTicketsStore = defineStore('tickets', () => {
   // The last detail load found nothing (a table without orders yet).
   const missing = ref(false)
   const loading = ref(false)
+  // The list answered once: later polls keep the "nothing open" text
+  // instead of flashing "loading" over it.
+  const listLoaded = ref(false)
   const error = ref<unknown>(null)
   // Polling health (list and detail): the screens warn when what they show
   // may be outdated.
@@ -51,6 +54,7 @@ export const useTicketsStore = defineStore('tickets', () => {
       tickets.value = res.tickets
       assignments.value = res.assignments ?? []
       tableRange.value = res.tableRange ?? null
+      listLoaded.value = true
       synced(res.serverNow)
     }
     catch (e) {
@@ -163,5 +167,5 @@ export const useTicketsStore = defineStore('tickets', () => {
     selected.value = null
   }
 
-  return { tickets, assignments, tableRange, assign, release, missing, selected, loading, error, syncFailed, syncError, lastSyncAt, clockOffsetMs, refresh, load, markServed, markChecked, clearSelection }
+  return { tickets, assignments, tableRange, assign, release, missing, selected, loading, listLoaded, error, syncFailed, syncError, lastSyncAt, clockOffsetMs, refresh, load, markServed, markChecked, clearSelection }
 })

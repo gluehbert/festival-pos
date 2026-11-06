@@ -122,6 +122,10 @@ export const useProductionStore = defineStore('production', () => {
     }
   }
 
+  // Only the very first load shows "Lade Warteschlange": background polls keep
+  // the empty card (or the lanes) on screen instead of flickering.
+  const firstLoad = computed(() => loading.value && lastSyncAt.value === null)
+
   const hiddenLanes = computed(() => (station.value ? hiddenByStation.value[station.value] ?? [] : []))
 
   // This device shows a lane again or leaves it to another screen.
@@ -224,5 +228,5 @@ export const useProductionStore = defineStore('production', () => {
     }
   }
 
-  return { station, queue, lanes, laneCount, hiddenLanes, setLaneShown, setLanes, cafeClosed, setCafeClosed, groups, loading, error, syncFailed, syncError, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
+  return { station, queue, lanes, laneCount, hiddenLanes, setLaneShown, setLanes, cafeClosed, setCafeClosed, groups, loading, firstLoad, error, syncFailed, syncError, lastSyncAt, fetchQueue, advance, finishOrder, undoDone }
 })

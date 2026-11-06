@@ -181,3 +181,31 @@ describe('arrival trackers', () => {
     expect(t.update(new Map([['t-1', 9]]))).toEqual([])
   })
 })
+
+describe('background polls do not flash the loading text', () => {
+  it('production: only the first load counts as loading', async () => {
+    const s = useProductionStore()
+    let answer!: (v: unknown) => void
+    fetchMock.mockReturnValueOnce(new Promise((r) => { answer = r }))
+    const first = s.fetchQueue()
+    expect(s.firstLoad).toBe(true)
+    answer({ station: 'kitchen', lanes: [], items: [] })
+    await first
+    expect(s.firstLoad).toBe(false)
+
+    fetchMock.mockReturnValueOnce(new Promise((r) => { answer = r }))
+    const poll = s.fetchQueue()
+    expect(s.loading).toBe(true)
+    expect(s.firstLoad).toBe(false)
+    answer({ station: 'kitchen', lanes: [], items: [] })
+    await poll
+  })
+
+  it('tickets: the list counts as loaded after its first answer', async () => {
+    const s = useTicketsStore()
+    expect(s.listLoaded).toBe(false)
+    fetchMock.mockResolvedValueOnce({ tickets: [], serverNow: new Date().toISOString() })
+    await s.refresh()
+    expect(s.listLoaded).toBe(true)
+  })
+})
