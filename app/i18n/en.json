@@ -1424,7 +1424,8 @@
         "pink": "Pink",
         "gray": "Grey"
       },
-      "withBuzzer": "Buzzer {color}"
+      "withBuzzer": "Buzzer {color}",
+      "current": "In progress"
     },
     "cafe": {
       "close": "Close cake counter",

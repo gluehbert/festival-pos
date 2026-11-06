@@ -1424,7 +1424,8 @@
         "pink": "Pink",
         "gray": "Grau"
       },
-      "withBuzzer": "Buzzer {color}"
+      "withBuzzer": "Buzzer {color}",
+      "current": "In Arbeit"
     },
     "cafe": {
       "close": "Kuchentheke schließen",

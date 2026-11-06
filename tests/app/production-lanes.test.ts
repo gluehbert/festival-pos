@@ -167,3 +167,15 @@ describe('LanesView without buzzers', () => {
     expect(w.emitted('pause')).toBeUndefined()
   })
 })
+
+describe('LanesView with one lane', () => {
+  it('without a buzzer the lane has a calm header, no colour name; with one it keeps its colour', () => {
+    const one: ProductionLane = { lane: 1, key: null, color: 'green', paused: false, groupKey: 'table:12', assignedAt: AT }
+    const plain = mount(LanesView, { props: { groups: [t12, t7], lanes: [one], finishing: new Set<string>() } })
+    expect(plain.find('[data-test="lane-name"]').text()).toBe('production.lanes.current')
+    expect(plain.find('[data-test="lane-1"]').classes()).not.toContain('border-emerald-600')
+    const buzzer = mount(LanesView, { props: { groups: [t12, t7], lanes: [{ ...one, key: 'F9' }], finishing: new Set<string>() } })
+    expect(buzzer.find('[data-test="lane-name"]').text()).toContain('production.lanes.withBuzzer')
+    expect(buzzer.find('[data-test="lane-1"]').classes()).toContain('border-emerald-600')
+  })
+})

@@ -38,6 +38,9 @@ const openLanes = computed(() => laneCards.value.filter((l) => !l.bar))
 const bars = computed(() => laneCards.value.filter((l) => l.bar))
 const waiting = computed(() => props.groups.filter((g) => !props.lanes.some((l) => l.groupKey === g.key)))
 const single = computed(() => openLanes.value.length === 1)
+// One lane without a buzzer needs no colour to tell it apart: a calm header.
+const neutral = computed(() => props.lanes.length === 1 && !props.lanes[0]!.key)
+const NEUTRAL = { border: 'border-slate-400', header: 'bg-slate-200 text-slate-800', pause: 'bg-slate-900/10 text-slate-800 hover:bg-slate-900/20' }
 // The lane's name: its buzzer's colour, or just the colour without one.
 const laneName = (l: ProductionLane) => {
   const color = t(`production.lanes.color.${l.color}`)
@@ -117,11 +120,14 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
         :key="l.lane"
         :data-test="`lane-${l.lane}`"
         :data-card="l.group ? '' : undefined"
-        class="flex min-h-[280px] flex-col overflow-hidden rounded-2xl border-[6px] bg-surface md:min-h-0"
-        :class="laneColor(l.color).border"
+        class="flex min-h-[280px] flex-col overflow-hidden rounded-2xl border-[3px] bg-surface md:min-h-0"
+        :class="neutral ? NEUTRAL.border : laneColor(l.color).border"
       >
-        <header class="flex shrink-0 items-center justify-between gap-2 px-4 py-1.5 text-white" :class="laneColor(l.color).bg">
-          <span class="flex min-w-0 items-center gap-2 truncate text-lg font-extrabold uppercase tracking-wide">
+        <header class="flex shrink-0 items-center justify-between gap-2 px-4 py-1.5" :class="neutral ? NEUTRAL.header : [laneColor(l.color).bg, 'text-white']">
+          <span v-if="neutral" class="min-w-0 truncate text-lg font-extrabold uppercase tracking-wide" data-test="lane-name">
+            {{ $t('production.lanes.current') }}
+          </span>
+          <span v-else class="flex min-w-0 items-center gap-2 truncate text-lg font-extrabold uppercase tracking-wide" data-test="lane-name">
             <span class="flex size-8 items-center justify-center rounded-full bg-white text-lg font-black" :class="laneColor(l.color).text">{{ l.lane }}</span>
             {{ laneName(l) }}
           </span>
@@ -131,7 +137,8 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
             </span>
             <button
               type="button"
-              class="inline-flex min-h-[40px] items-center gap-1 rounded-full bg-white/20 px-3 text-sm font-bold text-white hover:bg-white/30"
+              class="inline-flex min-h-[40px] items-center gap-1 rounded-full px-3 text-sm font-bold"
+              :class="neutral ? NEUTRAL.pause : 'bg-white/20 text-white hover:bg-white/30'"
               :aria-pressed="l.paused"
               :data-test="`lane-pause-${l.lane}`"
               @click="emit('pause', l.lane, !l.paused)"
