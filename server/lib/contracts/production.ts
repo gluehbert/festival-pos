@@ -111,8 +111,7 @@ export const ProductionLaneSchema = z.object({
 })
 export type ProductionLane = z.infer<typeof ProductionLaneSchema>
 
-// The people at the station change their lanes: how many (1 = no lanes unless
-// the station has a buzzer) or one lane's pause. The admin names the station.
+// The people at the station change their lanes: how many or one lane's pause. The admin names the station.
 export const ProductionLanesPatchSchema = z.union([
   z.object({ station: StationEnum.optional(), laneCount: z.number().int().min(1).max(BUZZERS_PER_STATION) }),
   z.object({ station: StationEnum.optional(), lane: z.number().int().min(1).max(BUZZERS_PER_STATION), paused: z.boolean() }),
@@ -125,7 +124,7 @@ export const ProductionQueueSchema = z.object({
   station: StationEnum,
   items: z.array(ProductionQueueItemSchema),
   lanes: z.array(ProductionLaneSchema),
-  // Lanes set at the station; 1 with an empty `lanes` shows the plain cards.
+  // Lanes set at the station (at least one).
   laneCount: z.number().int().min(1).max(BUZZERS_PER_STATION),
   // Cafe counter closed: coffee and cake go to the kitchen (lib/cafe-routing.ts).
   cafeClosed: z.boolean(),

@@ -17,7 +17,7 @@ type Station = 'kitchen' | 'bar' | 'cafe'
 // All open items of one table at this station: one card on the screen.
 // Every send from a table is its own order, so a card can hold several.
 // Counter sales and staff meals have no table and keep one card per order.
-// With buzzer lanes a later round of a table is a card of its own.
+// A later round of a table (a minute on) is a card of its own.
 export interface ProductionOrderGroup {
   key: string
   orderIds: string[]
@@ -42,7 +42,7 @@ function readHidden(station: Station): number[] {
 export const useProductionStore = defineStore('production', () => {
   const station = ref<Station | null>(null)
   const queue = ref<ProductionQueueItem[]>([])
-  // Lanes of the station, one per person; empty with one lane and no buzzer.
+  // Lanes of the station, one per person (at least one once loaded).
   const lanes = ref<ProductionLane[]>([])
   const laneCount = ref(1)
   // Lanes this device leaves out (another tablet shows them), per station.
@@ -195,7 +195,7 @@ export const useProductionStore = defineStore('production', () => {
 
   // The queue is sorted oldest first, so the cards are too.
   const groups = computed<ProductionOrderGroup[]>(() =>
-    productionCards(queue.value, lanes.value.length > 0 ? LANE_ROUND_MS : undefined).map(({ key, items }) => ({
+    productionCards(queue.value, LANE_ROUND_MS).map(({ key, items }) => ({
       key,
       orderIds: [...new Set(items.map((i) => i.orderId))],
       tableNo: items[0]!.tableNo,

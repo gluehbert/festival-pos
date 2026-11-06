@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { useProductionStore } from '~/stores/production'
 import { useTicketsStore } from '~/stores/tickets'
-import OrderCard from '~/components/production/OrderCard.vue'
 import TicketCard from '~/components/staff/TicketCard.vue'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 import type { TicketSummary } from '~/../server/lib/contracts/staff'
@@ -30,12 +29,12 @@ const item = (id: string, orderId: string, at: string, over: Partial<ProductionQ
 })
 
 describe('production store — orders', () => {
-  it('groups the queue per table, oldest first; counter sales stay one card per order', async () => {
+  it('groups the queue per table within a minute, oldest first; counter sales stay one card per order', async () => {
     fetchMock.mockResolvedValueOnce({ station: 'kitchen', lanes: [], items: [
       item('a', 'o1', '2026-06-01T18:00:00Z'),
       item('b', 'o2', '2026-06-01T18:01:00Z', { tableNo: 0, orderKind: 'walkin' }),
       item('c', 'o1', '2026-06-01T18:00:00Z'),
-      item('d', 'o3', '2026-06-01T18:02:00Z', { orderKind: 'staff_table' }),
+      item('d', 'o3', '2026-06-01T18:00:30Z', { orderKind: 'staff_table' }),
       item('e', 'o4', '2026-06-01T18:03:00Z', { tableNo: 0, orderKind: 'walkin' }),
       item('f', 'o5', '2026-06-01T18:04:00Z', { tableNo: 9 }),
     ] })
@@ -67,84 +66,6 @@ describe('production store — orders', () => {
     await expect(s.finishOrder('o2', 'bar')).rejects.toBeTruthy()
     expect((fetchMock.mock.calls[2]![1] as { body: unknown }).body).toEqual({ station: 'bar' })
     expect(s.queue.map((i) => i.orderItemId)).toEqual(['b'])
-  })
-})
-
-describe('OrderCard', () => {
-  const group = {
-    key: 'table:8',
-    orderIds: ['o1'],
-    tableNo: 8,
-    orderKind: 'staff_table' as const,
-    orderedAt: new Date(Date.now() - 11 * 60_000).toISOString(),
-    items: [item('a', 'o1', ''), item('b', 'o1', '', { productionStatus: 'in_progress', nameDe: 'Bratwurst', nameEn: 'Sausage' })],
-  }
-
-  it('lists the items, advances single items and finishes the order', async () => {
-    const w = mount(OrderCard, { props: { group, busyIds: new Set<string>() } })
-    expect(w.text()).toContain('staff.detail.table')
-    expect(w.text()).toContain('2 × Fries')
-    expect(w.text()).toContain('2 × Sausage')
-    expect(w.find('header span').classes()).toContain('bg-rose-100')
-    const buttons = w.findAll('button')
-    await buttons[0]!.trigger('click')
-    await buttons[1]!.trigger('click')
-    await buttons[2]!.trigger('click')
-    expect(w.emitted('advance')).toEqual([[['a'], 'in_progress'], [['b'], 'done']])
-    expect(w.emitted('finish')).toHaveLength(1)
-  })
-
-  it('merges items of the same article, note and status into one line', async () => {
-    const items = [
-      item('a', 'o1', '', { nameEn: 'Beer' }),
-      item('b', 'o1', '', { nameEn: 'Cola', quantity: 1 }),
-      item('c', 'o1', '', { nameEn: 'Beer', quantity: 3 }),
-      item('d', 'o1', '', { nameEn: 'Cola', quantity: 1, note: 'no ice' }),
-      item('e', 'o1', '', { nameEn: 'Beer', productionStatus: 'in_progress' }),
-    ]
-    const w = mount(OrderCard, { props: { group: { ...group, items }, busyIds: new Set<string>(['c']) } })
-    const lines = w.findAll('[data-test="order-line"]')
-    expect(lines.map((l) => l.find('p').text())).toEqual(['5 × Beer', '1 × Cola', '1 × Cola', '2 × Beer'])
-    expect(lines[3]!.text()).toContain('production.preparing')
-    expect(lines[0]!.text()).not.toContain('production.preparing')
-    // Busy while any of its items is being saved.
-    expect(lines[0]!.find('button').attributes('disabled')).toBeDefined()
-    await lines[1]!.find('button').trigger('click')
-    await lines[3]!.find('button').trigger('click')
-    expect(w.emitted('advance')).toEqual([[['b'], 'in_progress'], [['e'], 'done']])
-    await w.setProps({ busyIds: new Set<string>() })
-    await w.findAll('[data-test="order-line"]')[0]!.find('button').trigger('click')
-    expect(w.emitted('advance')![2]).toEqual([['a', 'c'], 'in_progress'])
-  })
-
-  it('lists all order numbers of a table', () => {
-    const w = mount(OrderCard, { props: { group: { ...group, orderIds: ['17a888', '9d9096'] }, busyIds: new Set<string>() } })
-    expect(w.find('[data-test="order-number"]').text()).toContain('#17A888 · #9D9096')
-  })
-
-  it('finishes open items in one tap at the bar', async () => {
-    const w = mount(OrderCard, { props: { group, busyIds: new Set<string>(), oneStep: true } })
-    const buttons = w.findAll('[data-test="order-line"] button')
-    expect(buttons.map((b) => b.text())).toEqual(['production.done', 'production.done'])
-    await buttons[0]!.trigger('click')
-    expect(w.emitted('advance')).toEqual([[['a'], 'done']])
-  })
-
-  it('shows one "done" button only when the card has a single line', () => {
-    const one = (status: 'pending' | 'in_progress', oneStep = false) => mount(OrderCard, {
-      props: { group: { ...group, items: [item('a', 'o1', '', { productionStatus: status })] }, busyIds: new Set<string>(), oneStep },
-    })
-    // Bar: "Fertig" next to the line would do what "… komplett fertig" does.
-    expect(one('pending', true).findAll('[data-test="order-line"] button')).toHaveLength(0)
-    expect(one('in_progress').findAll('[data-test="order-line"] button')).toHaveLength(0)
-    // Kitchen: "Starten" is another step and stays.
-    expect(one('pending').findAll('[data-test="order-line"] button').map((b) => b.text())).toEqual(['production.start'])
-    expect(one('pending', true).text()).toContain('production.finishOrder')
-  })
-
-  it('names counter sales instead of table 0', () => {
-    const w = mount(OrderCard, { props: { group: { ...group, tableNo: 0, orderKind: 'walkin' as const }, busyIds: new Set<string>() } })
-    expect(w.find('h2').text()).toBe('production.counter')
   })
 })
 

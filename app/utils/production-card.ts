@@ -1,5 +1,6 @@
 import type { ProductionOrderGroup } from '~/stores/production'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
+import { shortOrderNo } from '~/utils/order-number'
 
 type Translate = (key: string, params?: Record<string, unknown>) => string
 
@@ -8,6 +9,13 @@ export function groupLabel(group: ProductionOrderGroup, t: Translate): string {
   if (group.orderKind === 'staff_meal') return t('production.staffMeal')
   if (group.orderKind === 'walkin') return t('production.counter')
   return t('staff.detail.table', { n: group.tableNo })
+}
+
+// The orders' short numbers, as the guest and the waiter see them.
+export function orderNumbers(group: ProductionOrderGroup, t: Translate): string {
+  return group.orderIds.length === 1
+    ? t('common.orderNo', { no: shortOrderNo(group.orderIds[0]!) })
+    : t('production.orderNos', { nos: group.orderIds.map((id) => `#${shortOrderNo(id)}`).join(' · ') })
 }
 
 export function minutesWaiting(group: ProductionOrderGroup): number {

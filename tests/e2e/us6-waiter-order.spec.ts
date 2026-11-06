@@ -24,7 +24,7 @@ test.describe('@smoke US6 — waiter takes the order and splits the bill', () =>
     const kitchenPage = await kitchen.newPage()
     await loginStaff(kitchenPage, 'kitchen1', '1111')
     // .first(): re-runs against the same database leave earlier items queued.
-    await expect(kitchenPage.locator('[data-test="order-card"]').filter({ hasText: 'Table 8' }).filter({ hasText: 'Sausage' }).first()).toBeVisible()
+    await expect(kitchenPage.locator('[data-card]').filter({ hasText: 'Table 8' }).filter({ hasText: 'Sausage' }).first()).toBeVisible()
     await kitchen.close()
 
     await page.goto('/staff')

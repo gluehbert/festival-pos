@@ -39,7 +39,7 @@ test.describe('@smoke US8 — club festival extras', () => {
     const kitchen = await browser.newContext()
     const kitchenPage = await kitchen.newPage()
     await loginStaff(kitchenPage, 'kitchen1', '1111')
-    await expect(kitchenPage.locator('[data-test="order-card"]').filter({ hasText: 'Table 9' }).locator('[data-test="note-badge"]').first()).toContainText('no mustard')
+    await expect(kitchenPage.locator('[data-card]').filter({ hasText: 'Table 9' }).locator('[data-test="note-badge"]').first()).toContainText('no mustard')
     await kitchen.close()
 
     await page.goto('/staff/9/pay')

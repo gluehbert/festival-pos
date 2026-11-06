@@ -23,10 +23,10 @@ export async function laneSetting(db: Db, eventId: string, station: Station): Pr
 }
 
 // The lanes of the station's screen, in lane order, each with its buzzer if
-// it has one. One lane without a buzzer is no lane: the plain cards show.
+// it has one. There is always at least one: even alone, the card being
+// worked on stands out from the ones waiting.
 export async function activeLanes(db: Db, eventId: string, station: Station): Promise<{ laneCount: number; lanes: ActiveLane[] }> {
   const { laneCount, paused, keys, colors } = await laneSetting(db, eventId, station)
-  if (laneCount === 1 && keys.length === 0) return { laneCount, lanes: [] }
   const color = laneColors(colors, laneCount)
   const lanes = Array.from({ length: laneCount }, (_, i) => ({ lane: i + 1, key: keys[i] ?? null, color: color[i]!, paused: paused.includes(i + 1) }))
   return { laneCount, lanes }

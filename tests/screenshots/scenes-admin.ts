@@ -15,7 +15,7 @@ export const productionOrders: Scene = async (ctx) => {
   await ensureService(ctx)
   const { page } = await ctx.open('production')
   await loginStaff(page, 'kitchen1', '1111', 'pin')
-  await page.locator('[data-test="order-card"]').first().waitFor()
+  await page.locator('[data-card]').first().waitFor()
   await ctx.shoot(page, 'production-orders')
 }
 
@@ -42,7 +42,7 @@ export const productionPhoneAdmin: Scene = async (ctx) => {
   const { page } = await ctx.open('staff')
   await loginStaff(page, 'admin', 'admin123', 'password')
   await page.goto('/production')
-  await page.locator('[data-test="order-card"]').first().waitFor()
+  await page.locator('[data-card]').first().waitFor()
   await ctx.shoot(page, 'production-phone-admin')
 }
 

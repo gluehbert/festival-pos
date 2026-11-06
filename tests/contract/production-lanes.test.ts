@@ -58,10 +58,13 @@ describe('production lanes (buzzers)', () => {
     seeded = seedEvent(ctx.mem, { tableRangeFrom: 1, tableRangeTo: 20 })
   })
 
-  it('has no lanes without a buzzer key', async () => {
+  it('has one lane without a buzzer: the oldest card stands out', async () => {
     order(1, 0)
-    expect((await poll()).lanes).toEqual([])
-    expect(ctx.mem.public.many('SELECT * FROM production_lanes')).toEqual([])
+    order(2, 10)
+    const r = await poll()
+    expect(tables(r)).toEqual([[1, 1]])
+    expect(r.lanes[0]!.key).toBeNull()
+    expect(r.items.map((i) => [i.tableNo, i.productionStatus])).toEqual([[1, 'in_progress'], [2, 'pending']])
   })
 
   it('gives each lane the oldest free card and keeps it there until it is finished', async () => {
@@ -110,8 +113,9 @@ describe('production lanes (buzzers)', () => {
     expect(after.lanes[0]!.key).toBe('F10')
     expect(after.items.map((i) => [i.tableNo, i.productionStatus])).toEqual([[12, 'in_progress'], [7, 'in_progress']])
     buzzers()
-    expect((await poll()).lanes).toEqual([])
-    expect(ctx.mem.public.many('SELECT * FROM production_lanes')).toEqual([])
+    const none = await poll()
+    expect(tables(none)).toEqual([[1, 12]])
+    expect(none.lanes[0]!.key).toBeNull()
   })
 
   it('only an order within a minute of the first joins its card; a later round is a card of its own', async () => {
@@ -136,7 +140,7 @@ describe('production lanes (buzzers)', () => {
     for (const [n, table] of [10, 11, 12, 13, 14].entries()) order(table, n * 10)
     buzzers('1', '2', '3', '4')
     expect(tables(await poll())).toEqual([[1, 10], [2, 11], [3, 12], [4, 13]])
-    expect((await poll('bar')).lanes).toEqual([])
+    expect((await poll('bar')).lanes).toEqual([{ lane: 1, key: null, color: 'green', paused: false, groupKey: null, assignedAt: null }])
     ctx.mem.public.none(`INSERT INTO station_buzzers (event_id, station, lane, key) VALUES ('${seeded.eventId}', 'bar', 1, '1')`)
     expect((await poll('bar')).lanes).toEqual([{ lane: 1, key: '1', color: 'green', paused: false, groupKey: null, assignedAt: null }])
     expect(() => ctx.mem.public.none(
@@ -170,7 +174,7 @@ describe('production lanes without buzzers', () => {
     order(7, 10)
     order(3, 20)
     const before = await poll() as Polled & { laneCount: number }
-    expect(before.lanes).toEqual([])
+    expect(tables(before)).toEqual([[1, 12]])
     expect(before.laneCount).toBe(1)
 
     expect(await setLanes({ laneCount: 2 })).toEqual({ laneCount: 2, paused: [] })
@@ -179,11 +183,11 @@ describe('production lanes without buzzers', () => {
     expect(tables(r)).toEqual([[1, 12], [2, 7]])
     expect(r.lanes.map((l) => l.key)).toEqual([null, null])
     // The bar keeps its own setting.
-    expect((await poll('bar')).lanes).toEqual([])
+    expect((await poll('bar')).lanes).toHaveLength(1)
 
-    // Back to one lane: the plain cards again, nothing held.
+    // Back to one lane: lane 2's card goes back to the queue.
     await setLanes({ laneCount: 1 })
-    expect((await poll()).lanes).toEqual([])
+    expect(tables(await poll())).toEqual([[1, 12]])
   })
 
   it('a paused lane finishes its card, then takes no new one until it goes on', async () => {

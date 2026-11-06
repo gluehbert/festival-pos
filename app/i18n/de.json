@@ -1360,12 +1360,9 @@
     "myAccount": "Mein Konto"
   },
   "production": {
-    "start": "Starten",
-    "preparing": "In Zubereitung",
     "done": "Fertig",
     "waiting": "seit {n} Min.",
     "toastDone": "Erledigt",
-    "toastStarted": "In Zubereitung",
     "toastFailed": "Aktion fehlgeschlagen.",
     "loading": "Lade Warteschlange …",
     "empty": "Gerade keine Bestellungen.",

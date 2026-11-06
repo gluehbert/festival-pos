@@ -1360,12 +1360,9 @@
     "myAccount": "My account"
   },
   "production": {
-    "start": "Start preparing",
-    "preparing": "Preparing",
     "done": "Done",
     "waiting": "{n} min ago",
     "toastDone": "Done",
-    "toastStarted": "In preparation",
     "toastFailed": "Action failed.",
     "loading": "Loading queue …",
     "empty": "No orders right now.",

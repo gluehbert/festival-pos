@@ -5,7 +5,7 @@ import { useBuzzer } from '~/composables/useBuzzer'
 import type { ProductionOrderGroup } from '~/stores/production'
 import type { ProductionLane } from '~/../server/lib/contracts/production'
 import NoteBadge from '~/components/common/NoteBadge.vue'
-import { ageClass, cardLines, groupLabel, isFollowUp, minutesWaiting } from '~/utils/production-card'
+import { ageClass, cardLines, groupLabel, isFollowUp, minutesWaiting, orderNumbers } from '~/utils/production-card'
 import { fitText } from '~/utils/fit-text'
 import { laneColor } from '~/utils/buzzer-lanes'
 
@@ -116,6 +116,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
         v-for="l in openLanes"
         :key="l.lane"
         :data-test="`lane-${l.lane}`"
+        :data-card="l.group ? '' : undefined"
         class="flex min-h-[280px] flex-col overflow-hidden rounded-2xl border-[6px] bg-surface md:min-h-0"
         :class="laneColor(l.color).border"
       >
@@ -147,6 +148,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
           <p class="shrink-0">
             <span class="inline-block rounded-lg bg-slate-900 px-3 py-0.5 text-3xl font-black text-slate-50" data-test="lane-label">{{ groupLabel(l.group, t) }}</span>
             <span v-if="isFollowUp(l.group, groups)" class="ml-2 rounded-md bg-slate-200 px-2 py-1 align-middle text-lg font-bold text-slate-800" data-test="follow-up">{{ $t('production.lanes.followUp') }}</span>
+            <span class="ml-2 align-middle font-mono text-base font-semibold tracking-wider text-slate-500" data-test="order-number">{{ orderNumbers(l.group, t) }}</span>
           </p>
           <ul :ref="(el) => el ? lists.set(l.lane, el as HTMLElement) : lists.delete(l.lane)" class="mt-1 min-h-0 flex-1 gap-6 overflow-hidden text-4xl" data-test="lane-lines">
             <li
@@ -185,7 +187,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
         {{ $t('production.lanes.next', { n: waiting.length }) }}
       </h2>
       <ul class="grid min-h-0 grid-cols-1 content-start gap-2 overflow-y-auto" :class="openLanes.length > 0 ? '' : 'sm:grid-cols-2 lg:grid-cols-3'" data-test="lane-queue">
-        <li v-for="g in waiting" :key="g.key" class="flex flex-col rounded-xl border-2 border-slate-200 bg-surface p-2.5" data-test="lane-queue-card">
+        <li v-for="g in waiting" :key="g.key" class="flex flex-col rounded-xl border-2 border-slate-200 bg-surface p-2.5" data-test="lane-queue-card" data-card>
           <div class="flex items-start justify-between gap-2">
             <span class="text-lg font-black leading-tight text-slate-900">
               {{ groupLabel(g, t) }}
@@ -195,6 +197,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
               {{ $t('production.lanes.minutes', { n: minutesWaiting(g) }) }}
             </span>
           </div>
+          <p class="font-mono text-xs font-semibold tracking-wider text-slate-500" data-test="order-number">{{ orderNumbers(g, t) }}</p>
           <ul class="mt-1 flex-1">
             <li v-for="line in cardLines(g.items).slice(0, PREVIEW_LINES)" :key="line.key" class="text-base font-semibold leading-snug text-slate-800">
               {{ line.quantity }} × {{ itemName(line.first) }}
