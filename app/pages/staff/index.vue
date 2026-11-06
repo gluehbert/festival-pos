@@ -163,7 +163,7 @@ const unattended = computed(() => (expert.value && owner.value === 'mine' ? need
     />
 
     <template v-else>
-    <p v-if="tickets.loading && filtered.length === 0" class="mt-6 text-sm text-slate-500">
+    <p v-if="tickets.loading && !tickets.listLoaded && filtered.length === 0" class="mt-6 text-sm text-slate-500">
       {{ $t('staff.overview.loading') }}
     </p>
     <p v-else-if="filtered.length === 0" class="mt-6 text-sm text-slate-500">

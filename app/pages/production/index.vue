@@ -182,7 +182,7 @@ async function onPause(lane: number, paused: boolean) {
       {{ effectiveStation === 'cafe' ? $t('production.cafe.closedBanner') : $t('production.cafe.kitchenBanner') }}
     </p>
 
-    <p v-if="production.loading && production.queue.length === 0" class="mt-8 text-sm text-slate-500">
+    <p v-if="production.firstLoad && production.queue.length === 0" class="mt-8 text-sm text-slate-500">
       {{ $t('production.loading') }}
     </p>
     <StationGuide v-else-if="production.queue.length === 0" :station="effectiveStation ?? 'kitchen'" />
