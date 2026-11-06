@@ -60,7 +60,8 @@ test.describe('@smoke Buzzers at the kitchen/bar', () => {
     // Leave no open orders behind for the other smokes.
     const empty = kitchen.getByText('No orders right now.')
     for (let i = 0; i < 30 && !(await empty.isVisible()); i++) {
-      const button = kitchen.locator('[data-test^="lane-"] button:enabled').first()
+      // Finish buttons only: a lane's header also has its pause button.
+      const button = kitchen.locator('[data-test="lane-finish"]:enabled, [data-test="lane-queue-card"] button:enabled').first()
       if (await button.count()) await button.click()
       else await kitchen.waitForTimeout(300)
     }

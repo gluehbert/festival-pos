@@ -72,8 +72,8 @@ export async function guestOrders(page: Page, tableNo: number, itemNames: RegExp
 
 // Kitchen side: finishes every queued item of a table.
 export async function kitchenFinishes(page: Page, tableNo: number): Promise<void> {
-  const card = page.locator('[data-test="order-card"]').filter({ hasText: `Table ${tableNo}` })
-  await card.getByRole('button', { name: `Table ${tableNo} all done` }).click()
+  const card = page.locator('[data-card]').filter({ hasText: `Table ${tableNo}` })
+  await card.getByRole('button', { name: new RegExp(`^table ${tableNo} (all )?done$`, 'i') }).click()
   await card.waitFor({ state: 'detached' })
 }
 

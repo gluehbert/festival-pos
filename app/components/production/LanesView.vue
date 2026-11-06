@@ -1,21 +1,34 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
 import { useFormat } from '~/composables/useFormat'
 import { useBuzzer } from '~/composables/useBuzzer'
 import type { ProductionOrderGroup } from '~/stores/production'
 import type { ProductionLane } from '~/../server/lib/contracts/production'
 import NoteBadge from '~/components/common/NoteBadge.vue'
-import { ageClass, cardLines, groupLabel, isFollowUp, minutesWaiting } from '~/utils/production-card'
+import { ageClass, cardLines, groupLabel, isFollowUp, minutesWaiting, orderNumbers } from '~/utils/production-card'
 import { fitText } from '~/utils/fit-text'
 import { laneColor } from '~/utils/buzzer-lanes'
 
-// Kitchen/bar screen with buzzers: each buzzer has a lane (1 green, 2 blue, 3 amber, 4 violet)
-// holding the card its person works on, big enough to read from afar. The
-// rest waits on the right under "Next up"; a tap finishes any card, the
-// lanes stay put.
+// Station screen with lanes: one lane per person, each in its own colour
+// (its buzzer's, or green, blue, amber, violet), holding the card that person works on, big enough to read from
+// afar; a buzzer, if the lane has one, finishes it. The rest waits on the
+// right under "Next up"; a tap finishes any card, the lanes stay put.
+// A paused lane that is empty, and a lane this device leaves to another
+// screen, shrink to a thin bar on top: nothing hides without a trace.
 // On a tablet or TV the view fills the screen exactly: nobody scrolls.
-const props = defineProps<{ groups: ProductionOrderGroup[]; lanes: ProductionLane[]; finishing: Set<string> }>()
-const emit = defineEmits<{ (e: 'finish', group: ProductionOrderGroup, named: boolean): void }>()
+const props = defineProps<{
+  groups: ProductionOrderGroup[]
+  lanes: ProductionLane[]
+  finishing: Set<string>
+  hidden?: number[]
+  // Lanes that just got work after being empty: they light up for a moment.
+  flash?: number[]
+}>()
+const emit = defineEmits<{
+  (e: 'finish', group: ProductionOrderGroup, named: boolean): void
+  (e: 'pause', lane: number, paused: boolean): void
+  (e: 'show', lane: number): void
+}>()
 
 const { t } = useI18n()
 const { itemName } = useFormat()
@@ -25,10 +38,40 @@ const PREVIEW_LINES = 3
 
 const laneCards = computed(() => props.lanes.map((l) => {
   const group = props.groups.find((g) => g.key === l.groupKey) ?? null
-  return { ...l, group, lines: group ? cardLines(group.items, l.assignedAt) : [] }
+  const elsewhere = props.hidden?.includes(l.lane) ?? false
+  return { ...l, group, elsewhere, bar: elsewhere || (l.paused && !group), lines: group ? cardLines(group.items, l.assignedAt) : [] }
 }))
+const openLanes = computed(() => laneCards.value.filter((l) => !l.bar))
+const bars = computed(() => laneCards.value.filter((l) => l.bar))
 const waiting = computed(() => props.groups.filter((g) => !props.lanes.some((l) => l.groupKey === g.key)))
-const single = computed(() => props.lanes.length === 1)
+const single = computed(() => openLanes.value.length === 1)
+// Someone always works: the last lane not pausing has no pause button.
+const canPause = (l: ProductionLane) => l.paused || props.lanes.filter((x) => !x.paused).length > 1
+// A card new under "Next up" stands out for a moment; nobody has to act yet.
+const FRESH_MS = 8000
+const fresh = ref<Set<string>>(new Set())
+let seenWaiting: Set<string> | null = null
+watch(waiting, (now) => {
+  const keys = now.map((g) => g.key)
+  const added = seenWaiting ? keys.filter((k) => !seenWaiting!.has(k)) : []
+  seenWaiting = new Set([...(seenWaiting ?? []), ...keys])
+  if (added.length === 0) return
+  fresh.value = new Set([...fresh.value, ...added])
+  setTimeout(() => {
+    const next = new Set(fresh.value)
+    for (const k of added) next.delete(k)
+    fresh.value = next
+  }, FRESH_MS)
+}, { immediate: true })
+
+// One lane without a buzzer needs no colour to tell it apart: a calm header.
+const neutral = computed(() => props.lanes.length === 1 && !props.lanes[0]!.key)
+const NEUTRAL = { border: 'border-slate-400', header: 'bg-slate-200 text-slate-800', pause: 'bg-slate-900/10 text-slate-800 hover:bg-slate-900/20' }
+// The lane's name: its buzzer's colour, or just the colour without one.
+const laneName = (l: ProductionLane) => {
+  const color = t(`production.lanes.color.${l.color}`)
+  return l.key ? t('production.lanes.withBuzzer', { color }) : color
+}
 
 function press(lane: number) {
   const group = laneCards.value.find((l) => l.lane === lane)?.group
@@ -72,30 +115,74 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
 <template>
   <div
     ref="root"
-    class="mt-2 flex flex-col gap-3 md:flex-row"
+    class="mt-2 flex flex-col gap-3"
     :style="height ? { height: `${height}px` } : undefined"
   >
-    <div class="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 md:auto-rows-fr" :class="single ? '' : 'md:grid-cols-2'">
+    <div v-if="bars.length > 0" class="flex shrink-0 flex-wrap gap-2" data-test="lane-bars">
+      <button
+        v-for="l in bars"
+        :key="l.lane"
+        type="button"
+        class="flex min-h-[44px] flex-1 items-center gap-2 rounded-xl px-3 py-1 text-left font-bold text-white"
+        :class="[laneColor(l.color).bg, l.elsewhere ? 'opacity-80' : '']"
+        :data-test="`lane-bar-${l.lane}`"
+        @click="l.elsewhere ? emit('show', l.lane) : emit('pause', l.lane, false)"
+      >
+        <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-white text-base font-black" :class="laneColor(l.color).text">{{ l.lane }}</span>
+        <span class="min-w-0 truncate">
+          {{ l.elsewhere ? $t('production.lanes.elsewhere', { lane: laneName(l) }) : $t('production.lanes.paused', { lane: laneName(l) }) }}
+          <template v-if="l.elsewhere && l.group"> · {{ groupLabel(l.group, t) }}</template>
+        </span>
+        <span class="ml-auto flex shrink-0 items-center gap-1 text-sm font-semibold">
+          <UIcon :name="l.elsewhere ? 'i-lucide-eye' : 'i-lucide-play'" class="size-4" aria-hidden="true" />
+          {{ l.elsewhere ? $t('production.lanes.elsewhereTap') : $t('production.lanes.pausedTap') }}
+        </span>
+      </button>
+    </div>
+    <div class="flex min-h-0 flex-1 flex-col gap-3 md:flex-row">
+    <div v-if="openLanes.length > 0" class="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-3 md:auto-rows-fr" :class="single ? '' : 'md:grid-cols-2'">
       <section
-        v-for="l in laneCards"
+        v-for="l in openLanes"
         :key="l.lane"
         :data-test="`lane-${l.lane}`"
-        class="flex min-h-[280px] flex-col overflow-hidden rounded-2xl border-[6px] bg-surface md:min-h-0"
-        :class="laneColor(l.lane).border"
+        :data-card="l.group ? '' : undefined"
+        class="flex min-h-[280px] flex-col overflow-hidden rounded-2xl border-[3px] bg-surface md:min-h-0"
+        :class="[neutral ? NEUTRAL.border : laneColor(l.color).border, flash?.includes(l.lane) ? 'lane-flash' : '']"
       >
-        <header class="flex shrink-0 items-center justify-between gap-2 px-4 py-1.5 text-white" :class="laneColor(l.lane).bg">
-          <span class="flex min-w-0 items-center gap-2 truncate text-lg font-extrabold uppercase tracking-wide">
-            <span class="flex size-8 items-center justify-center rounded-full bg-white text-lg font-black" :class="laneColor(l.lane).text">{{ l.lane }}</span>
-            {{ $t(`production.lanes.buzzer${l.lane}`) }}
+        <header class="flex shrink-0 items-center justify-between gap-2 px-4 py-1.5" :class="neutral ? NEUTRAL.header : [laneColor(l.color).bg, 'text-white']">
+          <span v-if="neutral" class="min-w-0 truncate text-lg font-extrabold uppercase tracking-wide" data-test="lane-name">
+            {{ $t('production.lanes.current') }}
           </span>
-          <span v-if="l.group" class="shrink-0 whitespace-nowrap rounded-full px-3 py-0.5 text-base font-semibold" :class="ageClass(minutesWaiting(l.group))">
-            {{ $t('production.waiting', { n: minutesWaiting(l.group) }) }}
+          <span v-else class="flex min-w-0 items-center gap-2 truncate text-lg font-extrabold uppercase tracking-wide" data-test="lane-name">
+            <span class="flex size-8 items-center justify-center rounded-full bg-white text-lg font-black" :class="laneColor(l.color).text">{{ l.lane }}</span>
+            {{ laneName(l) }}
+          </span>
+          <span class="flex shrink-0 items-center gap-2">
+            <span v-if="l.group" class="whitespace-nowrap rounded-full px-3 py-0.5 text-base font-semibold" :class="ageClass(minutesWaiting(l.group))">
+              {{ $t('production.waiting', { n: minutesWaiting(l.group) }) }}
+            </span>
+            <button
+              v-if="canPause(l)"
+              type="button"
+              class="inline-flex min-h-[40px] items-center gap-1 rounded-full px-3 text-sm font-bold"
+              :class="neutral ? NEUTRAL.pause : 'bg-white/20 text-white hover:bg-white/30'"
+              :aria-pressed="l.paused"
+              :data-test="`lane-pause-${l.lane}`"
+              @click="emit('pause', l.lane, !l.paused)"
+            >
+              <UIcon :name="l.paused ? 'i-lucide-play' : 'i-lucide-pause'" class="size-4" aria-hidden="true" />
+              {{ l.paused ? $t('production.lanes.resume') : $t('production.lanes.pause') }}
+            </button>
           </span>
         </header>
+        <p v-if="l.paused" class="shrink-0 bg-slate-900 px-4 py-1 text-base font-bold text-slate-50" data-test="lane-pausing">
+          {{ $t('production.lanes.pausingAfter') }}
+        </p>
         <div v-if="l.group" class="flex min-h-0 flex-1 flex-col px-4 pb-3 pt-2">
           <p class="shrink-0">
             <span class="inline-block rounded-lg bg-slate-900 px-3 py-0.5 text-3xl font-black text-slate-50" data-test="lane-label">{{ groupLabel(l.group, t) }}</span>
             <span v-if="isFollowUp(l.group, groups)" class="ml-2 rounded-md bg-slate-200 px-2 py-1 align-middle text-lg font-bold text-slate-800" data-test="follow-up">{{ $t('production.lanes.followUp') }}</span>
+            <span class="ml-2 align-middle font-mono text-base font-semibold tracking-wider text-slate-500" data-test="order-number">{{ orderNumbers(l.group, t) }}</span>
           </p>
           <ul :ref="(el) => el ? lists.set(l.lane, el as HTMLElement) : lists.delete(l.lane)" class="mt-1 min-h-0 flex-1 gap-6 overflow-hidden text-4xl" data-test="lane-lines">
             <li
@@ -117,6 +204,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
             type="button"
             class="mt-2 min-h-[52px] w-full shrink-0 rounded-lg border-2 border-success text-lg font-bold text-emerald-800 hover:bg-emerald-50 disabled:opacity-60"
             :disabled="finishing.has(l.group.key)"
+            data-test="lane-finish"
             @click="emit('finish', l.group, false)"
           >
             {{ finishing.has(l.group.key) ? '…' : $t('production.finishOrder', { label: groupLabel(l.group, t) }) }}
@@ -128,12 +216,20 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
       </section>
     </div>
 
-    <section v-if="waiting.length > 0" class="flex min-h-0 shrink-0 flex-col md:w-[clamp(12rem,22%,22rem)]">
+    <section v-if="waiting.length > 0" class="flex min-h-0 flex-col" :class="openLanes.length > 0 ? 'shrink-0 md:w-[clamp(12rem,22%,22rem)]' : 'flex-1'">
       <h2 class="mb-1 text-base font-semibold text-slate-600">
         {{ $t('production.lanes.next', { n: waiting.length }) }}
       </h2>
-      <ul class="grid min-h-0 grid-cols-1 content-start gap-2 overflow-y-auto" data-test="lane-queue">
-        <li v-for="g in waiting" :key="g.key" class="flex flex-col rounded-xl border-2 border-slate-200 bg-surface p-2.5" data-test="lane-queue-card">
+      <ul class="grid min-h-0 grid-cols-1 content-start gap-2 overflow-y-auto" :class="openLanes.length > 0 ? '' : 'sm:grid-cols-2 lg:grid-cols-3'" data-test="lane-queue">
+        <li
+          v-for="g in waiting"
+          :key="g.key"
+          class="flex flex-col rounded-xl border-2 p-2.5 transition-colors duration-700"
+          :class="fresh.has(g.key) ? 'border-amber-400 bg-amber-50' : 'border-slate-200 bg-surface'"
+          :data-fresh="fresh.has(g.key) ? '' : undefined"
+          data-test="lane-queue-card"
+          data-card
+        >
           <div class="flex items-start justify-between gap-2">
             <span class="text-lg font-black leading-tight text-slate-900">
               {{ groupLabel(g, t) }}
@@ -143,6 +239,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
               {{ $t('production.lanes.minutes', { n: minutesWaiting(g) }) }}
             </span>
           </div>
+          <p class="font-mono text-xs font-semibold tracking-wider text-slate-500" data-test="order-number">{{ orderNumbers(g, t) }}</p>
           <ul class="mt-1 flex-1">
             <li v-for="line in cardLines(g.items).slice(0, PREVIEW_LINES)" :key="line.key" class="text-base font-semibold leading-snug text-slate-800">
               {{ line.quantity }} × {{ itemName(line.first) }}
@@ -164,5 +261,26 @@ onBeforeUnmount(() => window.removeEventListener('resize', layout))
         </li>
       </ul>
     </section>
+    </div>
   </div>
 </template>
+
+<style scoped>
+/* Three slow pulses around the lane that just got work (well under three a
+   second); with reduced motion one steady glow. */
+.lane-flash {
+  animation: lane-pulse 0.6s ease-in-out 3;
+}
+
+@keyframes lane-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 0 10px var(--color-amber-400), 0 0 40px 12px color-mix(in oklab, var(--color-amber-300) 60%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lane-flash {
+    animation: none;
+    box-shadow: 0 0 0 6px var(--color-amber-400);
+  }
+}
+</style>

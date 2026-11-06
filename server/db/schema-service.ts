@@ -79,6 +79,9 @@ export const stationBuzzers = pgTable(
     station: text('station').notNull(),
     lane: integer('lane').notNull(),
     key: varchar('key', { length: 32 }).notNull(),
+    // The buzzer's own colour (LANE_COLOR_NAMES), so its lane on the screen
+    // matches it; null takes the lane's default colour.
+    color: varchar('color', { length: 16 }),
   },
   (t) => [
     primaryKey({ columns: [t.eventId, t.station, t.lane] }),
@@ -111,3 +114,23 @@ export const productionLanes = pgTable(
 
 // Last run per background job; lib/sweep.ts claims its slot here, so all instances together sweep at most hourly.
 export const maintenanceRuns = pgTable('maintenance_runs', { job: text('job').primaryKey(), lastRunAt: timestamp('last_run_at', { withTimezone: true }).notNull() })
+
+// Lanes of a station's screen, set by the people at the station (+/- in the
+// display menu): how many people work side by side, and which of them pause.
+// No row: as many lanes as the station has buzzers (at least one). A paused
+// lane finishes the card it holds but takes no new one. `paused_mask` has bit
+// lane-1 set for each paused lane (lane 1 = 1, lane 2 = 2, lane 3 = 4, lane 4 = 8).
+export const stationLaneSettings = pgTable(
+  'station_lane_settings',
+  {
+    eventId: uuid('event_id').notNull().references(() => events.id, { onDelete: 'cascade' }),
+    station: text('station').notNull(),
+    laneCount: integer('lane_count').notNull(),
+    pausedMask: integer('paused_mask').notNull().default(0),
+  },
+  (t) => [
+    primaryKey({ columns: [t.eventId, t.station] }),
+    check('station_lane_settings_count_chk', sql`${t.laneCount} BETWEEN 1 AND 4`),
+    check('station_lane_settings_station_chk', sql`${t.station} IN ('kitchen','bar','cafe')`),
+  ],
+)

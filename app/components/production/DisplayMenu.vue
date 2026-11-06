@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useProductionStore } from '~/stores/production'
+import { useAuthStore } from '~/stores/auth'
+import { BUZZERS_PER_STATION } from '~/../server/lib/contracts/production'
+import { laneColor } from '~/utils/buzzer-lanes'
 
 // Header icon on the kitchen/bar screen; its popover holds the display
 // settings, set once per device: page zoom (for staff who cannot pinch-zoom
@@ -17,6 +21,28 @@ const MIN = 0.7
 const MAX = 1.6
 const ZOOM_KEY = 'production-zoom'
 const AWAKE_KEY = 'production-keep-awake'
+
+// Lanes: how many people work side by side at this station (for all its
+// screens), and which lanes this device shows (another tablet the rest).
+const production = useProductionStore()
+const auth = useAuthStore()
+const laneBusy = ref(false)
+const laneFailed = ref(false)
+const stationParam = computed(() => (auth.staff?.role === 'admin' && production.station ? production.station : undefined))
+async function setLaneCount(n: number) {
+  if (laneBusy.value || n < 1 || n > BUZZERS_PER_STATION) return
+  laneBusy.value = true
+  laneFailed.value = false
+  try {
+    await production.setLanes({ laneCount: n }, stationParam.value)
+  }
+  catch {
+    laneFailed.value = true
+  }
+  finally {
+    laneBusy.value = false
+  }
+}
 
 const open = ref(false)
 const root = ref<HTMLElement | null>(null)
@@ -145,6 +171,54 @@ const roundButton = 'inline-flex size-11 items-center justify-center rounded-ful
       class="absolute right-2 top-full z-50 mt-1 flex flex-col items-start gap-2 rounded-lg bg-surface p-3 shadow-lg ring-1 ring-slate-200"
       data-test="display-panel"
     >
+      <template v-if="production.station">
+        <p class="text-sm font-semibold text-slate-700">{{ $t('production.display.lanes') }}</p>
+        <div class="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.display.lanes')">
+          <button
+            type="button"
+            :class="roundButton"
+            :aria-label="$t('production.display.lanesFewer')"
+            :disabled="laneBusy || production.laneCount <= 1"
+            data-test="lanes-fewer"
+            @click="setLaneCount(production.laneCount - 1)"
+          >
+            <UIcon name="i-lucide-minus" class="size-5" aria-hidden="true" />
+          </button>
+          <span class="min-w-[3.5rem] text-center text-sm font-semibold tabular-nums text-slate-700" data-test="lanes-value">
+            {{ production.laneCount }}
+          </span>
+          <button
+            type="button"
+            :class="roundButton"
+            :aria-label="$t('production.display.lanesMore')"
+            :disabled="laneBusy || production.laneCount >= BUZZERS_PER_STATION"
+            data-test="lanes-more"
+            @click="setLaneCount(production.laneCount + 1)"
+          >
+            <UIcon name="i-lucide-plus" class="size-5" aria-hidden="true" />
+          </button>
+        </div>
+        <p class="max-w-64 text-xs text-slate-600">{{ $t('production.display.lanesHint') }}</p>
+        <p v-if="laneFailed" class="text-xs font-semibold text-rose-700" role="alert">{{ $t('production.toastFailed') }}</p>
+        <template v-if="production.lanes.length > 1">
+          <p class="text-sm font-semibold text-slate-700">{{ $t('production.display.shown') }}</p>
+          <div class="flex flex-wrap gap-1" data-test="lanes-shown">
+            <button
+              v-for="l in production.lanes"
+              :key="l.lane"
+              type="button"
+              :class="[pill, production.hiddenLanes.includes(l.lane) ? offClass : [laneColor(l.color).bg, 'text-white']]"
+              :aria-pressed="!production.hiddenLanes.includes(l.lane)"
+              :data-test="`lane-shown-${l.lane}`"
+              @click="production.setLaneShown(l.lane, production.hiddenLanes.includes(l.lane))"
+            >
+              <span class="flex size-6 items-center justify-center rounded-full bg-white text-xs font-black" :class="laneColor(l.color).text">{{ l.lane }}</span>
+              {{ $t(`production.lanes.color.${l.color}`) }}
+            </button>
+          </div>
+        </template>
+        <hr class="w-full border-slate-200">
+      </template>
       <div class="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1" role="group" :aria-label="$t('production.display.zoomLabel')">
         <button
           type="button"

@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, shallowRef, watch } from 'vue'
 import { navigateTo } from '#imports'
 import { useAuthStore } from '~/stores/auth'
 import { useProductionStore, type ProductionOrderGroup } from '~/stores/production'
 import { usePolling } from '~/composables/usePolling'
-import OrderCard from '~/components/production/OrderCard.vue'
 import LanesView from '~/components/production/LanesView.vue'
 import StationFilter from '~/components/production/StationFilter.vue'
 import SoldOutPanel from '~/components/production/SoldOutPanel.vue'
@@ -15,7 +14,7 @@ import WaiterCalls from '~/components/staff/WaiterCalls.vue'
 import { useBranding } from '~/composables/useBranding'
 import { useAttention } from '~/composables/useAttention'
 import { groupLabel } from '~/utils/production-card'
-import { createSeenTracker } from '~/utils/arrivals'
+import { createLaneFillTracker } from '~/utils/arrivals'
 import type { ProductionQueueItem } from '~/../server/lib/contracts/production'
 
 type Station = 'kitchen' | 'bar' | 'cafe'
@@ -25,10 +24,11 @@ const auth = useAuthStore()
 const production = useProductionStore()
 
 const adminStation = ref<Station>('kitchen')
-const busyIds = ref<Set<string>>(new Set())
-const toast = ref<{ kind: 'success' | 'error'; text: string; undo?: ProductionQueueItem[] } | null>(null)
+// shallowRef: the timer below compares the very object it was set to; a deep
+// ref would hand back a proxy and the toast would never go.
+const toast = shallowRef<{ kind: 'success' | 'error'; text: string; undo?: ProductionQueueItem[] } | null>(null)
 // How long "Undo" is offered after "Done".
-const UNDO_MS = 6000
+const UNDO_MS = 15_000
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 
 const isAdmin = computed(() => auth.staff?.role === 'admin')
@@ -43,11 +43,6 @@ const effectiveStation = computed<Station | undefined>(() => {
   return undefined
 })
 
-// With buzzers the screen shows their lanes instead of the views.
-const lanesActive = computed(() => production.lanes.length > 0)
-
-// A drink or a slice of cake is ready in seconds: bar and cafe skip "Start".
-const oneStep = computed(() => effectiveStation.value === 'bar' || effectiveStation.value === 'cafe')
 
 async function load() {
   await production.fetchQueue(isAdmin.value ? adminStation.value : undefined)
@@ -58,11 +53,21 @@ function loadQuietly() {
   return load().catch(() => {})
 }
 
-// New orders in the queue: tone + vibration.
+// A lane that was empty got a card: tone + vibration, and that lane lights
+// up (not the whole screen). New cards under "Next up" need nobody at once:
+// they only stand out for a moment. Lanes another screen shows stay quiet.
 const attention = useAttention()
-const arrivals = createSeenTracker()
+const laneFills = createLaneFillTracker()
+const FLASH_MS = 1800
+const flash = ref<number[]>([])
+let flashTimer: ReturnType<typeof setTimeout> | null = null
 watch(() => production.lastSyncAt, () => {
-  if (arrivals.update(production.queue.map((i) => i.orderItemId)).length > 0) attention.notify()
+  const filled = laneFills.update(production.lanes).filter((lane) => !production.hiddenLanes.includes(lane))
+  if (filled.length === 0) return
+  attention.notify({ flash: false })
+  flash.value = filled
+  if (flashTimer) clearTimeout(flashTimer)
+  flashTimer = setTimeout(() => { flash.value = [] }, FLASH_MS)
 })
 
 onMounted(async () => {
@@ -85,7 +90,7 @@ const polling = usePolling(load, { intervalMs: 4000, immediate: false, maxBackof
 watch(adminStation, async () => {
   if (!isAdmin.value) return
   polling.stop()
-  arrivals.reset()
+  laneFills.reset()
   await loadQuietly()
   polling.start()
 })
@@ -112,22 +117,6 @@ async function onUndo() {
   }
 }
 
-// Several ids when the card shows a merged line: one toast, one undo for all.
-async function onAdvance(orderItemIds: string[], next: 'in_progress' | 'done') {
-  const ids = orderItemIds.filter((id) => !busyIds.value.has(id))
-  if (ids.length === 0) return
-  busyIds.value = new Set([...busyIds.value, ...ids])
-  const items = production.queue.filter((i) => ids.includes(i.orderItemId))
-  const results = await Promise.allSettled(ids.map((id) => production.advance(id, next)))
-  const ok = items.filter((i) => results[ids.indexOf(i.orderItemId)]!.status === 'fulfilled')
-  if (ok.length < ids.length) showToast('error', t('production.toastFailed'))
-  else if (next === 'done') showToast('success', t('production.toastDone'), ok)
-  else showToast('success', t('production.toastStarted'))
-  const after = new Set(busyIds.value)
-  for (const id of ids) after.delete(id)
-  busyIds.value = after
-}
-
 // One card can hold several orders of a table: finish each of them.
 // From a buzzer the toast names the card, as nobody looked at the screen.
 async function onFinish(group: ProductionOrderGroup, named = false) {
@@ -142,12 +131,22 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
   after.delete(group.key)
   finishingIds.value = after
   // The server refills a freed lane on the next poll: ask now, not in 4 s.
-  if (lanesActive.value) await loadQuietly()
+  await loadQuietly()
+}
+
+// A paused lane finishes its card, then shrinks to a bar; a tap brings it back.
+async function onPause(lane: number, paused: boolean) {
+  try {
+    await production.setLanes({ lane, paused }, isAdmin.value ? adminStation.value : undefined)
+  }
+  catch {
+    showToast('error', t('production.toastFailed'))
+  }
 }
 </script>
 
 <template>
-  <main class="mx-auto px-4 py-3" :class="lanesActive ? 'max-w-none pb-0' : 'max-w-5xl'">
+  <main class="mx-auto max-w-none px-4 py-3 pb-0">
     <!-- Title and "sold out" sit in the app bar: the screen is for orders. -->
     <ClientOnly>
       <Teleport to="#page-title">
@@ -189,31 +188,22 @@ async function onFinish(group: ProductionOrderGroup, named = false) {
     <StationGuide v-else-if="production.queue.length === 0" :station="effectiveStation ?? 'kitchen'" />
 
     <LanesView
-      v-else-if="lanesActive"
+      v-else
       :groups="production.groups"
       :lanes="production.lanes"
       :finishing="finishingIds"
+      :hidden="production.hiddenLanes"
+      :flash="flash"
       @finish="onFinish"
+      @pause="onPause"
+      @show="(lane) => production.setLaneShown(lane, true)"
     />
-
-    <ul v-else class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <li v-for="group in production.groups" :key="group.key">
-        <OrderCard
-          :group="group"
-          :busy-ids="busyIds"
-          :finishing="finishingIds.has(group.key)"
-          :one-step="oneStep"
-          @advance="(ids, n) => onAdvance(ids, n)"
-          @finish="onFinish(group)"
-        />
-      </li>
-    </ul>
 
     <transition name="fade">
       <div
         v-if="toast"
         class="fixed left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white shadow-lg"
-        :class="[toast.kind === 'success' ? 'bg-success' : 'bg-danger', lanesActive ? 'top-2' : 'bottom-6']"
+        :class="[toast.kind === 'success' ? 'bg-success' : 'bg-danger', 'top-2']"
         role="status"
       >
         <UIcon :name="toast.kind === 'success' ? 'i-lucide-circle-check' : 'i-lucide-circle-alert'" class="size-4 shrink-0" aria-hidden="true" />

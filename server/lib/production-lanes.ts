@@ -1,25 +1,77 @@
 import { and, asc, eq, inArray } from 'drizzle-orm'
 import type { Db } from '../db/client'
+import { AppError } from './errors'
 import { orderItems } from '../db/schema'
-import { productionLanes, stationBuzzers } from '../db/schema-service'
-import { LANE_ROUND_MS, productionCards, type ProductionLane, type ProductionQueueItem, type Station, type StationBuzzers } from './contracts/production'
+import { productionLanes, stationBuzzers, stationLaneSettings } from '../db/schema-service'
+import { LANE_ROUND_MS, productionCards, laneColors, type LaneColor, type ProductionLane, type ProductionLanesSetting, type ProductionQueueItem, type Station, type StationBuzzers } from './contracts/production'
 
-// One lane per buzzer the admin set for the station, in lane order.
-export async function activeLanes(db: Db, eventId: string, station: Station): Promise<Array<{ lane: number; key: string }>> {
-  return await db.select({ lane: stationBuzzers.lane, key: stationBuzzers.key }).from(stationBuzzers)
+export interface ActiveLane { lane: number; key: string | null; color: LaneColor; paused: boolean }
+
+const pausedLanes = (mask: number) => [1, 2, 3, 4].filter((lane) => (mask & (1 << (lane - 1))) !== 0)
+
+// How many lanes the station works with and which pause. Without a setting
+// from the station: one lane per buzzer, at least one.
+export async function laneSetting(db: Db, eventId: string, station: Station): Promise<ProductionLanesSetting & { keys: string[]; colors: Array<LaneColor | null> }> {
+  const buzzers = await db.select({ key: stationBuzzers.key, color: stationBuzzers.color }).from(stationBuzzers)
     .where(and(eq(stationBuzzers.eventId, eventId), eq(stationBuzzers.station, station)))
     .orderBy(asc(stationBuzzers.lane))
+  const keys = buzzers.map((r) => r.key)
+  const row = (await db.select().from(stationLaneSettings)
+    .where(and(eq(stationLaneSettings.eventId, eventId), eq(stationLaneSettings.station, station))))[0]
+  const laneCount = row?.laneCount ?? Math.max(1, keys.length)
+  const colors = buzzers.map((r) => (r.color as LaneColor | null) ?? null)
+  return { laneCount, paused: pausedLanes(row?.pausedMask ?? 0).filter((l) => l <= laneCount), keys, colors }
 }
 
-// The buzzer keys of each station, in lane order (admin settings).
+// The lanes of the station's screen, in lane order, each with its buzzer if
+// it has one. There is always at least one: even alone, the card being
+// worked on stands out from the ones waiting.
+export async function activeLanes(db: Db, eventId: string, station: Station): Promise<{ laneCount: number; lanes: ActiveLane[] }> {
+  const { laneCount, paused, keys, colors } = await laneSetting(db, eventId, station)
+  const color = laneColors(colors, laneCount)
+  const lanes = Array.from({ length: laneCount }, (_, i) => ({ lane: i + 1, key: keys[i] ?? null, color: color[i]!, paused: paused.includes(i + 1) }))
+  return { laneCount, lanes }
+}
+
+// Changes the station's lane count or one lane's pause. Fewer lanes drop
+// the highest ones: their cards go back to "Next up" on the next poll.
+// One lane always works: the last one cannot pause, and if fewer lanes
+// leave only paused ones, they all go on again.
+export async function changeLanes(
+  db: Db,
+  eventId: string,
+  station: Station,
+  change: { laneCount: number } | { lane: number; paused: boolean },
+): Promise<ProductionLanesSetting> {
+  const now = await laneSetting(db, eventId, station)
+  const laneCount = 'laneCount' in change ? change.laneCount : now.laneCount
+  let paused = now.paused
+  if ('lane' in change) paused = change.paused ? [...new Set([...paused, change.lane])] : paused.filter((l) => l !== change.lane)
+  paused = paused.filter((l) => l <= laneCount).sort((a, b) => a - b)
+  if (paused.length >= laneCount) {
+    if ('lane' in change) throw new AppError('CONFLICT', 409, 'The last working lane cannot pause')
+    paused = []
+  }
+  const pausedMask = paused.reduce((m, l) => m | (1 << (l - 1)), 0)
+  await db.insert(stationLaneSettings).values({ eventId, station, laneCount, pausedMask })
+    .onConflictDoUpdate({ target: [stationLaneSettings.eventId, stationLaneSettings.station], set: { laneCount, pausedMask } })
+  return { laneCount, paused }
+}
+
+// The buzzer keys and colours of each station, in lane order (admin settings).
 export async function loadStationBuzzers(db: Db, eventId: string): Promise<StationBuzzers> {
   const rows = await db.select().from(stationBuzzers).where(eq(stationBuzzers.eventId, eventId)).orderBy(asc(stationBuzzers.lane))
-  const of = (station: Station) => rows.filter((r) => r.station === station).map((r) => r.key)
-  return { kitchen: of('kitchen'), bar: of('bar'), cafe: of('cafe') }
+  const of = (station: Station) => rows.filter((r) => r.station === station)
+  const keys = (station: Station) => of(station).map((r) => r.key)
+  const colors = (station: Station) => of(station).map((r) => (r.color as LaneColor | null) ?? null)
+  return {
+    kitchen: keys('kitchen'), bar: keys('bar'), cafe: keys('cafe'),
+    colors: { kitchen: colors('kitchen'), bar: colors('bar'), cafe: colors('cafe') },
+  }
 }
 
 // Keeps each lane on its card while the card has open items and gives free
-// lanes the oldest card no lane holds. Runs on every queue poll, so a lane
+// lanes the oldest card no lane holds; a paused lane takes none. Runs on every queue poll, so a lane
 // refills as soon as its card is finished (by buzzer or by tap) or a new
 // order comes in. Cards in a lane count as "in preparation" for the guest.
 // `items` is the open queue, oldest first; it is updated in place.
@@ -27,7 +79,7 @@ export async function fillLanes(
   db: Db,
   eventId: string,
   station: Station,
-  lanes: Array<{ lane: number; key: string }>,
+  lanes: ActiveLane[],
   items: ProductionQueueItem[],
 ): Promise<ProductionLane[]> {
   const here = and(eq(productionLanes.eventId, eventId), eq(productionLanes.station, station))
@@ -42,8 +94,8 @@ export async function fillLanes(
     else await db.delete(productionLanes).where(and(here, eq(productionLanes.lane, r.lane), eq(productionLanes.groupKey, r.groupKey)))
   }
 
-  for (const { lane } of lanes) {
-    if (held.has(lane)) continue
+  for (const { lane, paused } of lanes) {
+    if (held.has(lane) || paused) continue
     const taken = [...held.values()].map((h) => h.groupKey)
     const next = open.find((k) => !taken.includes(k))
     if (!next) break
@@ -62,8 +114,8 @@ export async function fillLanes(
     ))
     for (const i of started) i.productionStatus = 'in_progress'
   }
-  return lanes.map(({ lane, key }) => {
+  return lanes.map(({ lane, key, color, paused }) => {
     const h = held.get(lane)
-    return { lane, key, groupKey: h?.groupKey ?? null, assignedAt: h ? new Date(h.assignedAt).toISOString() : null }
+    return { lane, key, color, paused, groupKey: h?.groupKey ?? null, assignedAt: h ? new Date(h.assignedAt).toISOString() : null }
   })
 }

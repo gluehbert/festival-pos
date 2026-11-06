@@ -16,7 +16,7 @@ const t12 = group(12, [item(12, 'Lager'), item(12, 'Lager', { quantity: 2 }), it
 const t7 = group(7, [item(7, 'Wheat beer')])
 const t3 = group(3, [item(3, 'Cola')])
 const AT = '2026-06-01T18:00:30Z'
-const lanes: ProductionLane[] = [{ lane: 1, key: 'F9', groupKey: 'table:12', assignedAt: AT }, { lane: 2, key: 'F10', groupKey: 'table:7', assignedAt: AT }]
+const lanes: ProductionLane[] = [{ lane: 1, key: 'F9', color: 'green', paused: false, groupKey: 'table:12', assignedAt: AT }, { lane: 2, key: 'F10', color: 'blue', paused: false, groupKey: 'table:7', assignedAt: AT }]
 
 function press(key: string) {
   document.body.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }))
@@ -54,13 +54,13 @@ describe('LanesView', () => {
     const t5 = group(5, [item(5, 'Water')])
     const four: ProductionLane[] = [
       ...lanes,
-      { lane: 3, key: 'F11', groupKey: 'table:3', assignedAt: AT },
-      { lane: 4, key: 'F12', groupKey: 'table:5', assignedAt: AT },
+      { lane: 3, key: 'F11', color: 'amber', paused: false, groupKey: 'table:3', assignedAt: AT },
+      { lane: 4, key: 'F12', color: 'violet', paused: false, groupKey: 'table:5', assignedAt: AT },
     ]
     const w = mount(LanesView, { props: { groups: [t12, t7, t3, t5], lanes: four, finishing: new Set<string>() }, attachTo: document.body })
     expect([1, 2, 3, 4].map((n) => w.find(`[data-test="lane-${n}"]`).classes().find((c) => c.startsWith('border-') && c.endsWith('-600'))))
       .toEqual(['border-emerald-600', 'border-blue-600', 'border-amber-600', 'border-violet-600'])
-    expect(w.find('[data-test="lane-4"]').text()).toContain('production.lanes.buzzer4')
+    expect(w.find('[data-test="lane-4"]').text()).toContain('production.lanes.withBuzzer')
     expect(w.find('[data-test="lane-queue-card"]').exists()).toBe(false)
     press('F12')
     press('F11')
@@ -69,7 +69,7 @@ describe('LanesView', () => {
   })
 
   it('a buzzer does nothing while its card is being finished or its lane is free', () => {
-    const free: ProductionLane[] = [{ lane: 1, key: 'F9', groupKey: 'table:12', assignedAt: AT }, { lane: 2, key: 'F10', groupKey: null, assignedAt: null }]
+    const free: ProductionLane[] = [{ lane: 1, key: 'F9', color: 'green', paused: false, groupKey: 'table:12', assignedAt: AT }, { lane: 2, key: 'F10', color: 'blue', paused: false, groupKey: null, assignedAt: null }]
     const w = mount(LanesView, { props: { groups: [t12], lanes: free, finishing: new Set(['table:12']) }, attachTo: document.body })
     expect(w.find('[data-test="lane-2"]').text()).toContain('production.lanes.free')
     press('F9')
@@ -81,7 +81,7 @@ describe('LanesView', () => {
   it('a tap finishes a lane card or any waiting card without a named toast', async () => {
     const w = mount(LanesView, { props: { groups: [t12, t7, t3], lanes, finishing: new Set<string>() } })
     await w.find('[data-test="lane-queue-card"] button').trigger('click')
-    await w.find('[data-test="lane-1"] button').trigger('click')
+    await w.find('[data-test="lane-1"] [data-test="lane-finish"]').trigger('click')
     expect(w.emitted('finish')).toEqual([[t3, false], [t12, false]])
   })
 
@@ -125,5 +125,91 @@ describe('productionCards', () => {
     expect(cards.map((c) => c.items.map((i) => i.nameEn))).toEqual([['Lager', 'Cola', 'Spritz'], ['Lager'], ['Water']])
     expect(cards[0]!.key).toBe(`table:12:${first.orderId}`)
     expect(cards[2]!.key).toBe(`table:12:${later.orderId}`)
+  })
+})
+
+describe('LanesView without buzzers', () => {
+  const plain: ProductionLane[] = [
+    { lane: 1, key: null, color: 'green', paused: false, groupKey: 'table:12', assignedAt: AT },
+    { lane: 2, key: null, color: 'blue', paused: true, groupKey: 'table:7', assignedAt: AT },
+    { lane: 3, key: null, color: 'amber', paused: true, groupKey: null, assignedAt: null },
+    { lane: 4, key: null, color: 'violet', paused: false, groupKey: null, assignedAt: null },
+  ]
+
+  it('names a lane by its colour and pauses it; a paused lane first finishes its card', async () => {
+    const w = mount(LanesView, { props: { groups: [t12, t7, t3], lanes: plain, finishing: new Set<string>() } })
+    expect(w.find('[data-test="lane-1"]').text()).toContain('production.lanes.color.green')
+    expect(w.find('[data-test="lane-1"]').text()).not.toContain('production.lanes.withBuzzer')
+    expect(w.find('[data-test="lane-1"] [data-test="lane-pausing"]').exists()).toBe(false)
+    expect(w.find('[data-test="lane-2"] [data-test="lane-pausing"]').text()).toBe('production.lanes.pausingAfter')
+    await w.find('[data-test="lane-pause-1"]').trigger('click')
+    await w.find('[data-test="lane-pause-2"]').trigger('click')
+    expect(w.emitted('pause')).toEqual([[1, true], [2, false]])
+  })
+
+  it('an empty paused lane is a thin bar; a tap goes on', async () => {
+    const w = mount(LanesView, { props: { groups: [t12, t7, t3], lanes: plain, finishing: new Set<string>() } })
+    expect(w.find('[data-test="lane-3"]').exists()).toBe(false)
+    const bar = w.find('[data-test="lane-bar-3"]')
+    expect(bar.text()).toContain('production.lanes.paused')
+    await bar.trigger('click')
+    expect(w.emitted('pause')).toEqual([[3, false]])
+  })
+
+  it('a lane another device shows is a bar with its table; a tap shows it here', async () => {
+    const w = mount(LanesView, { props: { groups: [t12, t7, t3], lanes: plain, finishing: new Set<string>(), hidden: [1, 2, 3, 4] } })
+    expect(w.findAll('section[data-test^="lane-"]')).toHaveLength(0)
+    expect(w.find('[data-test="lane-bar-1"]').text()).toContain('production.lanes.elsewhere')
+    expect(w.find('[data-test="lane-bar-1"]').text()).toContain('12')
+    // Nothing in a lane here: the waiting cards take the room.
+    expect(w.findAll('[data-test="lane-queue-card"]')).toHaveLength(1)
+    await w.find('[data-test="lane-bar-1"]').trigger('click')
+    expect(w.emitted('show')).toEqual([[1]])
+    expect(w.emitted('pause')).toBeUndefined()
+  })
+})
+
+describe('LanesView with one lane', () => {
+  it('the last lane still working cannot pause', () => {
+    const two: ProductionLane[] = [
+      { lane: 1, key: null, color: 'green', paused: false, groupKey: 'table:12', assignedAt: AT },
+      { lane: 2, key: null, color: 'blue', paused: true, groupKey: null, assignedAt: null },
+    ]
+    const w = mount(LanesView, { props: { groups: [t12], lanes: two, finishing: new Set<string>() } })
+    expect(w.find('[data-test="lane-pause-1"]').exists()).toBe(false)
+    const alone = mount(LanesView, { props: { groups: [t12], lanes: [two[0]!], finishing: new Set<string>() } })
+    expect(alone.find('[data-test="lane-pause-1"]').exists()).toBe(false)
+  })
+
+  it('without a buzzer the lane has a calm header, no colour name; with one it keeps its colour', () => {
+    const one: ProductionLane = { lane: 1, key: null, color: 'green', paused: false, groupKey: 'table:12', assignedAt: AT }
+    const plain = mount(LanesView, { props: { groups: [t12, t7], lanes: [one], finishing: new Set<string>() } })
+    expect(plain.find('[data-test="lane-name"]').text()).toBe('production.lanes.current')
+    expect(plain.find('[data-test="lane-1"]').classes()).not.toContain('border-emerald-600')
+    const buzzer = mount(LanesView, { props: { groups: [t12, t7], lanes: [{ ...one, key: 'F9' }], finishing: new Set<string>() } })
+    expect(buzzer.find('[data-test="lane-name"]').text()).toContain('production.lanes.withBuzzer')
+    expect(buzzer.find('[data-test="lane-1"]').classes()).toContain('border-emerald-600')
+  })
+})
+
+describe('LanesView alerts', () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  it('lights up only the lanes that just got work', () => {
+    const w = mount(LanesView, { props: { groups: [t12, t7, t3], lanes, finishing: new Set<string>(), flash: [2] } })
+    expect(w.find('[data-test="lane-1"]').classes()).not.toContain('lane-flash')
+    expect(w.find('[data-test="lane-2"]').classes()).toContain('lane-flash')
+  })
+
+  it('a card new under "Next up" stands out for a moment, the first ones do not', async () => {
+    const w = mount(LanesView, { props: { groups: [t12, t7, t3], lanes, finishing: new Set<string>() } })
+    expect(w.findAll('[data-fresh]')).toHaveLength(0)
+    const t5 = group(5, [item(5, 'Water')])
+    await w.setProps({ groups: [t12, t7, t3, t5] })
+    expect(w.findAll('[data-fresh]').map((c) => c.text())).toEqual([expect.stringContaining('5')])
+    vi.advanceTimersByTime(8000)
+    await w.vm.$nextTick()
+    expect(w.findAll('[data-fresh]')).toHaveLength(0)
   })
 })

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { useStaffOrderStore } from '~/stores/staffOrder'
 import StaffMealsTable from '~/components/admin/reports/StaffMealsTable.vue'
-import OrderCard from '~/components/production/OrderCard.vue'
+import LanesView from '~/components/production/LanesView.vue'
 import type { MenuItemDto } from '~/../server/lib/contracts/guest'
 import { useCookie } from './setup/imports'
 
@@ -41,12 +41,13 @@ describe('Staff meals in the app', () => {
     expect(table.findAll('[data-test="staff-meal-row"]')).toHaveLength(2)
     expect(table.text()).toContain('34.00')
 
-    const card = mount(OrderCard, {
+    const card = mount(LanesView, {
       props: {
-        group: { key: 'order:o', orderIds: ['o'], tableNo: 0, orderKind: 'staff_meal', orderedAt: new Date().toISOString(), items: [] },
-        busyIds: new Set<string>(),
+        groups: [{ key: 'order:o', orderIds: ['o'], tableNo: 0, orderKind: 'staff_meal', orderedAt: new Date().toISOString(), items: [] }],
+        lanes: [{ lane: 1, key: null, color: 'green', paused: false, groupKey: 'order:o', assignedAt: null }],
+        finishing: new Set<string>(),
       },
     })
-    expect(card.find('h2').text()).toBe('production.staffMeal')
+    expect(card.find('[data-test="lane-label"]').text()).toBe('production.staffMeal')
   })
 })
