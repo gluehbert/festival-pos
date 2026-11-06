@@ -40,13 +40,14 @@ async function set(closed: boolean, close?: () => void) {
   <UPopover v-else :content="{ align: 'end' }" :ui="{ content: 'bg-surface ring-slate-200' }">
     <button
       type="button"
-      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded px-2 text-slate-600 hover:bg-slate-100"
+      class="inline-flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 rounded px-1 text-slate-600 md:flex-row md:gap-1.5 md:px-2 hover:bg-slate-100"
       :aria-label="$t('production.cafe.close')"
       :title="$t('production.cafe.close')"
       data-test="cafe-close"
     >
       <UIcon name="i-lucide-door-closed" class="size-5" aria-hidden="true" />
-      <span class="hidden text-sm font-semibold lg:inline">{{ $t('production.cafe.close') }}</span>
+      <span class="text-[10px] font-semibold leading-none md:hidden">{{ $t('production.cafe.closeShort') }}</span>
+      <span class="hidden text-sm font-semibold md:inline">{{ $t('production.cafe.close') }}</span>
     </button>
     <template #content="{ close }">
       <div class="w-[min(92vw,22rem)] p-3 text-sm">

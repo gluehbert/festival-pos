@@ -1342,6 +1342,7 @@
     "service": "Service",
     "passkeys": "Passkeys",
     "account": "Account",
+    "menuShort": "Menu",
     "settings": "Language & appearance",
     "language": "Language",
     "device": {
@@ -1405,6 +1406,7 @@
     },
     "cafe": {
       "close": "Close cake counter",
+      "closeShort": "Close",
       "open": "Open cake counter",
       "closeConfirm": "Close the cake counter? New orders of coffee and cake then go to the kitchen.",
       "closeYes": "Yes, close",

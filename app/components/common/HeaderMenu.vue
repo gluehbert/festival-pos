@@ -13,6 +13,8 @@ import { useBranding } from '~/composables/useBranding'
 // (password, passkeys), the other areas (by role), cash, language, colours
 // and sign-out here. Guests only get language and colours.
 const auth = useAuthStore()
+// Guests see the globe and the current language: found by anyone, whatever they read.
+const { locale } = useI18n()
 const route = useRoute()
 const device = useDeviceMode()
 const { branding } = useBranding()
@@ -24,11 +26,11 @@ const initial = computed(() => auth.staff?.username.slice(0, 1).toUpperCase() ??
 
 const links = computed(() => {
   const all = [
-    { to: '/staff', key: 'nav.service', show: auth.hasRole('admin') },
-    { to: '/production', key: 'nav.production', show: auth.hasRole('admin') },
-    { to: '/admin/events', key: 'nav.admin', show: auth.hasRole('admin') },
+    { to: '/staff', key: 'nav.service', icon: 'i-lucide-hand-platter', show: auth.hasRole('admin') },
+    { to: '/production', key: 'nav.production', icon: 'i-lucide-chef-hat', show: auth.hasRole('admin') },
+    { to: '/admin/events', key: 'nav.admin', icon: 'i-lucide-settings', show: auth.hasRole('admin') },
     // Only when the event counts cash per drawer (feature switch).
-    { to: '/staff/cash', key: 'staff.cash.nav', show: branding.value.cashDrawerEnabled && auth.hasRole(['waiter', 'lead', 'admin']) },
+    { to: '/staff/cash', key: 'staff.cash.nav', icon: 'i-lucide-wallet', show: branding.value.cashDrawerEnabled && auth.hasRole(['waiter', 'lead', 'admin']) },
   ]
   return all.filter((l) => l.show)
 })
@@ -57,11 +59,16 @@ async function logout(close: () => void) {
   <UPopover :ui="{ content: 'bg-surface ring-slate-200' }">
     <button
       type="button"
-      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded text-slate-600 hover:bg-slate-100"
+      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded px-1 text-slate-600 hover:bg-slate-100"
       :aria-label="$t(auth.isAuthenticated ? 'nav.account' : 'nav.settings')"
       data-test="header-menu"
     >
-      <UIcon :name="auth.isAuthenticated ? 'i-lucide-circle-user-round' : 'i-lucide-globe'" class="size-6" aria-hidden="true" />
+      <!-- Word under the symbol on phones, beside it from tablet: like the station tools next to it. -->
+      <span class="inline-flex flex-col items-center gap-0.5 md:flex-row md:gap-1.5">
+        <UIcon v-if="auth.isAuthenticated" name="i-lucide-circle-user-round" class="size-5" aria-hidden="true" />
+        <UIcon v-else name="i-lucide-globe" class="size-5" aria-hidden="true" />
+        <span class="text-[10px] font-semibold leading-none md:text-sm" aria-hidden="true" data-test="header-menu-label">{{ auth.isAuthenticated ? $t('nav.menuShort') : locale.toUpperCase() }}</span>
+      </span>
       <UIcon name="i-lucide-chevron-down" class="size-3" aria-hidden="true" />
     </button>
     <template #content="{ close }">
@@ -91,11 +98,12 @@ async function logout(close: () => void) {
               v-for="l in links"
               :key="l.to"
               :to="l.to"
-              class="flex min-h-[44px] items-center rounded px-2 text-slate-700 hover:bg-slate-100"
+              class="flex min-h-[44px] items-center gap-2 rounded px-2 text-slate-700 hover:bg-slate-100"
               :class="isCurrent(l.to) ? 'font-semibold text-slate-900' : ''"
               :data-test="`menu-link-${l.to}`"
               @click="close()"
             >
+              <UIcon :name="l.icon" class="size-4 shrink-0" aria-hidden="true" />
               {{ $t(l.key) }}
             </NuxtLink>
             <button

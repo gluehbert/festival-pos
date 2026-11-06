@@ -1342,6 +1342,7 @@
     "service": "Bedienung",
     "passkeys": "Passkeys",
     "account": "Konto",
+    "menuShort": "Menü",
     "settings": "Sprache & Darstellung",
     "language": "Sprache",
     "device": {
@@ -1405,6 +1406,7 @@
     },
     "cafe": {
       "close": "Kuchentheke schließen",
+      "closeShort": "Schließen",
       "open": "Kuchentheke öffnen",
       "closeConfirm": "Kuchentheke schließen? Neue Bestellungen von Kaffee und Kuchen gehen dann an die Küche.",
       "closeYes": "Ja, schließen",

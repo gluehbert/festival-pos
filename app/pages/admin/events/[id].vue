@@ -24,15 +24,15 @@ const subPath = computed(() => route.path.slice(`/admin/events/${eventId.value}`
 const tabs = computed(() => {
   const base = `/admin/events/${eventId.value}`
   return [
-    { to: base, key: 'admin.workspace.tabs.overview' },
+    { to: base, key: 'admin.workspace.tabs.overview', icon: 'i-lucide-layout-dashboard' },
     // The setup steps, in the order the guide walks them.
-    { to: `${base}/branding`, key: 'admin.workspace.tabs.branding' },
-    { to: `${base}/settings`, key: 'admin.workspace.tabs.settings' },
-    { to: `${base}/menu`, key: 'admin.workspace.tabs.menu' },
-    { to: `${base}/pricing`, key: 'admin.workspace.tabs.pricing' },
-    { to: `${base}/staff`, key: 'admin.workspace.tabs.staff' },
-    { to: `${base}/qr-codes`, key: 'admin.workspace.tabs.qr' },
-    { to: `${base}/reports`, key: 'admin.workspace.tabs.reports' },
+    { to: `${base}/branding`, key: 'admin.workspace.tabs.branding', icon: 'i-lucide-palette' },
+    { to: `${base}/settings`, key: 'admin.workspace.tabs.settings', icon: 'i-lucide-settings' },
+    { to: `${base}/menu`, key: 'admin.workspace.tabs.menu', icon: 'i-lucide-book-open' },
+    { to: `${base}/pricing`, key: 'admin.workspace.tabs.pricing', icon: 'i-lucide-badge-percent' },
+    { to: `${base}/staff`, key: 'admin.workspace.tabs.staff', icon: 'i-lucide-users' },
+    { to: `${base}/qr-codes`, key: 'admin.workspace.tabs.qr', icon: 'i-lucide-qr-code' },
+    { to: `${base}/reports`, key: 'admin.workspace.tabs.reports', icon: 'i-lucide-chart-column' },
   ]
 })
 
@@ -72,6 +72,7 @@ onMounted(async () => {
           class="-mb-px inline-flex min-h-[44px] shrink-0 items-center border-b-2 border-transparent px-3 text-slate-600 hover:text-slate-900"
           exact-active-class="!border-slate-900 font-semibold !text-slate-900"
         >
+          <UIcon :name="tab.icon" class="mr-1.5 size-4 shrink-0" aria-hidden="true" />
           {{ $t(tab.key) }}
         </NuxtLink>
       </nav>
