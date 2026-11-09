@@ -1,6 +1,8 @@
 import process from 'node:process'
 import { createError, setResponseHeader, type H3Event } from 'h3'
 import { ZodError } from 'zod'
+import { log } from './log'
+import { markReported, reportServerError, stripQuery } from './monitoring'
 
 export class AppError extends Error {
   constructor(
@@ -52,8 +54,10 @@ export function sendAppError(event: H3Event, err: unknown): never {
   const isProd = process.env.NODE_ENV === 'production'
 
   if (isDbConnectionLimit(err)) {
+    // Expected under load and retried by the client: worth a line, not an alert.
+    log.warn('request.db_busy', { requestId: event.context.requestId as string | undefined, route: stripQuery(event.path) })
     setResponseHeader(event, 'Retry-After', 1)
-    throw createError({
+    throw reported(createError({
       statusCode: 503,
       statusMessage: 'Service Unavailable',
       data: {
@@ -61,18 +65,19 @@ export function sendAppError(event: H3Event, err: unknown): never {
         message: 'Database temporarily unavailable, please retry.',
         retryAfterSeconds: 1,
       },
-    })
+    }))
   }
 
   if (isSchemaMismatch(err)) {
-    throw createError({
+    reportServerError(event, err, 'SCHEMA_MISMATCH')
+    throw reported(createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error',
       data: {
         code: 'SCHEMA_MISMATCH',
         message: 'Database schema does not match this app version',
       },
-    })
+    }))
   }
 
   if (err instanceof AppError) {
@@ -99,13 +104,20 @@ export function sendAppError(event: H3Event, err: unknown): never {
     })
   }
 
+  reportServerError(event, err)
   const message = err instanceof Error ? err.message : 'Internal Server Error'
-  throw createError({
+  throw reported(createError({
     statusCode: 500,
     statusMessage: 'Internal Server Error',
     data: {
       code: 'INTERNAL',
       message: isProd ? 'Internal Server Error' : message,
     },
-  })
+  }))
+}
+
+// The nitro error hook (plugins/monitoring.ts) skips errors already reported here.
+function reported<T>(err: T): T {
+  markReported(err)
+  return err
 }

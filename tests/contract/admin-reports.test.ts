@@ -71,6 +71,7 @@ describe('GET /api/admin/events/{id}/reports — contract', () => {
     'tips',
     'orders_per_hour',
     'app_usage',
+    'wait_times',
   ] as const)('JSON envelope validates ReportSchema for %s', async (type) => {
     const { ReportSchema } = await import('../../server/lib/contracts/reports')
     const r = await run(`?type=${type}`)
@@ -100,6 +101,7 @@ describe('GET /api/admin/events/{id}/reports — contract', () => {
       ['tips', ['staffId', 'username', 'paymentCount', 'tipCents']],
       ['orders_per_hour', ['hourEuropeBerlin', 'orderCount', 'guestOrderCount']],
       ['app_usage', ['tableNo', 'scans', 'orderingDevices', 'guestOrders', 'staffOrders', 'guestItems', 'staffItems']],
+      ['wait_times', ['station', 'itemCount', 'medianSeconds', 'p90Seconds', 'peakHourEuropeBerlin', 'peakHourMedianSeconds']],
     ]
     for (const [type, header] of cases) {
       const r = await run(`?type=${type}&format=csv`)

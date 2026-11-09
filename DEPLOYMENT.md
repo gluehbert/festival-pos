@@ -84,6 +84,30 @@ Each event has its own workspace. At the top of `/admin/events` is the event tha
 
 - **Custom domain:** Vercel → Settings → Domains. Then set `NUXT_PUBLIC_APP_URL=https://pos.example.org` and print the QR codes again.
 - **Branch protection:** GitHub → Settings → Branches → rule for `main` with the required checks `lint`, `typecheck`, `test`, `build`, `db-e2e`.
+- **Error tracking (Sentry):** see [Monitoring](#monitoring).
+- **Uptime check:** see [Monitoring](#monitoring).
+
+## Monitoring
+
+Without anything set up, every unexpected server error (HTTP 5xx) is written to the Vercel log as `request.failed` with request ID, route, error message and the first stack frames. Query parameters (they can hold names or notes) and query strings (table keys) are cut off. Vercel keeps runtime logs only briefly on the Hobby plan, and nobody is told about the error. The two steps below close that gap; both are free.
+
+### Error tracking with Sentry
+
+1. Create an account at [sentry.io](https://sentry.io) and choose the data storage location **EU (Frankfurt)** when you sign up (it cannot be changed later). The free Developer plan is enough.
+2. Create a project of type **Vue**, name `festival-pos`. Copy the **DSN** (Settings → Client Keys).
+3. In the Sentry project: Settings → Security & Privacy → enable **Prevent Storing of IP Addresses** and **Data Scrubber**. Under Alerts, keep the default rule "a new issue is created" and set it to e-mail you, or install the Sentry app on your phone for push notifications.
+4. In Vercel, set `SENTRY_DSN` (Production only, or also Preview if you want errors from previews) and **Redeploy**. The browser part reads the DSN at build time, so a change always needs a redeploy.
+5. Sign the DPA with Sentry (Settings → Legal & Compliance) and add Sentry to the privacy policy (see the [README](README.md#data-protection)).
+
+What it sends: server errors (5xx only; wrong PINs, sold-out items and other expected answers are not errors) and uncaught errors in the browser, with release (commit), route, role (`guest`, `waiter`, …), browser and device type. It sends **no** IP addresses, names, order contents, cookies, query strings, performance traces, session pings or screen recordings. Browser reports go through the app's own server (`/api/monitoring/sentry`), so Sentry never sees a guest's IP address, the strict CSP stays as it is and ad blockers do not drop the reports. The tunnel only accepts reports for the configured DSN and at most 30 per minute per device. On staff screens (`/staff`, `/production`, `/admin`), reports that fail because the Wi-Fi is down are kept in the browser's IndexedDB and sent later; guest phones store nothing. Network errors ("Failed to fetch") are ignored: the screens already show "No connection".
+
+Without `SENTRY_DSN` nothing is loaded and nothing is sent.
+
+### Uptime check on festival days
+
+A free uptime service (for example UptimeRobot or Better Stack) calls `https://<your-app>/api/healthz` every 1–5 minutes and notifies you by app push or SMS when it does not answer `200`. `/api/healthz` checks the configuration, the database connection and the schema version, so it catches the typical failures (database down, a failed deploy, a missing variable).
+
+Turn the monitor on only for the festival days (and the rehearsal) and pause it otherwise: each check wakes the Neon database, and a check every few minutes around the clock would use up the compute hours of the Neon Free plan.
 
 ## Troubleshooting
 
@@ -93,13 +117,15 @@ Each event has its own workspace. At the top of `/admin/events` is the event tha
 | `/api/healthz` → 503 | See the message; set the variable, redeploy. |
 | Login → 429 | 10 failed attempts in 15 minutes for this user. Wait, or run `DELETE FROM login_attempts WHERE username = '…'` in Neon. |
 | Guest sees "Your session has expired" | Scan the QR code again; guest sessions last 12 hours, and the shift lead can end them all at the end of a shift. |
-| Logs | Vercel → Project → Logs. Every response has an `x-request-id` header, which also appears in the JSON logs. |
+| Logs | Vercel → Project → Logs. Every response has an `x-request-id` header, which also appears in the JSON logs. Unexpected server errors are logged as `request.failed` with the real cause; with Sentry set up, search for the request ID under the tag `request_id`. |
 
 ## Go-live checklist before the festival
 
 - [ ] The [legal notes](README.md#legal-notes) are sorted out (fiscal compliance/TSE, data processing agreements with Vercel and Neon, the organization's privacy policy).
 - [ ] CI on `main` is green and the production deployment is the expected one (check the commit in Vercel).
 - [ ] `/api/healthz` responds with `ok`.
+- [ ] Uptime check for `/api/healthz` switched on for the festival days, and its alerts reach someone on site (see [Monitoring](#monitoring)).
+- [ ] If Sentry is set up: alerts reach someone on site.
 - [ ] **Backup branch "before" created** (see [Backup](#backup)), name noted.
 - [ ] Rehearsal played through: guest orders via QR → kitchen/bar reports ready → waiter collects payment (including a partial payment) → report shows the numbers. Then "End rehearsal".
 - [ ] All waiter, kitchen and bar accounts can sign in; accounts that are not needed are deactivated.

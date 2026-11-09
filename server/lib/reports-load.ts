@@ -11,6 +11,7 @@ import { loadCashSessions } from './cash-sessions'
 import { loadDeposits, loadPriceRuleSales, loadStaffMeals, loadTips } from './reports-extra'
 import { loadAssignments } from './table-assignments'
 import { loadAppUsage } from './reports-usage'
+import { loadWaitTimes } from './reports-wait'
 
 export async function loadReportRows(
   db: Db,
@@ -42,6 +43,8 @@ export async function loadReportRows(
       return loadPriceRuleSales(db, eventId)
     case 'app_usage':
       return loadAppUsage(db, eventId)
+    case 'wait_times':
+      return loadWaitTimes(db, eventId)
   }
 }
 

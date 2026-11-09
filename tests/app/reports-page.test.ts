@@ -32,7 +32,7 @@ describe('admin reports page', () => {
     const w = mount(ReportsPage, { props: { event: ev(true) } })
     await flushPromises()
     expect(urls()).toEqual([`/api/admin/events/${ID}/reports/all`])
-    expect(w.findAll('section')).toHaveLength(12)
+    expect(w.findAll('section')).toHaveLength(13)
     expect(w.text()).toContain('10.50')
     expect(w.get('[data-test="reports-as-of"]').text()).toContain('admin.reports.asOf')
     w.unmount()
@@ -64,7 +64,7 @@ describe('admin reports page', () => {
     const w = mount(ReportsPage, { props: { event: ev(true) } })
     await flushPromises()
     const boxes = w.findAll('section [data-test="report-scroll"]')
-    expect(boxes).toHaveLength(12)
+    expect(boxes).toHaveLength(13)
     for (const b of boxes) {
       expect(b.classes()).toContain('overflow-x-auto')
       expect(b.find('table').exists()).toBe(true)

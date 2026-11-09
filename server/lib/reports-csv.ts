@@ -27,6 +27,7 @@ const COLUMNS: Record<ReportType, string[]> = {
   table_assignments: ['tableNo', 'username', 'staffId', 'assignedAt'],
   price_rules: ['ruleId', 'ruleName', 'menuItemId', 'nameDe', 'nameEn', 'quantity', 'totalCents', 'discountCents'],
   app_usage: ['tableNo', 'scans', 'orderingDevices', 'guestOrders', 'staffOrders', 'guestItems', 'staffItems'],
+  wait_times: ['station', 'itemCount', 'medianSeconds', 'p90Seconds', 'peakHour', 'peakHourMedianSeconds'],
   deposits: ['unitCents', 'issuedQuantity', 'issuedCents', 'returnedQuantity', 'returnedCents', 'balanceCents'],
   cash_sessions: [
     'id', 'username', 'openedAt', 'closedAt', 'openingCents', 'collectedCents', 'tipCents', 'refundedCents',
@@ -37,6 +38,7 @@ const COLUMNS: Record<ReportType, string[]> = {
 const CSV_COLUMN: Record<string, { header: string; format: (v: unknown) => unknown }> = {
   // Local Berlin hour, "2026-07-04 18:00" (spreadsheets read it as a date).
   hour: { header: 'hourEuropeBerlin', format: (v) => String(v).replace('T', ' ') },
+  peakHour: { header: 'peakHourEuropeBerlin', format: (v) => (v == null ? '' : String(v).replace('T', ' ')) },
 }
 
 export function reportToCsv(
