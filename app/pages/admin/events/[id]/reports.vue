@@ -16,6 +16,7 @@ import TableAssignmentsTable from '~/components/admin/reports/TableAssignmentsTa
 import type { TableAssignment } from '~/../server/lib/contracts/tables'
 import PriceRulesTable from '~/components/admin/reports/PriceRulesTable.vue'
 import AppUsageReport from '~/components/admin/reports/AppUsageReport.vue'
+import WaitTimesTable from '~/components/admin/reports/WaitTimesTable.vue'
 import type { EventDto } from '~/../server/lib/contracts/admin'
 import type { CashSessionDto } from '~/../server/lib/contracts/cash'
 import type { DepositReportRow } from '~/../server/lib/contracts/deposit'
@@ -30,6 +31,7 @@ import type {
   TipRow,
   TopItemRow,
   VoidRow,
+  WaitTimeRow,
 } from '~/../server/lib/contracts/reports'
 
 const props = defineProps<{ event: EventDto }>()
@@ -57,6 +59,7 @@ const staffMeals = computed<StaffMealReportRow[]>(() => reports.value?.staff_mea
 const assignments = computed<TableAssignment[]>(() => reports.value?.table_assignments ?? [])
 const promos = computed<PriceRuleReportRow[]>(() => reports.value?.price_rules ?? [])
 const usage = computed<AppUsageRow[]>(() => reports.value?.app_usage ?? [])
+const waitTimes = computed<WaitTimeRow[]>(() => reports.value?.wait_times ?? [])
 
 const asOf = computed(() => {
   const at = polling.data.value?.generatedAt
@@ -115,6 +118,14 @@ const asOf = computed(() => {
       type="app_usage"
     >
       <AppUsageReport :rows="usage" />
+    </ReportSection>
+    <ReportSection
+      :title="t('admin.reports.sections.waitTimes')"
+      :hint="t('admin.reports.waitHint')"
+      :event-id="event.id"
+      type="wait_times"
+    >
+      <WaitTimesTable :rows="waitTimes" />
     </ReportSection>
     <ReportSection :title="t('admin.reports.sections.voids')" :event-id="event.id" type="voids">
       <VoidsTable :rows="voids" />

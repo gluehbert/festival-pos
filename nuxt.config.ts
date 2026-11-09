@@ -44,6 +44,10 @@ export default defineNuxtConfig({
       version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'dev',
       // One-tap login buttons on preview deployments (server checks again).
       previewLogin: process.env.VERCEL_ENV === 'preview',
+      // Error tracking in the browser (app/plugins/sentry.client.ts). Off when
+      // empty; the DSN is not a secret. Read at build time: redeploy after a change.
+      sentryDsn: process.env.SENTRY_DSN ?? '',
+      sentryEnvironment: process.env.VERCEL_ENV || 'development',
     },
   },
   i18n: {
