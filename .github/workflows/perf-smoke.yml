@@ -43,7 +43,7 @@ jobs:
         env:
           PERF_BASE_URL: ${{ inputs.base_url }}
           PERF_OUT: perf-flow-result.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: perf-flow-result
