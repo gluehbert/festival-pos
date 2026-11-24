@@ -75,6 +75,10 @@ onMounted(async () => {
   staffView.restore(auth.hasRole('waiter') ? 'mine' : 'all')
   if (auth.staff && auth.hasRole(['waiter', 'lead'])) welcome.restore(auth.staff.staffId)
   await loadQuietly()
+  // No tables yet (first minutes of a shift): an empty "Meine Tische" tells a
+  // newcomer nothing, so start on "Alle". Not remembered: once a table is
+  // theirs, the next visit opens on their own tables again.
+  if (owner.value === 'mine' && !hasOwnTables()) owner.value = 'all'
 })
 
 const polling = usePolling(
@@ -101,6 +105,8 @@ function setView(v: OverviewView) {
 }
 
 const assigneeOf = (t: (typeof tickets.tickets)[number]) => ticketAssignee(t, tickets.assignments)
+const hasOwnTables = () => tickets.assignments.some((a) => a.staffId === myId.value)
+  || tickets.tickets.some((t) => assigneeOf(t)?.staffId === myId.value)
 const filtered = computed(() => tickets.tickets.filter((t) => matchesOwner(assigneeOf(t), owner.value, myId.value)))
 // Under "Alle" these tables are in the list/grid anyway.
 const unattended = computed(() => (expert.value && owner.value === 'mine' ? needsSomeone(tickets.tickets, tickets.assignments) : []))

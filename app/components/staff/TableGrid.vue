@@ -2,10 +2,9 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import TableTile from '~/components/staff/TableTile.vue'
 import TicketCard from '~/components/staff/TicketCard.vue'
-import { buildTiles, isWalkin, matchesOwner, STATE_DOT, type OwnerFilter } from '~/utils/table-grid'
+import { buildTiles, isWalkin, matchesOwner, type OwnerFilter } from '~/utils/table-grid'
 import type { TicketSummary } from '~/../server/lib/contracts/staff'
 import type { TableAssignment } from '~/../server/lib/contracts/tables'
-import { useBranding } from '~/composables/useBranding'
 
 interface Props {
   tickets: TicketSummary[]
@@ -34,24 +33,16 @@ const tiles = computed(() => buildTiles(props.tableRange, props.tickets, props.a
 // Walk-ins have no table: listed below the grid.
 const walkins = computed(() => props.tickets
   .filter((ticket) => isWalkin(ticket) && matchesOwner(ticket.assignee, props.owner, props.myId)))
-
-// "Food to cash" only exists with food prepay.
-const { branding } = useBranding()
-const LEGEND = computed(() => (['free', 'busy', 'pay', 'ready', 'late'] as const).filter((s) => s !== 'pay' || branding.value.foodPrepayEnabled))
 </script>
 
 <template>
   <section class="mt-4" data-test="table-grid">
-    <ul class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600" :aria-label="$t('staff.grid.legend')">
-      <li v-for="s in LEGEND" :key="s" class="flex items-center gap-1">
-        <span class="inline-block size-3 rounded-full" :class="STATE_DOT[s]" aria-hidden="true" />
-        {{ $t(`staff.grid.legendState.${s}`) }}
-      </li>
-      <li v-if="owner !== 'mine'" class="flex items-center gap-1">
-        <UIcon name="i-lucide-star" class="size-3 shrink-0" aria-hidden="true" />
-        {{ $t('staff.assign.mine') }}
-      </li>
-    </ul>
+    <!-- No colour legend: every tile names its state in words. Only the star
+         under "Alle" needs a word, since it carries no text of its own. -->
+    <p v-if="owner !== 'mine' && tiles.some((t) => myId && t.assignee?.staffId === myId)" class="flex items-center gap-1 text-xs text-slate-600" data-test="grid-star-hint">
+      <UIcon name="i-lucide-star" class="size-3 shrink-0" aria-hidden="true" />
+      {{ $t('staff.assign.mine') }}
+    </p>
 
     <p v-if="tiles.length === 0" class="mt-4 text-sm text-slate-500">
       {{ $t(owner === 'mine' ? 'staff.grid.noneMine' : 'staff.grid.none') }}

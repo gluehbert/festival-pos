@@ -17,9 +17,10 @@ const { t } = useI18n()
 const { euro } = useFormat()
 
 // Colour plus icon and text: the state must not depend on colour alone. An
-// empty table needs no icon (a ring there read like a checkbox).
+// empty table stays plain, with no icon and no visible word: only tables
+// where something is going on catch the eye (a ring there read like a checkbox).
 const STYLE = {
-  free: { box: 'border-slate-200 bg-slate-100 text-slate-700', icon: null },
+  free: { box: 'border-slate-200 bg-surface text-slate-700', icon: null },
   busy: { box: 'border-amber-400 bg-amber-50 text-amber-900', icon: 'i-lucide-hourglass' },
   pay: { box: 'border-sky-500 bg-sky-50 text-sky-900', icon: 'i-lucide-banknote' },
   ready: { box: 'border-emerald-500 bg-emerald-50 text-emerald-900', icon: 'i-lucide-hand-platter' },
@@ -64,7 +65,7 @@ const owner = computed(() => (props.showOwner && !props.mine ? props.tile.assign
       </span>
       <UIcon v-if="style.icon" :name="style.icon" class="size-5 shrink-0" aria-hidden="true" />
     </div>
-    <p class="text-xs font-semibold">
+    <p class="text-xs font-semibold" :class="{ 'sr-only': tile.state === 'free' }">
       {{ status }}<span v-if="tile.ticket && tile.ticket.unpaidCents > 0"> · {{ euro(tile.ticket.unpaidCents) }}</span>
     </p>
     <p v-if="owner" class="flex items-center gap-1 truncate text-xs">
