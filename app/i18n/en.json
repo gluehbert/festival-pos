@@ -500,7 +500,6 @@
     },
     "grid": {
       "tableWord": "Table",
-      "legend": "Colours",
       "legendState": {
         "free": "empty",
         "busy": "in progress",

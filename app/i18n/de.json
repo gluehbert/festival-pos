@@ -500,7 +500,6 @@
     },
     "grid": {
       "tableWord": "Tisch",
-      "legend": "Farben",
       "legendState": {
         "free": "leer",
         "busy": "in Arbeit",

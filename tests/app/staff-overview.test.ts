@@ -49,6 +49,16 @@ describe('service overview', () => {
     expect(w.find('[data-test="distribute-link"]').exists()).toBe(false)
   })
 
+  it('starts a waiter without tables on "All", without remembering it', async () => {
+    fetchMock.mockImplementation(async (url: string) => (url.startsWith('/api/tickets')
+      ? { tickets: [unattended], assignments: [], tableRange: { from: 1, to: 4 }, serverNow: new Date().toISOString() }
+      : {}))
+    const w = await open('waiter')
+    expect(w.get('[data-test="owner-all"]').attributes('aria-pressed')).toBe('true')
+    expect(w.findAll('[data-test="table-tile"]')).toHaveLength(4)
+    expect(localStorage.getItem('staff-owner-filter')).toBeNull()
+  })
+
   it('keeps list, paid tables, unattended tables and handing out for the shift lead', async () => {
     const w = await open('lead')
     expect(w.find('[data-test="distribute-link"]').exists()).toBe(true)

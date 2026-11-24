@@ -157,6 +157,8 @@ describe('TableTile and TableGrid', () => {
 
     const free = mount(TableTile, { props: { tile: { tableNo: 6, state: 'free', ticket: null, assignee: null }, mine: false, nowMs: NOW }, global: { stubs } })
     expect(free.text()).toContain('staff.grid.state.free')
+    // Plain and quiet: "empty" is only read out, not shown.
+    expect(free.find('p.sr-only').text()).toBe('staff.grid.state.free')
     expect(free.attributes('data-mine')).toBeUndefined()
     expect(free.find('[data-test="tile-mine"]').exists()).toBe(false)
     // Nothing to bring or cash: a free table goes straight to the order.
@@ -181,11 +183,17 @@ describe('TableTile and TableGrid', () => {
     expect(all.findAll('[data-test="table-tile"]')).toHaveLength(4)
     expect(all.findAll('[data-mine="true"]')).toHaveLength(1)
     expect(all.find('[data-test="grid-walkins"]').findAll('li')).toHaveLength(2)
+    // No colour legend; under "All" only the star of the own tables is named.
+    expect(all.find('[aria-label="staff.grid.legend"]').exists()).toBe(false)
+    expect(all.find('[data-test="grid-star-hint"]').exists()).toBe(true)
+    const othersOnly = mount(TableGrid, { props: { ...props, assignments: [held(3, BEN)] }, global: { stubs } })
+    expect(othersOnly.find('[data-test="grid-star-hint"]').exists()).toBe(false)
 
     const mine = mount(TableGrid, { props: { ...props, owner: 'mine' }, global: { stubs } })
     expect(mine.findAll('[data-test="table-tile"]').map((t) => t.text().match(/\d+/)![0])).toEqual(['2'])
     expect(mine.find('[data-test="grid-walkins"]').findAll('li')).toHaveLength(1)
     expect(mine.find('[data-test="ticket-assignee"]').exists()).toBe(false)
+    expect(mine.find('[data-test="grid-star-hint"]').exists()).toBe(false)
 
     const none = mount(TableGrid, { props: { ...props, assignments: [], owner: 'mine', tickets: [] }, global: { stubs } })
     expect(none.text()).toContain('staff.grid.noneMine')
