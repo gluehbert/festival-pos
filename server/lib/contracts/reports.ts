@@ -17,6 +17,7 @@ export const ReportTypeEnum = z.enum([
   'table_assignments',
   'price_rules',
   'app_usage',
+  'wait_times',
 ])
 export type ReportType = z.infer<typeof ReportTypeEnum>
 
@@ -114,6 +115,19 @@ export const AppUsageRowSchema = z.object({
 })
 export type AppUsageRow = z.infer<typeof AppUsageRowSchema>
 
+// Kitchen/bar/cafe speed: order placed until "Fertig", per station, in
+// whole seconds. peakHour: the local hour (same format as
+// orders_per_hour) with the slowest median, among hours with enough items.
+export const WaitTimeRowSchema = z.object({
+  station: z.string(),
+  itemCount: z.number().int(),
+  medianSeconds: z.number().int(),
+  p90Seconds: z.number().int(),
+  peakHour: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:00$/).nullable(),
+  peakHourMedianSeconds: z.number().int().nullable(),
+})
+export type WaitTimeRow = z.infer<typeof WaitTimeRowSchema>
+
 const envelope = <R extends z.ZodTypeAny>(type: ReportType, row: R) =>
   z.object({
     eventId: z.string().uuid(),
@@ -145,6 +159,7 @@ export const StaffMealsReportSchema = envelope('staff_meals', StaffMealReportRow
 export const TableAssignmentsReportSchema = envelope('table_assignments', TableAssignmentSchema)
 export const PriceRulesReportSchema = envelope('price_rules', PriceRuleReportRowSchema)
 export const AppUsageReportSchema = envelope('app_usage', AppUsageRowSchema)
+export const WaitTimesReportSchema = envelope('wait_times', WaitTimeRowSchema)
 
 export const ReportSchema = z.discriminatedUnion('type', [
   RevenueByCategoryReportSchema,
@@ -159,6 +174,7 @@ export const ReportSchema = z.discriminatedUnion('type', [
   TableAssignmentsReportSchema,
   PriceRulesReportSchema,
   AppUsageReportSchema,
+  WaitTimesReportSchema,
 ])
 export type Report = z.infer<typeof ReportSchema>
 
@@ -179,6 +195,7 @@ export const ReportsAllSchema = z.object({
     table_assignments: z.array(TableAssignmentSchema),
     price_rules: z.array(PriceRuleReportRowSchema),
     app_usage: z.array(AppUsageRowSchema),
+    wait_times: z.array(WaitTimeRowSchema),
   }),
 })
 export type ReportsAll = z.infer<typeof ReportsAllSchema>

@@ -62,9 +62,10 @@ Demo logins from `db:seed`: `admin` / `admin123` (password), `lead1` (shift lead
 | `COOKIE_DOMAIN` | no | leave empty unless you need a shared parent domain |
 | `NUXT_PUBLIC_APP_URL` | no | fixed URL for QR codes and the join link (default: the address the admin opened the app on) |
 | `WEBAUTHN_RP_ID` / `WEBAUTHN_ORIGIN` | no | domain and origin for passkeys (default: current domain), e.g. `pos.example.org` / `https://pos.example.org` |
+| `SENTRY_DSN` | no | error tracking with Sentry (server and browser, errors only, see DEPLOYMENT.md → Monitoring); empty = off |
 | `DB_DRIVER` | no | `pg` = plain Postgres over TCP (local/CI); default is the Neon WebSocket driver |
 
-Server values are read at runtime, not baked into the build. `/api/healthz` responds with 503 if something is missing.
+Server values are read at runtime, not baked into the build (exception: the browser part of `SENTRY_DSN` is read at build time). `/api/healthz` responds with 503 if something is missing.
 
 ## Scripts
 
@@ -113,8 +114,9 @@ The app is designed for data minimization (no guest accounts, no tracking, no an
 
 - **Cookies:** Technically necessary cookies that do not require consent (in Germany § 25 para. 2 TDDDG, the implementation of the ePrivacy rules): guest session (HttpOnly, 12 hours, links orders to the table), staff login (HttpOnly, 12 hours), CSRF protection, and `pos_theme` (light/dark setting). The view selection in kitchen/bar is stored in the device's `localStorage`.
 - **Stored data:** Orders and payments with table number and waiter, audit log (who collected, cancelled or refunded, and when), staff accounts (username, hash of password/PIN; for join-link users only the name they entered, bound to one event). Failed logins store the username and IP address for 15 minutes.
-- **Logs:** Vercel logs requests (including IP address, URL and user agent) according to its own retention periods. The app writes JSON logs with request ID, route, staff ID, table number and amounts, but without IP addresses or order contents.
-- **Data processors:** **Vercel** (hosting, logs) and **Neon** (database). A data processing agreement (DPA, in the EU under Art. 28 GDPR; German "AVV") is required with both. Both offer standard DPAs. Region: Frankfurt (`fra1`, AWS `eu-central-1`); Vercel and Neon are US companies, so transfers rely on their standard contractual clauses or the EU-US Data Privacy Framework.
+- **Logs:** Vercel logs requests (including IP address, URL and user agent) according to its own retention periods. The app writes JSON logs with request ID, route, staff ID, table number and amounts, but without IP addresses or order contents. Unexpected errors are logged with their message and stack frames; query parameters are removed from database error messages.
+- **Error tracking (optional):** With `SENTRY_DSN` set, unexpected errors from the server and the browser go to **Sentry** (EU data storage, Frankfurt). Reports contain the error, route, role, release, browser and device type, but no IP addresses, names, order contents, cookies or query strings; browser reports are passed through the app's own server so Sentry never sees the visitor's IP. No cookies are set and guest phones store nothing; staff screens buffer unsent reports in IndexedDB. Legal basis is typically the operator's legitimate interest in a working system (Art. 6(1)(f) GDPR). Sentry then needs a DPA and a sentence in the privacy policy, for example: „Zur Fehleranalyse übermitteln wir bei technischen Fehlern eine Fehlerbeschreibung (Fehlermeldung, aufgerufene Seite ohne Parameter, Browser- und Gerätetyp, App-Version) an Functional Software Inc. (Sentry), Speicherort EU (Frankfurt). IP-Adressen und Bestellinhalte werden nicht übermittelt. Rechtsgrundlage ist unser berechtigtes Interesse an einem fehlerfreien Betrieb (Art. 6 Abs. 1 lit. f DSGVO). Die Fehlerberichte werden nach [Frist laut Sentry-Tarif] gelöscht.“ Fill in the retention period of your Sentry plan.
+- **Data processors:** **Vercel** (hosting, logs) and **Neon** (database), plus **Sentry** if error tracking is enabled. A data processing agreement (DPA, in the EU under Art. 28 GDPR; German "AVV") is required with both. Both offer standard DPAs. Region: Frankfurt (`fra1`, AWS `eu-central-1`); Vercel and Neon are US companies, so transfers rely on their standard contractual clauses or the EU-US Data Privacy Framework.
 - **Deletion:** A daily sweep deletes guest sessions without orders, payment locks and old login attempts. Orders, payments, refunds, cash closings and the audit log are kept for accounting (rule in `.specify/memory/constitution.md`, principle IV). There is not yet a tool to delete old events together with their orders.
 
 ## More documentation

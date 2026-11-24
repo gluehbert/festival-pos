@@ -768,7 +768,8 @@
         "tableAssignments": "Tische pro Bedienung",
         "usage": "App-Nutzung",
         "tips": "Trinkgeld",
-        "tipsTotal": "Gesamt"
+        "tipsTotal": "Gesamt",
+        "waitTimes": "Wartezeiten pro Station"
       },
       "col": {
         "category": "Kategorie",
@@ -845,6 +846,15 @@
         "guestOrders": "Bestellungen App",
         "staffOrders": "Bestellungen Bedienung",
         "none": "–"
+      },
+      "waitHint": "Von der Bestellung bis „Fertig“. Median: so lange wartet ein typischer Gast. 90 %: so lange warten die langsamsten 10 % höchstens. Ohne Probebetrieb und Stornos.",
+      "wait": {
+        "station": "Station",
+        "median": "Median",
+        "p90": "90 %",
+        "peak": "Langsamste Stunde",
+        "peakValue": "{time} ({hour})",
+        "duration": "{time} min"
       }
     },
     "staff": {

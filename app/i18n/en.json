@@ -768,7 +768,8 @@
         "tableAssignments": "Tables per waiter",
         "usage": "App usage",
         "tips": "Tips",
-        "tipsTotal": "Total"
+        "tipsTotal": "Total",
+        "waitTimes": "Wait times per station"
       },
       "col": {
         "category": "Category",
@@ -845,6 +846,15 @@
         "guestOrders": "Orders app",
         "staffOrders": "Orders waiter",
         "none": "–"
+      },
+      "waitHint": "From the order until \"Ready\". Median: what a typical guest waits. 90 %: the slowest 10 % wait at most this long. Without rehearsal and cancelled items.",
+      "wait": {
+        "station": "Station",
+        "median": "Median",
+        "p90": "90 %",
+        "peak": "Slowest hour",
+        "peakValue": "{time} ({hour})",
+        "duration": "{time} min"
       }
     },
     "staff": {
